@@ -46,6 +46,7 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/Artmann-Technologies/docs-gates/internal/config"
 	"github.com/Artmann-Technologies/docs-gates/internal/gatecli"
 )
 
@@ -511,9 +512,11 @@ func startsWithAny(s string, prefixes []string) bool {
 	return false
 }
 
-// CheckSpacing: F. No letter/digit may touch a backtick anywhere in the docs.
-func CheckSpacing(root string, g gitRunner, hasGit bool) []Finding {
-	walkFindings, docs := collectDocs(root, g, hasGit)
+// CheckSpacing: F. No letter/digit may touch a backtick anywhere in the
+// docs the config's rule_f_extensions select. Disabled entirely when the
+// caller passes rule-F off (Run checks the toggle before calling).
+func CheckSpacing(root string, g gitRunner, hasGit bool, extensions []string) []Finding {
+	walkFindings, docs := collectDocs(root, g, hasGit, extensions)
 	findings := append([]Finding{}, walkFindings...)
 
 	for _, path := range docs {
@@ -592,15 +595,16 @@ func crossCellFindings(rel string, lines []string) []Finding {
 // collectDocs assembles the file list rule F scans: tracked files via git
 // when this is a checkout, a recursive walk otherwise (plus a finding when
 // the walk itself fails — an empty list must never read as a false clean).
-func collectDocs(root string, g gitRunner, hasGit bool) ([]Finding, []string) {
+// The extension list comes from the config (default .md/.sh/.nix).
+func collectDocs(root string, g gitRunner, hasGit bool, extensions []string) ([]Finding, []string) {
 	if hasGit {
-		return nil, docsViaGit(root, g)
+		return nil, docsViaGit(root, g, extensions)
 	}
 
-	return docsByWalk(root)
+	return docsByWalk(root, extensions)
 }
 
-func docsViaGit(root string, g gitRunner) []string {
+func docsViaGit(root string, g gitRunner, extensions []string) []string {
 	var docs []string
 
 	// Rule F's home is .md (dprint's markdown plugin owns the corruption
@@ -611,8 +615,8 @@ func docsViaGit(root string, g gitRunner) []string {
 	// so the class resurfacing there fails loudly too. Opt-out marker in
 	// those files is a comment: `# format:allow` (# is their comment
 	// syntax).
-	for _, pattern := range []string{"*.md", "*.sh", "*.nix"} {
-		out, _ := g.run("ls-files", pattern)
+	for _, ext := range extensions {
+		out, _ := g.run("ls-files", "*"+ext)
 		for n := range strings.SplitSeq(out, "\n") {
 			if strings.TrimSpace(n) != "" {
 				docs = append(docs, filepath.Join(root, n))
@@ -623,7 +627,7 @@ func docsViaGit(root string, g gitRunner) []string {
 	return docs
 }
 
-func docsByWalk(root string) ([]Finding, []string) {
+func docsByWalk(root string, extensions []string) ([]Finding, []string) {
 	var (
 		findings []Finding
 		docs     []string
@@ -634,7 +638,10 @@ func docsByWalk(root string) ([]Finding, []string) {
 	// so glob patterns silently missed hosts/pbx/*.nix and every
 	// deeper file in this branch (found 2026-10-05). Walking yields
 	// the same file set the git branch's ls-files produces.
-	extensions := map[string]bool{".md": true, ".sh": true, ".nix": true}
+	exts := map[string]bool{}
+	for _, ext := range extensions {
+		exts[ext] = true
+	}
 
 	if walkErr := filepath.WalkDir(root, func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
@@ -648,7 +655,7 @@ func docsByWalk(root string) ([]Finding, []string) {
 			return err
 		}
 
-		if d.IsDir() || !extensions[filepath.Ext(path)] {
+		if d.IsDir() || !exts[filepath.Ext(path)] {
 			return nil
 		}
 
@@ -671,7 +678,10 @@ func docsByWalk(root string) ([]Finding, []string) {
 	return findings, docs
 }
 
-// Run is the CLI entry: [--check] [--verbose] [repo-root].
+// Run is the CLI entry: [--check] [--verbose] [repo-root]. The annotate
+// corpus (report dir + its archived subdir + the configured extra globs)
+// and the rule-F toggle/extensions come from the repo's .docs-gates.json
+// when present.
 func Run(argv []string) int {
 	flags, root, err := gatecli.Parse(argv, "--check", "--verbose")
 	if err != nil {
@@ -680,15 +690,21 @@ func Run(argv []string) int {
 		return gatecli.ExitUsage
 	}
 
-	docGlobs := []string{
-		"docs/status/*.md",
-		"docs/status/archived/*.md",
-		"docs/planning/*.md",
-		// Added 2026-10-13: the 2026-10-13 archive pass moved resolved
-		// plans into docs/planning/archived/ — without this glob the
-		// verdict rules AND rule G silently stopped covering them.
-		"docs/planning/archived/*.md",
+	cfg, warnings, err := config.Load(root)
+	for _, w := range warnings {
+		gatecli.Errf("config: %s\n", w)
 	}
+
+	if err != nil {
+		gatecli.Errf("FATAL: %v\n", err)
+
+		return gatecli.ExitUsage
+	}
+
+	docGlobs := append([]string{
+		filepath.Join(cfg.ReportDir, "*.md"),
+		filepath.Join(cfg.ReportDir, cfg.ArchivedSubdir, "*.md"),
+	}, cfg.AnnotateExtraGlobs...)
 
 	files := collectDocFiles(root, docGlobs)
 
@@ -714,7 +730,10 @@ func Run(argv []string) int {
 		struckTotal += struck
 	}
 
-	findings = append(findings, CheckSpacing(root, g, hasGit)...)
+	if cfg.RuleF {
+		findings = append(findings, CheckSpacing(root, g, hasGit, cfg.RuleFExtensions)...)
+	}
+
 	printFindings(flags, infos, findings, len(files), struckTotal)
 
 	if len(findings) > 0 {

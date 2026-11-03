@@ -4,6 +4,8 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
+
+	"github.com/Artmann-Technologies/docs-gates/internal/config"
 )
 
 // Rule F's corruption signature: a letter or digit touching a backtick.
@@ -52,7 +54,7 @@ func TestCheckSpacingNonGitWalkCoversDeepNixFiles(t *testing.T) {
 		}
 	}
 
-	findings := CheckSpacing(root, gitRunner{root: root, missing: true}, false)
+	findings := CheckSpacing(root, gitRunner{root: root, missing: true}, false, config.Defaults().RuleFExtensions)
 
 	want := map[string]int{
 		"hosts/pbx/telephony.nix": 1,
@@ -82,7 +84,7 @@ func TestCheckSpacingNonGitWalkCoversDeepNixFiles(t *testing.T) {
 func TestDocsByWalkFailureIsAFinding(t *testing.T) {
 	t.Parallel()
 
-	findings, docs := docsByWalk(filepath.Join(t.TempDir(), "does-not-exist"))
+	findings, docs := docsByWalk(filepath.Join(t.TempDir(), "does-not-exist"), config.Defaults().RuleFExtensions)
 
 	if len(findings) != 1 {
 		t.Fatalf("walk failure must produce exactly one F/walk finding, got %+v", findings)
@@ -110,7 +112,7 @@ func TestCheckSpacingWalkFailureSurfaces(t *testing.T) {
 
 	root := filepath.Join(t.TempDir(), "gone")
 
-	for _, f := range CheckSpacing(root, gitRunner{root: root, missing: true}, false) {
+	for _, f := range CheckSpacing(root, gitRunner{root: root, missing: true}, false, config.Defaults().RuleFExtensions) {
 		if f.Rule == "F/walk" {
 			return
 		}
