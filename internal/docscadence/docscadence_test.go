@@ -8,6 +8,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/Artmann-Technologies/docs-gates/internal/config"
 	"github.com/Artmann-Technologies/docs-gates/internal/gatecli"
 )
 
@@ -207,5 +208,53 @@ func TestArchiveAncientReportFails(t *testing.T) {
 
 	if rc := Run([]string{root}); rc != gatecli.ExitFindings {
 		t.Fatalf("a report years old must fail the archive arm, got rc %d", rc)
+	}
+}
+
+// The config contract: a repo's .docs-gates.json moves every knob — the
+// thresholds, the TODO file, and the report dir — away from the shipped
+// defaults, and the gate enforces the configured values exactly (three
+// struck rows fail under struck_rows=2 where the default 20 would pass,
+// and the default TODO_LIST.md being absent is not a finding when
+// todo_file renames it).
+func TestConfigDrivenKnobs(t *testing.T) {
+	t.Parallel()
+
+	cfg := `{"todo_file": "TODOS.md", "report_dir": "meta/reports",
+		"cadence": {"struck_rows": 2, "max_unarchived": 1, "oldest_days": 5}}`
+
+	root := t.TempDir()
+	if err := os.WriteFile(filepath.Join(root, config.FileName), []byte(cfg), 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	var rows strings.Builder
+	for range 3 {
+		rows.WriteString(row("~~task~~ done (evidence)"))
+	}
+
+	if err := os.WriteFile(filepath.Join(root, "TODOS.md"), []byte("# TODO\n\n"+rows.String()+"\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	if rc := Run([]string{root}); rc != gatecli.ExitFindings {
+		t.Fatalf("3 struck rows under struck_rows=2 must fail, got rc %d", rc)
+	}
+
+	today := time.Now().Format("2006-01-02")
+
+	repdir := filepath.Join(root, "meta", "reports")
+	if err := os.MkdirAll(repdir, 0o755); err != nil {
+		t.Fatal(err)
+	}
+
+	for _, name := range []string{today + "_10-00_a.md", today + "_10-00_b.md"} {
+		if err := os.WriteFile(filepath.Join(repdir, name), []byte("# r\n"), 0o644); err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	if rc := Run([]string{root}); rc != gatecli.ExitFindings {
+		t.Fatalf("2 unarchived reports under max_unarchived=1 must fail, got rc %d", rc)
 	}
 }
