@@ -30,7 +30,7 @@ var version = "dev"
 // answer under their legacy standalone names (the wrappers exec this
 // binary, so `docs-freshness --version` must still read
 // "docs-freshness <version>").
-var displayName = map[string]string{
+var displayName = map[string]string{ //nolint:gochecknoglobals // the fixed verb-to-legacy-name map, same class as the contract tables
 	"run":       "docs-gates",
 	"freshness": "docs-freshness",
 	"annotate":  "docs-annotate",

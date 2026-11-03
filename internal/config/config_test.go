@@ -21,6 +21,7 @@ func writeConfig(t *testing.T, dir, body string) {
 }
 
 func TestLoadMissingFileIsDefaultsWithoutWarnings(t *testing.T) {
+	t.Parallel()
 	root := t.TempDir()
 
 	cfg, warnings, err := Load(root)
@@ -39,6 +40,7 @@ func TestLoadMissingFileIsDefaultsWithoutWarnings(t *testing.T) {
 }
 
 func TestLoadPartialFileKeepsDefaultsForTheRest(t *testing.T) {
+	t.Parallel()
 	root := t.TempDir()
 	writeConfig(t, root, `{"report_dir": "notes/status", "generic_df": 5}`)
 
@@ -69,6 +71,7 @@ func TestLoadPartialFileKeepsDefaultsForTheRest(t *testing.T) {
 }
 
 func TestLoadUnknownKeyWarnsAndContinues(t *testing.T) {
+	t.Parallel()
 	root := t.TempDir()
 	writeConfig(t, root, `{"report_dir": "x", "generic_df_bar": 9}`)
 
@@ -83,6 +86,7 @@ func TestLoadUnknownKeyWarnsAndContinues(t *testing.T) {
 }
 
 func TestLoadMalformedJSONIsAnError(t *testing.T) {
+	t.Parallel()
 	root := t.TempDir()
 	writeConfig(t, root, `{"report_dir": }`)
 
@@ -92,6 +96,8 @@ func TestLoadMalformedJSONIsAnError(t *testing.T) {
 }
 
 func TestLoadInvalidValuesAreErrors(t *testing.T) {
+	t.Parallel()
+
 	cases := map[string]string{
 		"generic_df zero":   `{"generic_df": 0}`,
 		"audit_max too low": `{"audit_max": -2}`,
@@ -103,6 +109,8 @@ func TestLoadInvalidValuesAreErrors(t *testing.T) {
 
 	for name, body := range cases {
 		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+
 			root := t.TempDir()
 			writeConfig(t, root, body)
 
@@ -114,12 +122,16 @@ func TestLoadInvalidValuesAreErrors(t *testing.T) {
 }
 
 func TestDefaultsValidate(t *testing.T) {
+	t.Parallel()
+
 	if err := Defaults().validate(); err != nil {
 		t.Fatalf("defaults do not validate: %v", err)
 	}
 }
 
 func TestPathJoinsRoot(t *testing.T) {
+	t.Parallel()
+
 	if got, want := Path("/repo"), "/repo/.docs-gates.json"; got != want {
 		t.Fatalf("Path = %q, want %q", got, want)
 	}

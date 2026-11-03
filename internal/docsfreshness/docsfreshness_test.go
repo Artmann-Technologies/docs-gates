@@ -238,7 +238,13 @@ func TestPreFlightFlagsWouldBeDrift(t *testing.T) {
 
 	root := preFlightRoot(t)
 
-	if rc := PreFlight(root, []string{"changelog: alpha-probe summary row"}, false, false, DefaultSettings()); rc != gatecli.ExitFindings {
+	if rc := PreFlight(
+		root,
+		[]string{"changelog: alpha-probe summary row"},
+		false,
+		false,
+		DefaultSettings(),
+	); rc != gatecli.ExitFindings {
 		t.Fatalf("a line genericizing the last distinctive token must exit findings, got %d", rc)
 	}
 
@@ -448,7 +454,13 @@ func TestPreFlightRefusesCandidatesAlreadyOnDisk(t *testing.T) {
 	// pre-flight carries its own additions inside the baseline, so the
 	// delta cannot see a flip — refuse instead of printing a
 	// misleading SAFE (the 2026-10-10 burn).
-	if rc := PreFlight(root, []string{"- alpha-probe evidence number 3"}, false, false, DefaultSettings()); rc != gatecli.ExitUsage {
+	if rc := PreFlight(
+		root,
+		[]string{"- alpha-probe evidence number 3"},
+		false,
+		false,
+		DefaultSettings(),
+	); rc != gatecli.ExitUsage {
 		t.Fatalf("a candidate already on disk must exit usage, got %d", rc)
 	}
 
@@ -470,17 +482,35 @@ func TestPreFlightDuplicatesModelsSecondCopyPush(t *testing.T) {
 	root := preFlightRoot(t)
 
 	// Without the flag the second copy is still refused, not answered.
-	if rc := PreFlight(root, []string{"- alpha-probe evidence number 3"}, false, false, DefaultSettings()); rc != gatecli.ExitUsage {
+	if rc := PreFlight(
+		root,
+		[]string{"- alpha-probe evidence number 3"},
+		false,
+		false,
+		DefaultSettings(),
+	); rc != gatecli.ExitUsage {
 		t.Fatalf("second copy without --duplicates must stay refused, got %d", rc)
 	}
 
 	// With it, the +1 push genericizes the item's only distinctive token.
-	if rc := PreFlight(root, []string{"- alpha-probe evidence number 3"}, false, true, DefaultSettings()); rc != gatecli.ExitFindings {
+	if rc := PreFlight(
+		root,
+		[]string{"- alpha-probe evidence number 3"},
+		false,
+		true,
+		DefaultSettings(),
+	); rc != gatecli.ExitFindings {
 		t.Fatalf("second copy with --duplicates must model the DF push and exit findings, got %d", rc)
 	}
 
 	// A second copy of an already-generic line pushes nothing that matters.
-	if rc := PreFlight(root, []string{"- webphone note number 3"}, false, true, DefaultSettings()); rc != gatecli.ExitClean {
+	if rc := PreFlight(
+		root,
+		[]string{"- webphone note number 3"},
+		false,
+		true,
+		DefaultSettings(),
+	); rc != gatecli.ExitClean {
 		t.Fatalf("second copy of a generic line must stay clean, got %d", rc)
 	}
 }
@@ -577,7 +607,13 @@ func TestPreFlightReplaysArchivedCorpus(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if rc := PreFlight(root, []string{"changelog: alpha-probe summary row"}, false, false, DefaultSettings()); rc != gatecli.ExitFindings {
+	if rc := PreFlight(
+		root,
+		[]string{"changelog: alpha-probe summary row"},
+		false,
+		false,
+		DefaultSettings(),
+	); rc != gatecli.ExitFindings {
 		t.Fatalf("an archived item's last distinctive token must still flip the verdict, got %d", rc)
 	}
 

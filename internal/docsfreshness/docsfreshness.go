@@ -452,7 +452,7 @@ func parseAuditMax(args []string) (int, []string, int) {
 // living-docs list and the distinctive bar; a malformed config is a usage
 // error.
 func Run(args []string) int {
-	// The audit ratchet (TODO §91 coin audit-ratchet): --audit-max=N pins
+	// The audit ratchet (coin audit-ratchet, minted in the source fleet): --audit-max=N pins
 	// the tolerated unharvested count so the audit goes red only on a
 	// REGRESSION past N — draining a legacy backlog in one sitting was
 	// never this gate's job (it was permanently red 2026-10-08..23 while
@@ -782,7 +782,12 @@ func TokenTable(item string, livingLines, livingSquashed []string, tokenDF func(
 // regardless of harvest state — the proactive-margin companion to
 // --explain-token (whose tables ride UNHARVESTED findings only, so a FRESH
 // corpus prints none). Always exits clean: it is a diagnostic, not a gate.
-func ExplainItem(root, needle string, livingLines, livingSquashed []string, tokenDF func(string) int, settings Settings) int {
+func ExplainItem(
+	root, needle string,
+	livingLines, livingSquashed []string,
+	tokenDF func(string) int,
+	settings Settings,
+) int {
 	lowerNeedle := strings.ToLower(needle)
 	matches := 0
 
@@ -824,7 +829,13 @@ func ExplainItem(root, needle string, livingLines, livingSquashed []string, toke
 	return gatecli.ExitClean
 }
 
-func checkNewest(root string, livingLines, livingSquashed []string, tokenDF func(string) int, explain bool, settings Settings) int {
+func checkNewest(
+	root string,
+	livingLines, livingSquashed []string,
+	tokenDF func(string) int,
+	explain bool,
+	settings Settings,
+) int {
 	report := NewestReport(root, settings)
 	warnHtmlBlindSpot(FindHtmlBlindSpot(root, settings))
 
@@ -979,7 +990,7 @@ func PreFlight(root string, candidate []string, explain, allowDuplicates bool, s
 // bindHit is one open §f item the candidate lines would newly harvest.
 type bindHit struct{ report, item string }
 
-// printBindings is the BIND leg of a pre-flight replay (TODO §77 coin
+// printBindings is the BIND leg of a pre-flight replay (coin
 // preflight-bind-check, born from the 2026-10-18 miss): it lists every
 // currently-open §f item that STOPS failing once the candidate lines are
 // added, each attributed to the candidate line that carries a matched
@@ -1118,7 +1129,12 @@ func printNewly(
 
 // failingKeys indexes every open §f item the corpus FAILS to reflect, so a
 // delta replay can tell "already failing" from "newly failing".
-func failingKeys(reports, lines []string, tokenDF func(string) int, squashed []string, settings Settings) map[itemKey]bool {
+func failingKeys(
+	reports, lines []string,
+	tokenDF func(string) int,
+	squashed []string,
+	settings Settings,
+) map[itemKey]bool {
 	out := map[itemKey]bool{}
 
 	for _, report := range reports {

@@ -213,10 +213,10 @@ func TestArchiveAncientReportFails(t *testing.T) {
 
 // The config contract: a repo's .docs-gates.json moves every knob — the
 // thresholds, the TODO file, and the report dir — away from the shipped
-// defaults, and the gate enforces the configured values exactly (three
-// struck rows fail under struck_rows=2 where the default 20 would pass,
-// and the default TODO_LIST.md being absent is not a finding when
-// todo_file renames it).
+// defaults, and the gate enforces the configured values exactly: three
+// struck rows fail under a configured bar of two where the default twenty
+// would pass, and the default TODO_LIST.md being absent is not a finding
+// once the config renames the file.
 func TestConfigDrivenKnobs(t *testing.T) {
 	t.Parallel()
 
@@ -229,11 +229,17 @@ func TestConfigDrivenKnobs(t *testing.T) {
 	}
 
 	var rows strings.Builder
-	for range 3 {
+	for range 2 {
 		rows.WriteString(row("~~task~~ done (evidence)"))
 	}
 
-	if err := os.WriteFile(filepath.Join(root, "TODOS.md"), []byte("# TODO\n\n"+rows.String()+"\n"), 0o644); err != nil {
+	rows.WriteString(row("~~widget~~ done (verified)"))
+
+	if err := os.WriteFile(
+		filepath.Join(root, "TODOS.md"),
+		[]byte("# TODO\n\n"+rows.String()+"\n"),
+		0o644,
+	); err != nil {
 		t.Fatal(err)
 	}
 

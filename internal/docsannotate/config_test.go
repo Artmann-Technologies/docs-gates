@@ -13,6 +13,7 @@ import (
 // its reports annotated from THERE, and rule_f: false silences the F
 // rules entirely (the toggle the dprint-less repos need).
 func TestRunHonorsConfiguredReportDirAndRuleFToggle(t *testing.T) {
+	t.Parallel()
 	root := t.TempDir()
 
 	reports := filepath.Join(root, "notes", "audits")

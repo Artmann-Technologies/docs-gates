@@ -26,6 +26,16 @@ import (
 // root.
 const FileName = ".docs-gates.json"
 
+// The shipped default values (see Defaults). Named so the defaults block
+// reads as a table of decisions, not a pile of magic numbers.
+const (
+	DefaultGenericDF     = 8
+	DefaultAuditMax      = -1
+	DefaultStruckRows    = 20
+	DefaultMaxUnarchived = 15
+	DefaultOldestDays    = 21
+)
+
 // Cadence holds the purge/archive thresholds (docs-cadence gate).
 type Cadence struct {
 	StruckRows    int `json:"struck_rows"`    // max struck DONE rows before the purge ritual is owed
@@ -64,11 +74,15 @@ func Defaults() Config {
 		AnnotateExtraGlobs: []string{"docs/planning/*.md", "docs/planning/archived/*.md"},
 		RuleF:              true,
 		RuleFExtensions:    []string{".md", ".sh", ".nix"},
-		GenericDF:          8,
-		AuditMax:           -1,
+		GenericDF:          DefaultGenericDF,
+		AuditMax:           DefaultAuditMax,
 		TodoFile:           "TODO_LIST.md",
-		Cadence:            Cadence{StruckRows: 20, MaxUnarchived: 15, OldestDays: 21},
-		SkipGates:          nil,
+		Cadence: Cadence{
+			StruckRows:    DefaultStruckRows,
+			MaxUnarchived: DefaultMaxUnarchived,
+			OldestDays:    DefaultOldestDays,
+		},
+		SkipGates: nil,
 	}
 }
 
@@ -95,12 +109,15 @@ func Load(root string) (Config, []string, error) {
 
 	// Unknown-key pass: decode into a key map first so a typo warns
 	// instead of silently doing nothing.
+
 	var raw map[string]json.RawMessage
+
 	if err := json.Unmarshal(data, &raw); err != nil {
 		return cfg, nil, fmt.Errorf("parsing %s: %w", Path(root), err)
 	}
 
 	known := knownKeys()
+
 	var warnings []string
 
 	for _, key := range sortedKeys(raw) {
@@ -120,45 +137,82 @@ func Load(root string) (Config, []string, error) {
 	return cfg, warnings, nil
 }
 
+// invalidError is the package's static error type: every validate
+// refusal is the same concrete type (user-facing CLI text; no errors.Is
+// consumers by design, so no Unwrap).
+type invalidError struct {
+	msg string
+}
+
+func (e *invalidError) Error() string { return e.msg }
+
+// invalidf builds one invalidError with the refusal message.
+func invalidf(format string, args ...any) *invalidError {
+	return &invalidError{msg: fmt.Sprintf(format, args...)}
+}
+
 // validate enforces the value contract beyond what JSON typing gives.
 func (c Config) validate() error {
-	const Template = "%s must be a relative directory, got %q"
-
-	if c.ReportDir == "" || filepath.IsAbs(c.ReportDir) {
-		return fmt.Errorf(Template, "report_dir", c.ReportDir)
+	if err := c.validatePaths(); err != nil {
+		return err
 	}
 
-	if c.ReportGlob == "" {
-		return fmt.Errorf("report_glob must not be empty")
-	}
-
-	if c.ArchivedSubdir == "" || filepath.IsAbs(c.ArchivedSubdir) {
-		return fmt.Errorf(Template, "archived_subdir", c.ArchivedSubdir)
-	}
-
-	if len(c.LivingDocs) == 0 {
-		return fmt.Errorf("living_docs must list at least one file")
-	}
-
-	if c.GenericDF < 1 {
-		return fmt.Errorf("generic_df must be >= 1, got %d", c.GenericDF)
-	}
-
-	if c.AuditMax < -1 {
-		return fmt.Errorf("audit_max must be >= -1 (-1 = strict), got %d", c.AuditMax)
+	if err := c.validateNumbers(); err != nil {
+		return err
 	}
 
 	if c.TodoFile == "" {
-		return fmt.Errorf("todo_file must not be empty")
+		return invalidf("todo_file must not be empty")
+	}
+
+	return c.validateExtensions()
+}
+
+// validatePaths checks the directory/glob/list shape fields.
+func (c Config) validatePaths() error {
+	const Template = "%s must be a relative directory, got %q"
+
+	if c.ReportDir == "" || filepath.IsAbs(c.ReportDir) {
+		return invalidf(Template, "report_dir", c.ReportDir)
+	}
+
+	if c.ReportGlob == "" {
+		return invalidf("report_glob must not be empty")
+	}
+
+	if c.ArchivedSubdir == "" || filepath.IsAbs(c.ArchivedSubdir) {
+		return invalidf(Template, "archived_subdir", c.ArchivedSubdir)
+	}
+
+	if len(c.LivingDocs) == 0 {
+		return invalidf("living_docs must list at least one file")
+	}
+
+	return nil
+}
+
+// validateNumbers checks the numeric threshold fields.
+func (c Config) validateNumbers() error {
+	if c.GenericDF < 1 {
+		return invalidf("generic_df must be >= 1, got %d", c.GenericDF)
+	}
+
+	if c.AuditMax < -1 {
+		return invalidf("audit_max must be >= -1 (-1 = strict), got %d", c.AuditMax)
 	}
 
 	if c.Cadence.StruckRows < 1 || c.Cadence.MaxUnarchived < 1 || c.Cadence.OldestDays < 1 {
-		return fmt.Errorf("cadence thresholds must all be >= 1, got %+v", c.Cadence)
+		return invalidf("cadence thresholds must all be >= 1, got %+v", c.Cadence)
 	}
 
+	return nil
+}
+
+// validateExtensions checks the rule-F file-extension list.
+func (c Config) validateExtensions() error {
 	for _, ext := range c.RuleFExtensions {
 		if len(ext) < 2 || ext[0] != '.' {
-			return fmt.Errorf("rule_f_extensions entries must be dot-prefixed extensions, got %q", ext)
+			return invalidf("rule_f_extensions entries must be dot-prefixed extensions, got %q", ext)
 		}
 	}
 

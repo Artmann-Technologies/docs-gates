@@ -13,6 +13,7 @@
 package battery
 
 import (
+	"slices"
 	"strconv"
 
 	"github.com/Artmann-Technologies/docs-gates/internal/config"
@@ -60,13 +61,7 @@ func gates(root string, cfg config.Config) []gate {
 // skipped reports whether cfg.SkipGates names the gate (the battery verbs
 // share the gate names).
 func skipped(cfg config.Config, name string) bool {
-	for _, skip := range cfg.SkipGates {
-		if skip == name {
-			return true
-		}
-	}
-
-	return false
+	return slices.Contains(cfg.SkipGates, name)
 }
 
 // Run is the CLI entry for `docs-gates run` (repo-root positional, no
@@ -96,9 +91,10 @@ func Run(args []string) int {
 		skip bool
 	}
 
-	results := make([]result, 0, 5)
+	list := gates(root, cfg)
+	results := make([]result, 0, len(list))
 
-	for _, g := range gates(root, cfg) {
+	for _, g := range list {
 		if skipped(cfg, g.name) {
 			results = append(results, result{name: g.name, code: gatecli.ExitClean, skip: true})
 

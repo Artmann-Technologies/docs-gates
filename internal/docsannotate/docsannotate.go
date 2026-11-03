@@ -559,7 +559,7 @@ func spacingFindings(rel string, data []byte) []Finding {
 	return findings
 }
 
-// crossCellFindings enforces row uniformity (rule G, TODO §44): in a
+// crossCellFindings enforces row uniformity (rule G): in a
 // markdown TABLE row, every strike must open AND close inside one cell.
 // A strike spanning cells (the 2026-09-30-era ID-cell-only class:
 // `| ~~C18   | Assistant | text~~ done (…)`) renders as a strike over the
@@ -666,7 +666,7 @@ func docsByWalk(root string, extensions []string) ([]Finding, []string) {
 		// A failed walk yields an EMPTY or PARTIAL docs list, which
 		// would read as a false CLEAN from the outside — surface it as
 		// a finding instead. Text stays non-empty so --verbose renders
-		// a remedy line, not a bare indent (TODO §16 row, §f21).
+		// a remedy line, not a bare indent (the walk-failure fix's own remedy rule).
 		findings = append(findings, Finding{
 			Rule:   "F/walk",
 			Path:   ".",

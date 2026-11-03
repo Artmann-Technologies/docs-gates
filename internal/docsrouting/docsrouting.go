@@ -44,7 +44,7 @@ var (
 	checkboxRe = regexp.MustCompile(`^\s*[-*]\s+\[ \]`)
 	openRowRe  = regexp.MustCompile(`\|\s*(TODO|BLOCKED)\s*\|`)
 	// pointerRe is the corpus's own routing convention: a row citing an
-	// explicit living-doc section ("TODO §15 row", "ROADMAP §2") is routed
+	// explicit living-doc section pointer ("TODO_LIST §15 row", "ROADMAP §2") is routed
 	// BY POINTER — the token bar cannot see pointers, and treating such
 	// rows as unrouted flags every pointer-style verdict (the 2026-10-03
 	// republish false positive, found on the first corpus run).

@@ -1,7 +1,9 @@
 // Package gatecli is the CLI scaffolding shared by the gate commands
-// (docs-annotate, docs-freshness, docs-numbers): boolean-flag parsing,
-// repo-root resolution, and finding-snippet truncation. One home so the
-// gate CLIs cannot drift apart on argument semantics or error wording.
+// (the docs-gates battery verbs — freshness, annotate, routing, cadence,
+// strike — and the standalone legacy binaries that exec them): boolean
+// flag parsing, repo-root resolution, output helpers, and finding-snippet
+// truncation. One home so the gate CLIs cannot drift apart on argument
+// semantics or error wording.
 //
 // Exit-code contract of the consumers: 0 = clean, 1 = findings, 2 =
 // usage/environment error — the values this package's failures feed.

@@ -168,17 +168,21 @@ func TestRunAuditMaxFromConfig(t *testing.T) {
 	}
 
 	strict := buildRoot(t, "{}")
+
 	out := gatecli.CaptureOutput(func() int {
 		return Run([]string{strict})
 	})
+
 	if out.Code != gatecli.ExitFindings {
 		t.Fatalf("strict audit with an unharvested item must fail, got rc %d; stdout: %s", out.Code, out.Stdout)
 	}
 
 	ratcheted := buildRoot(t, `{"audit_max": 1}`)
+
 	out = gatecli.CaptureOutput(func() int {
 		return Run([]string{ratcheted})
 	})
+
 	if out.Code != gatecli.ExitClean {
 		t.Fatalf("audit_max=1 must tolerate one item, got rc %d; stderr: %s", out.Code, out.Stderr)
 	}

@@ -3,6 +3,7 @@ package docsfreshness
 import (
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	"github.com/Artmann-Technologies/docs-gates/internal/gatecli"
@@ -32,10 +33,7 @@ func TestSettingsForRootHonorsRepoConfig(t *testing.T) {
 	// distinctive and the item harvests on them; under a bar of 2 both
 	// genericize and the audit must flip. The custom corpus is what got
 	// read — that is the point of the fixture.
-	todo := ""
-	for range 3 {
-		todo += "- offset recalibration watchrow\n"
-	}
+	todo := strings.Repeat("- offset recalibration watchrow\n", 3)
 	todo += "- unrelated filler\n"
 
 	if err := os.WriteFile(filepath.Join(root, "NOTES.md"), []byte(todo), 0o644); err != nil {

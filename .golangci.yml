@@ -172,6 +172,12 @@ linters:
         - validate
         - mapstructure
       sort: true
+    tagliatelle:
+      case:
+        rules:
+          # The .docs-gates.json schema is snake_case ON PURPOSE: a jq-able
+          # config for a fleet whose tooling speaks jq (AGENTS.md).
+          json: snake
     testifylint:
       disable:
         - go-require
