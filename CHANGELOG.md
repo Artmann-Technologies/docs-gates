@@ -3,6 +3,19 @@
 All notable changes. Dates are 2026 unless stated; no tagged releases
 before v0.1.0.
 
+## 2026-11-03 (late)
+
+### Added
+
+- `annotate_max` adoption ratchet (docs-annotate gate + `--annotate-max=N`
+  CLI + battery pass-through): tolerates up to N findings green-but-named,
+  REGRESSION past the pin. Born from the pilot rollouts (crm: 134
+  pre-doctrine strike findings; go-appkit: 255); the strict default
+  preserves the pre-extraction behavior byte-for-byte (parity re-verified
+  over the source corpus after the change).
+- Pilot rollouts seeded: crm + go-appkit carry `.docs-gates.json` with
+  audit_max / annotate_max / cadence bars at their measured debt; both run
+  5/5 PASS.
 ## 2026-11-03
 
 ### Added

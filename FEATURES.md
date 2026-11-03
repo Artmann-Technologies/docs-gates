@@ -15,7 +15,10 @@ built.
 - **docs-annotate gate** — every struck item carries a resolvable verdict
   (hash/tag claims via git, repo-path claims), rule F inline-code spacing
   scan over configurable extensions, config-driven report dir + extra
-  globs + rule-F toggle.
+  globs + rule-F toggle, and the `annotate_max` adoption ratchet (born
+  from the 2026-11-03 pilots: repos with pre-doctrine strike corpora seed
+  the measured count and drain down; strict -1 default preserves the
+  pre-extraction behavior byte-for-byte).
 - **docs-routing gate** — non-§f routing-gap lint (`--strict`), pointer
   convention, generic-token bar shared with freshness.
 - **docs-cadence gate** — struck-row purge threshold + archive cadence
@@ -47,7 +50,9 @@ built.
 
 - **BuildFlow provider** — toolsdk self-registration (`pkg/provider`
   submodule) so the battery rides BuildFlow runs as a provider step.
-- **Pilot rollout evidence** — first external repos seeded and passing.
+- **Pilot rollout evidence** — crm + go-appkit seeded (2026-11-03) and
+  green under adoption ratchets (audit_max, annotate_max, cadence bars at
+  the measured debt); the ratchets drain as the rituals run.
 - **Golden parity fixtures** — a synthetic corpus with pinned verdicts
   guarding the gate semantics against drift.
 

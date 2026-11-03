@@ -780,33 +780,40 @@ func Run(argv []string) int {
 
 	printFindings(flags, infos, findings, len(files), struckTotal)
 
-	if len(findings) > 0 && annotateMax >= 0 && len(findings) <= annotateMax {
+	return annotateVerdict(len(findings), annotateMax)
+}
+
+// annotateVerdict turns the finding count into the exit code under the
+// adoption ratchet: tolerated pins print RATCHET and stay green, counts
+// past a pin print REGRESSION, strict counts print the FAIL remedy line.
+func annotateVerdict(count, annotateMax int) int {
+	switch {
+	case count == 0:
+		gatecli.Outln("docs-annotate: CLEAN")
+
+		return gatecli.ExitClean
+	case annotateMax >= 0 && count <= annotateMax:
 		gatecli.Outf(
 			"docs-annotate: RATCHET — %d finding(s) tolerated (pinned --annotate-max=%d); red only past %d\n",
-			len(findings), annotateMax, annotateMax,
+			count, annotateMax, annotateMax,
 		)
 		gatecli.Outln("drain them with the docs-health ANNOTATE ritual, then lower the pin")
 
 		return gatecli.ExitClean
-	}
+	case annotateMax >= 0:
+		gatecli.Errf(
+			"docs-annotate: REGRESSION — %d finding(s) past the pinned --annotate-max=%d. ",
+			count, annotateMax,
+		)
+		gatecli.Errln("Drain them (docs-health ANNOTATE) or annotate them resolved, then re-pin.")
 
-	if len(findings) > 0 {
-		if annotateMax >= 0 {
-			gatecli.Errf(
-				"docs-annotate: REGRESSION — %d finding(s) past the pinned --annotate-max=%d. ",
-				len(findings), annotateMax,
-			)
-		} else {
-			gatecli.Errln("docs-annotate: FAIL - repair the verdict (docs-health ANNOTATE rules: " +
-				"strike only on evidence, cite a real hash/path, never strike an open item).")
-		}
+		return gatecli.ExitFindings
+	default:
+		gatecli.Errln("docs-annotate: FAIL - repair the verdict (docs-health ANNOTATE rules: " +
+			"strike only on evidence, cite a real hash/path, never strike an open item).")
 
 		return gatecli.ExitFindings
 	}
-
-	gatecli.Outln("docs-annotate: CLEAN")
-
-	return gatecli.ExitClean
 }
 
 func collectDocFiles(root string, patterns []string) []string {
