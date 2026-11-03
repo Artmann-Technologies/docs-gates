@@ -128,7 +128,7 @@ func TestParityGolden(t *testing.T) {
 	root := materializeCorpus(t, today)
 
 	for _, gate := range parityGates() {
-		full := append([]string{root}, gate.args[1:]...) //nolint:gocritic // verb-first argv for the dispatcher
+		full := append(append([]string{}, gate.args...), root) // verb-first argv, root last
 
 		out := runCaptured(full)
 
