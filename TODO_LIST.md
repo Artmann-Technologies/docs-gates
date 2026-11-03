@@ -1,0 +1,15 @@
+# TODO_LIST
+
+Short- and mid-term improvement tasks. Interactive: statuses move, struck
+rows purge into CHANGELOG. The cadence gate watches this file.
+
+## 1) Extraction remainder (carried from the source fleet, 2026-11-03)
+
+| Task                                                                                                    | Status     | Priority | Effort | Evidence                                             |
+| ------------------------------------------------------------------------------------------------------- | ---------- | -------- | ------ | ---------------------------------------------------- |
+| parity-golden: pin a synthetic fixture corpus (docs/status + living docs with known verdicts) under testdata/parity and assert the gates' exact outputs against goldens — guards the ported semantics against drift | 🔴 `TODO`  | P2       | 2h     | FEATURES parity row; coin: parity-golden             |
+| erraudit-adopt: the ported `//nolint:erraudit` directives are inert until the erraudit tool rides this repo's devShell (flake input + package) — adopt it or strip the directives | 🔴 `TODO`  | P3       | 30min  | golangci nolint-filter warning; coin: erraudit-adopt |
+| ASSISTANT: preflight-bind-check remaining legs — rewrite-mode (a candidate REPLACING a line is judged only by its new words) and heading-awareness (a heading landed separately from its batch is invisible to the batch pre-flight) | 🔴 `TODO`  | P3       | 2h     | carried from the source fleet TODO (coin: preflight-bind-check) |
+| ASSISTANT: token-margin-report — print near-bar tokens proactively so living-doc drafts avoid them first-try (today only --explain-token after a failure names them) | 🔴 `TODO`  | P3       | 1h     | carried from the source fleet ROADMAP (coin: token-margin-report) |
+| ASSISTANT: statusline-doc — document the verdict arithmetic in AGENTS (failed GATES drive the verdict; the matrix lists every gate; findings render separately) | 🔴 `TODO`  | P3       | 15min  | carried from the source fleet (coin: statusline-doc) |
+| ASSISTANT: nolint-audit-cadence — run a stale-nolint audit on a cadence (three stale directives shipped green for days in the source fleet before one session cleared them) | 🔴 `TODO`  | P3       | 20min  | carried from the source fleet (coin: nolint-audit-cadence) |

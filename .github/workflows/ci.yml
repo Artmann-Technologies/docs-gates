@@ -1,0 +1,33 @@
+name: ci
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  go:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+
+      - name: build
+        run: go build ./...
+
+      - name: vet
+        run: go vet ./...
+
+      - name: gofmt
+        run: test -z "$(gofmt -l . )" || { gofmt -l .; exit 1; }
+
+      - name: stack drift (stdlib-only root module)
+        run: |
+          bash scripts/stack-drift-check.sh
+
+      - name: test
+        run: go test ./...
