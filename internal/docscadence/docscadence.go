@@ -57,7 +57,7 @@ type Settings struct {
 // SettingsFromConfig projects the shared config onto the gate's knobs,
 // keeping the historical constants wherever the config is silent.
 func SettingsFromConfig(cfg config.Config) Settings {
-	s := Settings{
+	settings := Settings{
 		StruckThreshold:  Threshold,
 		ArchiveThreshold: ArchiveThreshold,
 		ArchiveAgeDays:   ArchiveAgeThresholdDays,
@@ -66,26 +66,26 @@ func SettingsFromConfig(cfg config.Config) Settings {
 	}
 
 	if cfg.TodoFile != "" {
-		s.TodoFile = cfg.TodoFile
+		settings.TodoFile = cfg.TodoFile
 	}
 
 	if cfg.ReportDir != "" {
-		s.ReportDir = cfg.ReportDir
+		settings.ReportDir = cfg.ReportDir
 	}
 
 	if cfg.Cadence.StruckRows > 0 {
-		s.StruckThreshold = cfg.Cadence.StruckRows
+		settings.StruckThreshold = cfg.Cadence.StruckRows
 	}
 
 	if cfg.Cadence.MaxUnarchived > 0 {
-		s.ArchiveThreshold = cfg.Cadence.MaxUnarchived
+		settings.ArchiveThreshold = cfg.Cadence.MaxUnarchived
 	}
 
 	if cfg.Cadence.OldestDays > 0 {
-		s.ArchiveAgeDays = cfg.Cadence.OldestDays
+		settings.ArchiveAgeDays = cfg.Cadence.OldestDays
 	}
 
-	return s
+	return settings
 }
 
 // Run is the CLI entry (repo-root positional).
@@ -110,11 +110,11 @@ func Run(args []string) int {
 		gatecli.Errf("WARN: %s\n", warning)
 	}
 
-	s := SettingsFromConfig(cfg)
+	settings := SettingsFromConfig(cfg)
 
-	body, err := os.ReadFile(filepath.Join(root, s.TodoFile))
+	body, err := os.ReadFile(filepath.Join(root, settings.TodoFile))
 	if err != nil {
-		gatecli.Errf("FATAL: reading %s: %v\n", s.TodoFile, err)
+		gatecli.Errf("FATAL: reading %s: %v\n", settings.TodoFile, err)
 
 		return gatecli.ExitUsage
 	}
@@ -123,7 +123,7 @@ func Run(args []string) int {
 
 	gatecli.Outf(
 		"docs-cadence: %d struck DONE row(s) in %s (threshold %d)\n",
-		struck, s.TodoFile, s.StruckThreshold,
+		struck, settings.TodoFile, settings.StruckThreshold,
 	)
 
 	if bareDone > 0 {
@@ -136,10 +136,10 @@ func Run(args []string) int {
 
 	findings := 0
 
-	if struck > s.StruckThreshold {
+	if struck > settings.StruckThreshold {
 		gatecli.Errf(
 			"docs-cadence: OVERDUE — %d struck rows exceed the %d threshold; run the purge ritual now:\n",
-			struck, s.StruckThreshold,
+			struck, settings.StruckThreshold,
 		)
 		gatecli.Errln("  1. verify every strike on-disk (the truth pass — a CHANGELOG claim is not state)")
 		gatecli.Errln("  2. delete the struck rows, preserving substance in a CHANGELOG entry")
@@ -154,9 +154,9 @@ func Run(args []string) int {
 		gatecli.Outln("docs-cadence: PURGE-HEALTHY")
 	}
 
-	archCount, archAge, archOldest, err := archiveInventory(root, time.Now(), s.ReportDir)
+	archCount, archAge, archOldest, err := archiveInventory(root, time.Now(), settings.ReportDir)
 	if err != nil {
-		gatecli.Errf("FATAL: reading %s: %v\n", s.ReportDir, err)
+		gatecli.Errf("FATAL: reading %s: %v\n", settings.ReportDir, err)
 
 		return gatecli.ExitUsage
 	}
@@ -165,21 +165,21 @@ func Run(args []string) int {
 		gatecli.Outf(
 			"docs-cadence: %d unarchived report(s) in %s (threshold %d); oldest %s is %d day(s) old (threshold %d)\n",
 			archCount,
-			s.ReportDir,
-			s.ArchiveThreshold,
+			settings.ReportDir,
+			settings.ArchiveThreshold,
 			archOldest,
 			archAge,
-			s.ArchiveAgeDays,
+			settings.ArchiveAgeDays,
 		)
 	}
 
-	if archCount > s.ArchiveThreshold || archAge > s.ArchiveAgeDays {
+	if archCount > settings.ArchiveThreshold || archAge > settings.ArchiveAgeDays {
 		gatecli.Errf(
 			"docs-cadence: ARCHIVE-OVERDUE — %d unarchived report(s) (threshold %d), oldest %d day(s) old (threshold %d); run the archive ritual now:\n",
 			archCount,
-			s.ArchiveThreshold,
+			settings.ArchiveThreshold,
 			archAge,
-			s.ArchiveAgeDays,
+			settings.ArchiveAgeDays,
 		)
 		gatecli.Errln("  1. verify every remaining item is struck, WONT-DO, or routed (check-rows BEFORE git mv)")
 		gatecli.Errln(
