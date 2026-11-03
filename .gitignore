@@ -1,0 +1,33 @@
+# Ad-hoc Go binaries built at the repo root (`go build ./cmd/docs-gates`
+# writes ./docs-gates) — build into /tmp or use the flake package instead.
+/docs-gates
+
+## Go
+*.exe
+*.test
+*.out
+vendor/
+go.work
+go.work.sum
+
+## Logs and temporaries
+*.log
+*.tmp
+
+## Buildflow artifacts
+audit-log.*
+workflow-audit-log.*
+.buildflow-workflow-baseline.json
+/coverage
+
+## Nix
+result
+result-*
+.envrc
+.direnv/
+
+## Editors and OSes
+.idea/
+.vscode/
+*.swp
+.DS_Store

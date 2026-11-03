@@ -1,0 +1,20 @@
+# Non-default limits only (fleet policy: no default restatement).
+# The stdlib-only Go suite plus the golden parity fixtures rebuild fast,
+# but a cold nix closure build after a go pin bump wants headroom.
+default_step_timeout: 10m
+
+# Policy: the JS/TS toolchain and the Python docstring-coverage checker are
+# skipped BY INTENT. This repo is stdlib-only Go plus Nix: there is no
+# package.json, no JS/TS source and no docstring-coverage requirement.
+# Recorded here so `buildflow doctor` stops reporting them as health-check
+# failures (alert fatigue is the real cost of a permanent warning).
+skip_steps:
+  - jest-test
+  - js-coverage
+  - knip
+  - madge
+  - publint
+  - svelte-check
+  - vitest-test
+  - vue-tsc
+  - interrogate
