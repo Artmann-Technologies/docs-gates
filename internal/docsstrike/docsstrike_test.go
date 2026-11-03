@@ -5,6 +5,8 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+
+	"github.com/Artmann-Technologies/docs-gates/internal/config"
 )
 
 const sample = `# TODO List
@@ -220,5 +222,37 @@ func TestParseArgsRefusesAlreadyWrappedVerdict(t *testing.T) {
 		if _, err := ParseArgs([]string{"--row", "envelope audit", "--verdict", verdict}); err != nil {
 			t.Fatalf("evidence verdict %q must be accepted, got: %v", verdict, err)
 		}
+	}
+}
+
+// The config contract: ParseArgs leaves the strike target empty and Run
+// fills it from the repo's todo_file — an explicit --file still wins, so
+// a repo that renamed its TODO file strikes it with no flag at all.
+func TestRunUsesConfiguredTodoFile(t *testing.T) {
+	t.Parallel()
+
+	dir := t.TempDir()
+
+	cfg := `{"todo_file": "TODOS.md"}`
+	if err := os.WriteFile(filepath.Join(dir, config.FileName), []byte(cfg), 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	if err := os.WriteFile(filepath.Join(dir, "TODOS.md"), []byte(sample), 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	rc := Run([]string{dir, "--row", "envelope audit", "--verdict", "audit done", "--apply"})
+	if rc != 0 {
+		t.Fatalf("apply against the configured target exit = %d, want 0", rc)
+	}
+
+	after, err := os.ReadFile(filepath.Join(dir, "TODOS.md"))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if !strings.Contains(string(after), "~~ done (audit done)") {
+		t.Fatalf("configured target missed the strike: %q", after)
 	}
 }

@@ -40,15 +40,13 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/Artmann-Technologies/docs-gates/internal/config"
 	"github.com/Artmann-Technologies/docs-gates/internal/gatecli"
 )
 
 // DefaultStatus is the status cell a completed row flips to; the ✅ emoji
 // + backticked DONE matches every existing DONE row in TODO_LIST.md.
 const DefaultStatus = "✅ `DONE`"
-
-// defaultFile is the strike target's conventional name.
-const defaultFile = "TODO_LIST.md"
 
 // TODOColumns is the TODO_LIST row shape: 5 columns means strings.Split
 // on "|" yields exactly 7 cells (two empty edges). A row with any other
@@ -122,7 +120,7 @@ func consumeValueFlag(argv []string, i int, arg string, opts *Options) (int, *st
 // (--row/--verdict/--evidence/--status/--file), the --apply boolean, and
 // an optional positional repo root (resolved by gatecli.ResolveRoot).
 func ParseArgs(argv []string) (Options, error) {
-	opts := Options{Status: DefaultStatus, File: defaultFile}
+	opts := Options{Status: DefaultStatus}
 
 	var positional []string
 
@@ -287,6 +285,21 @@ func Run(argv []string) int {
 		gatecli.Errf("FATAL: %v\n", err)
 
 		return gatecli.ExitUsage
+	}
+
+	cfg, warnings, err := config.Load(opts.Root)
+	if err != nil {
+		gatecli.Errf("FATAL: %v\n", err)
+
+		return gatecli.ExitUsage
+	}
+
+	for _, warning := range warnings {
+		gatecli.Errf("WARN: %s\n", warning)
+	}
+
+	if opts.File == "" {
+		opts.File = cfg.TodoFile
 	}
 
 	path := filepath.Join(opts.Root, opts.File)
