@@ -1,0 +1,13 @@
+created_at: 2026-11-03T21:21:15Z
+updated_at: 2026-11-03T21:21:25.531214679Z
+tags:
+    - tool
+    - docs
+importance: 70
+license:
+    spdx: MIT
+    holders:
+        -   name: Lars Artmann
+    year: 2026
+    contact:
+        email: git@lars.software
