@@ -67,27 +67,27 @@ func copyTree(t *testing.T, src, dst, today string) string {
 	}
 
 	for _, entry := range entries {
-		s := filepath.Join(src, entry.Name())
-		d := filepath.Join(dst, strings.ReplaceAll(entry.Name(), parityDateToken, today))
+		srcPath := filepath.Join(src, entry.Name())
+		dstPath := filepath.Join(dst, strings.ReplaceAll(entry.Name(), parityDateToken, today))
 
 		if entry.IsDir() {
-			if err := os.MkdirAll(d, 0o755); err != nil {
+			if err := os.MkdirAll(dstPath, 0o755); err != nil {
 				t.Fatal(err)
 			}
 
-			copyTree(t, s, d, today)
+			copyTree(t, srcPath, dstPath, today)
 
 			continue
 		}
 
-		data, err := os.ReadFile(s)
+		data, err := os.ReadFile(srcPath)
 		if err != nil {
-			t.Fatalf("read corpus file %s: %v", s, err)
+			t.Fatalf("read corpus file %s: %v", srcPath, err)
 		}
 
 		out := strings.ReplaceAll(string(data), parityDateToken, today)
 
-		if err := os.WriteFile(d, []byte(out), 0o644); err != nil {
+		if err := os.WriteFile(dstPath, []byte(out), 0o644); err != nil {
 			t.Fatal(err)
 		}
 	}
