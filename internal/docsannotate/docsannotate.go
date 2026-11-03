@@ -44,6 +44,7 @@ import (
 	"path/filepath"
 	"regexp"
 	"sort"
+	"strconv"
 	"strings"
 
 	"github.com/Artmann-Technologies/docs-gates/internal/config"
@@ -682,7 +683,46 @@ func docsByWalk(root string, extensions []string) ([]Finding, []string) {
 // corpus (report dir + its archived subdir + the configured extra globs)
 // and the rule-F toggle/extensions come from the repo's .docs-gates.json
 // when present.
+// parseAnnotateMax splits --annotate-max=N off the argument list BEFORE
+// gatecli.Parse (a valued flag would die there as an unknown boolean). The
+// parsed pin rides out; the remaining argv is the Parse input. Strict (-1)
+// when absent; a malformed value FATALs with exit 2 via the ok=false +
+// fatal=true pair.
+func parseAnnotateMax(args []string) (int, []string) {
+	annotateMax := -1
+
+	rest := make([]string, 0, len(args))
+
+	for _, a := range args {
+		if v, ok := strings.CutPrefix(a, "--annotate-max="); ok {
+			if n, parseErr := strconv.Atoi(v); parseErr == nil && n >= 0 {
+				annotateMax = n
+
+				continue
+			}
+
+			gatecli.Errf("FATAL: --annotate-max wants a non-negative integer, got %q\n", v)
+
+			return -1, nil
+		}
+
+		rest = append(rest, a)
+	}
+
+	return annotateMax, rest
+}
+
 func Run(argv []string) int {
+	// The adoption ratchet (fleet friction, 2026-11-03 pilots): repos whose
+	// historical strikes predate the verdict-vocabulary rules seed
+	// annotate_max with the measured finding count and drain down — red
+	// only PAST the pin (a regression), mirroring the freshness audit
+	// ratchet. Strict (-1, the default) is the pre-extraction behavior.
+	annotateMax, argv := parseAnnotateMax(argv)
+	if argv == nil {
+		return gatecli.ExitUsage
+	}
+
 	flags, root, err := gatecli.Parse(argv, "--check", "--verbose")
 	if err != nil {
 		gatecli.Errf("FATAL: %v\n", err)
@@ -699,6 +739,10 @@ func Run(argv []string) int {
 		gatecli.Errf("FATAL: %v\n", err)
 
 		return gatecli.ExitUsage
+	}
+
+	if cfg.AnnotateMax >= 0 && annotateMax < 0 {
+		annotateMax = cfg.AnnotateMax
 	}
 
 	docGlobs := append([]string{
@@ -736,9 +780,26 @@ func Run(argv []string) int {
 
 	printFindings(flags, infos, findings, len(files), struckTotal)
 
+	if len(findings) > 0 && annotateMax >= 0 && len(findings) <= annotateMax {
+		gatecli.Outf(
+			"docs-annotate: RATCHET — %d finding(s) tolerated (pinned --annotate-max=%d); red only past %d\n",
+			len(findings), annotateMax, annotateMax,
+		)
+		gatecli.Outln("drain them with the docs-health ANNOTATE ritual, then lower the pin")
+
+		return gatecli.ExitClean
+	}
+
 	if len(findings) > 0 {
-		gatecli.Errln("docs-annotate: FAIL - repair the verdict (docs-health ANNOTATE rules: " +
-			"strike only on evidence, cite a real hash/path, never strike an open item).")
+		if annotateMax >= 0 {
+			gatecli.Errf(
+				"docs-annotate: REGRESSION — %d finding(s) past the pinned --annotate-max=%d. ",
+				len(findings), annotateMax,
+			)
+		} else {
+			gatecli.Errln("docs-annotate: FAIL - repair the verdict (docs-health ANNOTATE rules: " +
+				"strike only on evidence, cite a real hash/path, never strike an open item).")
+		}
 
 		return gatecli.ExitFindings
 	}

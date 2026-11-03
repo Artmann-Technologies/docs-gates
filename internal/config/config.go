@@ -31,6 +31,7 @@ const FileName = ".docs-gates.json"
 const (
 	DefaultGenericDF     = 8
 	DefaultAuditMax      = -1
+	DefaultAnnotateMax   = -1
 	DefaultStruckRows    = 20
 	DefaultMaxUnarchived = 15
 	DefaultOldestDays    = 21
@@ -56,6 +57,7 @@ type Config struct {
 	RuleFExtensions    []string `json:"rule_f_extensions"`    // file extensions rule F scans (dot-prefixed)
 	GenericDF          int      `json:"generic_df"`           // the distinctive-token bar (a token on >= N living lines is generic)
 	AuditMax           int      `json:"audit_max"`            // docs-freshness --audit-max ratchet pin (-1 = strict)
+	AnnotateMax        int      `json:"annotate_max"`         // docs-annotate adoption ratchet pin (-1 = strict)
 	TodoFile           string   `json:"todo_file"`            // the TODO_LIST file (cadence reads it, docs-strike edits it)
 	Cadence            Cadence  `json:"cadence"`
 	SkipGates          []string `json:"skip_gates"` // battery verbs to skip (docs-gates run)
@@ -76,6 +78,7 @@ func Defaults() Config {
 		RuleFExtensions:    []string{".md", ".sh", ".nix"},
 		GenericDF:          DefaultGenericDF,
 		AuditMax:           DefaultAuditMax,
+		AnnotateMax:        DefaultAnnotateMax,
 		TodoFile:           "TODO_LIST.md",
 		Cadence: Cadence{
 			StruckRows:    DefaultStruckRows,
@@ -199,6 +202,10 @@ func (c Config) validateNumbers() error {
 
 	if c.AuditMax < -1 {
 		return invalidf("audit_max must be >= -1 (-1 = strict), got %d", c.AuditMax)
+	}
+
+	if c.AnnotateMax < -1 {
+		return invalidf("annotate_max must be >= -1 (-1 = strict), got %d", c.AnnotateMax)
 	}
 
 	if c.Cadence.StruckRows < 1 || c.Cadence.MaxUnarchived < 1 || c.Cadence.OldestDays < 1 {
