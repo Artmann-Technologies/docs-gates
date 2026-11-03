@@ -25,6 +25,7 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/Artmann-Technologies/docs-gates/internal/config"
 	"github.com/Artmann-Technologies/docs-gates/internal/docsfreshness"
 	"github.com/Artmann-Technologies/docs-gates/internal/gatecli"
 )
@@ -50,10 +51,55 @@ var (
 	pointerRe = regexp.MustCompile(`(?i)\b(?:todo(?:_list)?|roadmap|changelog)\s*§\s*\d+`)
 )
 
-// livingNames lists the living docs (unexported func, not a package
-// global: gochecknoglobals).
-func livingNames() []string {
-	return []string{"TODO_LIST.md", "ROADMAP.md", "CHANGELOG.md"}
+// Settings is routing's own projection of the repo config: the report
+// corpus, the living docs, and the distinctive bar (a zero GenericDF
+// falls back to docsfreshness.GenericDF).
+type Settings struct {
+	ReportDir  string
+	ReportGlob string
+	LivingDocs []string
+	GenericDF  int
+}
+
+func settingsFromConfig(c config.Config) Settings {
+	return Settings{
+		ReportDir:  c.ReportDir,
+		ReportGlob: c.ReportGlob,
+		LivingDocs: c.LivingDocs,
+		GenericDF:  c.GenericDF,
+	}
+}
+
+func (s Settings) df() int {
+	if s.GenericDF > 0 {
+		return s.GenericDF
+	}
+
+	return docsfreshness.GenericDF
+}
+
+func (s Settings) livingDocs() []string {
+	if len(s.LivingDocs) > 0 {
+		return s.LivingDocs
+	}
+
+	return config.Defaults().LivingDocs
+}
+
+func (s Settings) reportDir() string {
+	if s.ReportDir != "" {
+		return s.ReportDir
+	}
+
+	return config.Defaults().ReportDir
+}
+
+func (s Settings) reportGlob() string {
+	if s.ReportGlob != "" {
+		return s.ReportGlob
+	}
+
+	return config.Defaults().ReportGlob
 }
 
 // hintTokens caps the token evidence printed per gap.
@@ -74,32 +120,33 @@ type Gap struct {
 	Hint   string
 }
 
-// RoutingGaps scans every unarchived docs/status report and returns the
-// open non-§f actionable rows the living docs do not reflect.
-func RoutingGaps(root string) []Gap {
-	living := loadLivingLines(root)
+// RoutingGaps scans every unarchived report under the configured report
+// dir and returns the open non-§f actionable rows the living docs do not
+// reflect.
+func RoutingGaps(root string, s Settings) []Gap {
+	living := loadLivingLines(root, s.livingDocs())
 
 	gaps := make([]Gap, 0, gapCap)
 
 	reports, _ := filepath.Glob(
-		filepath.Join(root, "docs", "status", "2*.md"),
+		filepath.Join(root, s.reportDir(), s.reportGlob()),
 	) //nolint:erraudit // constant pattern cannot be malformed
 	sort.Strings(reports)
 
 	for _, report := range reports {
-		gaps = append(gaps, reportGaps(report, living)...)
+		gaps = append(gaps, reportGaps(report, living, s.df())...)
 	}
 
 	return gaps
 }
 
-// loadLivingLines mirrors docsfreshness.loadLivingDocs' raw-line corpus
-// (lowercased raw lines; document frequency counted on RAW lines — the
-// GenericDF=8 threshold is tuned against raw substring counts).
-func loadLivingLines(root string) []string {
+// loadLivingLines reads the configured living docs into the raw-line
+// corpus (lowercased raw lines; document frequency counted on RAW lines —
+// the GenericDF threshold is tuned against raw substring counts).
+func loadLivingLines(root string, names []string) []string {
 	var lines []string
 
-	for _, name := range livingNames() {
+	for _, name := range names {
 		data, err := os.ReadFile(filepath.Join(root, name))
 		if err != nil {
 			continue //nolint:erraudit // a not-yet-existing living doc contributes no lines
@@ -113,7 +160,7 @@ func loadLivingLines(root string) []string {
 	return lines
 }
 
-func reportGaps(report string, living []string) []Gap {
+func reportGaps(report string, living []string, genericDF int) []Gap {
 	data, err := os.ReadFile(report)
 	if err != nil {
 		return nil
@@ -140,7 +187,7 @@ func reportGaps(report string, living []string) []Gap {
 			continue
 		}
 
-		if !routed(line, living) {
+		if !routed(line, living, genericDF) {
 			gaps = append(gaps, Gap{
 				Report: filepath.Base(report),
 				LineNo: i + 1,
@@ -163,9 +210,9 @@ func isOpenActionable(line string) bool {
 
 // routed applies the freshness bar inverted: the row must share at least
 // the quorum of tokens with the living corpus, one of them distinctive
-// (on fewer than docsfreshness.GenericDF living lines) — the same
-// semantics under which a harvested §f item counts as represented.
-func routed(row string, living []string) bool {
+// (on fewer than genericDF living lines) — the same semantics under
+// which a harvested §f item counts as represented.
+func routed(row string, living []string, genericDF int) bool {
 	if pointerRe.MatchString(row) {
 		return true // routed by explicit living-doc pointer (pointerRe)
 	}
@@ -189,7 +236,7 @@ func routed(row string, living []string) bool {
 
 		found++
 
-		if livingLineCount(tok, living) < docsfreshness.GenericDF {
+		if livingLineCount(tok, living) < genericDF {
 			distinctive = true
 		}
 	}
@@ -266,6 +313,8 @@ func tokenHint(row string, living []string) string {
 }
 
 // Run is the CLI: report-only by default, --strict fails on any gap.
+// The report corpus and the living-docs list come from the repo's
+// .docs-gates.json when present.
 func Run(args []string) int {
 	flags, root, err := gatecli.Parse(args, "--strict")
 	if err != nil {
@@ -274,7 +323,20 @@ func Run(args []string) int {
 		return gatecli.ExitUsage
 	}
 
-	gaps := RoutingGaps(root)
+	cfg, warnings, err := config.Load(root)
+	for _, w := range warnings {
+		gatecli.Errf("config: %s\n", w)
+	}
+
+	if err != nil {
+		gatecli.Errf("FATAL: %v\n", err)
+
+		return gatecli.ExitUsage
+	}
+
+	s := settingsFromConfig(cfg)
+
+	gaps := RoutingGaps(root, s)
 
 	for _, gap := range gaps {
 		gatecli.Outf("UNROUTED [%s:%d] %s\n", gap.Report, gap.LineNo, gatecli.Truncate(gap.Row, rowPreviewRunes))
@@ -287,7 +349,7 @@ func Run(args []string) int {
 	}
 
 	gatecli.Outf("docs-routing (%s): %d unarchived report(s) scanned, %d unrouted open row(s)\n",
-		verb, countUnarchived(root), len(gaps))
+		verb, countUnarchived(root, s), len(gaps))
 
 	if flags["--strict"] && len(gaps) > 0 {
 		gatecli.Errln("docs-routing --strict: DRIFT — open actionable rows outside §f sections " +
@@ -300,9 +362,9 @@ func Run(args []string) int {
 	return 0
 }
 
-func countUnarchived(root string) int {
+func countUnarchived(root string, s Settings) int {
 	reports, _ := filepath.Glob(
-		filepath.Join(root, "docs", "status", "2*.md"),
+		filepath.Join(root, s.reportDir(), s.reportGlob()),
 	) //nolint:erraudit // constant pattern cannot be malformed
 
 	return len(reports)

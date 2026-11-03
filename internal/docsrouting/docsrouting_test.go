@@ -73,7 +73,7 @@ func TestRoutingGaps(t *testing.T) {
 
 	root := fixtureTree(t, report, living)
 
-	gaps := RoutingGaps(root)
+	gaps := RoutingGaps(root, Settings{})
 
 	wantRows := map[string]bool{
 		"rotate the zeptophone credential": false,
@@ -123,7 +123,7 @@ func TestRoutedBar(t *testing.T) {
 
 	root := fixtureTree(t, report, living.String())
 
-	if gaps := RoutingGaps(root); len(gaps) != 1 {
+	if gaps := RoutingGaps(root, Settings{}); len(gaps) != 1 {
 		t.Errorf("generic-only overlap must stay UNROUTED, got %d gaps: %+v", len(gaps), gaps)
 	}
 }
@@ -138,7 +138,7 @@ func TestCleanCorpusExitsClean(t *testing.T) {
 
 	root := fixtureTree(t, report, living)
 
-	if gaps := RoutingGaps(root); len(gaps) != 0 {
+	if gaps := RoutingGaps(root, Settings{}); len(gaps) != 0 {
 		t.Errorf("routed corpus must produce zero gaps, got %+v", gaps)
 	}
 }
@@ -154,7 +154,7 @@ func TestPointerRowIsRouted(t *testing.T) {
 
 	root := fixtureTree(t, report, living)
 
-	if gaps := RoutingGaps(root); len(gaps) != 0 {
+	if gaps := RoutingGaps(root, Settings{}); len(gaps) != 0 {
 		t.Errorf("pointer-citing rows are routed by convention, got %+v", gaps)
 	}
 }
