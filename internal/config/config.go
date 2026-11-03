@@ -19,6 +19,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"slices"
 )
 
 // FileName is the per-repo config file the gates look for under the repo
@@ -36,18 +37,18 @@ type Cadence struct {
 // consumed directly — Defaults() fills everything, and Load starts from
 // Defaults().
 type Config struct {
-	ReportDir         string   `json:"report_dir"`          // the unarchived status-report directory
-	ReportGlob        string   `json:"report_glob"`         // filename pattern inside ReportDir and its archived subdir
-	ArchivedSubdir    string   `json:"archived_subdir"`     // archive subdir UNDER ReportDir
-	LivingDocs        []string `json:"living_docs"`         // the harvest corpus (freshness/routing)
+	ReportDir          string   `json:"report_dir"`           // the unarchived status-report directory
+	ReportGlob         string   `json:"report_glob"`          // filename pattern inside ReportDir and its archived subdir
+	ArchivedSubdir     string   `json:"archived_subdir"`      // archive subdir UNDER ReportDir
+	LivingDocs         []string `json:"living_docs"`          // the harvest corpus (freshness/routing)
 	AnnotateExtraGlobs []string `json:"annotate_extra_globs"` // extra annotate corpus beyond reports (planning dirs)
-	RuleF             bool     `json:"rule_f"`              // docs-annotate rule F (inline-code spacing) on/off
-	RuleFExtensions   []string `json:"rule_f_extensions"`   // file extensions rule F scans (dot-prefixed)
-	GenericDF         int      `json:"generic_df"`          // the distinctive-token bar (a token on >= N living lines is generic)
-	AuditMax          int      `json:"audit_max"`           // docs-freshness --audit-max ratchet pin (-1 = strict)
-	TodoFile          string   `json:"todo_file"`           // the TODO_LIST file (cadence reads it, docs-strike edits it)
-	Cadence           Cadence  `json:"cadence"`
-	SkipGates         []string `json:"skip_gates"` // battery verbs to skip (docs-gates run)
+	RuleF              bool     `json:"rule_f"`               // docs-annotate rule F (inline-code spacing) on/off
+	RuleFExtensions    []string `json:"rule_f_extensions"`    // file extensions rule F scans (dot-prefixed)
+	GenericDF          int      `json:"generic_df"`           // the distinctive-token bar (a token on >= N living lines is generic)
+	AuditMax           int      `json:"audit_max"`            // docs-freshness --audit-max ratchet pin (-1 = strict)
+	TodoFile           string   `json:"todo_file"`            // the TODO_LIST file (cadence reads it, docs-strike edits it)
+	Cadence            Cadence  `json:"cadence"`
+	SkipGates          []string `json:"skip_gates"` // battery verbs to skip (docs-gates run)
 }
 
 // Defaults returns the shipped configuration — the exact constants the
@@ -56,18 +57,18 @@ type Config struct {
 // behavior.
 func Defaults() Config {
 	return Config{
-		ReportDir:         "docs/status",
-		ReportGlob:        "2*.md",
-		ArchivedSubdir:    "archived",
-		LivingDocs:        []string{"TODO_LIST.md", "ROADMAP.md", "CHANGELOG.md"},
+		ReportDir:          "docs/status",
+		ReportGlob:         "2*.md",
+		ArchivedSubdir:     "archived",
+		LivingDocs:         []string{"TODO_LIST.md", "ROADMAP.md", "CHANGELOG.md"},
 		AnnotateExtraGlobs: []string{"docs/planning/*.md", "docs/planning/archived/*.md"},
-		RuleF:             true,
-		RuleFExtensions:   []string{".md", ".sh", ".nix"},
-		GenericDF:         8,
-		AuditMax:          -1,
-		TodoFile:          "TODO_LIST.md",
-		Cadence:           Cadence{StruckRows: 20, MaxUnarchived: 15, OldestDays: 21},
-		SkipGates:         nil,
+		RuleF:              true,
+		RuleFExtensions:    []string{".md", ".sh", ".nix"},
+		GenericDF:          8,
+		AuditMax:           -1,
+		TodoFile:           "TODO_LIST.md",
+		Cadence:            Cadence{StruckRows: 20, MaxUnarchived: 15, OldestDays: 21},
+		SkipGates:          nil,
 	}
 }
 
@@ -187,13 +188,7 @@ func sortedKeys(m map[string]json.RawMessage) []string {
 		keys = append(keys, k)
 	}
 
-	// Insertion sort over a tiny slice; no need for the sort package's
-	// interface dance when the whole key set fits on one screen.
-	for i := 1; i < len(keys); i++ {
-		for j := i; j > 0 && keys[j] < keys[j-1]; j-- {
-			keys[j], keys[j-1] = keys[j-1], keys[j]
-		}
-	}
+	slices.Sort(keys)
 
 	return keys
 }

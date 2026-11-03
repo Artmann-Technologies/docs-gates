@@ -34,6 +34,10 @@
 //
 // Usage: docs-freshness [--audit-all] [repo-root]   (default: cwd)
 //
+// The report corpus, the living-docs list and the distinctive-token bar
+// come from the repo's .docs-gates.json when present (internal/config
+// defaults otherwise — the historical constants).
+//
 // Exit 0 = fresh, 1 = drift (unharvested items listed), 2 = usage error.
 package docsfreshness
 
@@ -48,6 +52,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/Artmann-Technologies/docs-gates/internal/config"
 	"github.com/Artmann-Technologies/docs-gates/internal/gatecli"
 )
 
@@ -116,8 +121,8 @@ var (
 	hyphenRe   = regexp.MustCompile(`[-\s]+`)
 )
 
-func NewestReport(root string) string {
-	entries, err := filepath.Glob(filepath.Join(root, "docs", "status", "2*.md"))
+func NewestReport(root string, s Settings) string {
+	entries, err := filepath.Glob(s.reportGlobPath(root))
 	if err != nil || len(entries) == 0 {
 		return ""
 	}
@@ -235,8 +240,15 @@ func Squash(text string) string {
 }
 
 // CheckReport returns the open §f items of one report that the living docs
-// do not reflect, as (item, reason) pairs.
-func CheckReport(report string, livingLines []string, tokenDF func(string) int, livingSquashed []string) [][2]string {
+// do not reflect, as (item, reason) pairs. The settings carry the
+// distinctive-token bar.
+func CheckReport(
+	report string,
+	livingLines []string,
+	tokenDF func(string) int,
+	livingSquashed []string,
+	s Settings,
+) [][2]string {
 	if livingSquashed == nil {
 		livingSquashed = squashLines(livingLines)
 	}
@@ -253,7 +265,7 @@ func CheckReport(report string, livingLines []string, tokenDF func(string) int, 
 			continue
 		}
 
-		if reason := itemVerdict(item, livingLines, livingSquashed, tokenDF); reason != "" {
+		if reason := itemVerdict(item, livingLines, livingSquashed, tokenDF, s.df()); reason != "" {
 			findings = append(findings, [2]string{item, reason})
 		}
 	}
@@ -263,7 +275,7 @@ func CheckReport(report string, livingLines []string, tokenDF func(string) int, 
 
 // itemVerdict returns the drift reason for one open item, "" when the living
 // docs reflect it: enough tokens matched, at least one of them distinctive.
-func itemVerdict(item string, livingLines, livingSquashed []string, tokenDF func(string) int) string {
+func itemVerdict(item string, livingLines, livingSquashed []string, tokenDF func(string) int, genericDF int) string {
 	toks := Tokens(item)
 	if len(toks) == 0 {
 		return ""
@@ -286,12 +298,12 @@ func itemVerdict(item string, livingLines, livingSquashed []string, tokenDF func
 		return "missing tokens: " + gatecli.Truncate(strings.Join(missingTokens(toks, found), " "), reasonMax)
 	}
 
-	if !hasDistinctive(found, tokenDF) {
+	if !hasDistinctive(found, tokenDF, genericDF) {
 		return fmt.Sprintf(
 			"only generic tokens matched: %s (each appears on >= %d lines — accidental overlap, "+
 				"not a harvest)",
 			gatecli.Truncate(strings.Join(found, " "), reasonMax),
-			GenericDF,
+			genericDF,
 		)
 	}
 
@@ -331,9 +343,9 @@ func missingTokens(toks, found []string) []string {
 	return missing
 }
 
-func hasDistinctive(found []string, tokenDF func(string) int) bool {
+func hasDistinctive(found []string, tokenDF func(string) int, genericDF int) bool {
 	for _, t := range found {
-		if tokenDF(t) < GenericDF {
+		if tokenDF(t) < genericDF {
 			return true
 		}
 	}
@@ -356,13 +368,14 @@ func culpritAttributions(
 	item string,
 	candLower, candSquashed []string,
 	modDF func(string) int,
+	genericDF int,
 ) []string {
 	var out []string
 
 	seen := map[string]bool{}
 
 	for _, t := range Tokens(item) {
-		if modDF(t) < GenericDF {
+		if modDF(t) < genericDF {
 			continue
 		}
 
