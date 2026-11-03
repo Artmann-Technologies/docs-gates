@@ -4,6 +4,7 @@ import (
 	"context"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"testing"
 
@@ -21,31 +22,13 @@ func writeFakeBinary(t *testing.T, script string, exitCode int) {
 
 	dir := t.TempDir()
 	path := filepath.Join(dir, toolName)
-	body := "#!/usr/bin/env bash\ncat <<'MATRIX'\n" + script + "\nMATRIX\nexit " + fmtInt(exitCode) + "\n"
+	body := "#!/usr/bin/env bash\ncat <<'MATRIX'\n" + script + "\nMATRIX\nexit " + strconv.Itoa(exitCode) + "\n"
 
 	if err := os.WriteFile(path, []byte(body), 0o755); err != nil {
 		t.Fatal(err)
 	}
 
 	t.Setenv("PATH", dir+string(os.PathListSeparator)+os.Getenv("PATH"))
-}
-
-func fmtInt(n int) string {
-	return strings.TrimSpace(strings.ReplaceAll(strings.Repeat(" ", 0)+intToString(n), " ", ""))
-}
-
-func intToString(n int) string {
-	if n == 0 {
-		return "0"
-	}
-
-	digits := ""
-	for n > 0 {
-		digits = string(rune('0'+n%10)) + digits
-		n /= 10
-	}
-
-	return digits
 }
 
 func TestParseMatrixKeepsFailOrder(t *testing.T) {
