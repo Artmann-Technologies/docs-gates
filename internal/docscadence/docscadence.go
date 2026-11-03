@@ -154,16 +154,18 @@ func Run(args []string) int {
 		gatecli.Outln("docs-cadence: PURGE-HEALTHY")
 	}
 
+	// The inventory lines display the dir with the historical trailing
+	// slash (parity: the pre-config output spelled docs/status/ that way).
 	archCount, archAge, archOldest, err := archiveInventory(root, time.Now(), settings.ReportDir)
 	if err != nil {
-		gatecli.Errf("FATAL: reading %s: %v\n", settings.ReportDir, err)
+		gatecli.Errf("FATAL: reading %s/: %v\n", settings.ReportDir, err)
 
 		return gatecli.ExitUsage
 	}
 
 	if archCount > 0 {
 		gatecli.Outf(
-			"docs-cadence: %d unarchived report(s) in %s (threshold %d); oldest %s is %d day(s) old (threshold %d)\n",
+			"docs-cadence: %d unarchived report(s) in %s/ (threshold %d); oldest %s is %d day(s) old (threshold %d)\n",
 			archCount,
 			settings.ReportDir,
 			settings.ArchiveThreshold,
