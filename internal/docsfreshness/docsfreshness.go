@@ -52,7 +52,6 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/Artmann-Technologies/docs-gates/internal/config"
 	"github.com/Artmann-Technologies/docs-gates/internal/gatecli"
 )
 
@@ -449,6 +448,9 @@ func parseAuditMax(args []string) (int, []string, int) {
 }
 
 // Run is the CLI entry (repo-root positional + --audit-all flag semantics).
+// The repo's .docs-gates.json (when present) drives the corpus paths, the
+// living-docs list and the distinctive bar; a malformed config is a usage
+// error.
 func Run(args []string) int {
 	// The audit ratchet (TODO §91 coin audit-ratchet): --audit-max=N pins
 	// the tolerated unharvested count so the audit goes red only on a
@@ -476,6 +478,13 @@ func Run(args []string) int {
 		return gatecli.ExitUsage
 	}
 
+	s, err := loadSettings(root)
+	if err != nil {
+		gatecli.Errf("FATAL: %v\n", err)
+
+		return gatecli.ExitUsage
+	}
+
 	if flags["--duplicates"] && !flags["--pre-flight"] {
 		gatecli.Errln("FATAL: --duplicates only applies to --pre-flight mode — it declares that an")
 		gatecli.Errln("  on-disk candidate line is about to land as a SECOND copy (ledger-block class)")
@@ -490,7 +499,7 @@ func Run(args []string) int {
 		// question for ANY item — including harvested ones sitting at
 		// DF just below the bar. The needle is the SECOND positional:
 		// `docs-freshness . --explain-item rewrite`.
-		return runExplainItem(root, positional)
+		return runExplainItem(root, positional, s)
 	}
 
 	if flags["--pre-flight"] {
@@ -501,16 +510,16 @@ func Run(args []string) int {
 			return gatecli.ExitUsage
 		}
 
-		return PreFlight(root, candidate, flags["--explain-token"], flags["--duplicates"])
+		return PreFlight(root, candidate, flags["--explain-token"], flags["--duplicates"], s)
 	}
 
-	livingLines, livingSquashed, tokenDF := loadLivingDocs(root)
+	livingLines, livingSquashed, tokenDF := loadLivingDocs(root, s)
 
 	if flags["--audit-all"] {
-		return auditAll(root, livingLines, livingSquashed, tokenDF, flags["--explain-token"], auditMax)
+		return auditAll(root, livingLines, livingSquashed, tokenDF, flags["--explain-token"], auditMax, s)
 	}
 
-	return checkNewest(root, livingLines, livingSquashed, tokenDF, flags["--explain-token"])
+	return checkNewest(root, livingLines, livingSquashed, tokenDF, flags["--explain-token"], s)
 }
 
 // candidatesError is the package's static error type: readCandidates
@@ -546,7 +555,7 @@ func readCandidates() ([]string, *candidatesError) {
 
 // runExplainItem validates the needle positional and delegates to the
 // diagnostic ExplainItem mode.
-func runExplainItem(root string, positional []string) int {
+func runExplainItem(root string, positional []string, s Settings) int {
 	if len(positional) < 2 || strings.TrimSpace(positional[1]) == "" {
 		gatecli.Errln("FATAL: --explain-item needs a substring as the second positional —")
 		gatecli.Errln("  e.g. docs-freshness . --explain-item rewrite — matched against every")
@@ -555,18 +564,18 @@ func runExplainItem(root string, positional []string) int {
 		return gatecli.ExitUsage
 	}
 
-	livingLines, livingSquashed, tokenDF := loadLivingDocs(root)
+	livingLines, livingSquashed, tokenDF := loadLivingDocs(root, s)
 
-	return ExplainItem(root, positional[1], livingLines, livingSquashed, tokenDF)
+	return ExplainItem(root, positional[1], livingLines, livingSquashed, tokenDF, s)
 }
 
-// loadLivingDocs reads TODO_LIST + ROADMAP + CHANGELOG into the comparison
+// loadLivingDocs reads the configured living docs into the comparison
 // corpus: lowercased raw lines, their squashed keys, and the raw-line token
 // document frequency.
-func loadLivingDocs(root string) ([]string, []string, func(string) int) {
+func loadLivingDocs(root string, s Settings) ([]string, []string, func(string) int) {
 	var livingLines []string
 
-	for _, name := range []string{"TODO_LIST.md", "ROADMAP.md", "CHANGELOG.md"} {
+	for _, name := range s.livingDocs() {
 		data, err := os.ReadFile(filepath.Join(root, name))
 		if err != nil {
 			continue //nolint:erraudit // a not-yet-existing living doc simply contributes no lines
@@ -600,17 +609,17 @@ func tokenDFOver(lines []string) func(string) int {
 	}
 }
 
-// statusReports lists every replayable report: docs/status/2*.md plus
-// docs/status/archived/2*.md, oldest first — the corpus --audit-all and
+// statusReports lists every replayable report: the configured report dir
+// plus its archived subdir, oldest first — the corpus --audit-all and
 // --pre-flight replay.
-func statusReports(root string) []string {
+func statusReports(root string, s Settings) []string {
 	reports, _ := filepath.Glob(
-		filepath.Join(root, "docs", "status", "2*.md"),
+		s.reportGlobPath(root),
 	) //nolint:erraudit // constant pattern cannot be malformed
 	sort.Strings(reports)
 
 	archived, _ := filepath.Glob(
-		filepath.Join(root, "docs", "status", "archived", "2*.md"),
+		s.archivedGlobPath(root),
 	) //nolint:erraudit // constant pattern cannot be malformed
 	sort.Strings(archived)
 
@@ -623,20 +632,21 @@ func auditAll(
 	tokenDF func(string) int,
 	explain bool,
 	auditMax int,
+	s Settings,
 ) int {
-	reports := statusReports(root)
+	reports := statusReports(root, s)
 
 	checked, failed := 0, 0
 
 	for _, report := range reports {
-		for _, f := range CheckReport(report, livingLines, tokenDF, livingSquashed) {
+		for _, f := range CheckReport(report, livingLines, tokenDF, livingSquashed, s) {
 			failed++
 
 			gatecli.Outf("UNHARVESTED [%s]: %s\n", filepath.Base(report), gatecli.Truncate(f[0], itemMax))
 			gatecli.Outf("             %s\n", f[1])
 
 			if explain {
-				for _, line := range TokenTable(f[0], livingLines, livingSquashed, tokenDF) {
+				for _, line := range TokenTable(f[0], livingLines, livingSquashed, tokenDF, s.df()) {
 					gatecli.Outln(line)
 				}
 			}
@@ -697,9 +707,9 @@ type HtmlBlindSpot struct {
 // records whether the newest one outranks the newest parsed .md (both
 // filename families share the YYYY-MM-DD_HH-MM prefix, so lexical order
 // is chronological).
-func FindHtmlBlindSpot(root string) HtmlBlindSpot {
+func FindHtmlBlindSpot(root string, s Settings) HtmlBlindSpot {
 	htmls, _ := filepath.Glob(
-		filepath.Join(root, "docs", "status", "2*.html"),
+		filepath.Join(root, s.dir(), "2*.html"),
 	) //nolint:erraudit // constant pattern cannot be malformed
 	sort.Strings(htmls)
 
@@ -710,7 +720,7 @@ func FindHtmlBlindSpot(root string) HtmlBlindSpot {
 
 	spot.Newest = filepath.Base(htmls[len(htmls)-1])
 
-	md := NewestReport(root)
+	md := NewestReport(root, s)
 	mdBase := strings.TrimSuffix(filepath.Base(md), ".md")
 	htmlBase := strings.TrimSuffix(spot.Newest, ".html")
 	spot.Outranks = md == "" || htmlBase > mdBase
@@ -744,7 +754,7 @@ func warnHtmlBlindSpot(spot HtmlBlindSpot) {
 // DF=7 to 8, silently genericizing a 2026-10-03 item's last distinctive
 // token) needed a hand-rolled grep probe to root-cause; `--explain-token`
 // prints these lines under every UNHARVESTED item.
-func TokenTable(item string, livingLines, livingSquashed []string, tokenDF func(string) int) []string {
+func TokenTable(item string, livingLines, livingSquashed []string, tokenDF func(string) int, genericDF int) []string {
 	toks := Tokens(item)
 
 	out := make([]string, 0, 1+len(toks))
@@ -757,7 +767,7 @@ func TokenTable(item string, livingLines, livingSquashed []string, tokenDF func(
 		}
 
 		kind := "generic"
-		if tokenDF(t) < GenericDF {
+		if tokenDF(t) < genericDF {
 			kind = "DISTINCTIVE"
 		}
 
@@ -772,11 +782,11 @@ func TokenTable(item string, livingLines, livingSquashed []string, tokenDF func(
 // regardless of harvest state — the proactive-margin companion to
 // --explain-token (whose tables ride UNHARVESTED findings only, so a FRESH
 // corpus prints none). Always exits clean: it is a diagnostic, not a gate.
-func ExplainItem(root, needle string, livingLines, livingSquashed []string, tokenDF func(string) int) int {
+func ExplainItem(root, needle string, livingLines, livingSquashed []string, tokenDF func(string) int, s Settings) int {
 	lowerNeedle := strings.ToLower(needle)
 	matches := 0
 
-	for _, report := range statusReports(root) {
+	for _, report := range statusReports(root, s) {
 		section := ExtractSectionF(report)
 		if section == "" {
 			continue
@@ -794,14 +804,14 @@ func ExplainItem(root, needle string, livingLines, livingSquashed []string, toke
 			matches++
 
 			verdict := "harvested"
-			if reason := itemVerdict(item, livingLines, livingSquashed, tokenDF); reason != "" {
+			if reason := itemVerdict(item, livingLines, livingSquashed, tokenDF, s.df()); reason != "" {
 				verdict = "UNHARVESTED (" + reason + ")"
 			}
 
 			gatecli.Outf("--explain-item [%s]: %s\n", filepath.Base(report), gatecli.Truncate(item, itemMax))
 			gatecli.Outf("             verdict: %s\n", verdict)
 
-			for _, line := range TokenTable(item, livingLines, livingSquashed, tokenDF) {
+			for _, line := range TokenTable(item, livingLines, livingSquashed, tokenDF, s.df()) {
 				gatecli.Outln(line)
 			}
 		}
@@ -814,9 +824,9 @@ func ExplainItem(root, needle string, livingLines, livingSquashed []string, toke
 	return gatecli.ExitClean
 }
 
-func checkNewest(root string, livingLines, livingSquashed []string, tokenDF func(string) int, explain bool) int {
-	report := NewestReport(root)
-	warnHtmlBlindSpot(FindHtmlBlindSpot(root))
+func checkNewest(root string, livingLines, livingSquashed []string, tokenDF func(string) int, explain bool, s Settings) int {
+	report := NewestReport(root, s)
+	warnHtmlBlindSpot(FindHtmlBlindSpot(root, s))
 
 	if report == "" {
 		gatecli.Outln("docs-freshness: no docs/status reports found — nothing to check")
@@ -830,13 +840,13 @@ func checkNewest(root string, livingLines, livingSquashed []string, tokenDF func
 		return gatecli.ExitClean
 	}
 
-	findings := CheckReport(report, livingLines, tokenDF, livingSquashed)
+	findings := CheckReport(report, livingLines, tokenDF, livingSquashed, s)
 	for _, f := range findings {
 		gatecli.Outf("UNHARVESTED: %s\n", gatecli.Truncate(f[0], itemMax))
 		gatecli.Outf("             %s\n", f[1])
 
 		if explain {
-			for _, line := range TokenTable(f[0], livingLines, livingSquashed, tokenDF) {
+			for _, line := range TokenTable(f[0], livingLines, livingSquashed, tokenDF, s.df()) {
 				gatecli.Outln(line)
 			}
 		}
@@ -873,7 +883,7 @@ type Crossing struct {
 // class (a fresh CHANGELOG line's "decision batch" pushed `batch` from
 // DF 7 to 8 and silently genericized a 2026-10-03 item). Tokens that
 // were already generic, or stay below the threshold, do not cross.
-func BoundaryCrossings(candidate, baseLines, modLines []string) []Crossing {
+func BoundaryCrossings(candidate, baseLines, modLines []string, genericDF int) []Crossing {
 	baseDF := tokenDFOver(baseLines)
 	modDF := tokenDFOver(modLines)
 
@@ -890,7 +900,7 @@ func BoundaryCrossings(candidate, baseLines, modLines []string) []Crossing {
 			seen[tok] = true
 
 			before, after := baseDF(tok), modDF(tok)
-			if before < GenericDF && after >= GenericDF {
+			if before < genericDF && after >= genericDF {
 				crossings = append(crossings, Crossing{Token: tok, Before: before, After: after})
 			}
 		}
@@ -909,7 +919,7 @@ func BoundaryCrossings(candidate, baseLines, modLines []string) []Crossing {
 // rewording an EXISTING line needs the old line removed too, which this
 // mode does not see. Exit 0 = safe, 1 = the edit would introduce drift,
 // 2 = usage (no candidate lines).
-func PreFlight(root string, candidate []string, explain, allowDuplicates bool) int {
+func PreFlight(root string, candidate []string, explain, allowDuplicates bool, s Settings) int {
 	if len(candidate) == 0 {
 		gatecli.Errln("FATAL: --pre-flight needs the candidate line(s) on stdin — " +
 			"the exact new lines about to land in TODO_LIST/ROADMAP/CHANGELOG")
@@ -917,7 +927,7 @@ func PreFlight(root string, candidate []string, explain, allowDuplicates bool) i
 		return gatecli.ExitUsage
 	}
 
-	baseLines, baseSquashed, baseDF := loadLivingDocs(root)
+	baseLines, baseSquashed, baseDF := loadLivingDocs(root, s)
 
 	if allowDuplicates {
 		// The operator-side dedup workaround (grep -Fxvf) silently DROPS the
@@ -939,20 +949,20 @@ func PreFlight(root string, candidate []string, explain, allowDuplicates bool) i
 	candLower := modLines[len(baseLines):]
 	candSquashed := squashLines(candLower)
 
-	reports := statusReports(root)
-	baseFailing := failingKeys(reports, baseLines, baseDF, baseSquashed)
-	newly := newlyFailing(reports, modLines, modDF, modSquashed, baseFailing)
+	reports := statusReports(root, s)
+	baseFailing := failingKeys(reports, baseLines, baseDF, baseSquashed, s)
+	newly := newlyFailing(reports, modLines, modDF, modSquashed, baseFailing, s)
 
 	gatecli.Outf("docs-freshness --pre-flight: %d candidate line(s), replayed over %d report(s)\n",
 		len(candidate), len(reports))
 
-	for _, c := range BoundaryCrossings(candidate, baseLines, modLines) {
+	for _, c := range BoundaryCrossings(candidate, baseLines, modLines, s.df()) {
 		gatecli.Outf("  boundary token: %-28s DF %d→%d (genericizes every item whose only "+
 			"distinctive token this was)\n", c.Token, c.Before, c.After)
 	}
 
-	printNewly(newly, explain, modLines, modSquashed, modDF, candLower, candSquashed)
-	printBindings(reports, modLines, modDF, modSquashed, baseFailing, candLower, candSquashed)
+	printNewly(newly, explain, modLines, modSquashed, modDF, candLower, candSquashed, s.df())
+	printBindings(reports, modLines, modDF, modSquashed, baseFailing, candLower, candSquashed, s.df())
 
 	if len(newly) > 0 {
 		gatecli.Errf("docs-freshness --pre-flight: UNSAFE — %d historical item(s) would flip to "+
@@ -984,6 +994,7 @@ func printBindings(
 	modSquashed []string,
 	baseFailing map[itemKey]bool,
 	candLower, candSquashed []string,
+	genericDF int,
 ) {
 	var hits []bindHit
 
@@ -998,7 +1009,7 @@ func printBindings(
 				continue
 			}
 
-			if itemVerdict(item, modLines, modSquashed, modDF) != "" {
+			if itemVerdict(item, modLines, modSquashed, modDF, genericDF) != "" {
 				continue
 			}
 
@@ -1063,11 +1074,12 @@ func newlyFailing(
 	modDF func(string) int,
 	modSquashed []string,
 	baseFailing map[itemKey]bool,
+	s Settings,
 ) [][3]string {
 	var newly [][3]string // report, item, reason
 
 	for _, report := range reports {
-		for _, f := range CheckReport(report, modLines, modDF, modSquashed) {
+		for _, f := range CheckReport(report, modLines, modDF, modSquashed, s) {
 			if !baseFailing[itemKey{filepath.Base(report), f[0]}] {
 				newly = append(newly, [3]string{filepath.Base(report), f[0], f[1]})
 			}
@@ -1086,17 +1098,18 @@ func printNewly(
 	modLines, modSquashed []string,
 	modDF func(string) int,
 	candLower, candSquashed []string,
+	genericDF int,
 ) {
 	for _, f := range newly {
 		gatecli.Outf("WOULD-DRIFT [%s]: %s\n", f[0], gatecli.Truncate(f[1], itemMax))
 		gatecli.Outf("                  %s\n", f[2])
 
-		for _, c := range culpritAttributions(f[1], candLower, candSquashed, modDF) {
+		for _, c := range culpritAttributions(f[1], candLower, candSquashed, modDF, genericDF) {
 			gatecli.Outf("  culprit: %s\n", c)
 		}
 
 		if explain {
-			for _, line := range TokenTable(f[1], modLines, modSquashed, modDF) {
+			for _, line := range TokenTable(f[1], modLines, modSquashed, modDF, genericDF) {
 				gatecli.Outln(line)
 			}
 		}
@@ -1105,11 +1118,11 @@ func printNewly(
 
 // failingKeys indexes every open §f item the corpus FAILS to reflect, so a
 // delta replay can tell "already failing" from "newly failing".
-func failingKeys(reports, lines []string, tokenDF func(string) int, squashed []string) map[itemKey]bool {
+func failingKeys(reports, lines []string, tokenDF func(string) int, squashed []string, s Settings) map[itemKey]bool {
 	out := map[itemKey]bool{}
 
 	for _, report := range reports {
-		for _, f := range CheckReport(report, lines, tokenDF, squashed) {
+		for _, f := range CheckReport(report, lines, tokenDF, squashed, s) {
 			out[itemKey{filepath.Base(report), f[0]}] = true
 		}
 	}

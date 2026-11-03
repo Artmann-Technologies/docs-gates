@@ -67,7 +67,7 @@ func TestHyphenTokenMatchesSpacedLine(t *testing.T) {
 		return n
 	}
 
-	findings := CheckReport(report, living, tokenDF, livingSquashed)
+	findings := CheckReport(report, living, tokenDF, livingSquashed, DefaultSettings())
 	if len(findings) != 0 {
 		t.Fatalf("hyphen/space mismatch must not drift, got %v", findings)
 	}
@@ -83,7 +83,7 @@ func TestFindHtmlBlindSpot(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if s := FindHtmlBlindSpot(root); s.Count != 0 || s.Newest != "" || s.Outranks {
+	if s := FindHtmlBlindSpot(root, DefaultSettings()); s.Count != 0 || s.Newest != "" || s.Outranks {
 		t.Fatalf("empty status dir must yield a zero spot, got %+v", s)
 	}
 
@@ -99,19 +99,19 @@ func TestFindHtmlBlindSpot(t *testing.T) {
 	// OLDER .html companion, then a NEWER .html the .md scan skipped.
 	write("2026-10-07_13-10_md-report.md")
 
-	if s := FindHtmlBlindSpot(root); s.Count != 0 {
+	if s := FindHtmlBlindSpot(root, DefaultSettings()); s.Count != 0 {
 		t.Fatalf("no html yet, got %+v", s)
 	}
 
 	write("2026-10-07_10-00_older.html")
 
-	if s := FindHtmlBlindSpot(root); s.Count != 1 || s.Outranks {
+	if s := FindHtmlBlindSpot(root, DefaultSettings()); s.Count != 1 || s.Outranks {
 		t.Fatalf("older html must count but not outrank, got %+v", s)
 	}
 
 	write("2026-10-07_16-25_mail-stack-status.html")
 
-	s := FindHtmlBlindSpot(root)
+	s := FindHtmlBlindSpot(root, DefaultSettings())
 	if s.Count != 2 || !s.Outranks || s.Newest != "2026-10-07_16-25_mail-stack-status.html" {
 		t.Fatalf("newer html must outrank the newest .md, got %+v", s)
 	}
@@ -137,7 +137,7 @@ func TestUnmatchedItemStillDrifts(t *testing.T) {
 		return n
 	}
 
-	findings := CheckReport(report, living, tokenDF, livingSquashed)
+	findings := CheckReport(report, living, tokenDF, livingSquashed, DefaultSettings())
 	if len(findings) != 1 {
 		t.Fatalf("want 1 finding, got %v", findings)
 	}
@@ -174,7 +174,7 @@ func TestTokenTableShowsDFAndDistinctiveness(t *testing.T) {
 		return n
 	}
 
-	table := TokenTable("Re-run the ritual for the batch", living, squashLines(living), tokenDF)
+	table := TokenTable("Re-run the ritual for the batch", living, squashLines(living), tokenDF, DefaultSettings().df())
 	joined := strings.Join(table, "\n")
 
 	for _, want := range []string{
@@ -238,12 +238,12 @@ func TestPreFlightFlagsWouldBeDrift(t *testing.T) {
 
 	root := preFlightRoot(t)
 
-	if rc := PreFlight(root, []string{"changelog: alpha-probe summary row"}, false, false); rc != gatecli.ExitFindings {
+	if rc := PreFlight(root, []string{"changelog: alpha-probe summary row"}, false, false, DefaultSettings()); rc != gatecli.ExitFindings {
 		t.Fatalf("a line genericizing the last distinctive token must exit findings, got %d", rc)
 	}
 
 	unrelated := []string{"changelog: a wholly unrelated qwertyzz row"}
-	if rc := PreFlight(root, unrelated, false, false); rc != gatecli.ExitClean {
+	if rc := PreFlight(root, unrelated, false, false, DefaultSettings()); rc != gatecli.ExitClean {
 		t.Fatalf("an unrelated line must exit clean, got %d", rc)
 	}
 }
@@ -262,7 +262,7 @@ func TestPreFlightNamesCulpritCandidateToken(t *testing.T) {
 	root := preFlightRoot(t)
 
 	captured := gatecli.CaptureOutput(func() int {
-		return PreFlight(root, []string{"changelog: alpha-probe summary row"}, false, false)
+		return PreFlight(root, []string{"changelog: alpha-probe summary row"}, false, false, DefaultSettings())
 	})
 
 	if captured.Code != gatecli.ExitFindings {
@@ -291,6 +291,7 @@ func TestPreFlightMarksSquashSpellingCulprit(t *testing.T) {
 			[]string{"changelog: the alpha probe summary row", "changelog: alpha-probe landing row"},
 			false,
 			false,
+			DefaultSettings(),
 		)
 	})
 
@@ -319,7 +320,7 @@ func TestBoundaryCrossingsReportsOnlyThresholdFlips(t *testing.T) {
 
 	mod := append(slices.Clone(base), "alpha-probe mention")
 
-	crossings := BoundaryCrossings([]string{"alpha-probe mention"}, base, mod)
+	crossings := BoundaryCrossings([]string{"alpha-probe mention"}, base, mod, DefaultSettings().df())
 	if len(crossings) != 1 || crossings[0].Token != "alpha-probe" || crossings[0].Before != 7 ||
 		crossings[0].After != 8 {
 		t.Fatalf("want exactly alpha-probe 7→8, got %+v", crossings)
@@ -327,7 +328,7 @@ func TestBoundaryCrossingsReportsOnlyThresholdFlips(t *testing.T) {
 
 	// Already-generic tokens do not cross (8→9 stays above the bar) and
 	// fresh tokens do not either (0→1 stays below it).
-	crossings = BoundaryCrossings([]string{"webphone again and brandnew-zz"}, base, base)
+	crossings = BoundaryCrossings([]string{"webphone again and brandnew-zz"}, base, base, DefaultSettings().df())
 	if len(crossings) != 0 {
 		t.Fatalf("no crossing expected for already-generic or fresh tokens, got %+v", crossings)
 	}
@@ -338,7 +339,7 @@ func TestPreFlightEmptyCandidateIsUsage(t *testing.T) {
 
 	root := preFlightRoot(t)
 
-	if rc := PreFlight(root, nil, false, false); rc != gatecli.ExitUsage {
+	if rc := PreFlight(root, nil, false, false, DefaultSettings()); rc != gatecli.ExitUsage {
 		t.Fatalf("empty candidate must exit usage, got %d", rc)
 	}
 }
@@ -380,7 +381,7 @@ func TestPreFlightReportsBoundItemWithCandidate(t *testing.T) {
 	root := bindFixture(t, "quota-xyz replenish window followup")
 
 	captured := gatecli.CaptureOutput(func() int {
-		return PreFlight(root, []string{"todo: quota-xyz replenish window owner row"}, false, false)
+		return PreFlight(root, []string{"todo: quota-xyz replenish window owner row"}, false, false, DefaultSettings())
 	})
 
 	if captured.Code != gatecli.ExitClean {
@@ -418,6 +419,7 @@ func TestPreFlightBindsNothingWhenSlashTokenIsSplit(t *testing.T) {
 			[]string{"todo: one unrelated row spelling metric and counter separately"},
 			false,
 			false,
+			DefaultSettings(),
 		)
 	})
 
@@ -446,12 +448,12 @@ func TestPreFlightRefusesCandidatesAlreadyOnDisk(t *testing.T) {
 	// pre-flight carries its own additions inside the baseline, so the
 	// delta cannot see a flip — refuse instead of printing a
 	// misleading SAFE (the 2026-10-10 burn).
-	if rc := PreFlight(root, []string{"- alpha-probe evidence number 3"}, false, false); rc != gatecli.ExitUsage {
+	if rc := PreFlight(root, []string{"- alpha-probe evidence number 3"}, false, false, DefaultSettings()); rc != gatecli.ExitUsage {
 		t.Fatalf("a candidate already on disk must exit usage, got %d", rc)
 	}
 
 	// Whitespace-only candidates are vacuous, not "on disk".
-	if rc := PreFlight(root, []string{"   "}, false, false); rc != gatecli.ExitClean {
+	if rc := PreFlight(root, []string{"   "}, false, false, DefaultSettings()); rc != gatecli.ExitClean {
 		t.Fatalf("a whitespace-only candidate must stay clean, got %d", rc)
 	}
 }
@@ -468,17 +470,17 @@ func TestPreFlightDuplicatesModelsSecondCopyPush(t *testing.T) {
 	root := preFlightRoot(t)
 
 	// Without the flag the second copy is still refused, not answered.
-	if rc := PreFlight(root, []string{"- alpha-probe evidence number 3"}, false, false); rc != gatecli.ExitUsage {
+	if rc := PreFlight(root, []string{"- alpha-probe evidence number 3"}, false, false, DefaultSettings()); rc != gatecli.ExitUsage {
 		t.Fatalf("second copy without --duplicates must stay refused, got %d", rc)
 	}
 
 	// With it, the +1 push genericizes the item's only distinctive token.
-	if rc := PreFlight(root, []string{"- alpha-probe evidence number 3"}, false, true); rc != gatecli.ExitFindings {
+	if rc := PreFlight(root, []string{"- alpha-probe evidence number 3"}, false, true, DefaultSettings()); rc != gatecli.ExitFindings {
 		t.Fatalf("second copy with --duplicates must model the DF push and exit findings, got %d", rc)
 	}
 
 	// A second copy of an already-generic line pushes nothing that matters.
-	if rc := PreFlight(root, []string{"- webphone note number 3"}, false, true); rc != gatecli.ExitClean {
+	if rc := PreFlight(root, []string{"- webphone note number 3"}, false, true, DefaultSettings()); rc != gatecli.ExitClean {
 		t.Fatalf("second copy of a generic line must stay clean, got %d", rc)
 	}
 }
@@ -494,7 +496,7 @@ func TestPreFlightRefusalNamesOffendingLine(t *testing.T) {
 	root := preFlightRoot(t)
 
 	captured := gatecli.CaptureOutput(func() int {
-		return PreFlight(root, []string{"- alpha-probe evidence number 3"}, false, false)
+		return PreFlight(root, []string{"- alpha-probe evidence number 3"}, false, false, DefaultSettings())
 	})
 
 	if captured.Code != gatecli.ExitUsage {
@@ -536,7 +538,7 @@ func TestStatusReportsIncludesArchived(t *testing.T) {
 		}
 	}
 
-	reports := statusReports(root)
+	reports := statusReports(root, DefaultSettings())
 	if len(reports) != 2 {
 		t.Fatalf("want the live and the archived report, got %d: %v", len(reports), reports)
 	}
@@ -575,12 +577,12 @@ func TestPreFlightReplaysArchivedCorpus(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if rc := PreFlight(root, []string{"changelog: alpha-probe summary row"}, false, false); rc != gatecli.ExitFindings {
+	if rc := PreFlight(root, []string{"changelog: alpha-probe summary row"}, false, false, DefaultSettings()); rc != gatecli.ExitFindings {
 		t.Fatalf("an archived item's last distinctive token must still flip the verdict, got %d", rc)
 	}
 
 	unrelated := []string{"changelog: a wholly unrelated qwertyzz row"}
-	if rc := PreFlight(root, unrelated, false, false); rc != gatecli.ExitClean {
+	if rc := PreFlight(root, unrelated, false, false, DefaultSettings()); rc != gatecli.ExitClean {
 		t.Fatalf("an unrelated line must exit clean, got %d", rc)
 	}
 }
@@ -593,9 +595,9 @@ func TestExplainItemTablesHarvestedItems(t *testing.T) {
 	t.Parallel()
 
 	root := preFlightRoot(t)
-	livingLines, livingSquashed, tokenDF := loadLivingDocs(root)
+	livingLines, livingSquashed, tokenDF := loadLivingDocs(root, DefaultSettings())
 
-	rc := ExplainItem(root, "alpha-probe", livingLines, livingSquashed, tokenDF)
+	rc := ExplainItem(root, "alpha-probe", livingLines, livingSquashed, tokenDF, DefaultSettings())
 	if rc != gatecli.ExitClean {
 		t.Fatalf("diagnostic mode always exits clean, got %d", rc)
 	}
@@ -678,10 +680,10 @@ func TestExplainItemSkipsStruckAndExemptItems(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	livingLines, livingSquashed, tokenDF := loadLivingDocs(root)
+	livingLines, livingSquashed, tokenDF := loadLivingDocs(root, DefaultSettings())
 
 	captured := gatecli.CaptureOutput(func() int {
-		return ExplainItem(root, "exempt", livingLines, livingSquashed, tokenDF)
+		return ExplainItem(root, "exempt", livingLines, livingSquashed, tokenDF, DefaultSettings())
 	})
 
 	if captured.Code != gatecli.ExitClean {
