@@ -74,6 +74,7 @@ func ExtractItems(lines []string) []block {
 		if fenceRe.MatchString(raw) {
 			fenced = !fenced
 
+			//art-dupl:accept flush-then-continue IS the boundary protocol: every boundary (fence/heading/blank/sep-row) closes the open block, and `continue` is control flow no helper can absorb
 			flush()
 
 			continue
@@ -101,6 +102,7 @@ func ExtractItems(lines []string) []block {
 			currentStart = num
 			currentIsItem = true
 			current = []string{MaskCode(strings.TrimSpace(raw))}
+			//art-dupl:accept item start and continuation are different state transitions that share only the covered bookkeeping line; a helper would add indirection without removing a decision
 			covered[num] = true
 
 			continue

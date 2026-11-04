@@ -35,6 +35,7 @@ func CheckSpacing(root string, g gitRunner, hasGit bool, extensions []string) []
 		}
 
 		rel, err := filepath.Rel(root, path)
+		//art-dupl:accept two distinct per-file skip causes (relative-path and file-read), each carrying its own erraudit rationale; the shared shape is the idiomatic loop skip
 		if err != nil {
 			continue //nolint:erraudit // per-file skip; a doc under root always has a relative path
 		}

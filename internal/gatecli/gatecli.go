@@ -176,7 +176,7 @@ func LoadConfig(root string) (config.Config, error) {
 		Errf("config: %s\n", w)
 	}
 
-	return cfg, err
+	return cfg, err //nolint:wrapcheck // config.Load's error is pre-formatted for the caller's FATAL line (config.Load doc); wrapping would change the historical usage text
 }
 
 // ResolveRoot resolves the repo root: the FIRST positional argument when
