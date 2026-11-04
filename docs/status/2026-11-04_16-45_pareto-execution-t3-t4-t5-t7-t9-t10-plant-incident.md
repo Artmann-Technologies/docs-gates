@@ -193,3 +193,23 @@ culprit attribution). D1/D2 remain owner decisions.
 Verification status: every "done" claim above was re-run green in this
 session (lint 0 issues, `go test ./...` green, battery exit 0); the one
 claim pending external confirmation is CI green on 83c194c (f.1).*
+
+## Addendum (16:55-17:05 CET) — the two open verifications closed
+
+- **CI on 83c194c resolved**: provider green (the plant removal worked),
+  but the `go` job failed — `annotate-ratchet output drifted` ON CI
+  ONLY. Root cause: the buildflow-managed `.gitignore` block's broad
+  `reports/` rule silently swallowed the new fixture files under
+  `corpus-ratchet/reports/` and `corpus-warn/reports/` — `git add dir`
+  skipped them, local runs read the working tree (green) while CI saw
+  empty corpora (drift). Fix: scoped negation
+  (`!testdata/parity/*/reports/` + `!…/**`) outside the managed block,
+  both fixture files committed. CI is GREEN on the head commit
+  (41862027313, run conclusion success, both jobs).
+- **New permanent lesson for AGENTS.md** (third one this session, with
+  the two listed in §b): buildflow's managed ignores are broad enough
+  to hide new test fixtures — after adding corpus/testdata files, run
+  `git status --ignored` (or `git check-ignore`) before trusting a
+  staged-files count.
+- Item f.4's flake eval/build/fmt proofs remain open (next session's
+  first in-repo action alongside AGENTS.md lessons).
