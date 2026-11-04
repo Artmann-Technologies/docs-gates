@@ -69,3 +69,9 @@ reports/
 *.so
 *.dylib
 # <<< buildflow-managed (.gitignore) <<<
+
+# The parity corpus fixtures live under reports/ dirs (the gate corpus
+# shape); re-include them against the buildflow-managed broad `reports/`
+# rule above — test fixtures are deliberate repo content.
+!testdata/parity/*/reports/
+!testdata/parity/*/reports/**
