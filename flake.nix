@@ -3,8 +3,23 @@
 
   inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
 
+  # The //nolint:erraudit directives are live only when the erraudit tool
+  # is present: this input puts the pinned binary in the devShell and
+  # powers the nolint-audit staleness check. The repo is PRIVATE (gh,
+  # verified 2026-11-04), so the URL must be git+ssh; flake.lock pins the
+  # rev, so rule behavior cannot drift until an explicit
+  # `nix flake update` (BuildFlow's track-latest input policy, 2026-10-05).
+  # The package consumed is erraudit's own hermetic build (its
+  # go-standard FOD pins its private transitive deps) — none of that
+  # touches this repo's stdlib-only module contract.
+  inputs.erraudit.url = "git+ssh://git@github.com/LarsArtmann/erraudit";
+
   outputs =
-    { self, nixpkgs }:
+    {
+      self,
+      nixpkgs,
+      erraudit,
+    }:
     let
       lib = nixpkgs.lib;
 
@@ -112,6 +127,7 @@
         system:
         let
           pkgs = nixpkgs.legacyPackages.${system};
+          errauditPkg = erraudit.packages.${system}.default;
         in
         {
           # buildGoModule's default checkPhase runs `go test ./...` — the
@@ -138,6 +154,36 @@
                 docs-strike --version
                 touch $out
               '';
+
+          # The stale-nolint cadence (the source-fleet lesson: three stale
+          # //nolint:erraudit directives shipped green for days before one
+          # session ran the audit): staleness-checks every erraudit
+          # directive in the ROOT module, so a directive whose finding is
+          # gone — or a new suppression with no finding behind it — fails
+          # the check. Module-scoped by contract: nolint-audit refuses to
+          # cross nested go.mod boundaries, and pkg/provider carries no
+          # erraudit directives (verified 2026-11-04).
+          nolint-audit =
+            pkgs.runCommand "docs-gates-nolint-audit"
+              {
+                nativeBuildInputs = [
+                  errauditPkg
+                  pkgs.${goPkgAttr}
+                ];
+                env = {
+                  GOTOOLCHAIN = "local";
+                  GOWORK = "off";
+                  GOFLAGS = "-mod=mod";
+                  GOPROXY = "off";
+                  GOCACHE = "/tmp/dg-nolint-audit-gocache";
+                  GOPATH = "/tmp/dg-nolint-audit-gopath";
+                };
+              }
+              ''
+                cd ${self}
+                erraudit nolint-audit .
+                touch $out
+              '';
         }
       );
 
@@ -145,6 +191,7 @@
         system:
         let
           pkgs = nixpkgs.legacyPackages.${system};
+          errauditPkg = erraudit.packages.${system}.default;
         in
         {
           # No C compiler anywhere in this repo: the package builds
@@ -154,6 +201,7 @@
               pkgs.${goPkgAttr}
               pkgs.golangci-lint
               pkgs.nixfmt-tree
+              errauditPkg
             ];
 
             GOTOOLCHAIN = "local";
