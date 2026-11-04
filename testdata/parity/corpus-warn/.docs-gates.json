@@ -1,0 +1,18 @@
+{
+  "report_dir": "reports",
+  "report_glob": "2*.md",
+  "archived_subdir": "archived",
+  "living_docs": ["NOTES.md"],
+  "annotate_extra_globs": [],
+  "rule_f": false,
+  "rule_f_extensions": [".md"],
+  "generic_df": 4,
+  "audit_max": 0,
+  "todo_file": "TODOS.md",
+  "cadence": {
+    "struck_rows": 5,
+    "max_unarchived": 3,
+    "oldest_days": 10
+  },
+  "generic_df_bar": 1, "skip_gates": []
+}

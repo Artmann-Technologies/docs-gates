@@ -1,0 +1,3 @@
+docs-freshness --pre-flight: 1 candidate line(s), replayed over 1 report(s)
+  binds: no open report item is harvested by these candidate lines (fine for generic rows; when a row was MEANT to harvest one, run --explain-item and reword until it binds)
+docs-freshness --pre-flight: SAFE — no historical item flips to DRIFT

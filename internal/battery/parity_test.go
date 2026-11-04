@@ -31,12 +31,18 @@ import (
 const parityDateToken = "{{DATE}}"
 
 // parityGate is one pinned invocation; corpus names the corpus dir under
-// testdata/parity (default "corpus") the args run over.
+// testdata/parity (default "corpus") the args run over, stdin feeds the
+// verb's standard input (the --pre-flight candidate lines).
 type parityGate struct {
 	name   string
 	args   []string
 	corpus string
+	stdin  string
 }
+
+// preflightSafeCandidate is the SAFE-arm stdin fixture: brand-new tokens
+// only, nothing already on disk, nothing pushed to the DF boundary.
+const preflightSafeCandidate = "1. the zeppelin hull rivet audit needs scheduling\n"
 
 func parityGates() []parityGate {
 	return []parityGate{
@@ -46,6 +52,8 @@ func parityGates() []parityGate {
 		{name: "annotate-ratchet", args: []string{"annotate"}, corpus: "corpus-ratchet"},
 		{name: "routing", args: []string{"routing", "--strict"}},
 		{name: "cadence", args: []string{"cadence"}},
+		{name: "cadence-warn", args: []string{"cadence"}, corpus: "corpus-warn"},
+		{name: "preflight-safe", args: []string{"freshness", "--pre-flight"}, stdin: preflightSafeCandidate},
 		{name: "battery", args: []string{"run"}},
 	}
 }
@@ -99,9 +107,21 @@ func copyTree(t *testing.T, src, dst, today string) string {
 }
 
 // runCaptured execs one verb: the gate Run functions directly,
-// battery.Run for the run verb.
-func runCaptured(args []string) gatecli.CapturedOutput {
+// battery.Run for the run verb. stdin (when non-empty) is swapped in as
+// the process stdin for the duration of the call — the --pre-flight
+// candidate lines arrive that way.
+func runCaptured(args []string, stdin string) gatecli.CapturedOutput {
 	return gatecli.CaptureOutput(func() int {
+		if stdin != "" {
+			r, w, _ := os.Pipe()
+			_, _ = w.WriteString(stdin)
+			_ = w.Close()
+
+			orig := os.Stdin
+			os.Stdin = r
+			defer func() { os.Stdin = orig; _ = r.Close() }()
+		}
+
 		if len(args) == 0 {
 			return gatecli.ExitUsage
 		}
@@ -145,7 +165,7 @@ func TestParityGolden(t *testing.T) {
 
 		full := append(append([]string{}, gate.args...), root) // verb-first argv, root last
 
-		out := runCaptured(full)
+		out := runCaptured(full, gate.stdin)
 
 		goldenPath := filepath.Join("..", "..", "testdata", "parity", "golden", gate.name+".txt")
 		golden := strings.ReplaceAll(readOrEmpty(t, goldenPath), parityDateToken, today)
@@ -174,10 +194,22 @@ func TestParityGolden(t *testing.T) {
 	// unannotated strikes with annotate_max pinned at 2 in its config; a
 	// stricter pin (1) is a REGRESSION exit 1, proving the ratchet arm
 	// fails past the pin instead of always-green.
-	out := runCaptured([]string{"annotate", "--annotate-max=1", roots["corpus-ratchet"]})
+	out := runCaptured([]string{"annotate", "--annotate-max=1", roots["corpus-ratchet"]}, "")
 	if out.Code != gatecli.ExitFindings || !strings.Contains(out.Stderr, "REGRESSION") {
 		t.Fatalf("annotate-max=1 over the 2-finding corpus: code=%d stderr=%s, want REGRESSION exit %d",
 			out.Code, out.Stderr, gatecli.ExitFindings)
+	}
+
+	// Discrimination arm, pre-flight: candidate lines already on disk are
+	// REFUSED (exit 2) — a post-write replay would otherwise answer its
+	// own additions and hide a flip as SAFE.
+	out = runCaptured(
+		[]string{"freshness", "--pre-flight", roots["corpus"]},
+		"the lighthouse lens calibration watchrow ships this cycle\n",
+	)
+	if out.Code != gatecli.ExitUsage || !strings.Contains(out.Stderr, "ALREADY on disk") {
+		t.Fatalf("pre-flight over an on-disk line: code=%d stderr=%s, want refusal exit %d",
+			out.Code, out.Stderr, gatecli.ExitUsage)
 	}
 }
 

@@ -1,0 +1,5 @@
+docs-cadence: 0 struck DONE row(s) in TODOS.md (threshold 5)
+docs-cadence: PURGE-HEALTHY
+docs-cadence: 1 unarchived report(s) in reports/ (threshold 3); oldest {{DATE}}_10-00_ship-it.md is 0 day(s) old (threshold 10)
+docs-cadence: ARCHIVE-HEALTHY
+config: unknown config key "generic_df_bar" ignored
