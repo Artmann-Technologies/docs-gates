@@ -9,9 +9,11 @@ built.
 - **docs-freshness gate** — newest-report open-§f harvest check,
   `--audit-all` whole-corpus replay, the `--audit-max=N` ratchet,
   `--explain-item` / `--explain-token` diagnostics, `--pre-flight`
-  candidate replay with bind + duplicate legs. Ported from the source
-  fleet with identical output semantics; config-plumbed (report dir,
-  living docs, distinctive-token bar).
+  candidate replay (additions + rewrite-mode `--replace`, the
+  `--duplicates` modeling leg, split-heading warning), `--margins`
+  token-budget report, `--dump-items` extraction dump. Ported from the
+  source fleet with identical output semantics; config-plumbed (report
+  dir, living docs, distinctive-token bar).
 - **docs-annotate gate** — every struck item carries a resolvable verdict
   (hash/tag claims via git, repo-path claims), rule F inline-code spacing
   scan over configurable extensions, config-driven report dir + extra
@@ -40,7 +42,8 @@ built.
   (go-finding/toolsdk): blank-import self-registration, Detect exec's the
   binary from PATH and parses the verdict matrix into one finding per
   red gate; read-only by contract (Repair nil). Released as
-  `pkg/provider/v0.1.1`; HealthCheck covered by its own test.
+  `pkg/provider/v0.1.1`; HealthCheck covered by its own test; the
+  module's suite rides a flake `provider` check.
 - **Config schema** — `.docs-gates.json` loader: defaults for everything,
   unknown-key warnings, malformed/invalid = exit 2.
 - **Multi-verb binary** — six verbs, per-verb `--version` under the
@@ -55,7 +58,9 @@ built.
 - **flake.nix** — buildGoModule (vendorHash-free, stdlib-only), five
   legacy-name wrappers, both-Linux systems, devShell (go_1_27 pinned +
   GOTOOLCHAIN=local + golangci-lint + erraudit + nixfmt-tree), checks:
-  wrapper surface + legacy-wrappers smoke + nolint-audit staleness.
+  wrapper surface + legacy-wrappers smoke + nolint-audit staleness +
+  erraudit-lint (type-aware legacyerrors audit) + erraudit-rev (pinned
+  input-rev tripwire) + the provider module suite.
 - **Releases** — v0.1.0 (the extraction train) and v0.1.1 (annotate_max
   ratchet + provider module) tagged; `go install …@latest` resolves.
 - **Pilot rollout evidence** — crm + go-appkit seeded (2026-11-03) and

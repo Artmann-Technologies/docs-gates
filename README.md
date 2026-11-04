@@ -33,7 +33,19 @@ verb keeps its historical standalone name (`docs-freshness`,
 `docs-annotate`, `docs-routing`, `docs-cadence`, `docs-strike`) as a flake
 wrapper, and answers `--version` under that name.
 
-Exit codes: `0` clean, `1` findings, `2` usage/environment error.
+### Exit codes
+
+`0` clean, `1` findings, `2` usage/environment error — one contract for
+every verb:
+
+| Verb        | `0`                             | `1`                                                  | `2`                                                        |
+| ----------- | ------------------------------- | ---------------------------------------------------- | ---------------------------------------------------------- |
+| `run`       | every gate PASS or SKIP         | ≥ 1 gate FAIL (a gate's own rc=2 becomes a FAIL row) | bad repo root / bad config only                            |
+| `freshness` | FRESH                           | DRIFT — unharvested §f items                         | usage error, malformed config                              |
+| `annotate`  | clean or within the ratchet     | annotation findings past the pin                     | usage error, malformed config                              |
+| `routing`   | no routing gaps                 | open rows no living doc represents                   | usage error, malformed config                              |
+| `cadence`   | purge/archive thresholds met    | a threshold is overdue                               | usage error, malformed config                              |
+| `strike`    | row struck (dry-run is default) | —                                                    | refusal: ambiguous row, double strike, verdict-less target |
 
 ## BuildFlow consumers
 
@@ -74,6 +86,31 @@ gate you meant to drop. Unknown keys warn; malformed JSON or invalid
 values exit 2 — a gate silently running wrong thresholds is worse than a
 loud failure. JSON, not YAML: the module is stdlib-only by contract, and
 JSON is jq-able.
+
+## Freshness diagnostics
+
+Three read-only inspection modes on the freshness verb:
+
+```console
+docs-gates freshness . --margins
+docs-gates freshness . --dump-items docs/status/<report>.md
+echo "- the new TODO row text" | docs-gates freshness . --pre-flight
+```
+
+- `--margins` — every living-docs token within 2 document-frequency of
+  the generic bar, so drafts avoid those words first-try instead of
+  discovering the boundary through a failed run. Informational: never
+  flips a verdict.
+- `--dump-items <report>` — the §f extraction decisions for one report:
+  which lines became open items and the tokens each carries. A report
+  without a §f section is a usage error (exit 2).
+- `--pre-flight` — judge candidate living-doc lines (stdin) BEFORE the
+  edit lands: the replay reports items that would newly flip to DRIFT,
+  boundary-crossing tokens, and where each matched token lives.
+  Rewrites name the old lines with repeatable `--replace=the old line`:
+  they are removed before the replay so the rewrite is judged by its new
+  words only. `--duplicates` models a deliberate second copy instead of
+  refusing one; `--explain-token` adds per-token tables.
 
 ## Releases
 
