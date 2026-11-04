@@ -96,8 +96,18 @@ one.
   module. `go test ./...`, `go vet ./...`, the nix checkPhase, and CI
   (which runs all of those from the root) all exclude it. Test the
   provider from its own directory: `(cd pkg/provider && go test ./...)`.
-  Its go.mod pins go 1.27 (the root pins 1.26); the devShell toolchain
-  still runs its suite.
+  Its go.mod pins go 1.27 (the root pins 1.26); the flake pins one
+toolchain (go_1_27) over BOTH surfaces so the devShell runs its suite
+hermetically.
+- **The flake pins go_1_27 + GOTOOLCHAIN=local everywhere (build,
+  devShell)** — go_1_26 (the root floor) would reject pkg/provider's
+  `go 1.27` directive under local, and WITHOUT local go's default `auto`
+  mode silently downloads go1.27 into the module cache at dev time
+  (network fetch inside `nix develop`, verified 2026-11-04: local +
+  go1.26.10 fails `go.mod requires go >= 1.27`). A future module floor
+  past the pinned line now fails LOUDLY instead of fetching. The toolchain
+  rides one `goPkgAttr` binding shared by buildGoModule.override and the
+  devShell — do not fork it.
 - **gatecli.CaptureOutput is a process-global stdout swap** — tests using
   it must never be t.Parallel (the paralleltest lint suppressions in
   battery_test.go are deliberate, opener-line form). Serial tests complete

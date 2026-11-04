@@ -20,6 +20,18 @@ before v0.1.0.
   `scripts/stack-drift-check.sh`, which fails CI the moment the root
   go.mod grows a require/replace/exclude (the stdlib-only contract).
 
+### Changed
+
+- flake.nix hardened: one pinned toolchain (`go_1_27` via
+  `buildGoModule.override` + devShell) with `GOTOOLCHAIN=local` and
+  `CGO_ENABLED=0` in the devShell — kills go auto-mode's silent go1.27
+  network download into the module cache (pkg/provider pins go 1.27,
+  which go_1_26 + local rejects). devShell switched to `mkShellNoCC`.
+- `meta.platforms = lib.platforms.linux`; lib bound once (no more
+  `pkgs.lib.`); checks extended with `default` (wrapper surface) and
+  `legacy-wrappers` (smoke: each of the five legacy names +
+  `docs-gates` answers `--version` rc=0 from the installed PATH).
+
 ## 2026-11-03 (late)
 
 ### Added

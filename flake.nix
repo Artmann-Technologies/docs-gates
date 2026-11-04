@@ -6,6 +6,8 @@
   outputs =
     { self, nixpkgs }:
     let
+      lib = nixpkgs.lib;
+
       # Linux only, fleet precedent (the pbx flake): current nixos-unstable
       # no longer evaluates x86_64-darwin, and no consumer rides macOS.
       systems = [
@@ -13,9 +15,17 @@
         "aarch64-linux"
       ];
 
-      forAllSystems = nixpkgs.lib.genAttrs systems;
+      forAllSystems = lib.genAttrs systems;
 
       version = self.shortRev or self.dirtyShortRev or "dev";
+
+      # One toolchain line for the package build AND the devShell. 1.27,
+      # not 1.26 (the root go.mod floor): the nested pkg/provider module
+      # pins go 1.27, and every surface sets GOTOOLCHAIN=local — go_1_26
+      # would reject the provider module ("go.mod requires go >= 1.27"),
+      # and local is what forbids go's auto mode from silently fetching a
+      # newer toolchain from the network.
+      goPkgAttr = "go_1_27";
 
       # The legacy standalone binary names. Each wrapper execs the one
       # multi-call binary with the matching verb, so batteries and docs
@@ -46,7 +56,7 @@
 
       docsGatesFor =
         pkgs:
-        pkgs.buildGoModule {
+        (pkgs.buildGoModule.override { go = pkgs.${goPkgAttr}; }) {
           pname = "docs-gates";
           inherit version;
 
@@ -65,8 +75,9 @@
           meta = {
             description = "docs-health battery gates: freshness, annotate, routing, cadence, strike";
             homepage = "https://github.com/Artmann-Technologies/docs-gates";
-            license = pkgs.lib.licenses.mit;
+            license = lib.licenses.mit;
             mainProgram = "docs-gates";
+            platforms = lib.platforms.linux;
           };
         };
     in
@@ -97,11 +108,38 @@
         }
       );
 
-      checks = forAllSystems (system: {
-        # buildGoModule's default checkPhase runs `go test ./...` — the
-        # package build IS the test gate, stdlib-only suites included.
-        package = self.packages.${system}.docs-gates;
-      });
+      checks = forAllSystems (
+        system:
+        let
+          pkgs = nixpkgs.legacyPackages.${system};
+        in
+        {
+          # buildGoModule's default checkPhase runs `go test ./...` — the
+          # package build IS the test gate, stdlib-only suites included.
+          package = self.packages.${system}.docs-gates;
+
+          # The wrappers + symlinkJoin surface the fleet actually installs.
+          default = self.packages.${system}.default;
+
+          # The five legacy names are API (flake wrappers exec'ing the
+          # multi-call binary): each must resolve on PATH and answer
+          # --version under its legacy name with exit 0.
+          legacy-wrappers =
+            pkgs.runCommand "docs-gates-legacy-wrappers-smoke"
+              {
+                nativeBuildInputs = [ self.packages.${system}.default ];
+              }
+              ''
+                docs-gates --version
+                docs-freshness --version
+                docs-annotate --version
+                docs-routing --version
+                docs-cadence --version
+                docs-strike --version
+                touch $out
+              '';
+        }
+      );
 
       devShells = forAllSystems (
         system:
@@ -109,12 +147,17 @@
           pkgs = nixpkgs.legacyPackages.${system};
         in
         {
-          default = pkgs.mkShell {
+          # No C compiler anywhere in this repo: the package builds
+          # CGO_ENABLED=0 and the suites are stdlib-only.
+          default = pkgs.mkShellNoCC {
             packages = [
-              pkgs.go_1_26
+              pkgs.${goPkgAttr}
               pkgs.golangci-lint
               pkgs.nixfmt-tree
             ];
+
+            GOTOOLCHAIN = "local";
+            CGO_ENABLED = "0";
           };
         }
       );
