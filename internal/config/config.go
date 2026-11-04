@@ -50,8 +50,11 @@ const (
 	GateCadence   = "cadence"
 )
 
-// KnownGates lists every battery gate name skip_gates may name.
-var KnownGates = []string{GateFreshness, GateAuditAll, GateAnnotate, GateRouting, GateCadence}
+// KnownGates lists every battery gate name skip_gates may name. A
+// function, not a var: the vocabulary must not be mutable state.
+func KnownGates() []string {
+	return []string{GateFreshness, GateAuditAll, GateAnnotate, GateRouting, GateCadence}
+}
 
 // Cadence holds the purge/archive thresholds (docs-cadence gate).
 type Cadence struct {
@@ -253,11 +256,11 @@ func (c Config) validateNumbers() error {
 func (c Config) validateSkipGates() error {
 	for _, name := range c.SkipGates {
 		if name == "" {
-			return invalidf("skip_gates entries must not be empty; valid gates: %s", strings.Join(KnownGates, ", "))
+			return invalidf("skip_gates entries must not be empty; valid gates: %s", strings.Join(KnownGates(), ", "))
 		}
 
-		if !slices.Contains(KnownGates, name) {
-			return invalidf("skip_gates: unknown gate %q; valid gates: %s", name, strings.Join(KnownGates, ", "))
+		if !slices.Contains(KnownGates(), name) {
+			return invalidf("skip_gates: unknown gate %q; valid gates: %s", name, strings.Join(KnownGates(), ", "))
 		}
 	}
 
