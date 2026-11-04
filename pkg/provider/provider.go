@@ -29,6 +29,7 @@ import (
 	"context"
 	"fmt"
 	"os/exec"
+	"strconv"
 	"strings"
 
 	"github.com/larsartmann/go-finding"
@@ -62,7 +63,12 @@ func workingDir(ctx context.Context) string {
 // runBattery execs the docs-gates binary's battery verb over dir and
 // returns its exit code plus both output streams.
 func runBattery(ctx context.Context, bin, dir string) (int, string, string, error) {
-	cmd := exec.CommandContext(ctx, bin, "run", dir) //nolint:gosec,noctx // the binary name is this package's constant, not user input; BuildFlow owns timeouts
+	cmd := exec.CommandContext(
+		ctx,
+		bin,
+		"run",
+		dir,
+	) //nolint:gosec,noctx // the binary name is this package's constant, not user input; BuildFlow owns timeouts
 
 	var out, errOut strings.Builder
 
@@ -191,7 +197,7 @@ var Provider = toolsdk.Register(toolsdk.Spec{
 			return []finding.Finding{finding.NewFinding(
 				"usage",
 				toolName,
-				"docs-gates battery could not run over "+dir+" (exit "+fmt.Sprint(code)+"): "+message,
+				"docs-gates battery could not run over "+dir+" (exit "+strconv.Itoa(code)+"): "+message,
 				finding.SeverityError,
 				finding.Position{File: finding.FilePath(dir)},
 				finding.ConfidenceHigh,

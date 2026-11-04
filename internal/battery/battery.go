@@ -100,7 +100,7 @@ func Run(args []string) int {
 	results := make([]result, 0, len(list))
 
 	for _, g := range list {
-		if skipped(cfg, g.name) {
+		if slices.Contains(cfg.SkipGates, g.name) {
 			results = append(results, result{name: g.name, code: gatecli.ExitClean, skip: true})
 
 			continue

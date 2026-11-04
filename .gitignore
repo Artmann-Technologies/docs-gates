@@ -31,3 +31,41 @@ result-*
 .vscode/
 *.swp
 .DS_Store
+
+# >>> buildflow-managed (.gitignore) >>>
+# Auto-managed by buildflow. Edit outside these markers; this block is regenerated on `buildflow --fix`.
+
+## Secrets and environment
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+
+## Databases
+*.db
+*.db-shm
+*.db-wal
+
+## Operating systems
+._*
+.Spotlight-V100
+.Trashes
+Thumbs.db
+ehthumbs.db
+
+## Editors and ides
+*.swo
+*~
+
+## Logs and temporaries
+*.temp
+
+## Reports and coverage
+reports/
+
+## Go
+*.dll
+*.so
+*.dylib
+# <<< buildflow-managed (.gitignore) <<<

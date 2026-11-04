@@ -16,7 +16,7 @@ import (
 // PATH so the provider's PATH-based exec resolves the fake. Not parallel:
 // t.Setenv is process-global.
 //
-//nolint:paralleltest // process-global PATH swap, serialized on purpose
+
 func writeFakeBinary(t *testing.T, script string, exitCode int) {
 	t.Helper()
 
@@ -139,7 +139,6 @@ func TestDetectRedExitWithoutMatrixIsItsOwnFinding(t *testing.T) {
 	}
 }
 
-//nolint:paralleltest // process-global PATH swap, serialized on purpose
 func TestHealthCheckReportsMissingBinary(t *testing.T) {
 	t.Setenv("PATH", t.TempDir()) // no docs-gates anywhere
 
