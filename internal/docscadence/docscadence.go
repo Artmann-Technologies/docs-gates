@@ -237,7 +237,11 @@ func classify(body string) (int, int) {
 // archiveInventory summarizes the unarchived reports under root's
 // reportDir (the archived/ subdir below it is filtered as a directory; a
 // missing report dir is an empty inventory — test roots legitimately
-// carry only the TODO file). Any other read error is fatal.
+// carry only the TODO file). Any other read error is fatal. The bare err
+// return below is deliberate: the sole caller frames it as
+// `FATAL: reading <reportDir>/: %v`, so wrapping here would duplicate
+// the context (erraudit --max flags this site as context_loss; judged a
+// false positive at this layer, 2026-11-04).
 func archiveInventory(root string, today time.Time, reportDir string) (int, int, string, error) {
 	entries, err := os.ReadDir(filepath.Join(root, reportDir))
 	if err != nil {

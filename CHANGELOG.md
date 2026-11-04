@@ -40,6 +40,14 @@ match the annotated git tags; anything after the newest tag sits under
   erraudit reads it STALE with a failing rc — proof the flake's
   nolint-audit check cannot rot into a no-op. Wired as a leg of that
   check; skips on hosts without erraudit on PATH (CI runners).
+- erraudit posture sweep (audit-only, never a gate): `erraudit fix`
+  dry-run finds zero auto-fixable sites in either module; the `--max`
+  audit (suppressions bypassed) reports root 34 / provider 2 violations —
+  the dominant "project enforces samber/oops" class is deliberate (the
+  stdlib-only contract forbids the dependency), and the one CRITICAL
+  (context_loss at docscadence's bare err return) is judged a false
+  positive in-source: the sole caller frames the FATAL with the report
+  dir, so a wrap would duplicate the context.
 - `erraudit-lint` flake check: the findings axis joins the staleness
   axis — erraudit's type-aware legacyerrors audit (errors.As/Is → AsType)
   runs over the root module inside the same hermetic sandbox, so a new
