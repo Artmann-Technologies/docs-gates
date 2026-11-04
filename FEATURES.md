@@ -31,6 +31,15 @@ built.
   matrix (PASS/FAIL/SKIP per gate, no first-failure abort), exit 0/1,
   `skip_gates` + `audit_max` from repo config. Live-proven over the
   source fleet's corpus: 5/5 PASS.
+- **Parity goldens** — TestParityGolden pins six invocations (five gates
+  + battery) byte-for-byte over the fixture corpus testdata/parity/corpus
+  (custom config, `{{DATE}}` date-token substitution so ages stay
+  stable); goldens under testdata/parity/golden; re-pin via
+  `PARITY_UPDATE=1`.
+- **BuildFlow provider** — pkg/provider as its own go module
+  (go-finding/toolsdk): blank-import self-registration, Detect exec's the
+  binary from PATH and parses the verdict matrix into one finding per
+  red gate; read-only by contract (Repair nil).
 - **Config schema** — `.docs-gates.json` loader: defaults for everything,
   unknown-key warnings, malformed/invalid = exit 2.
 - **Multi-verb binary** — six verbs, per-verb `--version` under the
@@ -39,22 +48,11 @@ built.
   legacy-name wrappers, both-Linux systems, devShell (go 1.26,
   golangci-lint, nixfmt-tree), nix fmt via tracked treefmt.toml.
 
-## PARTIALLY DONE
-
-- **Parity discipline** — the extracted battery matched the source
-  battery's Go-gate verdicts live (5/5 PASS over the real corpus);
-  the byte-identical golden-fixture corpus (testdata/parity) is still
-  owed. (TODO_LIST)
-
 ## PLANNED
 
-- **BuildFlow provider** — toolsdk self-registration (`pkg/provider`
-  submodule) so the battery rides BuildFlow runs as a provider step.
 - **Pilot rollout evidence** — crm + go-appkit seeded (2026-11-03) and
   green under adoption ratchets (audit_max, annotate_max, cadence bars at
   the measured debt); the ratchets drain as the rituals run.
-- **Golden parity fixtures** — a synthetic corpus with pinned verdicts
-  guarding the gate semantics against drift.
 
 ## WORTH CONSIDERING
 

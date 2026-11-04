@@ -25,11 +25,14 @@ samber/lo (the stdlib2lo suggester findings are advisory noise); slices/
 maps stdlib helpers over external libraries. Consequence: `vendorHash =
 null` and a fully hermetic nix build. Escape hatch: a SEPARATE go module
 under this repo (the planned `pkg/provider`) may require third-party
-packages — the root stays clean.
+packages — the root stays clean (realized as `pkg/provider`, its own
+go.mod pinning go 1.27).
 
 ## First-party SDK inventory
 
-None consumed today. Planned: go-finding/toolsdk (provider submodule
-only). Source-fleet provenance: the five gate packages are ported from
-pbx-artmann's internal/{gatecli,docs*} — treat pbx-artmann's docs-health
-conventions as the spec, this repo as the implementation.
+go-finding v1.15.0 + go-finding/toolsdk v1.16.0, consumed ONLY by the
+pkg/provider submodule. A dependency that appears anywhere else is drift:
+the root go.mod must stay require-free (`scripts/stack-drift-check.sh`
+fails CI on it). Source-fleet provenance: the five gate packages are
+ported from pbx-artmann's internal/{gatecli,docs*} — treat pbx-artmann's
+docs-health conventions as the spec, this repo as the implementation.
