@@ -133,11 +133,14 @@ line_content="${matches#*:}"
 
 # The ordinal rail: a bare row-number anchor is the 2026-11-04 burn —
 # dump ordinals and table row numbers are different numbering spaces.
-stripped="$(printf '%s' "$anchor" | tr -d '[:space:]|')"
-if printf '%s' "$stripped" | grep -qE '^[0-9]+$'; then
-	echo "FATAL: the anchor is a bare row ORDINAL ($anchor) — dump-item ordinals" >&2
-	echo "and table row numbers are different numbering spaces (the 2026-11-04" >&2
-	echo "corruption). Anchor on the row's unique task text instead." >&2
+# Anchors carry task TEXT: fewer than 4 letters means the anchor is
+# only digits and regex scaffolding (`3`, `^\| 3 \|`), which can match
+# any numbering space and must never select a row.
+if ! printf '%s' "$anchor" | tr -cd '[:alpha:]' | grep -q '[a-zA-Z][a-zA-Z][a-zA-Z][a-zA-Z]'; then
+	echo "FATAL: the anchor carries no task text ($anchor) — an anchor of only" >&2
+	echo "digits and regex scaffolding can match any numbering space, and dump" >&2
+	echo "ordinals with table row numbers are different spaces (the 2026-11-04" >&2
+	echo "corruption). Anchor on the row's unique task words instead." >&2
 	exit 1
 fi
 
@@ -158,8 +161,7 @@ export STRIKE_FILE_WANT="$(printf '%s' "$line_content" | base64 -w0)"
 # perl does the single-line rewrite with bounded captures; STRIKE_FILE_WANT
 # re-verifies the line byte-for-byte between match and write, so a file
 # changed under us cannot be struck at the wrong row.
-perl -e '
-	use strict; use warnings;
+if ! perl -e '	use strict; use warnings;
 	my ($file) = @ARGV;
 	open(my $in, "<", $file) or die "FATAL: read: $!";
 	binmode $in; my @lines = <$in>; close $in;
@@ -199,7 +201,12 @@ perl -e '
 		$parts[$idx] =~ s/^(\s*)(.*?)(\s*)\z/$fn->($1, $2, $3)/se;
 		return join "", @parts;
 	}
-' "$file"
+' "$file"; then
+	# die exits 255; the refusal contract is 1. The write happens only
+	# after every check, so a refusal here left the file untouched.
+	echo "safe-strike: refused — the file is untouched" >&2
+	exit 1
+fi
 
 after="$(sed -n "${line_no}p" "$file")"
 echo "   after: $after"
