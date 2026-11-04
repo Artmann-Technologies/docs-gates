@@ -55,11 +55,11 @@ func gates(root string, cfg config.Config) []gate {
 	}
 
 	return []gate{
-		{name: "freshness", fn: docsfreshness.Run, args: []string{root}},
-		{name: "audit-all", fn: docsfreshness.Run, args: auditArgs},
-		{name: "annotate", fn: docsannotate.Run, args: annotateArgs},
-		{name: "routing", fn: docsrouting.Run, args: []string{root, "--strict"}},
-		{name: "cadence", fn: docscadence.Run, args: []string{root}},
+		{name: config.GateFreshness, fn: docsfreshness.Run, args: []string{root}},
+		{name: config.GateAuditAll, fn: docsfreshness.Run, args: auditArgs},
+		{name: config.GateAnnotate, fn: docsannotate.Run, args: annotateArgs},
+		{name: config.GateRouting, fn: docsrouting.Run, args: []string{root, "--strict"}},
+		{name: config.GateCadence, fn: docscadence.Run, args: []string{root}},
 	}
 }
 

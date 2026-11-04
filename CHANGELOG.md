@@ -74,6 +74,16 @@ match the annotated git tags; anything after the newest tag sits under
   baseline-pinning daemon lesson (pin `git rev-parse HEAD` before
   diffing — the daemon moves HEAD mid-session).
 
+### Fixed
+
+- `skip_gates` validation: a typo'd gate name used to be a silent no-op
+  (the battery matches via `slices.Contains` and never notices); it now
+  exits 2 naming the unknown entry and the five valid gates. Empty
+  entries refuse the same way. The battery's matrix names ride the new
+  `config.Gate*` constants, so the vocabulary cannot drift. Also fixed
+  `annotate_max` missing from the known-keys list, which made every repo
+  pinning it get a spurious "unknown config key" warning.
+
 ## [v0.1.1] - 2026-11-04
 
 ### Added

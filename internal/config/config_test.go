@@ -105,6 +105,8 @@ func TestLoadInvalidValuesAreErrors(t *testing.T) {
 		"cadence zero":      `{"cadence": {"struck_rows": 0}}`,
 		"bad extension":     `{"rule_f_extensions": ["md"]}`,
 		"abs report_dir":    `{"report_dir": "/tmp/status"}`,
+		"unknown skip_gate": `{"skip_gates": ["freshnes"]}`,
+		"empty skip_gate":   `{"skip_gates": [""]}`,
 	}
 
 	for name, body := range cases {
@@ -118,6 +120,44 @@ func TestLoadInvalidValuesAreErrors(t *testing.T) {
 				t.Fatalf("Load(%s) succeeded, want an error", body)
 			}
 		})
+	}
+}
+
+func TestLoadValidSkipGatesPasses(t *testing.T) {
+	t.Parallel()
+	root := t.TempDir()
+	writeConfig(t, root, `{"skip_gates": ["audit-all", "cadence"]}`)
+
+	cfg, warnings, err := Load(root)
+	if err != nil {
+		t.Fatalf("Load: %v", err)
+	}
+
+	if len(warnings) != 0 {
+		t.Fatalf("warnings = %v, want none", warnings)
+	}
+
+	if !reflect.DeepEqual(cfg.SkipGates, []string{"audit-all", "cadence"}) {
+		t.Fatalf("SkipGates = %v, want the config's list", cfg.SkipGates)
+	}
+}
+
+func TestLoadAnnotateMaxIsAKnownKey(t *testing.T) {
+	t.Parallel()
+	root := t.TempDir()
+	writeConfig(t, root, `{"annotate_max": 3}`)
+
+	cfg, warnings, err := Load(root)
+	if err != nil {
+		t.Fatalf("Load: %v", err)
+	}
+
+	if len(warnings) != 0 {
+		t.Fatalf("warnings = %v, want none for annotate_max", warnings)
+	}
+
+	if cfg.AnnotateMax != 3 {
+		t.Fatalf("AnnotateMax = %d, want 3", cfg.AnnotateMax)
 	}
 }
 

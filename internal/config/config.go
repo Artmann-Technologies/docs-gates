@@ -20,6 +20,7 @@ import (
 	"os"
 	"path/filepath"
 	"slices"
+	"strings"
 )
 
 // FileName is the per-repo config file the gates look for under the repo
@@ -36,6 +37,21 @@ const (
 	DefaultMaxUnarchived = 15
 	DefaultOldestDays    = 21
 )
+
+// The battery's gate names — the whole valid skip_gates vocabulary.
+// Single source of truth: battery.go names its matrix entries with these
+// constants, and validate refuses anything outside the list, so a typo'd
+// skip_gates entry is a loud exit 2 instead of a silent no-op.
+const (
+	GateFreshness = "freshness"
+	GateAuditAll  = "audit-all"
+	GateAnnotate  = "annotate"
+	GateRouting   = "routing"
+	GateCadence   = "cadence"
+)
+
+// KnownGates lists every battery gate name skip_gates may name.
+var KnownGates = []string{GateFreshness, GateAuditAll, GateAnnotate, GateRouting, GateCadence}
 
 // Cadence holds the purge/archive thresholds (docs-cadence gate).
 type Cadence struct {
@@ -180,6 +196,10 @@ func (c Config) validate() error {
 		return invalidf("todo_file must not be empty")
 	}
 
+	if err := c.validateSkipGates(); err != nil {
+		return err
+	}
+
 	return c.validateExtensions()
 }
 
@@ -227,6 +247,23 @@ func (c Config) validateNumbers() error {
 	return nil
 }
 
+// validateSkipGates refuses names outside the battery's gate set: the
+// battery matches skip entries with slices.Contains and would never
+// notice a typo, silently running a gate the config meant to drop.
+func (c Config) validateSkipGates() error {
+	for _, name := range c.SkipGates {
+		if name == "" {
+			return invalidf("skip_gates entries must not be empty; valid gates: %s", strings.Join(KnownGates, ", "))
+		}
+
+		if !slices.Contains(KnownGates, name) {
+			return invalidf("skip_gates: unknown gate %q; valid gates: %s", name, strings.Join(KnownGates, ", "))
+		}
+	}
+
+	return nil
+}
+
 // validateExtensions checks the rule-F file-extension list.
 func (c Config) validateExtensions() error {
 	for _, ext := range c.RuleFExtensions {
@@ -249,6 +286,7 @@ func knownKeys() map[string]bool {
 		"rule_f_extensions":    true,
 		"generic_df":           true,
 		"audit_max":            true,
+		"annotate_max":         true,
 		"todo_file":            true,
 		"cadence":              true,
 		"skip_gates":           true,

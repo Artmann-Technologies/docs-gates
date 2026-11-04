@@ -67,10 +67,13 @@ historical constant (see `internal/config.Defaults`):
 
 The ratchet keys are strict by default (`-1` omits the flag entirely);
 a repo with measured debt pins the count (`audit_max`/`annotate_max` >= 0)
-and drains it down — REGRESSION past the pin fails. Unknown keys warn;
-malformed JSON or invalid values exit 2 — a gate silently running wrong
-thresholds is worse than a loud failure. JSON, not YAML: the module is
-stdlib-only by contract, and JSON is jq-able.
+and drains it down — REGRESSION past the pin fails. `skip_gates` entries
+must name real battery gates (`freshness`, `audit-all`, `annotate`,
+`routing`, `cadence`) — a typo exits 2 rather than silently running the
+gate you meant to drop. Unknown keys warn; malformed JSON or invalid
+values exit 2 — a gate silently running wrong thresholds is worse than a
+loud failure. JSON, not YAML: the module is stdlib-only by contract, and
+JSON is jq-able.
 
 ## Releases
 
