@@ -227,6 +227,31 @@
                 touch $out
               '';
 
+          # The nested provider module's suite (root `./...` never sees
+          # it — AGENTS.md gotcha). Its own buildGoModule: public deps
+          # fetched by vendorHash, so the checkPhase go test runs
+          # hermetically. This does NOT touch the root stdlib-only
+          # contract, whose go.mod still carries zero requires.
+          provider =
+            (pkgs.buildGoModule.override { go = pkgs.${goPkgAttr}; }) {
+              pname = "docs-gates-provider-suite";
+              inherit version;
+
+              src = "${self}/pkg/provider";
+
+              vendorHash = "sha256-qOX4CkUkDtAiNSewsMAJN/4Zk1FZe27E4pF0bHonwVU=";
+
+              env = {
+                CGO_ENABLED = "0";
+                GOTOOLCHAIN = "local";
+              };
+
+              meta = {
+                description = "docs-gates provider module test suite check";
+                platforms = lib.platforms.linux;
+              };
+            };
+
           # Rule-behavior determinism: the erraudit input tracks master,
           # so `nix flake update` can silently swap the rule set. The
           # tripwire pins the locked rev in scripts/check-erraudit-rev.sh
