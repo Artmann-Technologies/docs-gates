@@ -70,8 +70,14 @@ one.
   env var (not a flag): `PARITY_UPDATE=1 go test ./internal/battery/
   -run TestParityGolden`, then diff by hand — a golden bump is a contract
   change.
-- **This repo has an auto-commit daemon** (commits ~every 3 min, pushes
-  too): format and lint AT WRITE TIME, commit deliberate trains with the
+- **This repo has an auto-commit daemon** (commits ~every 3 min, NEVER
+  pushes — the host config sets `autoPush = false` (SystemNix
+  configuration.nix, since 2026-06-01; the afternoon session's
+  "22-commit push lag" root cause: the daemon was doing exactly what
+  its config says while sessions believed it pushes and waited —
+  every push in this repo's history was a manual session push, so
+  PUSH YOUR OWN TRAINS; the phantom "pushes too" belief cost one
+  session a 22-commit surprise): format and lint AT WRITE TIME, commit deliberate trains with the
   HEREDOC attribution form, and expect heuristic `chore: auto-commit`
   entries in the log. Never restore/checkout files you did not author —
   and verify `git status` before claiming the daemon committed your work
