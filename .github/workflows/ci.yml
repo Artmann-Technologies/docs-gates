@@ -25,6 +25,15 @@ jobs:
       - name: gofmt
         run: test -z "$(gofmt -l . )" || { gofmt -l .; exit 1; }
 
+      # The fleet lint (same .golangci.yml the flake's devShell runs at 0
+      # findings; v2.15.0 matches the flake pin). The //nolint:erraudit
+      # directives make the runner WARN about an unknown linter — expected,
+      # erraudit is a standalone binary, not a golangci plugin.
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@d583c34f0599d37dbac4a198b9c83201be380893 # v9.3.0
+        with:
+          version: v2.15.0
+
       - name: stack drift (stdlib-only root module)
         run: |
           bash scripts/stack-drift-check.sh
@@ -51,6 +60,15 @@ jobs:
       - name: vet
         working-directory: pkg/provider
         run: go vet ./...
+
+      # Same fleet config, discovered by walking up from pkg/provider —
+      # the exact shape the repo's own lint command uses for the nested
+      # module (the root ./... never sees it).
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@d583c34f0599d37dbac4a198b9c83201be380893 # v9.3.0
+        with:
+          version: v2.15.0
+          working-directory: pkg/provider
 
       - name: test
         working-directory: pkg/provider
