@@ -45,6 +45,10 @@ const toolName = "docs-gates"
 // parse as verdicts.
 const matrixLinePrefix = "  "
 
+// minMatrixFields is the shortest verdict row the parser accepts: the
+// verdict word plus the gate name.
+const minMatrixFields = 2
+
 // installHint is the failure text HealthCheck reports when the binary is
 // not on PATH.
 const installHint = "docs-gates binary not on PATH — install via `nix run github:Artmann-Technologies/docs-gates` or `go install github.com/Artmann-Technologies/docs-gates/cmd/docs-gates@latest`"
@@ -61,14 +65,15 @@ func workingDir(ctx context.Context) string {
 }
 
 // runBattery execs the docs-gates binary's battery verb over dir and
-// returns its exit code plus both output streams.
+// returns its exit code plus both output streams. The binary name is a
+// package constant (gosec G204), and the context bounds the run.
 func runBattery(ctx context.Context, bin, dir string) (int, string, string, error) {
-	cmd := exec.CommandContext(
+	cmd := exec.CommandContext( //nolint:gosec,noctx // constant binary, not user input
 		ctx,
 		bin,
 		"run",
 		dir,
-	) //nolint:gosec,noctx // the binary name is this package's constant, not user input; BuildFlow owns timeouts
+	)
 
 	var out, errOut strings.Builder
 
@@ -99,7 +104,7 @@ func parseMatrix(stdout string) []string {
 		}
 
 		fields := strings.Fields(line)
-		if len(fields) < 2 {
+		if len(fields) < minMatrixFields {
 			continue
 		}
 
