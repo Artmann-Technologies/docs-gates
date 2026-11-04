@@ -85,6 +85,13 @@ match the annotated git tags; anything after the newest tag sits under
   `CGO_ENABLED=0` in the devShell — kills go auto-mode's silent go1.27
   network download into the module cache (pkg/provider pins go 1.27,
   which go_1_26 + local rejects). devShell switched to `mkShellNoCC`.
+- flake hygiene pass: `erraudit.inputs.nixpkgs.follows = "nixpkgs"`
+  evaluates erraudit against this flake's nixpkgs (both sides sat on the
+  same rev — zero behavior delta), removing the nixpkgs_2 lock node; the
+  `GOFLAGS=-mod=mod` env flag dropped from both erraudit checks (proven
+  unneeded: the stdlib-only root module never needs write mode); the two
+  duplicated `errauditPkg` bindings collapsed into one top-level
+  `system:` function.
 - `meta.platforms = lib.platforms.linux`; lib bound once (no more
   `pkgs.lib.`); checks extended with `default` (wrapper surface) and
   `legacy-wrappers` (smoke: each of the five legacy names +

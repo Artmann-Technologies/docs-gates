@@ -14,6 +14,13 @@
   # touches this repo's stdlib-only module contract.
   inputs.erraudit.url = "git+ssh://git@github.com/LarsArtmann/erraudit";
 
+  # Evaluate erraudit against THIS flake's nixpkgs instead of its own
+  # lock node (they sit on the same rev today, so behavior is identical;
+  # the follows keeps them from diverging and dedupes nixpkgs_2 from the
+  # lock). Verified: both erraudit checks still build green after the
+  # follows (2026-11-04).
+  inputs.erraudit.inputs.nixpkgs.follows = "nixpkgs";
+
   outputs =
     {
       self,
@@ -41,6 +48,10 @@
       # and local is what forbids go's auto mode from silently fetching a
       # newer toolchain from the network.
       goPkgAttr = "go_1_27";
+
+      # One binding for erraudit's hermetic package, shared by the checks
+      # and the devShell (was duplicated per-output let). Call per system.
+      errauditPkg = system: erraudit.packages.${system}.default;
 
       # The legacy standalone binary names. Each wrapper execs the one
       # multi-call binary with the matching verb, so batteries and docs
@@ -127,7 +138,6 @@
         system:
         let
           pkgs = nixpkgs.legacyPackages.${system};
-          errauditPkg = erraudit.packages.${system}.default;
         in
         {
           # buildGoModule's default checkPhase runs `go test ./...` — the
@@ -167,13 +177,12 @@
             pkgs.runCommand "docs-gates-nolint-audit"
               {
                 nativeBuildInputs = [
-                  errauditPkg
+                  (errauditPkg system)
                   pkgs.${goPkgAttr}
                 ];
                 env = {
                   GOTOOLCHAIN = "local";
                   GOWORK = "off";
-                  GOFLAGS = "-mod=mod";
                   GOPROXY = "off";
                   GOCACHE = "/tmp/dg-nolint-audit-gocache";
                   GOPATH = "/tmp/dg-nolint-audit-gopath";
@@ -201,13 +210,12 @@
             pkgs.runCommand "docs-gates-erraudit-lint"
               {
                 nativeBuildInputs = [
-                  errauditPkg
+                  (errauditPkg system)
                   pkgs.${goPkgAttr}
                 ];
                 env = {
                   GOTOOLCHAIN = "local";
                   GOWORK = "off";
-                  GOFLAGS = "-mod=mod";
                   GOPROXY = "off";
                   GOCACHE = "/tmp/dg-erraudit-lint-gocache";
                   GOPATH = "/tmp/dg-erraudit-lint-gopath";
@@ -244,7 +252,7 @@
         system:
         let
           pkgs = nixpkgs.legacyPackages.${system};
-          errauditPkg = erraudit.packages.${system}.default;
+
         in
         {
           # No C compiler anywhere in this repo: the package builds
@@ -254,7 +262,7 @@
               pkgs.${goPkgAttr}
               pkgs.golangci-lint
               pkgs.nixfmt-tree
-              errauditPkg
+              (errauditPkg system)
             ];
 
             GOTOOLCHAIN = "local";
