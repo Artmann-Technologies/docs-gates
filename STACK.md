@@ -6,17 +6,17 @@ via this file; a dependency that appears without a row here is drift
 
 ## Foundation
 
-| Concern   | Choice                                                                           | Owner            |
-| --------- | -------------------------------------------------------------------------------- | ---------------- |
+| Concern   | Choice                                                                                                                      | Owner            |
+| --------- | --------------------------------------------------------------------------------------------------------------------------- | ---------------- |
 | Language  | Go 1.26 root floor (go.mod `go 1.26`); flake pins go_1_27 + GOTOOLCHAIN=local over BOTH modules (pkg/provider pins go 1.27) | how-to-golang    |
-| Modules   | ZERO requires in the root go.mod (stdlib-only)    | this repo, ADR   |
-| CLI shape | internal/gatecli (Parse/HandleVersion/Outf)       | this repo        |
-| Errors    | one static type per package concern (+%w wraps)   | fleet go policy  |
-| Config    | stdlib encoding/json, snake_case keys             | this repo, ADR   |
-| Build     | flake.nix buildGoModule, vendorHash=null          | fleet nix policy |
-| Lint      | fleet .golangci.yml, 0-findings bar               | BuildFlow        |
-| Format    | gofmt + golangci-lint fmt (golines 120)           | BuildFlow        |
-| Tests     | stdlib testing, table-driven, capture via gatecli | fleet go policy  |
+| Modules   | ZERO requires in the root go.mod (stdlib-only)                                                                              | this repo, ADR   |
+| CLI shape | internal/gatecli (Parse/HandleVersion/Outf)                                                                                 | this repo        |
+| Errors    | one static type per package concern (+%w wraps)                                                                             | fleet go policy  |
+| Config    | stdlib encoding/json, snake_case keys                                                                                       | this repo, ADR   |
+| Build     | flake.nix buildGoModule, vendorHash=null                                                                                    | fleet nix policy |
+| Lint      | fleet .golangci.yml, 0-findings bar                                                                                         | BuildFlow        |
+| Format    | gofmt + golangci-lint fmt (golines 120)                                                                                     | BuildFlow        |
+| Tests     | stdlib testing, table-driven, capture via gatecli                                                                           | fleet go policy  |
 
 ## ADR: stdlib-only root module
 

@@ -100,7 +100,7 @@ goldens byte-identical throughout.
   repo's own corpus findings never take that path. One-line follow-up.
 - **CHANGELOG granularity (owner Q3)**: defaulted to per-task rows this
   session; the Unreleased section is now large — a release cut (section
-  + annotated tag, go-release ritual) would settle the question de facto.
+  - annotated tag, go-release ritual) would settle the question de facto.
 - **Routing-triage semantics convergence**: docsrouting now rides the
   freshness squash-arm condition (key-length, not raw-length). For
   hyphenated tokens that is a real (intended) behavior convergence;
@@ -111,7 +111,7 @@ goldens byte-identical throughout.
 ## c) NOT STARTED (all owner-gated or board rows untouched this session)
 
 - **T1** SystemNix float (`nix flake update docs-gates` + expected-locks
-  + evo-x2 toplevel proof) — P1, needs sibling-repo permission.
+  - evo-x2 toplevel proof) — P1, needs sibling-repo permission.
 - **T2** evo-x2 deploy (`nix run .#deploy`, live-PATH smoke) — P1,
   owner-gated quiescent window.
 - **T13** pbx-artmann migration onto this binary (the fleet migration
@@ -317,10 +317,10 @@ goldens byte-identical throughout.
    version the new flags — or do you want a quiet accumulation period
    first?
 2. **Sibling-repo permission**: the whole P1 tier (T1/T2 SystemNix float
-   + deploy, T13 pbx-artmann migration, T14/T15 pilot drains, T18,
-   T23 BuildFlow upstream) is blocked on your go-ahead to work directly
-   in SystemNix / pbx-artmann / crm / go-appkit / BuildFlow. Grant
-   blanket permission for the tier, or gate repo-by-repo?
+   - deploy, T13 pbx-artmann migration, T14/T15 pilot drains, T18,
+     T23 BuildFlow upstream) is blocked on your go-ahead to work directly
+     in SystemNix / pbx-artmann / crm / go-appkit / BuildFlow. Grant
+     blanket permission for the tier, or gate repo-by-repo?
 3. **Battery adoption scope (D1)**: you own the decision recorded in
    TODO §5 — do you want the gates running as a timer/PMA lane over
    fleet repos (autonomous red-on-drift), or PATH-only (humans invoke)?

@@ -1,4 +1,5 @@
 # Pareto Execution Session — T3/T4/T5/T7/T9/T10 landed; plant-incident
+
 # (blind revert) diagnosed and repaired; 15 plan tasks remain
 
 **2026-11-04 16:45 CET** · scope: this session only — the execution of the
@@ -15,18 +16,18 @@ daemon commits already pushed by the plan push.
 
 ## a) FULLY DONE (verified this session)
 
-| Item | Proof |
-| ---- | ----- |
-| **T4 skip_gates validation** — the verified live bug is dead | config.validateSkipGates refuses unknown/empty entries (exit 2, message names the typo + the five valid gates, smoke-tested via built binary); battery matrix names now ride `config.Gate*` constants (vocabulary cannot drift); tests red→green in config_test.go; README config section documents the gate vocabulary |
-| **Bonus bug found while reading: `annotate_max` missing from knownKeys** | any repo pinning annotate_max got a spurious `config: unknown key ignored` warning; fixed + regression test (TestLoadAnnotateMaxIsAKnownKey); CHANGELOG Fixed section |
-| **T3 provider CI legs** | new `provider` job (build/vet/test from pkg/provider, go-version-file pinned); both jobs green on 950f021; go-finding verified PUBLIC via gh (no CI credentials needed); **negative control proven**: planted compile break → `provider: failure` + `go: success` (the leg discriminates) |
-| **T5 gatecli seam tests** | CutIntFlag: last-wins, exact error-message bytes (3 malformed cases), rest nil-on-error/non-nil-on-success sentinels; LoadConfig: clean-config silence + warnings-print-before-error ordering (stderr capture) + exact FATAL error text; the serial-capture test carries the documented `//nolint:paralleltest` opener form |
-| **T9 annotate_max parity golden** | new `corpus-ratchet` (config pin annotate_max=2 over two unannotated strikes) + `annotate-ratchet` golden (RATCHET output byte-for-byte, {{DATE}}-stable) + discrimination arm inside TestParityGolden: pin=1 over 2 findings → REGRESSION exit 1 asserted |
-| **T10 warning-path + pre-flight goldens** | new `corpus-warn` (unknown key) → `cadence-warn` golden carries the `config:` warning line; `preflight-safe` golden replays stdin candidate lines through a swapped os.Stdin (BIND leg included, byte-stable); discrimination arm: already-on-disk candidate → refusal exit 2 asserted |
-| **T7 nolint-audit discrimination test (permanent)** | empirical probes established erraudit semantics first (finding-free directive → `STALE`, `1 stale`, rc 2; finding-bearing → NEEDED rc 0); internal/battery/nolintaudit_test.go plants the stale directive in a temp module and asserts STALE + rc≠0 (skips without erraudit, e.g. CI); the flake's nolint-audit check now runs it as its discrimination leg |
-| **Repo hygiene this session** | lint at 0 findings after fixes (gochecknoglobals: KnownGates var→func; wsl_v5 blanks; noctx: CommandContext); `go test ./...` all green; dogfood battery exit 0 (re-run after every doc edit); TODO rows for T4/T7/T9/T10 struck with evidence |
-| **Buildflow skill loaded before quality commands** | the 07-11 report's confessed violation was not repeated |
-| **CHANGELOG** | T4 got a Fixed row; the golden-corpus bullet updated for the two new corpora |
+| Item                                                                     | Proof                                                                                                                                                                                                                                                                                                                                                       |
+| ------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **T4 skip_gates validation** — the verified live bug is dead             | config.validateSkipGates refuses unknown/empty entries (exit 2, message names the typo + the five valid gates, smoke-tested via built binary); battery matrix names now ride `config.Gate*` constants (vocabulary cannot drift); tests red→green in config_test.go; README config section documents the gate vocabulary                                     |
+| **Bonus bug found while reading: `annotate_max` missing from knownKeys** | any repo pinning annotate_max got a spurious `config: unknown key ignored` warning; fixed + regression test (TestLoadAnnotateMaxIsAKnownKey); CHANGELOG Fixed section                                                                                                                                                                                       |
+| **T3 provider CI legs**                                                  | new `provider` job (build/vet/test from pkg/provider, go-version-file pinned); both jobs green on 950f021; go-finding verified PUBLIC via gh (no CI credentials needed); **negative control proven**: planted compile break → `provider: failure` + `go: success` (the leg discriminates)                                                                   |
+| **T5 gatecli seam tests**                                                | CutIntFlag: last-wins, exact error-message bytes (3 malformed cases), rest nil-on-error/non-nil-on-success sentinels; LoadConfig: clean-config silence + warnings-print-before-error ordering (stderr capture) + exact FATAL error text; the serial-capture test carries the documented `//nolint:paralleltest` opener form                                 |
+| **T9 annotate_max parity golden**                                        | new `corpus-ratchet` (config pin annotate_max=2 over two unannotated strikes) + `annotate-ratchet` golden (RATCHET output byte-for-byte, {{DATE}}-stable) + discrimination arm inside TestParityGolden: pin=1 over 2 findings → REGRESSION exit 1 asserted                                                                                                  |
+| **T10 warning-path + pre-flight goldens**                                | new `corpus-warn` (unknown key) → `cadence-warn` golden carries the `config:` warning line; `preflight-safe` golden replays stdin candidate lines through a swapped os.Stdin (BIND leg included, byte-stable); discrimination arm: already-on-disk candidate → refusal exit 2 asserted                                                                      |
+| **T7 nolint-audit discrimination test (permanent)**                      | empirical probes established erraudit semantics first (finding-free directive → `STALE`, `1 stale`, rc 2; finding-bearing → NEEDED rc 0); internal/battery/nolintaudit_test.go plants the stale directive in a temp module and asserts STALE + rc≠0 (skips without erraudit, e.g. CI); the flake's nolint-audit check now runs it as its discrimination leg |
+| **Repo hygiene this session**                                            | lint at 0 findings after fixes (gochecknoglobals: KnownGates var→func; wsl_v5 blanks; noctx: CommandContext); `go test ./...` all green; dogfood battery exit 0 (re-run after every doc edit); TODO rows for T4/T7/T9/T10 struck with evidence                                                                                                              |
+| **Buildflow skill loaded before quality commands**                       | the 07-11 report's confessed violation was not repeated                                                                                                                                                                                                                                                                                                     |
+| **CHANGELOG**                                                            | T4 got a Fixed row; the golden-corpus bullet updated for the two new corpora                                                                                                                                                                                                                                                                                |
 
 Commits this session: 12a3af3 (T4), 950f021 (T3 via daemon), 34eb608 +
 20478d7 + 4f3b77d (the plant incident, see d), 879b699 (T9), 96a839b
@@ -36,13 +37,13 @@ report time — first thing to verify next session).
 
 ## b) PARTIALLY DONE
 
-| Item | State | What remains |
-| ---- | ----- | ------------ |
-| **Final CI confirmation on 83c194c** | the repair train is pushed; the watch was still running when this report was written | confirm both jobs green (the 07:23 red run was the un-removed plant, now fixed by 83c194c) |
-| **CHANGELOG coverage of the session** | T4 + T9 are in; T3/T5/T7/T10 have TODO strikes but NO CHANGELOG rows yet | add the rows (one commit) |
-| **TODO strikes** | T4/T7/T9/T10 struck | T3 (§2.1) and T5 (§3.1) rows still unstruck |
-| **flake.nix eval proof after T7's edit** | the nolint-audit check grew a `go test` leg; `nix develop -c golangci-lint` + go test + battery verified, but `nix flake check --all-systems --no-build` and `nix build .#docs-gates` have NOT re-run since the flake edit (also `nix fmt` unrun) | eval + build + fmt before the next train |
-| **AGENTS.md lessons** | two new paid-for facts exist only in this report: (1) never `git revert HEAD` blind under the daemon — pin and revert the exact sha; (2) erraudit is system-installed on fleet hosts (fa5575f), so discrimination tests run bare too | write both into AGENTS.md |
+| Item                                     | State                                                                                                                                                                                                                                             | What remains                                                                               |
+| ---------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
+| **Final CI confirmation on 83c194c**     | the repair train is pushed; the watch was still running when this report was written                                                                                                                                                              | confirm both jobs green (the 07:23 red run was the un-removed plant, now fixed by 83c194c) |
+| **CHANGELOG coverage of the session**    | T4 + T9 are in; T3/T5/T7/T10 have TODO strikes but NO CHANGELOG rows yet                                                                                                                                                                          | add the rows (one commit)                                                                  |
+| **TODO strikes**                         | T4/T7/T9/T10 struck                                                                                                                                                                                                                               | T3 (§2.1) and T5 (§3.1) rows still unstruck                                                |
+| **flake.nix eval proof after T7's edit** | the nolint-audit check grew a `go test` leg; `nix develop -c golangci-lint` + go test + battery verified, but `nix flake check --all-systems --no-build` and `nix build .#docs-gates` have NOT re-run since the flake edit (also `nix fmt` unrun) | eval + build + fmt before the next train                                                   |
+| **AGENTS.md lessons**                    | two new paid-for facts exist only in this report: (1) never `git revert HEAD` blind under the daemon — pin and revert the exact sha; (2) erraudit is system-installed on fleet hosts (fa5575f), so discrimination tests run bare too              | write both into AGENTS.md                                                                  |
 
 ## c) NOT STARTED (from the 27-task plan; 15 tasks + owner pack remain)
 
@@ -189,10 +190,10 @@ culprit attribution). D1/D2 remain owner decisions.
 
 ---
 
-*Point-in-time snapshot 2026-11-04 16:45 CET; annotate, never rewrite.
+_Point-in-time snapshot 2026-11-04 16:45 CET; annotate, never rewrite.
 Verification status: every "done" claim above was re-run green in this
 session (lint 0 issues, `go test ./...` green, battery exit 0); the one
-claim pending external confirmation is CI green on 83c194c (f.1).*
+claim pending external confirmation is CI green on 83c194c (f.1)._
 
 ## Addendum (16:55-17:05 CET) — the two open verifications closed
 

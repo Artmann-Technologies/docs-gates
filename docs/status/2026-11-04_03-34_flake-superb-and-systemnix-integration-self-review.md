@@ -209,7 +209,7 @@ suite not in nix checks) is pre-existing and carried below.
 | 28 | token-margin-report — carried                                                                                                                                                                            | Medium | M      | Feature       |
 | 29 | docs/DOMAIN_LANGUAGE.md (verdict matrix, ratchet, struck row, harvest, distinctive token) — carried                                                                                                      | Medium | M      | Documentation |
 | 30 | Purge ritual decision for the 2 struck DONE rows (2/20 toward cadence threshold) — carried                                                                                                               | Low    | S      | Cleanup       |
-| 31 | ~~nolint-audit-cadence — carried~~ DONE 2026-11-04: landed as the nolint-audit + erraudit-lint + erraudit-rev flake checks                                                                                                                                                                           | Low    | S      | Quality       |
+| 31 | ~~nolint-audit-cadence — carried~~ DONE 2026-11-04: landed as the nolint-audit + erraudit-lint + erraudit-rev flake checks                                                                               | Low    | S      | Quality       |
 | 32 | Pilot ratchet drain in crm + go-appkit (external repos) — carried                                                                                                                                        | Medium | M      | Process       |
 
 ## g) Questions for the owner (cannot be figured out from here)

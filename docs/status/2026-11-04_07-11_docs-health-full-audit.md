@@ -5,20 +5,20 @@ skill superbly over docs-gates" · branch `main`.
 
 **Scope line — VERIFIED this session (fresh commands, exit codes read back):**
 
-| Claim                                                             | Evidence                                                                                                                             |
-| ----------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
-| Battery over THIS repo 5/5 PASS (run 3×: red→red→green arc)        | `go run ./cmd/docs-gates run .` — final: freshness/audit-all/annotate/routing/cadence all PASS, rc=0; 11 struck items, 0 findings     |
-| Root module suite green                                           | `nix develop -c go test ./...` — 8 packages `ok`                                                                                      |
-| Provider module suite green                                       | `(cd pkg/provider && go test ./...)` — `ok`                                                                                            |
-| Lint 0 findings (root module)                                     | `nix develop -c golangci-lint run ./...` → `0 issues.` (expected erraudit nolint_filter warning only)                                 |
-| gofmt + formatter zero-diff                                       | `gofmt -l .` empty after `gofmt -w` on items.go; `golangci-lint fmt ./...` → no changes                                                |
-| Both-arch flake eval                                              | `nix flake check --all-systems --no-build` → all checks passed                                                                        |
-| Nix package + sandbox checkPhase                                  | `nix build .#docs-gates` → green (checkPhase runs the root suite)                                                                     |
-| CI green on GitHub                                                | `gh run list` — 3× `completed success` through 04:51 (predates this train's push)                                                     |
-| Tags: v0.1.0, v0.1.1, pkg/provider/v0.1.1 exist; commit ranges read | `git for-each-ref refs/tags`, `git log v0.1.0..v0.1.1` (CHANGELOG version mapping derived from these)                                 |
-| skip_gates typo = silent no-op confirmed                          | `internal/battery/battery.go:93` `slices.Contains(cfg.SkipGates, g.name)`; `config.validate()` checks paths/numbers/extensions only    |
-| provider HealthCheck IS tested; `func skipped` gone                | `pkg/provider/provider_test.go:142`; grep over `internal/battery/battery.go`                                                          |
-| Freshness harvest semantics understood                            | read `internal/docsfreshness/check.go` (token quorum 2 + distinctiveness bar DF<8; struck/skip-marker items exempt)                    |
+| Claim                                                               | Evidence                                                                                                                            |
+| ------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| Battery over THIS repo 5/5 PASS (run 3×: red→red→green arc)         | `go run ./cmd/docs-gates run .` — final: freshness/audit-all/annotate/routing/cadence all PASS, rc=0; 11 struck items, 0 findings   |
+| Root module suite green                                             | `nix develop -c go test ./...` — 8 packages `ok`                                                                                    |
+| Provider module suite green                                         | `(cd pkg/provider && go test ./...)` — `ok`                                                                                         |
+| Lint 0 findings (root module)                                       | `nix develop -c golangci-lint run ./...` → `0 issues.` (expected erraudit nolint_filter warning only)                               |
+| gofmt + formatter zero-diff                                         | `gofmt -l .` empty after `gofmt -w` on items.go; `golangci-lint fmt ./...` → no changes                                             |
+| Both-arch flake eval                                                | `nix flake check --all-systems --no-build` → all checks passed                                                                      |
+| Nix package + sandbox checkPhase                                    | `nix build .#docs-gates` → green (checkPhase runs the root suite)                                                                   |
+| CI green on GitHub                                                  | `gh run list` — 3× `completed success` through 04:51 (predates this train's push)                                                   |
+| Tags: v0.1.0, v0.1.1, pkg/provider/v0.1.1 exist; commit ranges read | `git for-each-ref refs/tags`, `git log v0.1.0..v0.1.1` (CHANGELOG version mapping derived from these)                               |
+| skip_gates typo = silent no-op confirmed                            | `internal/battery/battery.go:93` `slices.Contains(cfg.SkipGates, g.name)`; `config.validate()` checks paths/numbers/extensions only |
+| provider HealthCheck IS tested; `func skipped` gone                 | `pkg/provider/provider_test.go:142`; grep over `internal/battery/battery.go`                                                        |
+| Freshness harvest semantics understood                              | read `internal/docsfreshness/check.go` (token quorum 2 + distinctiveness bar DF<8; struck/skip-marker items exempt)                 |
 
 **NOT verified this session (and why):**
 
@@ -106,7 +106,7 @@ skill superbly over docs-gates" · branch `main`.
    code anchors, bounded contexts (gate-vs-battery output, freshness vs
    audit-all, the two HeadingRe regexes), deprecated terms.
 9. **AGENTS.md** — baseline-pinning daemon lesson added to the
-  auto-commit bullet (the 05-06 paid lesson, previously report-only).
+   auto-commit bullet (the 05-06 paid lesson, previously report-only).
 10. **Code comment** — `docsannotate.headingRe` now documents its
     deliberate width vs `docsfreshness.HeadingRe` (dedup-merge guard);
     gofmt-clean, lint-clean.
@@ -182,23 +182,23 @@ damage list (all self-caught, all recovered within the session):
 The 40-row TODO_LIST rebuilt this session IS the routed backlog — top
 items below by impact; "§N" cites its home section. NEW = born this session.
 
-| #  | Task                                                                                          | Impact | Effort | Category      |
-| -- | ---------------------------------------------------------------------------------------------- | ------ | ------ | ------------- |
-| 1  | Confirm CI green on THIS train's daemon push (gh run list) — NEW, minutes after this report    | High   | S      | Quality       |
-| 2  | Provider CI legs in ci.yml (TODO §2)                                                           | High   | S      | Quality       |
-| 3  | config.validate: refuse/warn unknown skip_gates values (TODO §1; verified real this session)   | High   | S      | Bug           |
-| 4  | Repo-owned erraudit-lint flake check + discrimination test + rev tripwire (TODO §1)            | High   | S      | Quality       |
-| 5  | CutIntFlag/LoadConfig unit tests (TODO §3)                                                     | High   | S      | Quality       |
-| 6  | annotate_max golden pin (TODO §2)                                                              | High   | M      | Quality       |
-| 7  | Float SystemNix to the hardened flake + deploy evo-x2 (TODO §4, owner-gated P1s)               | High   | S      | Integration   |
-| 8  | Freshness: extend culprit-attribution to harvest findings (name the living-doc line that matched/violated) — NEW | Medium | M | Feature |
-| 9  | pbx-artmann fleet migration (TODO §4)                                                          | Medium | M      | Integration   |
-| 10 | BuildFlow#87 + roundtrip-walker upstream fixes, then drop the AGENTS bypasses (TODO §4)        | Medium | L      | Quality       |
-| 11 | Shared-helper round 2 + docscadence pre-split + docsannotate projection (TODO §3)              | Medium | M      | Cleanup       |
-| 12 | Parity corpus: warning-path + pre-flight goldens (TODO §2)                                     | Medium | M      | Quality       |
-| 13 | Pilot ratchet drain crm/go-appkit (TODO §4)                                                    | Medium | M      | Process       |
-| 14 | Owner decisions: battery adoption scope, go floor unification (TODO §5)                        | Medium | S      | Decision      |
-| 15 | Gate features: preflight legs, token-margin-report, --dump-items (TODO §5)                     | Medium | M      | Feature       |
+| #  | Task                                                                                                             | Impact | Effort | Category    |
+| -- | ---------------------------------------------------------------------------------------------------------------- | ------ | ------ | ----------- |
+| 1  | Confirm CI green on THIS train's daemon push (gh run list) — NEW, minutes after this report                      | High   | S      | Quality     |
+| 2  | Provider CI legs in ci.yml (TODO §2)                                                                             | High   | S      | Quality     |
+| 3  | config.validate: refuse/warn unknown skip_gates values (TODO §1; verified real this session)                     | High   | S      | Bug         |
+| 4  | Repo-owned erraudit-lint flake check + discrimination test + rev tripwire (TODO §1)                              | High   | S      | Quality     |
+| 5  | CutIntFlag/LoadConfig unit tests (TODO §3)                                                                       | High   | S      | Quality     |
+| 6  | annotate_max golden pin (TODO §2)                                                                                | High   | M      | Quality     |
+| 7  | Float SystemNix to the hardened flake + deploy evo-x2 (TODO §4, owner-gated P1s)                                 | High   | S      | Integration |
+| 8  | Freshness: extend culprit-attribution to harvest findings (name the living-doc line that matched/violated) — NEW | Medium | M      | Feature     |
+| 9  | pbx-artmann fleet migration (TODO §4)                                                                            | Medium | M      | Integration |
+| 10 | BuildFlow#87 + roundtrip-walker upstream fixes, then drop the AGENTS bypasses (TODO §4)                          | Medium | L      | Quality     |
+| 11 | Shared-helper round 2 + docscadence pre-split + docsannotate projection (TODO §3)                                | Medium | M      | Cleanup     |
+| 12 | Parity corpus: warning-path + pre-flight goldens (TODO §2)                                                       | Medium | M      | Quality     |
+| 13 | Pilot ratchet drain crm/go-appkit (TODO §4)                                                                      | Medium | M      | Process     |
+| 14 | Owner decisions: battery adoption scope, go floor unification (TODO §5)                                          | Medium | S      | Decision    |
+| 15 | Gate features: preflight legs, token-margin-report, --dump-items (TODO §5)                                       | Medium | M      | Feature     |
 
 (Honest stop at 15: rows 16-40 already live in TODO_LIST §1-§5 with
 evidence; restating them here would duplicate the backlog the audit just
@@ -222,6 +222,6 @@ deduped.)
 
 ---
 
-*HARVEST note: §f rows 1 and 8 are NEW (not yet in TODO_LIST/ROADMAP); the
+_HARVEST note: §f rows 1 and 8 are NEW (not yet in TODO_LIST/ROADMAP); the
 rest already ride the rebuilt TODO_LIST sections. The session closes the
-loop by harvesting those two before ending.*
+loop by harvesting those two before ending._
