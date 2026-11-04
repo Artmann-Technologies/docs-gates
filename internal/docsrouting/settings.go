@@ -2,6 +2,7 @@ package docsrouting
 
 import (
 	"cmp"
+	"path/filepath"
 
 	"github.com/Artmann-Technologies/docs-gates/internal/config"
 	"github.com/Artmann-Technologies/docs-gates/internal/docsfreshness"
@@ -44,4 +45,8 @@ func (s Settings) reportDir() string {
 
 func (s Settings) reportGlob() string {
 	return cmp.Or(s.ReportGlob, config.Defaults().ReportGlob)
+}
+
+func (s Settings) reportGlobPath(root string) string {
+	return filepath.Join(root, s.reportDir(), s.reportGlob())
 }

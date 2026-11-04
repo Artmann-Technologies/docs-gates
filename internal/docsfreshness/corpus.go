@@ -61,6 +61,42 @@ func LivingDocsLines(root string, names []string) []string {
 	return lines
 }
 
+// Corpus is the prepared living-docs corpus: raw lowercased lines plus
+// their squashed keys. The freshness harvest and the routing triage share
+// this one preparation so the two gates cannot disagree about what
+// "present in the living docs" means (the 2026-11-04 dedup: docsrouting
+// grew its own tokenIn/squashContains/livingLineCount with a subtly
+// different squash-arm length condition; both now ride this type).
+type Corpus struct {
+	lines    []string
+	squashed []string
+}
+
+// NewCorpus prepares raw (already lowercased) lines for token matching.
+func NewCorpus(lines []string) Corpus {
+	return Corpus{lines: lines, squashed: squashLines(lines)}
+}
+
+// LivingDocsCorpus is LivingDocsLines prepared for token matching.
+func LivingDocsCorpus(root string, names []string) Corpus {
+	return NewCorpus(LivingDocsLines(root, names))
+}
+
+// Contains reports whether the token is present in the corpus: raw
+// substring match first, then the hyphen/space-collapsed key when the KEY
+// is long enough to carry it — the harvest's reference semantics.
+func (c Corpus) Contains(token string) bool {
+	return tokenPresent(token, c.lines, c.squashed)
+}
+
+// Count is the raw-line document frequency: how many lines contain the
+// token as a substring. Genericity counts stay on RAW lines: GenericDF
+// was tuned against raw substring counts, and squashed counting inflates
+// them (words join across boundaries).
+func (c Corpus) Count(token string) int {
+	return tokenDFOver(c.lines)(token)
+}
+
 // loadLivingDocs reads the configured living docs into the comparison
 // corpus: lowercased raw lines, their squashed keys, and the raw-line token
 // document frequency.

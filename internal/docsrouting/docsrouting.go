@@ -70,13 +70,11 @@ type Gap struct {
 // dir and returns the open non-§f actionable rows the living docs do not
 // reflect.
 func RoutingGaps(root string, s Settings) []Gap {
-	living := docsfreshness.LivingDocsLines(root, s.livingDocs())
+	living := docsfreshness.LivingDocsCorpus(root, s.livingDocs())
 
 	gaps := make([]Gap, 0, gapCap)
 
-	reports, _ := filepath.Glob(
-		filepath.Join(root, s.reportDir(), s.reportGlob()),
-	) //nolint:erraudit // constant pattern cannot be malformed
+	reports := unarchivedReports(root, s)
 	sort.Strings(reports)
 
 	for _, report := range reports {
@@ -86,7 +84,15 @@ func RoutingGaps(root string, s Settings) []Gap {
 	return gaps
 }
 
-func reportGaps(report string, living []string, genericDF int) []Gap {
+// unarchivedReports lists the report corpus (constant pattern — the glob
+// cannot be malformed); RoutingGaps sorts its copy.
+func unarchivedReports(root string, s Settings) []string {
+	reports, _ := filepath.Glob(s.reportGlobPath(root)) //nolint:erraudit // constant pattern cannot be malformed
+
+	return reports
+}
+
+func reportGaps(report string, living docsfreshness.Corpus, genericDF int) []Gap {
 	data, err := os.ReadFile(report)
 	if err != nil {
 		return nil
@@ -138,7 +144,7 @@ func isOpenActionable(line string) bool {
 // the quorum of tokens with the living corpus, one of them distinctive
 // (on fewer than genericDF living lines) — the same semantics under
 // which a harvested §f item counts as represented.
-func routed(row string, living []string, genericDF int) bool {
+func routed(row string, living docsfreshness.Corpus, genericDF int) bool {
 	if pointerRe.MatchString(row) {
 		return true // routed by explicit living-doc pointer (pointerRe)
 	}
@@ -156,13 +162,13 @@ func routed(row string, living []string, genericDF int) bool {
 	found, distinctive := 0, false
 
 	for _, tok := range toks {
-		if !tokenIn(tok, living) {
+		if !living.Contains(tok) {
 			continue
 		}
 
 		found++
 
-		if livingLineCount(tok, living) < genericDF {
+		if living.Count(tok) < genericDF {
 			distinctive = true
 		}
 	}
@@ -170,46 +176,9 @@ func routed(row string, living []string, genericDF int) bool {
 	return found >= need && distinctive
 }
 
-func tokenIn(token string, living []string) bool {
-	for _, line := range living {
-		if strings.Contains(line, token) {
-			return true
-		}
-	}
-
-	return len(token) >= docsfreshness.MinTokenLen &&
-		squashContains(docsfreshness.Squash(token), living)
-}
-
-func squashContains(key string, living []string) bool {
-	if key == "" {
-		return false
-	}
-
-	for _, line := range living {
-		if strings.Contains(docsfreshness.Squash(line), key) {
-			return true
-		}
-	}
-
-	return false
-}
-
-func livingLineCount(token string, living []string) int {
-	n := 0
-
-	for _, line := range living {
-		if strings.Contains(line, token) {
-			n++
-		}
-	}
-
-	return n
-}
-
 // tokenHint names the row's most useful search tokens (rare-in-living
 // first) so triage is a copy-paste, not a re-read.
-func tokenHint(row string, living []string) string {
+func tokenHint(row string, living docsfreshness.Corpus) string {
 	toks := docsfreshness.Tokens(row)
 
 	type counted struct {
@@ -220,7 +189,7 @@ func tokenHint(row string, living []string) string {
 	counts := make([]counted, 0, len(toks))
 
 	for _, tok := range toks {
-		counts = append(counts, counted{tok, livingLineCount(tok, living)})
+		counts = append(counts, counted{tok, living.Count(tok)})
 	}
 
 	sort.SliceStable(counts, func(i, j int) bool { return counts[i].n < counts[j].n })
@@ -285,9 +254,5 @@ func Run(args []string) int {
 }
 
 func countUnarchived(root string, s Settings) int {
-	reports, _ := filepath.Glob(
-		filepath.Join(root, s.reportDir(), s.reportGlob()),
-	) //nolint:erraudit // constant pattern cannot be malformed
-
-	return len(reports)
+	return len(unarchivedReports(root, s))
 }
