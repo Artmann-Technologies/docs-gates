@@ -5,12 +5,12 @@ docs-gates: gate audit-all ...
 docs-freshness --audit-all: 1 report(s) replayed, 0 unharvested open item(s)
 docs-freshness --audit-all: FRESH
 docs-gates: gate annotate ...
-docs-annotate: 1 file(s), 0 struck item(s), 0 finding(s)
+docs-annotate: 1 file(s), 1 struck item(s), 0 finding(s)
 docs-annotate: CLEAN
 docs-gates: gate routing ...
 docs-routing (STRICT): 1 unarchived report(s) scanned, 0 unrouted open row(s)
 docs-gates: gate cadence ...
-docs-cadence: 0 struck DONE row(s) in TODOS.md (threshold 5)
+docs-cadence: 1 struck DONE row(s) in TODOS.md (threshold 5)
 docs-cadence: PURGE-HEALTHY
 docs-cadence: 1 unarchived report(s) in reports/ (threshold 3); oldest {{DATE}}_10-00_ship-it.md is 0 day(s) old (threshold 10)
 docs-cadence: ARCHIVE-HEALTHY

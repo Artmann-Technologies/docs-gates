@@ -1,3 +1,3 @@
-docs-annotate: 1 file(s), 0 struck item(s), 0 finding(s)
+docs-annotate: 1 file(s), 1 struck item(s), 0 finding(s)
 docs-annotate: CLEAN
 docs-annotate: no git checkout here - hash/tag rules skipped

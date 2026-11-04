@@ -34,14 +34,22 @@ const parityDateToken = "{{DATE}}"
 // testdata/parity (default "corpus") the args run over, stdin feeds the
 // verb's standard input (the --pre-flight candidate lines), wantCode is
 // the exit the gate owes over the corpus (default clean; the rewrite-mode
-// arm is SUPPOSED to be a findings exit — the bytes are the contract).
+// and refusal arms are SUPPOSED to be non-clean — the bytes are the
+// contract), argsAfterRoot rides AFTER the root positional (the
+// --dump-items report path is positional[1], behind the root).
 type parityGate struct {
-	name     string
-	args     []string
-	corpus   string
-	stdin    string
-	wantCode int
+	name          string
+	args          []string
+	corpus        string
+	stdin         string
+	wantCode      int
+	argsAfterRoot []string
 }
+
+// parityRootToken replaces the materialized corpus temp root in golden
+// bytes, so path-carrying outputs (--dump-items echoes its argument) stay
+// byte-stable across runs.
+const parityRootToken = "<corpus>"
 
 // preflightSafeCandidate is the SAFE-arm stdin fixture: brand-new tokens
 // only, nothing already on disk, nothing pushed to the DF boundary.
@@ -66,6 +74,18 @@ func parityGates() []parityGate {
 		{name: "routing", args: []string{"routing", "--strict"}},
 		{name: "cadence", args: []string{"cadence"}},
 		{name: "cadence-warn", args: []string{"cadence"}, corpus: "corpus-warn"},
+		{name: "margins", args: []string{"freshness", "--margins"}},
+		{
+			name:          "dump-items",
+			args:          []string{"freshness", "--dump-items"},
+			argsAfterRoot: []string{"<corpus>/reports/{{DATE}}_10-00_ship-it.md"},
+		},
+		{
+			name:          "dump-items-refusal",
+			args:          []string{"freshness", "--dump-items"},
+			argsAfterRoot: []string{"<corpus>/TODOS.md"},
+			wantCode:      gatecli.ExitUsage,
+		},
 		{name: "preflight-safe", args: []string{"freshness", "--pre-flight"}, stdin: preflightSafeCandidate},
 		{
 			name:     "preflight-replace",
@@ -186,15 +206,26 @@ func TestParityGolden(t *testing.T) {
 
 		full := append(append([]string{}, gate.args...), root) // verb-first argv, root last
 
+		for _, extra := range gate.argsAfterRoot {
+			extra = strings.ReplaceAll(extra, parityRootToken, root)
+			full = append(full, strings.ReplaceAll(extra, parityDateToken, today))
+		}
+
 		out := runCaptured(full, gate.stdin)
 
+		// normalize puts a captured run into golden form: dates collapse to
+		// the token and the ephemeral corpus root to <corpus>, so path-
+		// carrying outputs stay byte-stable.
+		normalize := func(s string) string {
+			s = strings.ReplaceAll(s, today, parityDateToken)
+
+			return strings.ReplaceAll(s, root, parityRootToken)
+		}
+
 		goldenPath := filepath.Join("..", "..", "testdata", "parity", "golden", gate.name+".txt")
-		golden := strings.ReplaceAll(readOrEmpty(t, goldenPath), parityDateToken, today)
 
 		if update {
-			raw := strings.ReplaceAll(out.Stdout+out.Stderr, today, parityDateToken)
-
-			if err := os.WriteFile(goldenPath, []byte(raw), 0o644); err != nil {
+			if err := os.WriteFile(goldenPath, []byte(normalize(out.Stdout+out.Stderr)), 0o644); err != nil {
 				t.Fatalf("write golden %s: %v", goldenPath, err)
 			}
 
@@ -211,9 +242,9 @@ func TestParityGolden(t *testing.T) {
 			)
 		}
 
-		if out.Stdout+out.Stderr != golden {
+		if got, want := normalize(out.Stdout+out.Stderr), readOrEmpty(t, goldenPath); got != want {
 			t.Fatalf("%s output drifted from the golden:\n--- want ---\n%s\n--- got ---\n%s",
-				gate.name, golden, out.Stdout+out.Stderr)
+				gate.name, want, got)
 		}
 	}
 

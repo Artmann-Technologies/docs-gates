@@ -1,0 +1,1 @@
+FATAL: no §f section found in <corpus>/TODOS.md (the freshness gate reads the newest report's §f only)

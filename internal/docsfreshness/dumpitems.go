@@ -3,16 +3,17 @@ package docsfreshness
 import (
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/Artmann-Technologies/docs-gates/internal/gatecli"
 )
 
 // DumpItems prints the §f extraction decisions for one report
 // (--dump-items <report>): whether a §f section was found, which lines
-// ExtractItems accepted as open items, and the tokens each item carries.
-// The point is inspectability WITHOUT test scaffolding — "why is this
-// line not an item / why does this item not harvest" becomes one
-// command. Informational only, exit 0 (a missing report path is usage).
+// ExtractItems accepted as open items, the tokens each item carries, and
+// which items the strike marker exempts — the extraction decision is
+// fully explainable, including the "why is this ~~row~~ not harvested"
+// side. Informational only, exit 0 (a missing report path is usage).
 func DumpItems(report string) int {
 	if _, err := os.ReadFile(report); err != nil {
 		gatecli.Errf("FATAL: reading %s: %v\n", report, err)
@@ -30,13 +31,28 @@ func DumpItems(report string) int {
 		return gatecli.ExitUsage
 	}
 
-	items := ExtractItems(section)
+	var open, struck []string
 
-	gatecli.Outf("docs-freshness --dump-items: %s — %d open item(s) extracted\n", report, len(items))
+	for _, item := range ExtractItems(section) {
+		if strings.Contains(item, "~~") {
+			struck = append(struck, item)
 
-	for i, item := range items {
+			continue
+		}
+
+		open = append(open, item)
+	}
+
+	gatecli.Outf("docs-freshness --dump-items: %s — %d open item(s) extracted\n", report, len(open))
+
+	for i, item := range open {
 		gatecli.Outf("  item %d: %s\n", i+1, gatecli.Truncate(item, itemMax))
 		gatecli.Outf("    tokens: %s\n", fmt.Sprint(Tokens(item)))
+	}
+
+	for i, item := range struck {
+		gatecli.Outf("  struck %d (exempt: the ~~ strike marker carries the resolution): %s\n",
+			i+1, gatecli.Truncate(item, itemMax))
 	}
 
 	return gatecli.ExitClean

@@ -1,0 +1,4 @@
+docs-freshness --dump-items: <corpus>/reports/{{DATE}}_10-00_ship-it.md — 1 open item(s) extracted
+  item 1: 1. the lighthouse lens calibration watchrow needs a pass
+    tokens: [lighthouse lens calibration watchrow needs pass]
+  struck 1 (exempt: the ~~ strike marker carries the resolution): 2. ~~the offset recalibration watchrow retrospective~~ done (r1)
