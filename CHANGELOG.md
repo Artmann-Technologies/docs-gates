@@ -139,6 +139,12 @@ match the annotated git tags; anything after the newest tag sits under
 
 ### Changed
 
+- Audit-all findings now carry the same harvest attributions as the
+  newest-report leg (matched tokens with DF + example living-docs lines
+  under each UNHARVESTED row); a battery corpus arm asserts the lines so
+  the two render sites cannot drift apart again. Parity goldens
+  untouched — the fixture corpus replays FRESH, the change only colors
+  red runs.
 - File-size refactor (26 files, zero behavior change): the two oversized
   gate files and their tests split along package seams — docsfreshness.go
   (1203 lines → 8 files), docsannotate.go (853 → 4), their test files
