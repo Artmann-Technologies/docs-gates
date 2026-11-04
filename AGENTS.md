@@ -75,7 +75,11 @@ one.
   HEREDOC attribution form, and expect heuristic `chore: auto-commit`
   entries in the log. Never restore/checkout files you did not author —
   and verify `git status` before claiming the daemon committed your work
-  (it has a known blind spot).
+  (it has a known blind spot). Pin your verification baseline (`git
+  rev-parse HEAD`) BEFORE any before/after diff — HEAD moves under you
+  mid-session, and an unpinned "pre-split" comparison can silently target
+  a daemon commit (paid for 2026-11-04: one misdirected losslessness
+  check).
 - **Lint: the fleet golangci config runs at 0 findings.** Keep it there.
   erraudit rides the devShell since 2026-11-04 (flake input — see
   Non-obvious facts): the `//nolint:erraudit` directives are LIVE, and

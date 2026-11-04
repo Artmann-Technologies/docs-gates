@@ -32,24 +32,30 @@ built.
   `skip_gates` + `audit_max` from repo config. Live-proven over the
   source fleet's corpus: 5/5 PASS.
 - **Parity goldens** — TestParityGolden pins six invocations (five gates
-  - battery) byte-for-byte over the fixture corpus testdata/parity/corpus
-    (custom config, `{{DATE}}` date-token substitution so ages stay
-    stable); goldens under testdata/parity/golden; re-pin via
-    `PARITY_UPDATE=1`.
+  + battery) byte-for-byte over the fixture corpus testdata/parity/corpus
+  (custom config, `{{DATE}}` date-token substitution so ages stay
+  stable); goldens under testdata/parity/golden; re-pin via
+  `PARITY_UPDATE=1`.
 - **BuildFlow provider** — pkg/provider as its own go module
   (go-finding/toolsdk): blank-import self-registration, Detect exec's the
   binary from PATH and parses the verdict matrix into one finding per
-  red gate; read-only by contract (Repair nil).
+  red gate; read-only by contract (Repair nil). Released as
+  `pkg/provider/v0.1.1`; HealthCheck covered by its own test.
 - **Config schema** — `.docs-gates.json` loader: defaults for everything,
   unknown-key warnings, malformed/invalid = exit 2.
 - **Multi-verb binary** — six verbs, per-verb `--version` under the
   legacy standalone names.
+- **CI workflow** — build / vet / gofmt / stack-drift / test on push + PR
+  over the root module.
+- **stack-drift check** — `scripts/stack-drift-check.sh` fails CI the
+  moment the root go.mod grows a require/replace/exclude (the
+  stdlib-only contract, mechanically enforced).
 - **flake.nix** — buildGoModule (vendorHash-free, stdlib-only), five
-  legacy-name wrappers, both-Linux systems, devShell (go 1.26,
-  golangci-lint, nixfmt-tree), nix fmt via tracked treefmt.toml.
-
-## PLANNED
-
+  legacy-name wrappers, both-Linux systems, devShell (go_1_27 pinned +
+  GOTOOLCHAIN=local + golangci-lint + erraudit + nixfmt-tree), checks:
+  wrapper surface + legacy-wrappers smoke + nolint-audit staleness.
+- **Releases** — v0.1.0 (the extraction train) and v0.1.1 (annotate_max
+  ratchet + provider module) tagged; `go install …@latest` resolves.
 - **Pilot rollout evidence** — crm + go-appkit seeded (2026-11-03) and
   green under adoption ratchets (audit_max, annotate_max, cadence bars at
   the measured debt); the ratchets drain as the rituals run.

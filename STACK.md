@@ -6,9 +6,9 @@ via this file; a dependency that appears without a row here is drift
 
 ## Foundation
 
-| Concern   | Choice                                            | Owner            |
-| --------- | ------------------------------------------------- | ---------------- |
-| Language  | Go 1.26 (go.mod `go 1.26.0`; devShell go_1_26)    | how-to-golang    |
+| Concern   | Choice                                                                           | Owner            |
+| --------- | -------------------------------------------------------------------------------- | ---------------- |
+| Language  | Go 1.26 root floor (go.mod `go 1.26`); flake pins go_1_27 + GOTOOLCHAIN=local over BOTH modules (pkg/provider pins go 1.27) | how-to-golang    |
 | Modules   | ZERO requires in the root go.mod (stdlib-only)    | this repo, ADR   |
 | CLI shape | internal/gatecli (Parse/HandleVersion/Outf)       | this repo        |
 | Errors    | one static type per package concern (+%w wraps)   | fleet go policy  |

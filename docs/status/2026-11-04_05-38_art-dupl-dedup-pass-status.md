@@ -105,7 +105,7 @@ Ranked by impact; Effort S <30min, M 30min–2h, L >2h. Items marked **(carry-ov
 1. Add table-driven unit tests for `gatecli.CutIntFlag` (last-wins; malformed/negative → `valuedFlagError` message bytes; rest non-nil on success, nil on error). — Critical / S / Quality
 2. Add unit test for `gatecli.LoadConfig` (warnings printed BEFORE error is returned; exact `config: %s` wording; error identity passthrough; clean-config silent). — Critical / S / Quality
 3. Reconcile AGENTS' cmp.Or convention with `docscadence.SettingsFromConfig` (apply cmp.Or to TodoFile/ReportDir overrides, or scope the AGENTS sentence). — High / S / Cleanup
-4. Run HARVEST: pull this report's §f into TODO_LIST.md / ROADMAP.md. — High / S / Documentation
+4. ~~Run HARVEST: pull this report's §f into TODO_LIST.md / ROADMAP.md. — High / S / Documentation~~ done at TODO_LIST.md — rebuilt by the 2026-11-04 docs-health audit: every open §f item of all five reports routed by domain, blanket ROUTE rows dissolved.
 5. Re-verify the fresh:skip claim on §f item 9 of the 05-06 report against the BuildFlow repo's actual board; harvest into TODO_LIST if untracked. — High / S / Bug
 6. Add the missing CHANGELOG row for the file-size refactor (26-file reorg, no behavior change). **(carry-over, prior §f 3)** — High / S / Documentation
 7. Fix BuildFlow#87 upstream, then drop the `BUILDFLOW_NO_RESULT_CACHE=1` bypass from AGENTS.md's verification ritual. **(carry-over, prior §f 1)** — High / L / Quality (external)

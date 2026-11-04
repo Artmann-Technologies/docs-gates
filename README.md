@@ -35,6 +35,19 @@ wrapper, and answers `--version` under that name.
 
 Exit codes: `0` clean, `1` findings, `2` usage/environment error.
 
+## BuildFlow consumers
+
+The battery self-registers as a [BuildFlow](https://github.com/LarsArtmann/BuildFlow)
+tool via `pkg/provider` (its own Go module; the root module stays
+stdlib-only). Blank-import it and BuildFlow's detect step finds the
+battery wherever the `docs-gates` binary is on PATH:
+
+```go
+import _ "github.com/Artmann-Technologies/docs-gates/pkg/provider"
+```
+
+One finding per red gate row; read-only by contract.
+
 ## Configuration
 
 Optional `.docs-gates.json` at the repo root; every key defaults to the
@@ -45,15 +58,23 @@ historical constant (see `internal/config.Defaults`):
   "report_dir": "docs/status",
   "living_docs": ["TODO_LIST.md", "ROADMAP.md", "CHANGELOG.md"],
   "generic_df": 8,
-  "audit_max": 0,
+  "audit_max": -1,
+  "annotate_max": -1,
   "cadence": { "struck_rows": 20, "max_unarchived": 15, "oldest_days": 21 },
   "skip_gates": []
 }
 ```
 
-Unknown keys warn; malformed JSON or invalid values exit 2 — a gate silently
-running wrong thresholds is worse than a loud failure. JSON, not YAML: the
-module is stdlib-only by contract, and JSON is jq-able.
+The ratchet keys are strict by default (`-1` omits the flag entirely);
+a repo with measured debt pins the count (`audit_max`/`annotate_max` >= 0)
+and drains it down — REGRESSION past the pin fails. Unknown keys warn;
+malformed JSON or invalid values exit 2 — a gate silently running wrong
+thresholds is worse than a loud failure. JSON, not YAML: the module is
+stdlib-only by contract, and JSON is jq-able.
+
+## Releases
+
+v0.1.1 is current (see [CHANGELOG.md](CHANGELOG.md)).
 
 ## License
 

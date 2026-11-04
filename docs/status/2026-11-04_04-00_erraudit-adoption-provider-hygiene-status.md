@@ -159,7 +159,7 @@ this run · [T] already tracked in TODO_LIST §2/§3.
 | 9  | Resolve system-vs-flake erraudit binary split brain (fa5575f vs 3d1f7ed)                                           | S   | TODO    |
 | 10 | Review provider_test.go coverage — HealthCheck path exercised?                                                     | T   | TODO    |
 | 11 | Investigate stale LSP diagnostic (unused: func skipped) in internal/battery                                        | T   | TODO    |
-| 12 | HARVEST 2026-11-04_02-24 report §f items 1-9, 13-24, 26-38                                                         | T   | TODO    |
+| ~~12~~ | ~~HARVEST 2026-11-04_02-24 report §f items 1-9, 13-24, 26-38~~ done at TODO_LIST.md — rebuilt by the 2026-11-04 docs-health audit; every §f item of the 02-24 report routed by domain | T   | TODO    |
 | 13 | ROUTE 2026-11-04_03-34 report §f remainder (blanket row)                                                           | T   | TODO    |
 | 14 | Push main (hardened flake + today's erraudit train), then float SystemNix                                          | T   | TODO    |
 | 15 | Deploy evo-x2 docs-gates onto live PATH (owner-gated window)                                                       | T   | TODO    |

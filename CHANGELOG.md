@@ -1,9 +1,10 @@
 # CHANGELOG
 
-All notable changes. Dates are 2026 unless stated; no tagged releases
-before v0.1.0.
+All notable changes. Dates are 2026 unless stated. Version sections
+match the annotated git tags; anything after the newest tag sits under
+[Unreleased].
 
-## 2026-11-04
+## [Unreleased]
 
 ### Added
 
@@ -14,11 +15,6 @@ before v0.1.0.
   `nix flake check` (root module; sandboxed with the pinned go toolchain,
   GOPROXY=off). All 15 directives verified needed, 0 stale; the check is
   discrimination-proven against a planted stale directive.
-- BuildFlow provider: `pkg/provider` as its own go module (go-finding
-  v1.15.0 + toolsdk v1.16.0 — the root module stays stdlib-only).
-  Blank-import self-registration via toolsdk.Register; Detect exec's the
-  battery from PATH and parses the verdict matrix into one finding per
-  red gate; read-only by contract (Repair nil).
 - Golden parity corpus: TestParityGolden pins six invocations (five gates
   + battery) byte-for-byte over testdata/parity/corpus (custom config,
   `{{DATE}}` token substitution keeps report ages stable); goldens under
@@ -26,9 +22,20 @@ before v0.1.0.
 - CI workflow (build / vet / gofmt / stack-drift / test on push + PR) and
   `scripts/stack-drift-check.sh`, which fails CI the moment the root
   go.mod grows a require/replace/exclude (the stdlib-only contract).
+- docs/DOMAIN_LANGUAGE.md: the gate vocabulary (verdict matrix, ratchet,
+  struck row, harvest, distinctive token, living/historical docs) in one
+  greppable glossary.
 
 ### Changed
 
+- File-size refactor (26 files, zero behavior change): the two oversized
+  gate files and their tests split along package seams — docsfreshness.go
+  (1203 lines → 8 files), docsannotate.go (853 → 4), their test files
+  mirroring the split, docsrouting gaining settings.go, docsstrike
+  gaining parse.go + strike.go. Declaration-losslessness proven against
+  the pre-split commits; parity goldens untouched and green. Verified
+  through the `BUILDFLOW_NO_RESULT_CACHE=1` bypass (upstream
+  LarsArtmann/BuildFlow#87, constant result-cache key — see AGENTS.md).
 - Deduplication pass (art-dupl at threshold 1 → zero actionable groups):
   five shared helpers extracted — `gatecli.CutIntFlag` (one valued
   `--flag=N` parser for `--audit-max`/`--annotate-max`, identical FATAL
@@ -58,8 +65,16 @@ before v0.1.0.
   it meant to suppress was firing), the genuinely unused `noctx` token
   dropped (CommandContext cannot trigger noctx), and the matrix parser's
   magic `2` became the `minMatrixFields` constant.
+- docsannotate's `headingRe` now carries a comment distinguishing it from
+  `docsfreshness.HeadingRe` (`^#{1,6}` whole-report scan vs `^#{1,2}`
+  §-structure scan) so a future dedup pass cannot merge them.
+- Docs-health audit pass (2026-11-04): TODO_LIST rebuilt by domain with
+  every §f item from the five status reports routed (blanket ROUTE rows
+  dissolved), ROADMAP landed rows removed, AGENTS.md gained the
+  baseline-pinning daemon lesson (pin `git rev-parse HEAD` before
+  diffing — the daemon moves HEAD mid-session).
 
-## 2026-11-03 (late)
+## [v0.1.1] - 2026-11-04
 
 ### Added
 
@@ -69,10 +84,17 @@ before v0.1.0.
   pre-doctrine strike findings; go-appkit: 255); the strict default
   preserves the pre-extraction behavior byte-for-byte (parity re-verified
   over the source corpus after the change).
+- BuildFlow provider: `pkg/provider` as its own go module (go-finding
+  v1.15.0 + toolsdk v1.16.0 — the root module stays stdlib-only),
+  blank-import self-registration via `toolsdk.Register`; Detect exec's the
+  battery from PATH and parses the verdict matrix into one finding per
+  red gate; read-only by contract (Repair nil). Released as the nested
+  module tag `pkg/provider/v0.1.1`.
 - Pilot rollouts seeded: crm + go-appkit carry `.docs-gates.json` with
   audit_max / annotate_max / cadence bars at their measured debt; both run
   5/5 PASS.
-## 2026-11-03
+
+## [v0.1.0] - 2026-11-03
 
 ### Added
 

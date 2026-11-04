@@ -10,9 +10,14 @@ var (
 	itemStartRe = regexp.MustCompile(`^\s*(?:\d+[.)]|[-*+])\s+\S`)
 	rowStartRe  = regexp.MustCompile(`^\|\s*(?:~~\d+~~|\d+)\s*\|`)
 	sepRowRe    = regexp.MustCompile(`^\|[\s:|-]+\|\s*$`)
-	headingRe   = regexp.MustCompile(`^#{1,6}\s`)
-	fenceRe     = regexp.MustCompile(`^\s*` + "```")
-	strikeRe    = regexp.MustCompile(`(?s)~~.*?~~`)
+	// headingRe matches ATX headings up to six levels: annotate scans the
+	// WHOLE report for struck items, so any heading level can precede a
+	// strike. Deliberately wider than docsfreshness.HeadingRe (`^#{1,2}\s`,
+	// which only closes §f sections) — same-sounding name, different
+	// semantics; do not merge the two definitions.
+	headingRe = regexp.MustCompile(`^#{1,6}\s`)
+	fenceRe   = regexp.MustCompile(`^\s*` + "```")
+	strikeRe  = regexp.MustCompile(`(?s)~~.*?~~`)
 	// A `~~` inside inline code is a literal (e.g. the completeness gate's
 	// own grep over archived reports), not a strike. Neutralise the tildes
 	// inside code spans before strike detection.
