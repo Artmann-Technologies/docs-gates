@@ -124,6 +124,15 @@ one.
 - **Darwin is deliberately absent** from the flake systems: current
   nixos-unstable no longer evaluates x86_64-darwin; no consumer rides
   macOS. Revisit only on a real consumer (ROADMAP).
+- **Known BuildFlow tool bug (2026-11-04, do not "fix" here):** the
+  BuildFlow `nix-fmt`/`treefmt` roundtrip steps fail over THIS repo with
+  `failed to create walker: path … not inside the tree root /nix/store`.
+  In-repo `nix fmt` and `nix flake check` are green — the defect is the
+  roundtrip copy's environment (its fresh `flake.lock` and tree-root
+  resolution), not this flake. Diagnosis lives in the BuildFlow repo
+  (`tools/providers/format_roundtrip.go` +
+  `nixFmtRoundTripConfigFiles`); the failing steps do not gate anything
+  this repo's own commands miss.
 
 ## Testing
 

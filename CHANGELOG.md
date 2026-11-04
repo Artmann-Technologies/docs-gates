@@ -3,6 +3,23 @@
 All notable changes. Dates are 2026 unless stated; no tagged releases
 before v0.1.0.
 
+## 2026-11-04
+
+### Added
+
+- BuildFlow provider: `pkg/provider` as its own go module (go-finding
+  v1.15.0 + toolsdk v1.16.0 — the root module stays stdlib-only).
+  Blank-import self-registration via toolsdk.Register; Detect exec's the
+  battery from PATH and parses the verdict matrix into one finding per
+  red gate; read-only by contract (Repair nil).
+- Golden parity corpus: TestParityGolden pins six invocations (five gates
+  + battery) byte-for-byte over testdata/parity/corpus (custom config,
+  `{{DATE}}` token substitution keeps report ages stable); goldens under
+  testdata/parity/golden, re-pin via `PARITY_UPDATE=1`.
+- CI workflow (build / vet / gofmt / stack-drift / test on push + PR) and
+  `scripts/stack-drift-check.sh`, which fails CI the moment the root
+  go.mod grows a require/replace/exclude (the stdlib-only contract).
+
 ## 2026-11-03 (late)
 
 ### Added
