@@ -40,6 +40,12 @@ match the annotated git tags; anything after the newest tag sits under
   erraudit reads it STALE with a failing rc — proof the flake's
   nolint-audit check cannot rot into a no-op. Wired as a leg of that
   check; skips on hosts without erraudit on PATH (CI runners).
+- `erraudit-lint` flake check: the findings axis joins the staleness
+  axis — erraudit's type-aware legacyerrors audit (errors.As/Is → AsType)
+  runs over the root module inside the same hermetic sandbox, so a new
+  unmigrated site fails `nix flake check`. Discrimination-proven (planted
+  errors.As turns the check red, naming the site; sentinel errors.Is is
+  deliberately exempt).
 - docs/DOMAIN_LANGUAGE.md: the gate vocabulary (verdict matrix, ratchet,
   struck row, harvest, distinctive token, living/historical docs) in one
   greppable glossary.

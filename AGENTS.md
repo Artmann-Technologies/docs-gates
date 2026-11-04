@@ -91,7 +91,12 @@ one.
 - **Lint: the fleet golangci config runs at 0 findings.** Keep it there.
   erraudit rides the devShell since 2026-11-04 (flake input — see
   Non-obvious facts): the `//nolint:erraudit` directives are LIVE, and
-  the `nolint-audit` flake check fails the moment one goes stale. Never
+  two flake checks keep them honest — `nolint-audit` fails the moment a
+  directive goes stale, and `erraudit-lint` runs erraudit's own
+  type-aware legacyerrors audit (`errors.As`/`Is` → `AsType`) over the
+  root module, so a NEW migratable site fails `nix flake check` too
+  (both discrimination-proven: planted stale directive / planted
+  `errors.As` turn the check red, naming the site). Never
   add a directive without a code-adjacent reason; the check and erraudit's
   own audit keep them honest. golangci's runner still WARNS
   `[runner/nolint_filter] Found unknown linters in //nolint directives:
@@ -188,7 +193,13 @@ one.
   (`/run/current-system/sw/bin/erraudit`), so path-dependent erraudit
   probes and the nolint-audit discrimination test run bare there but skip
   on CI runners (no binary) — a test that "passes" on CI may be a silent
-  skip; prove it locally before trusting it.
+  skip; prove it locally before trusting it. erraudit's finding domain is
+  the LEGACYERRORS migration (errors.As → AsType; sentinel errors.Is
+  against known sentinels is deliberately exempt — an unchecked Close is
+  errcheck's job, not erraudit's); discrimination probes must plant
+  `errors.As(err, &target)`. Flake-source probes must STAGE the plant
+  (`git add -N`): flake checks read the git tree, untracked files are
+  invisible to them.
 - **Buildflow's managed `.gitignore` block contains a broad `reports/`
   rule that silently swallows ANY `reports/` directory** — including new
   corpus fixtures under `testdata/parity/*/reports/`. The files exist in

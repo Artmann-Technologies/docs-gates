@@ -189,6 +189,35 @@
                 go test ./internal/battery -run TestNolintAuditDiscrimination -count=1
                 touch $out
               '';
+
+          # The findings axis (nolint-audit only proves directives honest;
+          # this proves the CODE is): erraudit's type-aware legacyerrors
+          # audit (errors.As/Is → AsType) over the ROOT module must stay
+          # green — every migratable site is either migrated or carries a
+          # live //nolint:erraudit directive. Same module scope, same
+          # hermetic sandbox plumbing. Discrimination-proven 2026-11-04
+          # (planted errors.As → check red, naming the site).
+          erraudit-lint =
+            pkgs.runCommand "docs-gates-erraudit-lint"
+              {
+                nativeBuildInputs = [
+                  errauditPkg
+                  pkgs.${goPkgAttr}
+                ];
+                env = {
+                  GOTOOLCHAIN = "local";
+                  GOWORK = "off";
+                  GOFLAGS = "-mod=mod";
+                  GOPROXY = "off";
+                  GOCACHE = "/tmp/dg-erraudit-lint-gocache";
+                  GOPATH = "/tmp/dg-erraudit-lint-gopath";
+                };
+              }
+              ''
+                cd ${self}
+                erraudit lint ./... --type-aware
+                touch $out
+              '';
         }
       );
 
