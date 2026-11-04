@@ -189,6 +189,13 @@ match the annotated git tags; anything after the newest tag sits under
   clean commit boundary; dry-run is the default and `--gate` runs the
   annotate gate after every applied batch. Landed by striking its own
   TODO row through the script.
+- The nix provider check now proves its end-to-end skip arm: the
+  check's phase greps the test log for the sentinel's sanctioned skip
+  ("root module source not adjacent" — the sandbox vendors only
+  pkg/provider), so a green check is evidence the e2e coverage is
+  accounted for rather than a leg that silently vanished or skipped
+  for the wrong reason. Red-controlled in the sandbox: a bogus
+  sentinel string fails the build while the Go suite itself passes.
 - The provider's end-to-end Detect leg can no longer vanish silently: a
   skip inside the nix provider sandbox (root source not adjacent, no go
   on PATH) records a ledger note that a sentinel cross-checks against an
