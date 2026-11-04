@@ -32,10 +32,10 @@ built.
   `skip_gates` + `audit_max` from repo config. Live-proven over the
   source fleet's corpus: 5/5 PASS.
 - **Parity goldens** — TestParityGolden pins six invocations (five gates
-  + battery) byte-for-byte over the fixture corpus testdata/parity/corpus
-  (custom config, `{{DATE}}` date-token substitution so ages stay
-  stable); goldens under testdata/parity/golden; re-pin via
-  `PARITY_UPDATE=1`.
+  - battery) byte-for-byte over the fixture corpus testdata/parity/corpus
+    (custom config, `{{DATE}}` date-token substitution so ages stay
+    stable); goldens under testdata/parity/golden; re-pin via
+    `PARITY_UPDATE=1`.
 - **BuildFlow provider** — pkg/provider as its own go module
   (go-finding/toolsdk): blank-import self-registration, Detect exec's the
   binary from PATH and parses the verdict matrix into one finding per

@@ -177,40 +177,40 @@ suite not in nix checks) is pre-existing and carried below.
 
 ## f) Next (up to 50; struck = done this session)
 
-| # | Task | Impact | Effort | Category |
-| --- | --- | --- | --- | --- |
-| 1 | ~~Pin the devShell/package toolchain deliberately (GOTOOLCHAIN=local, go_1_27 shared by build + devShell)~~ done (flake.nix goPkgAttr; AGENTS.md rationale; CHANGELOG Changed) | High | S | Quality |
-| 2 | ~~Register docs-gates as a SystemNix flake input + PATH package on NixOS (linux)~~ done (input + nixpkgs follow + lars-packages + lock 6ed909f + expected-locks; toplevel eval + build green; e67bfd192) | High | M | Integration |
-| 3 | ~~Smoke-check the five legacy wrapper names + docs-gates --version from an installed PATH~~ done (checks.legacy-wrappers, flake.nix) | Medium | S | Quality |
-| 4 | Push docs-gates main (7bafdef, the hardened flake) — owner action or daemon; then float SystemNix: `nix flake update docs-gates` + expected-locks regen + toplevel proof | High | S | Integration |
-| 5 | Deploy evo-x2 (`nix run .#deploy`) to put docs-gates + wrappers on the live PATH (config already carries them) | High | S | Deploy |
-| 6 | Eval rpi3-dns toplevel after the lars-packages change (platforms/common surfaces; skipped this session) | Medium | S | Verification |
-| 7 | Standalone `nix flake check --no-build --all-systems` on SystemNix post-integration (pre-commit leg was bypassed by the daemon sweep) | Medium | M | Verification |
-| 8 | File/verify the upstream BuildFlow issue for the nix-fmt/treefmt roundtrip `/nix/store` walker failure (diagnosis: format_roundtrip.go + nixFmtRoundTripConfigFiles) — carried from 02-24 report | High | M | Bug |
-| 9 | Add pkg/provider legs to CI (test + vet + gofmt from inside the module) — provider regressions invisible to CI — carried | High | S | Quality |
-| 10 | Add the provider module suite to flake `checks` (nix gate builds its go 1.27 suite) — carried | Medium | M | Quality |
-| 11 | Expand the golden corpus to pin the `annotate_max` ratchet arm — carried | High | M | Quality |
-| 12 | BuildFlow binary refresh 74a9212 → current (doctor/binary-freshness; HEAD already wires docs-gates as provider) — carried | Medium | S | Quality |
-| 13 | Tag v0.1.0 (go-release ritual) so the provider's `go install …@latest` HealthCheck hint is true — carried | High | M | Release |
-| 14 | README: public install/usage section (flake input snippet, nix run, the six binaries, exit-code contract) | Medium | S | Documentation |
-| 15 | Verify STACK.md row exists for pkg/provider (AGENTS constraint for separate modules; never checked) | Medium | S | Documentation |
-| 16 | Roadmap/FEATURES annotation pass for 11-03/04 landings (provider, parity corpus, CI, flake hardening) — partially carried | Medium | S | Documentation |
-| 17 | Adopt erraudit into the devShell, then strip-or-adopt the inert `//nolint:erraudit` directives — carried (erraudit-adopt) | Medium | M | Quality |
-| 18 | Submit `lib.maintainers.LarsArtmann` to nixpkgs, then use it in meta.maintainers | Low | S | Packaging |
-| 19 | legacy-wrappers smoke v2: assert the version STRING matches the binary, not just rc=0 | Low | S | Quality |
-| 20 | pbx-artmann: migrate its docs-gates consumption onto this repo (fleet migration plan the AGENTS contract names) | Medium | M | Integration |
-| 21 | SystemNix TODO_LIST row: deploy-pending docs-gates integration (owner-gated switch) | Low | S | Process |
-| 22 | Route TODO_LIST section-2 blanket debt ("items 1-9, 13-24, 26-38 await routing") by domain or strike | Medium | S | Process |
-| 23 | Decide battery adoption on hosts (timer/PMA running gates over fleet repos) vs PATH-only scope | Medium | S | Decision |
-| 24 | Root go.mod floor unification decision (1.26 vs 1.27 — provider already 1.27; devShell builds 1.27 either way) | Low | S | Decision |
-| 25 | Verify `config.validate()` refuses unknown `skip_gates` values (typo'd gate name = silent no-op today?) — carried | Medium | S | Bug |
-| 26 | provider_test.go coverage review (HealthCheck path) — carried | Medium | S | Quality |
-| 27 | preflight-bind-check remaining legs (rewrite-mode, heading-awareness) — carried | Medium | M | Feature |
-| 28 | token-margin-report — carried | Medium | M | Feature |
-| 29 | docs/DOMAIN_LANGUAGE.md (verdict matrix, ratchet, struck row, harvest, distinctive token) — carried | Medium | M | Documentation |
-| 30 | Purge ritual decision for the 2 struck DONE rows (2/20 toward cadence threshold) — carried | Low | S | Cleanup |
-| 31 | nolint-audit-cadence — carried | Low | S | Quality |
-| 32 | Pilot ratchet drain in crm + go-appkit (external repos) — carried | Medium | M | Process |
+| #  | Task                                                                                                                                                                                                     | Impact | Effort | Category      |
+| -- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------ | ------ | ------------- |
+| 1  | ~~Pin the devShell/package toolchain deliberately (GOTOOLCHAIN=local, go_1_27 shared by build + devShell)~~ done (flake.nix goPkgAttr; AGENTS.md rationale; CHANGELOG Changed)                           | High   | S      | Quality       |
+| 2  | ~~Register docs-gates as a SystemNix flake input + PATH package on NixOS (linux)~~ done (input + nixpkgs follow + lars-packages + lock 6ed909f + expected-locks; toplevel eval + build green; e67bfd192) | High   | M      | Integration   |
+| 3  | ~~Smoke-check the five legacy wrapper names + docs-gates --version from an installed PATH~~ done (checks.legacy-wrappers, flake.nix)                                                                     | Medium | S      | Quality       |
+| 4  | Push docs-gates main (7bafdef, the hardened flake) — owner action or daemon; then float SystemNix: `nix flake update docs-gates` + expected-locks regen + toplevel proof                                 | High   | S      | Integration   |
+| 5  | Deploy evo-x2 (`nix run .#deploy`) to put docs-gates + wrappers on the live PATH (config already carries them)                                                                                           | High   | S      | Deploy        |
+| 6  | Eval rpi3-dns toplevel after the lars-packages change (platforms/common surfaces; skipped this session)                                                                                                  | Medium | S      | Verification  |
+| 7  | Standalone `nix flake check --no-build --all-systems` on SystemNix post-integration (pre-commit leg was bypassed by the daemon sweep)                                                                    | Medium | M      | Verification  |
+| 8  | File/verify the upstream BuildFlow issue for the nix-fmt/treefmt roundtrip `/nix/store` walker failure (diagnosis: format_roundtrip.go + nixFmtRoundTripConfigFiles) — carried from 02-24 report         | High   | M      | Bug           |
+| 9  | Add pkg/provider legs to CI (test + vet + gofmt from inside the module) — provider regressions invisible to CI — carried                                                                                 | High   | S      | Quality       |
+| 10 | Add the provider module suite to flake `checks` (nix gate builds its go 1.27 suite) — carried                                                                                                            | Medium | M      | Quality       |
+| 11 | Expand the golden corpus to pin the `annotate_max` ratchet arm — carried                                                                                                                                 | High   | M      | Quality       |
+| 12 | BuildFlow binary refresh 74a9212 → current (doctor/binary-freshness; HEAD already wires docs-gates as provider) — carried                                                                                | Medium | S      | Quality       |
+| 13 | Tag v0.1.0 (go-release ritual) so the provider's `go install …@latest` HealthCheck hint is true — carried                                                                                                | High   | M      | Release       |
+| 14 | README: public install/usage section (flake input snippet, nix run, the six binaries, exit-code contract)                                                                                                | Medium | S      | Documentation |
+| 15 | Verify STACK.md row exists for pkg/provider (AGENTS constraint for separate modules; never checked)                                                                                                      | Medium | S      | Documentation |
+| 16 | Roadmap/FEATURES annotation pass for 11-03/04 landings (provider, parity corpus, CI, flake hardening) — partially carried                                                                                | Medium | S      | Documentation |
+| 17 | Adopt erraudit into the devShell, then strip-or-adopt the inert `//nolint:erraudit` directives — carried (erraudit-adopt)                                                                                | Medium | M      | Quality       |
+| 18 | Submit `lib.maintainers.LarsArtmann` to nixpkgs, then use it in meta.maintainers                                                                                                                         | Low    | S      | Packaging     |
+| 19 | legacy-wrappers smoke v2: assert the version STRING matches the binary, not just rc=0                                                                                                                    | Low    | S      | Quality       |
+| 20 | pbx-artmann: migrate its docs-gates consumption onto this repo (fleet migration plan the AGENTS contract names)                                                                                          | Medium | M      | Integration   |
+| 21 | SystemNix TODO_LIST row: deploy-pending docs-gates integration (owner-gated switch)                                                                                                                      | Low    | S      | Process       |
+| 22 | Route TODO_LIST section-2 blanket debt ("items 1-9, 13-24, 26-38 await routing") by domain or strike                                                                                                     | Medium | S      | Process       |
+| 23 | Decide battery adoption on hosts (timer/PMA running gates over fleet repos) vs PATH-only scope                                                                                                           | Medium | S      | Decision      |
+| 24 | Root go.mod floor unification decision (1.26 vs 1.27 — provider already 1.27; devShell builds 1.27 either way)                                                                                           | Low    | S      | Decision      |
+| 25 | Verify `config.validate()` refuses unknown `skip_gates` values (typo'd gate name = silent no-op today?) — carried                                                                                        | Medium | S      | Bug           |
+| 26 | provider_test.go coverage review (HealthCheck path) — carried                                                                                                                                            | Medium | S      | Quality       |
+| 27 | preflight-bind-check remaining legs (rewrite-mode, heading-awareness) — carried                                                                                                                          | Medium | M      | Feature       |
+| 28 | token-margin-report — carried                                                                                                                                                                            | Medium | M      | Feature       |
+| 29 | docs/DOMAIN_LANGUAGE.md (verdict matrix, ratchet, struck row, harvest, distinctive token) — carried                                                                                                      | Medium | M      | Documentation |
+| 30 | Purge ritual decision for the 2 struck DONE rows (2/20 toward cadence threshold) — carried                                                                                                               | Low    | S      | Cleanup       |
+| 31 | nolint-audit-cadence — carried                                                                                                                                                                           | Low    | S      | Quality       |
+| 32 | Pilot ratchet drain in crm + go-appkit (external repos) — carried                                                                                                                                        | Medium | M      | Process       |
 
 ## g) Questions for the owner (cannot be figured out from here)
 

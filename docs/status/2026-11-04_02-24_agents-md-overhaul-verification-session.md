@@ -8,21 +8,21 @@ swept everything, latest `ecbde19`).
 
 **Verified in this session (fresh commands, exit codes observed):**
 
-| Claim | Evidence |
-| --- | --- |
-| AGENTS.md rewritten 84 → 167 lines, every claim traced to source | written via tool; constraints cross-checked against `cmd/docs-gates/main.go`, `internal/gatecli/gatecli.go`, `internal/battery/*.go`, `internal/config/config.go`, `flake.nix`, `.golangci.yml`, `ci.yml`, `pkg/provider/provider.go`, `parity_test.go` |
-| Dead `skipped()` removed from `internal/battery/battery.go` | golangci-lint run → `0 issues` (was flagged `unused` before) |
-| Stale re-pin comment fixed in `parity_test.go` (`-update` flag never existed) | code reads `os.Getenv("PARITY_UPDATE")` at `parity_test.go:125` |
-| Root module suite green | `nix develop -c go test ./...` → all 9 packages `ok` |
-| Provider module suite green | `(cd pkg/provider && go test ./...)` → `ok` |
-| Root `./...` excludes `pkg/provider` | `go list ./...` → 0 provider hits |
-| Lint at 0 findings | `nix develop -c golangci-lint run ./...` → `0 issues` (plus the known `nolint_filter` warning about inert `//nolint:erraudit`) |
-| gofmt clean | `gofmt -l .` → empty |
-| `nix fmt` works in-repo | exit 0, "formatted 1 files (0 changed)" |
-| Flake evaluates both arches | `nix flake check --all-systems --no-build` → "all checks passed!" |
-| Dogfooding: battery green over this repo | `go run ./cmd/docs-gates run .` → 5× PASS matrix, exit 0 (run twice: after strikes and at session end) |
-| TODO_LIST strikes applied via the repo's own tool | `docs-strike --apply` output: struck lines 10 and 14 |
-| BuildFlow nix-fmt/treefmt roundtrip failure is BuildFlow-side | `buildflow history --step nix-fmt/treefmt --last-error`: `failed to create walker: path … not inside the tree root /nix/store`; in-repo `nix fmt` + `nix flake check` green; lane source read at BuildFlow `tools/providers/format_roundtrip.go` + `nixFmtRoundTripConfigFiles` |
+| Claim                                                                         | Evidence                                                                                                                                                                                                                                                                        |
+| ----------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| AGENTS.md rewritten 84 → 167 lines, every claim traced to source              | written via tool; constraints cross-checked against `cmd/docs-gates/main.go`, `internal/gatecli/gatecli.go`, `internal/battery/*.go`, `internal/config/config.go`, `flake.nix`, `.golangci.yml`, `ci.yml`, `pkg/provider/provider.go`, `parity_test.go`                         |
+| Dead `skipped()` removed from `internal/battery/battery.go`                   | golangci-lint run → `0 issues` (was flagged `unused` before)                                                                                                                                                                                                                    |
+| Stale re-pin comment fixed in `parity_test.go` (`-update` flag never existed) | code reads `os.Getenv("PARITY_UPDATE")` at `parity_test.go:125`                                                                                                                                                                                                                 |
+| Root module suite green                                                       | `nix develop -c go test ./...` → all 9 packages `ok`                                                                                                                                                                                                                            |
+| Provider module suite green                                                   | `(cd pkg/provider && go test ./...)` → `ok`                                                                                                                                                                                                                                     |
+| Root `./...` excludes `pkg/provider`                                          | `go list ./...` → 0 provider hits                                                                                                                                                                                                                                               |
+| Lint at 0 findings                                                            | `nix develop -c golangci-lint run ./...` → `0 issues` (plus the known `nolint_filter` warning about inert `//nolint:erraudit`)                                                                                                                                                  |
+| gofmt clean                                                                   | `gofmt -l .` → empty                                                                                                                                                                                                                                                            |
+| `nix fmt` works in-repo                                                       | exit 0, "formatted 1 files (0 changed)"                                                                                                                                                                                                                                         |
+| Flake evaluates both arches                                                   | `nix flake check --all-systems --no-build` → "all checks passed!"                                                                                                                                                                                                               |
+| Dogfooding: battery green over this repo                                      | `go run ./cmd/docs-gates run .` → 5× PASS matrix, exit 0 (run twice: after strikes and at session end)                                                                                                                                                                          |
+| TODO_LIST strikes applied via the repo's own tool                             | `docs-strike --apply` output: struck lines 10 and 14                                                                                                                                                                                                                            |
+| BuildFlow nix-fmt/treefmt roundtrip failure is BuildFlow-side                 | `buildflow history --step nix-fmt/treefmt --last-error`: `failed to create walker: path … not inside the tree root /nix/store`; in-repo `nix fmt` + `nix flake check` green; lane source read at BuildFlow `tools/providers/format_roundtrip.go` + `nixFmtRoundTripConfigFiles` |
 
 **NOT verified in this session (and why):**
 
@@ -48,7 +48,7 @@ swept everything, latest `ecbde19`).
 
 ## What I forgot · what could have been better
 
-1. **Skill-order violation:** I ran golangci-lint manually *before*
+1. **Skill-order violation:** I ran golangci-lint manually _before_
    loading the buildflow skill (mandatory activation is skill-first for
    covered projects). Zero consequence this time (lint was clean and the
    devShell invocation is legitimate as the CI-equivalent), but the rule
@@ -189,46 +189,46 @@ The closest three things, honestly ranked:
 
 ## f) Next tasks (ranked by impact; HARVEST fuel)
 
-| # | Task | Impact | Effort | Category |
-| --- | --- | --- | --- | --- |
-| 1 | File/fix upstream BuildFlow issue: nix-fmt/treefmt roundtrip fails with `/nix/store` tree-root walker error (diagnosis: `format_roundtrip.go` + `nixFmtRoundTripConfigFiles`; fresh flake.lock proves flake.lock didn't survive the copy) | High | M | Bug |
-| 2 | Add `pkg/provider` legs to CI (test + vet + gofmt from inside the module) — provider regressions currently invisible to CI | High | S | Quality |
-| 3 | Expand golden corpus to pin the `annotate_max` ratchet (new `parityGates()` entry + corpus config) — the newest feature is unpinned | High | M | Quality |
-| 4 | Read `.config`/repo to decide + run BuildFlow binary refresh (74a9212 → 783ae81; HEAD already wires docs-gates as a provider) | High | S | Quality |
-| 5 | Tag v0.1.0 (go-release ritual) so the provider's `go install …@latest` HealthCheck hint becomes true | High | M | Release |
-| 6 | Add a README section for BuildFlow consumers: blank-import snippet + install lines | Medium | S | Documentation |
-| 7 | Annotate ROADMAP.md: "BuildFlow provider" + "Golden parity corpus" rows → landed 2026-11-03/04 | Medium | S | Documentation |
-| 8 | Add FEATURES DONE rows for CI workflow + stack-drift-check (CHANGELOG has them, FEATURES doesn't) | Medium | S | Documentation |
-| 9 | Adopt erraudit into the devShell, then strip-or-adopt the 15 inert `//nolint:erraudit` directives (carried TODO row) | Medium | M | Quality |
-| 10 | HARVEST this report's section f into TODO_LIST.md / ROADMAP.md (docs-health HARVEST) | Medium | S | Documentation |
-| 11 | Verify the provider go 1.27 toolchain mechanism (GOTOOLCHAIN) and pin it deliberately (devShell bump or go.mod alignment) | Medium | S | Quality |
-| 12 | Review provider_test.go coverage — is HealthCheck exercised? | Medium | S | Quality |
-| 13 | Add provider module to flake `checks` so the nix gate builds its suite | Medium | M | Quality |
-| 14 | Check whether `config.validate()` refuses unknown `skip_gates` values (a typo'd gate name currently looks like a silent no-op) — verify first, then fix | Medium | S | Bug |
-| 15 | Run `buildflow -s dprint` over the edited markdown/json to prove format fidelity of this session's doc train | Medium | S | Cleanup |
-| 16 | preflight-bind-check remaining legs (carried TODO row: rewrite-mode judging, heading-awareness) | Medium | M | Feature |
-| 17 | token-margin-report (carried TODO row: print near-bar tokens proactively) | Medium | M | Feature |
-| 18 | Decide + execute purge ritual for the 2 struck DONE rows (2/20 toward the cadence threshold) | Low | S | Cleanup |
-| 19 | nolint-audit-cadence (carried TODO row: scheduled stale-nolint sweep) | Low | S | Quality |
-| 20 | Write docs/DOMAIN_LANGUAGE.md (verdict matrix, ratchet, struck row, living doc, distinctive token, harvest) | Medium | M | Documentation |
-| 21 | Read the five gate package bodies fully (deepen beyond skim; AGENTS.md claims stay package-comment-level) | Medium | L | Quality |
-| 22 | Read battery_test.go remainder past line 200 (unseen suppressions) | Low | S | Quality |
-| 23 | Verify golden corpus covers the cadence age arm (oldest_days) explicitly | Low | S | Quality |
-| 24 | Investigate `.config/metadata.yaml` provenance (fleet meta registration?) | Low | S | Cleanup |
-| 25 | Investigate the stale LSP diagnostic (`unused: func skipped` — cache not refreshed post-fix; cosmetic) | Low | S | Cleanup |
-| 26 | Backdate precision: CHANGELOG goldens entry committed late 2026-11-03, dated 2026-11-04 — annotate or accept | Low | S | Documentation |
-| 27 | Install-hint consistency audit across provider HealthCheck, README, AGENTS.md | Low | S | Documentation |
-| 28 | `--json` verdict output for CI annotations (FEATURES WORTH CONSIDERING) | Low | M | Feature |
-| 29 | Schema versioning: add `schema_version` key design (ROADMAP row) | Low | M | Feature |
-| 30 | Numbers-style counts gate design pass (ROADMAP candidate) | Low | L | Feature |
-| 31 | Link/reference checker for living docs (ROADMAP candidate) | Low | L | Feature |
-| 32 | Report-freshness age gate distinct from cadence (ROADMAP candidate) | Low | L | Feature |
-| 33 | macOS consumer evaluation (ROADMAP row; revisit only on real consumer) | Low | S | Decision |
-| 34 | Pilot ratchet drain in crm + go-appkit (external repos; rituals run, bars tighten) | Medium | M | Process |
-| 35 | treefmt.toml scope decision (currently *.nix only; go formatting owned by golangci fmt — document the split or extend) | Low | S | Decision |
-| 36 | Decide provider-contract versioning (toolsdk Spec vs binary `--version` handshake pinning) | Low | M | Decision |
-| 37 | Consider exposing `docs-gates --version` of the provider contract in BUILD/provider docs for consumers | Low | S | Documentation |
-| 38 | Fleet announcement: docs-gates is consumable (nix run / go install / provider blank-import) once tagged | Low | S | Process |
+| #  | Task                                                                                                                                                                                                                                      | Impact | Effort | Category      |
+| -- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------ | ------ | ------------- |
+| 1  | File/fix upstream BuildFlow issue: nix-fmt/treefmt roundtrip fails with `/nix/store` tree-root walker error (diagnosis: `format_roundtrip.go` + `nixFmtRoundTripConfigFiles`; fresh flake.lock proves flake.lock didn't survive the copy) | High   | M      | Bug           |
+| 2  | Add `pkg/provider` legs to CI (test + vet + gofmt from inside the module) — provider regressions currently invisible to CI                                                                                                                | High   | S      | Quality       |
+| 3  | Expand golden corpus to pin the `annotate_max` ratchet (new `parityGates()` entry + corpus config) — the newest feature is unpinned                                                                                                       | High   | M      | Quality       |
+| 4  | Read `.config`/repo to decide + run BuildFlow binary refresh (74a9212 → 783ae81; HEAD already wires docs-gates as a provider)                                                                                                             | High   | S      | Quality       |
+| 5  | Tag v0.1.0 (go-release ritual) so the provider's `go install …@latest` HealthCheck hint becomes true                                                                                                                                      | High   | M      | Release       |
+| 6  | Add a README section for BuildFlow consumers: blank-import snippet + install lines                                                                                                                                                        | Medium | S      | Documentation |
+| 7  | Annotate ROADMAP.md: "BuildFlow provider" + "Golden parity corpus" rows → landed 2026-11-03/04                                                                                                                                            | Medium | S      | Documentation |
+| 8  | Add FEATURES DONE rows for CI workflow + stack-drift-check (CHANGELOG has them, FEATURES doesn't)                                                                                                                                         | Medium | S      | Documentation |
+| 9  | Adopt erraudit into the devShell, then strip-or-adopt the 15 inert `//nolint:erraudit` directives (carried TODO row)                                                                                                                      | Medium | M      | Quality       |
+| 10 | HARVEST this report's section f into TODO_LIST.md / ROADMAP.md (docs-health HARVEST)                                                                                                                                                      | Medium | S      | Documentation |
+| 11 | Verify the provider go 1.27 toolchain mechanism (GOTOOLCHAIN) and pin it deliberately (devShell bump or go.mod alignment)                                                                                                                 | Medium | S      | Quality       |
+| 12 | Review provider_test.go coverage — is HealthCheck exercised?                                                                                                                                                                              | Medium | S      | Quality       |
+| 13 | Add provider module to flake `checks` so the nix gate builds its suite                                                                                                                                                                    | Medium | M      | Quality       |
+| 14 | Check whether `config.validate()` refuses unknown `skip_gates` values (a typo'd gate name currently looks like a silent no-op) — verify first, then fix                                                                                   | Medium | S      | Bug           |
+| 15 | Run `buildflow -s dprint` over the edited markdown/json to prove format fidelity of this session's doc train                                                                                                                              | Medium | S      | Cleanup       |
+| 16 | preflight-bind-check remaining legs (carried TODO row: rewrite-mode judging, heading-awareness)                                                                                                                                           | Medium | M      | Feature       |
+| 17 | token-margin-report (carried TODO row: print near-bar tokens proactively)                                                                                                                                                                 | Medium | M      | Feature       |
+| 18 | Decide + execute purge ritual for the 2 struck DONE rows (2/20 toward the cadence threshold)                                                                                                                                              | Low    | S      | Cleanup       |
+| 19 | nolint-audit-cadence (carried TODO row: scheduled stale-nolint sweep)                                                                                                                                                                     | Low    | S      | Quality       |
+| 20 | Write docs/DOMAIN_LANGUAGE.md (verdict matrix, ratchet, struck row, living doc, distinctive token, harvest)                                                                                                                               | Medium | M      | Documentation |
+| 21 | Read the five gate package bodies fully (deepen beyond skim; AGENTS.md claims stay package-comment-level)                                                                                                                                 | Medium | L      | Quality       |
+| 22 | Read battery_test.go remainder past line 200 (unseen suppressions)                                                                                                                                                                        | Low    | S      | Quality       |
+| 23 | Verify golden corpus covers the cadence age arm (oldest_days) explicitly                                                                                                                                                                  | Low    | S      | Quality       |
+| 24 | Investigate `.config/metadata.yaml` provenance (fleet meta registration?)                                                                                                                                                                 | Low    | S      | Cleanup       |
+| 25 | Investigate the stale LSP diagnostic (`unused: func skipped` — cache not refreshed post-fix; cosmetic)                                                                                                                                    | Low    | S      | Cleanup       |
+| 26 | Backdate precision: CHANGELOG goldens entry committed late 2026-11-03, dated 2026-11-04 — annotate or accept                                                                                                                              | Low    | S      | Documentation |
+| 27 | Install-hint consistency audit across provider HealthCheck, README, AGENTS.md                                                                                                                                                             | Low    | S      | Documentation |
+| 28 | `--json` verdict output for CI annotations (FEATURES WORTH CONSIDERING)                                                                                                                                                                   | Low    | M      | Feature       |
+| 29 | Schema versioning: add `schema_version` key design (ROADMAP row)                                                                                                                                                                          | Low    | M      | Feature       |
+| 30 | Numbers-style counts gate design pass (ROADMAP candidate)                                                                                                                                                                                 | Low    | L      | Feature       |
+| 31 | Link/reference checker for living docs (ROADMAP candidate)                                                                                                                                                                                | Low    | L      | Feature       |
+| 32 | Report-freshness age gate distinct from cadence (ROADMAP candidate)                                                                                                                                                                       | Low    | L      | Feature       |
+| 33 | macOS consumer evaluation (ROADMAP row; revisit only on real consumer)                                                                                                                                                                    | Low    | S      | Decision      |
+| 34 | Pilot ratchet drain in crm + go-appkit (external repos; rituals run, bars tighten)                                                                                                                                                        | Medium | M      | Process       |
+| 35 | treefmt.toml scope decision (currently *.nix only; go formatting owned by golangci fmt — document the split or extend)                                                                                                                    | Low    | S      | Decision      |
+| 36 | Decide provider-contract versioning (toolsdk Spec vs binary `--version` handshake pinning)                                                                                                                                                | Low    | M      | Decision      |
+| 37 | Consider exposing `docs-gates --version` of the provider contract in BUILD/provider docs for consumers                                                                                                                                    | Low    | S      | Documentation |
+| 38 | Fleet announcement: docs-gates is consumable (nix run / go install / provider blank-import) once tagged                                                                                                                                   | Low    | S      | Process       |
 
 Items 9, 11, 16, 17, 19 are the surviving open TODO_LIST rows plus
 session findings; 28-33 are ROADMAP fuel per the HARVEST routing rule.
