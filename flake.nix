@@ -232,25 +232,24 @@
           # fetched by vendorHash, so the checkPhase go test runs
           # hermetically. This does NOT touch the root stdlib-only
           # contract, whose go.mod still carries zero requires.
-          provider =
-            (pkgs.buildGoModule.override { go = pkgs.${goPkgAttr}; }) {
-              pname = "docs-gates-provider-suite";
-              inherit version;
+          provider = (pkgs.buildGoModule.override { go = pkgs.${goPkgAttr}; }) {
+            pname = "docs-gates-provider-suite";
+            inherit version;
 
-              src = "${self}/pkg/provider";
+            src = "${self}/pkg/provider";
 
-              vendorHash = "sha256-qOX4CkUkDtAiNSewsMAJN/4Zk1FZe27E4pF0bHonwVU=";
+            vendorHash = "sha256-qOX4CkUkDtAiNSewsMAJN/4Zk1FZe27E4pF0bHonwVU=";
 
-              env = {
-                CGO_ENABLED = "0";
-                GOTOOLCHAIN = "local";
-              };
-
-              meta = {
-                description = "docs-gates provider module test suite check";
-                platforms = lib.platforms.linux;
-              };
+            env = {
+              CGO_ENABLED = "0";
+              GOTOOLCHAIN = "local";
             };
+
+            meta = {
+              description = "docs-gates provider module test suite check";
+              platforms = lib.platforms.linux;
+            };
+          };
 
           # Rule-behavior determinism: the erraudit input tracks master,
           # so `nix flake update` can silently swap the rule set. The
