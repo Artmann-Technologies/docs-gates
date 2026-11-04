@@ -1,6 +1,7 @@
 package battery
 
 import (
+	"errors"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -38,7 +39,7 @@ const minCorpusFiles = 10
 //
 //nolint:paralleltest // git working-tree probe, serialized on purpose
 func TestCorpusFixturesStayTracked(t *testing.T) {
-	topOut, err := exec.Command("git", "rev-parse", "--show-toplevel").Output()
+	topOut, err := exec.CommandContext(t.Context(), "git", "rev-parse", "--show-toplevel").Output()
 	if err != nil {
 		t.Skipf("not inside a git checkout — nothing to assert (%v)", err)
 	}
@@ -79,14 +80,14 @@ func TestCorpusFixturesStayTracked(t *testing.T) {
 
 	sort.Strings(files)
 
-	trackedOut, err := exec.Command("git", "ls-files", "--", corpus).Output()
+	trackedOut, err := exec.CommandContext(t.Context(), "git", "ls-files", "--", corpus).Output()
 	if err != nil {
 		t.Fatalf("git ls-files failed: %v", err)
 	}
 
 	tracked := map[string]bool{}
 
-	for _, line := range strings.Split(strings.TrimSpace(string(trackedOut)), "\n") {
+	for line := range strings.SplitSeq(strings.TrimSpace(string(trackedOut)), "\n") {
 		if line == "" {
 			continue
 		}
@@ -111,9 +112,12 @@ func TestCorpusFixturesStayTracked(t *testing.T) {
 	}
 
 	if len(untracked) > 0 {
-		t.Fatalf("gitignore trap: %d corpus fixture(s) exist on disk but are NOT tracked (the 2026-11-04 failure shape — "+
-			"`git add` stages nothing and CI sees golden drift only):\n  %s",
-			len(untracked), strings.Join(untracked, "\n  "))
+		t.Fatalf(
+			"gitignore trap: %d corpus fixture(s) exist on disk but are NOT tracked (the 2026-11-04 failure shape — "+
+				"`git add` stages nothing and CI sees golden drift only):\n  %s",
+			len(untracked),
+			strings.Join(untracked, "\n  "),
+		)
 	}
 
 	// check-ignore exit codes: 0 = at least one path is ignored (the
@@ -123,18 +127,18 @@ func TestCorpusFixturesStayTracked(t *testing.T) {
 	// call, so the argv is built with append first.
 	args := append([]string{"check-ignore", "--no-index", "--"}, files...)
 
-	out, err := exec.Command("git", args...).CombinedOutput()
+	out, err := exec.CommandContext(t.Context(), "git", args...).CombinedOutput()
 
-	ignored := len(strings.Split(strings.TrimRight(string(out), "\n"), "\n"))
+	listed := strings.TrimSpace(string(out))
 
-	switch exitErr := err.(type) {
-	case nil:
-		t.Fatalf("gitignore trap: %d corpus fixture(s) are IGNORED and any re-add would stage nothing:\n%s", ignored, string(out))
-	case *exec.ExitError:
-		if exitErr.ExitCode() != 1 {
-			t.Fatalf("git check-ignore failed: %v\n%s", err, string(out))
-		}
-	default:
-		t.Fatalf("git check-ignore could not run: %v\n%s", err, string(out))
+	if err == nil {
+		t.Fatalf("gitignore trap: %d corpus fixture(s) are IGNORED and any re-add would stage nothing:\n%s",
+			strings.Count(listed, "\n")+1, string(out))
 	}
+
+	if exitErr, ok := errors.AsType[*exec.ExitError](err); ok && exitErr.ExitCode() == 1 {
+		return // clean: check-ignore matched nothing
+	}
+
+	t.Fatalf("git check-ignore failed: %v\n%s", err, string(out))
 }
