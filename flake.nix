@@ -286,6 +286,26 @@
               GOTOOLCHAIN = "local";
             };
 
+            # A green suite must MEAN something: the e2e leg skips in this
+            # sandbox (only pkg/provider is vendored in), and without this
+            # proof the check would pass no matter which arm fired — or if
+            # the leg silently vanished. Assert the sentinel logged the
+            # SANCTIONED skip (23-06 report §f.19).
+            checkPhase = ''
+              runHook preCheck
+              go test ./... -v > provider-test.log 2>&1
+              cat provider-test.log 1>&2
+              grep -q "E2E LEG: skipped in this environment" provider-test.log || {
+                echo "FATAL: no e2e sentinel line in the provider log — the suite is green but its end-to-end leg is unaccounted"
+                exit 1
+              }
+              grep -q "root module source not adjacent" provider-test.log || {
+                echo "FATAL: the e2e skip is not the sanctioned sandbox arm (root module source not adjacent)"
+                exit 1
+              }
+              runHook postCheck
+            '';
+
             meta = {
               description = "docs-gates provider module test suite check";
               platforms = lib.platforms.linux;
