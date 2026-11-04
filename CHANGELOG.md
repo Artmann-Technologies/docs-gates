@@ -192,6 +192,19 @@ match the annotated git tags; anything after the newest tag sits under
   baseline-pinning daemon lesson (pin `git rev-parse HEAD` before
   diffing — the daemon moves HEAD mid-session).
 
+### Changed
+
+- Docs surface caught up with the flags (they shipped CHANGELOG-first):
+  the README gains a freshness-diagnostics section (`--margins`,
+  `--dump-items`, `--pre-flight` with `--replace` rewrite-mode) and a
+  per-verb exit-code table (battery's gate-rc2-to-FAIL nuance included);
+  DOMAIN_LANGUAGE defines the six new terms (rewrite-mode, margins,
+  dump-items, harvest attribution, corpus, settings-projection) and
+  corrects pre-flight's replay target to the report corpus; FEATURES
+  rows cover the three freshness flags, the full flake check list
+  (erraudit-lint, erraudit-rev, provider), and the provider suite's
+  flake-check wiring.
+
 ### Fixed
 
 - `skip_gates` validation: a typo'd gate name used to be a silent no-op

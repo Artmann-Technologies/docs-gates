@@ -27,11 +27,11 @@ owner questions in §5.
 
 ## 2) Docs surface (the session shipped three flags CHANGELOG-first; docs debt is real)
 
-| Task                                                                                                                             | Status    | Priority | Effort | Evidence                                   |
-| -------------------------------------------------------------------------------------------------------------------------------- | --------- | -------- | ------ | ------------------------------------------ |
-| README: document `--margins`, `--dump-items`, `--replace` (rewrite-mode) and the exit-code contract per verb                     | 🔴 `TODO` | P2       | S      | 19:01 report §f.3; README.md               |
-| DOMAIN_LANGUAGE.md: add the new vocabulary (rewrite-mode, margins, dump-items, harvest attribution, Corpus, settings-projection) | 🔴 `TODO` | P2       | S      | 19:01 report §f.4; docs/DOMAIN_LANGUAGE.md |
-| FEATURES.md rows for the three new freshness flags + the three flake checks (erraudit-lint, erraudit-rev, provider)              | 🔴 `TODO` | P2       | S      | 19:01 report §f.5; FEATURES.md             |
+| Task                                                                                                                                 | Status             | Priority | Effort | Evidence                                                  |
+| ------------------------------------------------------------------------------------------------------------------------------------ | ------------------ | -------- | ------ | --------------------------------------------------------- |
+| ~~README: document `--margins`, `--dump-items`, `--replace` (rewrite-mode) and the exit-code contract per verb~~                     | ✅ DONE 2026-11-04 | P2       | S      | README.md freshness-diagnostics section + exit-code table |
+| ~~DOMAIN_LANGUAGE.md: add the new vocabulary (rewrite-mode, margins, dump-items, harvest attribution, Corpus, settings-projection)~~ | ✅ DONE 2026-11-04 | P2       | S      | docs/DOMAIN_LANGUAGE.md six new terms                     |
+| ~~FEATURES.md rows for the three new freshness flags + the three flake checks (erraudit-lint, erraudit-rev, provider)~~              | ✅ DONE 2026-11-04 | P2       | S      | FEATURES.md freshness + flake + provider bullets          |
 
 ## 3) External + fleet (work lands in sibling repos; this board tracks the cross-repo leg)
 
