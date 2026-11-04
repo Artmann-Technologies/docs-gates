@@ -1,6 +1,7 @@
 package docsfreshness
 
 import (
+	"regexp"
 	"slices"
 	"strings"
 
@@ -13,11 +14,19 @@ import (
 // DELTA is the verdict — items that would newly fail are listed with
 // their reasons (plus token tables under explain). Boundary-crossing
 // tokens are always listed: they are the leading indicator even when no
-// item flips yet. Only ADDITIONS are modeled (new rows, new bullets);
-// rewording an EXISTING line needs the old line removed too, which this
-// mode does not see. Exit 0 = safe, 1 = the edit would introduce drift,
-// 2 = usage (no candidate lines).
-func PreFlight(root string, candidate []string, explain, allowDuplicates bool, settings Settings) int {
+// item flips yet. The default model is additions-only (new rows, new
+// bullets); with --replace=OLD (repeatable), the old lines are removed
+// first so a REWRITE is judged by its new words only — an item anchored
+// only by the replaced line still flips, which the additions-only model
+// cannot see. Exit 0 = safe, 1 = the edit would introduce drift, 2 =
+// usage (no candidate lines, or a replace target not on disk).
+func PreFlight(
+	root string,
+	candidate []string,
+	replaces []string,
+	explain, allowDuplicates bool,
+	settings Settings,
+) int {
 	if len(candidate) == 0 {
 		gatecli.Errln("FATAL: --pre-flight needs the candidate line(s) on stdin — " +
 			"the exact new lines about to land in TODO_LIST/ROADMAP/CHANGELOG")
@@ -27,24 +36,47 @@ func PreFlight(root string, candidate []string, explain, allowDuplicates bool, s
 
 	baseLines, baseSquashed, baseDF := loadLivingDocs(root, settings)
 
+	// Rewrite-mode removes the replaced lines FIRST: the delta then judges
+	// the candidate words only — the old words' DF presence and any
+	// harvest anchor they carried vanish with the line being replaced.
+	// The DELTA BASELINE stays the pre-edit corpus: an item that passes
+	// before and fails after the edit is the rewrite's damage, while one
+	// already failing before is not blamed on it.
+	remaining, missing := applyReplacements(baseLines, replaces)
+	if len(missing) > 0 {
+		gatecli.Errln("docs-freshness --pre-flight: --replace target(s) not found in the living docs:")
+
+		for _, m := range missing {
+			gatecli.Errf("    %s\n", gatecli.Truncate(m, reasonMax))
+		}
+
+		return gatecli.ExitUsage
+	}
+
 	if allowDuplicates {
 		// The operator-side dedup workaround (grep -Fxvf) silently DROPS the
 		// +1 DF push of a line arriving as a second copy — exactly the push a
 		// tail-ledger block makes. --duplicates is the explicit assertion "I
 		// know this line is on disk; another copy is about to land", so the
 		// delta models the copy instead of refusing the question.
-		for _, d := range onDiskLines(candidate, baseLines) {
+		for _, d := range onDiskLines(candidate, remaining) {
 			gatecli.Outf("  second copy: %-52s stays modeled — every token on it gains +1 DF\n",
 				gatecli.Truncate(d, reasonMax))
 		}
-	} else if refuseAlreadyOnDisk(candidate, baseLines) {
+	} else if refuseAlreadyOnDisk(candidate, remaining) {
 		return gatecli.ExitUsage
 	}
 
-	modLines := append(slices.Clone(baseLines), lowerAll(candidate)...)
+	if hasHeadingLine(candidate) {
+		gatecli.Outln("  note: candidate carries heading line(s) — land the heading and its batch through ONE")
+		gatecli.Outln("        pre-flight run; split runs model only each part's DF push, and a boundary the")
+		gatecli.Outln("        combined push crosses is invisible to both halves")
+	}
+
+	modLines := append(slices.Clone(remaining), lowerAll(candidate)...)
 	modSquashed := squashLines(modLines)
 	modDF := tokenDFOver(modLines)
-	candLower := modLines[len(baseLines):]
+	candLower := modLines[len(remaining):]
 	candSquashed := squashLines(candLower)
 
 	reports := statusReports(root, settings)
@@ -116,6 +148,62 @@ func BoundaryCrossings(candidate, baseLines, modLines []string, genericDF int) [
 	return crossings
 }
 
+// applyReplacements removes each replace target from the corpus
+// (lowercased trimmed exact-LINE match — a rewrite removes the whole old
+// line, not a substring) and returns the targets not found on disk for
+// the usage refusal.
+func applyReplacements(baseLines, replaces []string) ([]string, []string) {
+	if len(replaces) == 0 {
+		return baseLines, nil
+	}
+
+	onDisk := make(map[string]bool, len(baseLines))
+
+	for _, l := range baseLines {
+		onDisk[strings.TrimSpace(l)] = true
+	}
+
+	var missing []string
+
+	drop := make(map[string]bool, len(replaces))
+
+	for _, r := range replaces {
+		key := strings.ToLower(strings.TrimSpace(r))
+		if !onDisk[key] {
+			missing = append(missing, r)
+
+			continue
+		}
+
+		drop[key] = true
+	}
+
+	if len(missing) > 0 {
+		return baseLines, missing
+	}
+
+	out := make([]string, 0, len(baseLines))
+
+	for _, l := range baseLines {
+		if !drop[strings.TrimSpace(l)] {
+			out = append(out, l)
+		}
+	}
+
+	return out, nil
+}
+
+// headingLineRe matches a markdown ATX heading candidate line
+// (`# Example` .. `###### Example`).
+var headingLineRe = regexp.MustCompile(`^#{1,6}\s`)
+
+// hasHeadingLine reports whether any candidate line is a markdown
+// heading — the split-landing hazard: pre-flight the heading and its
+// batch in one run or the combined DF push goes unmodeled.
+func hasHeadingLine(candidate []string) bool {
+	return slices.ContainsFunc(candidate, headingLineRe.MatchString)
+}
+
 // onDiskLines returns the candidate lines already present verbatim in
 // the living-docs corpus (lowercased substring match, blank lines never
 // count). Shared by the refusal and the --duplicates accounting.
@@ -139,9 +227,10 @@ func onDiskLines(candidate, baseLines []string) []string {
 // model needs the PRE-edit tree, and a post-write run (the 2026-10-10
 // burn) replays its own additions against a baseline that already
 // contains them — a would-be flip then hides as SAFE, so the question
-// is refused instead of answered.
-func refuseAlreadyOnDisk(candidate, baseLines []string) bool {
-	onDisk := onDiskLines(candidate, baseLines)
+// is refused instead of answered. Rewrite-mode candidates that REPLACE
+// an on-disk line are exempt: the model removes that line first.
+func refuseAlreadyOnDisk(candidate, remaining []string) bool {
+	onDisk := onDiskLines(candidate, remaining)
 
 	if len(onDisk) == 0 {
 		return false

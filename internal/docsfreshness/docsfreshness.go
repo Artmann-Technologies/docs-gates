@@ -42,8 +42,50 @@
 package docsfreshness
 
 import (
+	"strings"
+
 	"github.com/Artmann-Technologies/docs-gates/internal/gatecli"
 )
+
+// refuseOutsidePreFlight rejects the pre-flight-only flags used outside
+// pre-flight mode: --duplicates asserts a deliberate second copy (its +1
+// DF push is modeled), --replace names the living-doc line a rewrite
+// removes so the candidate words are judged alone. rc 0 = allowed.
+func refuseOutsidePreFlight(flags map[string]bool, replacesUsed bool) int {
+	if flags["--pre-flight"] {
+		return 0
+	}
+
+	if flags["--duplicates"] {
+		gatecli.Errln("FATAL: --duplicates only applies to --pre-flight mode — it declares that an")
+		gatecli.Errln("  on-disk candidate line is about to land as a SECOND copy (ledger-block class)")
+		gatecli.Errln("  so the +1 token-DF push of that copy is modeled instead of refused")
+
+		return gatecli.ExitUsage
+	}
+
+	if replacesUsed {
+		gatecli.Errln("FATAL: --replace only applies to --pre-flight (rewrite) mode — it removes the named")
+		gatecli.Errln("  living-doc line before the replay so the candidate words are judged alone")
+
+		return gatecli.ExitUsage
+	}
+
+	return 0
+}
+
+// runPreFlight reads the candidate lines from stdin and runs the
+// additions-only or rewrite-mode replay.
+func runPreFlight(root string, flags map[string]bool, replaces []string, settings Settings) int {
+	candidate, err := readCandidates()
+	if err != nil {
+		gatecli.Errf("FATAL: %v\n", err)
+
+		return gatecli.ExitUsage
+	}
+
+	return PreFlight(root, candidate, replaces, flags["--explain-token"], flags["--duplicates"], settings)
+}
 
 // parseAuditMax splits --audit-max=N off the argument list: the parsed pin
 // (-1 = strict), the remaining args, and a nonzero exit code on a malformed
@@ -59,6 +101,34 @@ func parseAuditMax(args []string) (int, []string, int) {
 	return auditMax, rest, 0
 }
 
+// parseReplaceFlags splits the repeated --replace=OLD flags off the
+// argument list (= form only — the old line text rides one argv element,
+// spaces included). A bare --replace is refused: without = the target
+// would silently be empty.
+func parseReplaceFlags(args []string) ([]string, []string, int) {
+	var replaces []string
+
+	rest := make([]string, 0, len(args))
+
+	for _, arg := range args {
+		if value, ok := strings.CutPrefix(arg, "--replace="); ok {
+			replaces = append(replaces, value)
+
+			continue
+		}
+
+		if arg == "--replace" {
+			gatecli.Errln("FATAL: --replace needs the old line in = form: --replace=the old line text")
+
+			return nil, nil, gatecli.ExitUsage
+		}
+
+		rest = append(rest, arg)
+	}
+
+	return replaces, rest, 0
+}
+
 // Run is the CLI entry (repo-root positional + --audit-all flag semantics).
 // The repo's .docs-gates.json (when present) drives the corpus paths, the
 // living-docs list and the distinctive bar; a malformed config is a usage
@@ -70,6 +140,11 @@ func Run(args []string) int {
 	// never this gate's job (it was permanently red 2026-10-08..23 while
 	// the backlog sat at 78). Valued form --audit-max=N; -1 = strict.
 	auditMax, rest, badExit := parseAuditMax(args)
+	if badExit != 0 {
+		return badExit
+	}
+
+	replaces, rest, badExit := parseReplaceFlags(rest)
 	if badExit != 0 {
 		return badExit
 	}
@@ -97,12 +172,8 @@ func Run(args []string) int {
 		return gatecli.ExitUsage
 	}
 
-	if flags["--duplicates"] && !flags["--pre-flight"] {
-		gatecli.Errln("FATAL: --duplicates only applies to --pre-flight mode — it declares that an")
-		gatecli.Errln("  on-disk candidate line is about to land as a SECOND copy (ledger-block class)")
-		gatecli.Errln("  so the +1 token-DF push of that copy is modeled instead of refused")
-
-		return gatecli.ExitUsage
+	if rc := refuseOutsidePreFlight(flags, len(replaces) > 0); rc != 0 {
+		return rc
 	}
 
 	if flags["--explain-item"] {
@@ -115,14 +186,7 @@ func Run(args []string) int {
 	}
 
 	if flags["--pre-flight"] {
-		candidate, err := readCandidates()
-		if err != nil {
-			gatecli.Errf("FATAL: %v\n", err)
-
-			return gatecli.ExitUsage
-		}
-
-		return PreFlight(root, candidate, flags["--explain-token"], flags["--duplicates"], settings)
+		return runPreFlight(root, flags, replaces, settings)
 	}
 
 	livingLines, livingSquashed, tokenDF := loadLivingDocs(root, settings)

@@ -61,6 +61,7 @@ func TestPreFlightFlagsWouldBeDrift(t *testing.T) {
 	if rc := PreFlight(
 		root,
 		[]string{"changelog: alpha-probe summary row"},
+		nil,
 		false,
 		false,
 		DefaultSettings(),
@@ -69,7 +70,7 @@ func TestPreFlightFlagsWouldBeDrift(t *testing.T) {
 	}
 
 	unrelated := []string{"changelog: a wholly unrelated qwertyzz row"}
-	if rc := PreFlight(root, unrelated, false, false, DefaultSettings()); rc != gatecli.ExitClean {
+	if rc := PreFlight(root, unrelated, nil, false, false, DefaultSettings()); rc != gatecli.ExitClean {
 		t.Fatalf("an unrelated line must exit clean, got %d", rc)
 	}
 }
@@ -88,7 +89,7 @@ func TestPreFlightNamesCulpritCandidateToken(t *testing.T) {
 	root := preFlightRoot(t)
 
 	captured := gatecli.CaptureOutput(func() int {
-		return PreFlight(root, []string{"changelog: alpha-probe summary row"}, false, false, DefaultSettings())
+		return PreFlight(root, []string{"changelog: alpha-probe summary row"}, nil, false, false, DefaultSettings())
 	})
 
 	if captured.Code != gatecli.ExitFindings {
@@ -115,6 +116,7 @@ func TestPreFlightMarksSquashSpellingCulprit(t *testing.T) {
 		return PreFlight(
 			root,
 			[]string{"changelog: the alpha probe summary row", "changelog: alpha-probe landing row"},
+			nil,
 			false,
 			false,
 			DefaultSettings(),
@@ -165,7 +167,7 @@ func TestPreFlightEmptyCandidateIsUsage(t *testing.T) {
 
 	root := preFlightRoot(t)
 
-	if rc := PreFlight(root, nil, false, false, DefaultSettings()); rc != gatecli.ExitUsage {
+	if rc := PreFlight(root, nil, nil, false, false, DefaultSettings()); rc != gatecli.ExitUsage {
 		t.Fatalf("empty candidate must exit usage, got %d", rc)
 	}
 }
@@ -198,6 +200,7 @@ func TestPreFlightReplaysArchivedCorpus(t *testing.T) {
 	if rc := PreFlight(
 		root,
 		[]string{"changelog: alpha-probe summary row"},
+		nil,
 		false,
 		false,
 		DefaultSettings(),
@@ -206,7 +209,7 @@ func TestPreFlightReplaysArchivedCorpus(t *testing.T) {
 	}
 
 	unrelated := []string{"changelog: a wholly unrelated qwertyzz row"}
-	if rc := PreFlight(root, unrelated, false, false, DefaultSettings()); rc != gatecli.ExitClean {
+	if rc := PreFlight(root, unrelated, nil, false, false, DefaultSettings()); rc != gatecli.ExitClean {
 		t.Fatalf("an unrelated line must exit clean, got %d", rc)
 	}
 }

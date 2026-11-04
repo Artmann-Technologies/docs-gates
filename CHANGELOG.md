@@ -40,6 +40,17 @@ match the annotated git tags; anything after the newest tag sits under
   erraudit reads it STALE with a failing rc — proof the flake's
   nolint-audit check cannot rot into a no-op. Wired as a leg of that
   check; skips on hosts without erraudit on PATH (CI runners).
+- Pre-flight rewrite-mode + heading-awareness (the preflight-bind-check
+  remaining legs): `--replace=OLD` removes the named living-doc line
+  before the replay, so a REWRITE is judged by its new words alone — an
+  item anchored only by the replaced line flips to WOULD-DRIFT, the
+  class the additions-only model could not see (discrimination-proven:
+  the same candidate is SAFE without --replace, UNSAFE with it). The
+  delta baseline stays the pre-edit corpus, so damage the rewrite did
+  not cause stays unblamed and a rewrite that repairs drift binds
+  visibly. Heading candidates carry the split-landing advisory (land
+  heading + batch through ONE run); a candidate equal to its own replace
+  target is exempt from the on-disk refusal.
 - legacy-wrappers smoke v2: the flake check now asserts each of the six
   names stamps the ACTUAL version string (the ldflags `-X main.version`
   value from the same `version` binding the package builds with), not

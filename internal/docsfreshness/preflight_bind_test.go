@@ -46,7 +46,14 @@ func TestPreFlightReportsBoundItemWithCandidate(t *testing.T) {
 	root := bindFixture(t, "quota-xyz replenish window followup")
 
 	captured := gatecli.CaptureOutput(func() int {
-		return PreFlight(root, []string{"todo: quota-xyz replenish window owner row"}, false, false, DefaultSettings())
+		return PreFlight(
+			root,
+			[]string{"todo: quota-xyz replenish window owner row"},
+			nil,
+			false,
+			false,
+			DefaultSettings(),
+		)
 	})
 
 	if captured.Code != gatecli.ExitClean {
@@ -82,6 +89,7 @@ func TestPreFlightBindsNothingWhenSlashTokenIsSplit(t *testing.T) {
 		return PreFlight(
 			root,
 			[]string{"todo: one unrelated row spelling metric and counter separately"},
+			nil,
 			false,
 			false,
 			DefaultSettings(),
@@ -116,6 +124,7 @@ func TestPreFlightRefusesCandidatesAlreadyOnDisk(t *testing.T) {
 	if rc := PreFlight(
 		root,
 		[]string{"- alpha-probe evidence number 3"},
+		nil,
 		false,
 		false,
 		DefaultSettings(),
@@ -124,7 +133,7 @@ func TestPreFlightRefusesCandidatesAlreadyOnDisk(t *testing.T) {
 	}
 
 	// Whitespace-only candidates are vacuous, not "on disk".
-	if rc := PreFlight(root, []string{"   "}, false, false, DefaultSettings()); rc != gatecli.ExitClean {
+	if rc := PreFlight(root, []string{"   "}, nil, false, false, DefaultSettings()); rc != gatecli.ExitClean {
 		t.Fatalf("a whitespace-only candidate must stay clean, got %d", rc)
 	}
 }
@@ -144,6 +153,7 @@ func TestPreFlightDuplicatesModelsSecondCopyPush(t *testing.T) {
 	if rc := PreFlight(
 		root,
 		[]string{"- alpha-probe evidence number 3"},
+		nil,
 		false,
 		false,
 		DefaultSettings(),
@@ -155,6 +165,7 @@ func TestPreFlightDuplicatesModelsSecondCopyPush(t *testing.T) {
 	if rc := PreFlight(
 		root,
 		[]string{"- alpha-probe evidence number 3"},
+		nil,
 		false,
 		true,
 		DefaultSettings(),
@@ -166,6 +177,7 @@ func TestPreFlightDuplicatesModelsSecondCopyPush(t *testing.T) {
 	if rc := PreFlight(
 		root,
 		[]string{"- webphone note number 3"},
+		nil,
 		false,
 		true,
 		DefaultSettings(),
@@ -185,7 +197,7 @@ func TestPreFlightRefusalNamesOffendingLine(t *testing.T) {
 	root := preFlightRoot(t)
 
 	captured := gatecli.CaptureOutput(func() int {
-		return PreFlight(root, []string{"- alpha-probe evidence number 3"}, false, false, DefaultSettings())
+		return PreFlight(root, []string{"- alpha-probe evidence number 3"}, nil, false, false, DefaultSettings())
 	})
 
 	if captured.Code != gatecli.ExitUsage {
