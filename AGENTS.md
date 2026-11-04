@@ -78,7 +78,11 @@ one.
   Non-obvious facts): the `//nolint:erraudit` directives are LIVE, and
   the `nolint-audit` flake check fails the moment one goes stale. Never
   add a directive without a code-adjacent reason; the check and erraudit's
-  own audit keep them honest.
+  own audit keep them honest. golangci's runner still WARNS
+  `[runner/nolint_filter] Found unknown linters in //nolint directives:
+  erraudit` — expected cross-tool artifact (erraudit is a standalone
+  binary, not a golangci linter; the fleet runs it standalone, no plugin),
+  warning-only with 0 issues and rc=0.
 
 ## Verdict arithmetic (battery)
 
