@@ -15,10 +15,13 @@ match the annotated git tags; anything after the newest tag sits under
   `nix flake check` (root module; sandboxed with the pinned go toolchain,
   GOPROXY=off). All 15 directives verified needed, 0 stale; the check is
   discrimination-proven against a planted stale directive.
-- Golden parity corpus: TestParityGolden pins six invocations (five gates
-  + battery) byte-for-byte over testdata/parity/corpus (custom config,
-  `{{DATE}}` token substitution keeps report ages stable); goldens under
-  testdata/parity/golden, re-pin via `PARITY_UPDATE=1`.
+- Golden parity corpus: TestParityGolden pins the five gates + battery
+  byte-for-byte over testdata/parity/corpus (custom config, `{{DATE}}`
+  token substitution keeps report ages stable); goldens under
+  testdata/parity/golden, re-pin via `PARITY_UPDATE=1`. A second corpus
+  (corpus-ratchet: annotate_max pinned at 2 over two unannotated strikes)
+  goldens the annotate RATCHET arm byte-for-byte, with a discrimination
+  assertion that a stricter pin fails REGRESSION.
 - CI workflow (build / vet / gofmt / stack-drift / test on push + PR) and
   `scripts/stack-drift-check.sh`, which fails CI the moment the root
   go.mod grows a require/replace/exclude (the stdlib-only contract).

@@ -119,6 +119,7 @@ func runCaptured(args []string, stdin string) gatecli.CapturedOutput {
 
 			orig := os.Stdin
 			os.Stdin = r
+
 			defer func() { os.Stdin = orig; _ = r.Close() }()
 		}
 

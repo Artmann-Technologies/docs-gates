@@ -14,8 +14,8 @@ import (
 // This plants a finding-free //nolint:erraudit directive in a temp
 // module and asserts erraudit reports it STALE with a non-zero rc —
 // the discrimination proof of 2026-11-04, now permanent and gated by
-// the flake's nolint-audit check. Skips outside the devShell/flake
-// (erraudit is a private-input binary, not on bare PATH).
+// the flake's nolint-audit check. Skips where erraudit is absent (e.g.
+// CI runners; the devShell and this fleet's hosts carry the binary).
 func TestNolintAuditDiscrimination(t *testing.T) {
 	t.Parallel()
 
@@ -38,8 +38,9 @@ func TestNolintAuditDiscrimination(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	cmd := exec.Command(bin, "nolint-audit", ".")
+	cmd := exec.CommandContext(t.Context(), bin, "nolint-audit", ".")
 	cmd.Dir = dir
+
 	cmd.Env = append(os.Environ(), "GOTOOLCHAIN=local")
 
 	out, execErr := cmd.CombinedOutput()
