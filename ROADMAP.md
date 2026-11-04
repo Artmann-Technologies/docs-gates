@@ -17,6 +17,19 @@ Long-term direction and raw ideas. Refined ideas graduate to TODO_LIST.
   `\d+[.)]` — the 2026-11-04 false-split class), and a `--json` verdict
   output for CI annotations. Nothing here is committed; each wants a
   Pareto pass first.
+- **Pre-flight model growth** — multi-line/range replacements (block
+  swaps, not just single-line `--replace`) and pure removals
+  (`--remove=OLD` — deleting a line is not a rewrite) if fleet rewrites
+  need them.
+- **Margins/routing convergence** — `--margins --json` for tooling
+  consumption (jq-able, the config-format precedent), and docsrouting
+  Gap rows carrying harvest suggestions (the margins vocabulary applied
+  to unrouted rows).
+- **`docs-gates doctor` verb** — PATH, config, flake state in one
+  command; the provider HealthCheck hint is the seed.
+- **Fleet-wide nolint staleness tripwires** — erraudit got its audit;
+  errcheck/gosec directives have none (a BuildFlow-provider-shaped
+  fleet idea).
 - **Gate decoupling** — docsrouting imports docsfreshness for the shared
   token corpus (Tokens/Squash/GenericDF). Fine while the gates version
   together; if they ever version independently, extract

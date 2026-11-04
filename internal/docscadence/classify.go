@@ -40,7 +40,7 @@ func classify(body string) (int, int) {
 }
 
 // isDoneCell reports whether a table cell is a DONE status cell. The
-// canonical docs-strike shape is `✅ \`DONE\``, but strike rituals also
+// canonical docs-strike shape is `✅ \`DONE\“, but strike rituals also
 // land dated verdicts (`✅ DONE 2026-11-04`, `DONE — evidence …`): a
 // cell that STARTS with a DONE marker counts, while task text merely
 // containing the word ("the switch IS DONE") never occupies a whole

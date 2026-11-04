@@ -201,6 +201,13 @@ match the annotated git tags; anything after the newest tag sits under
   `config.Gate*` constants, so the vocabulary cannot drift. Also fixed
   `annotate_max` missing from the known-keys list, which made every repo
   pinning it get a spurious "unknown config key" warning.
+- docs-cadence purge counter blind to dated DONE cells: a status cell
+  had to exactly equal `✅ \`DONE\``/`DONE` to count, so the dated strike
+  shape (`✅ DONE 2026-11-04`) landed by the execution sessions counted
+  as 0 — 25 struck rows sat under a 20 threshold the gate could never
+  trip. The counter now accepts any cell starting with a DONE marker
+  (prose DONE still never occupies a whole cell); found by the evening
+  docs-health pass when the ritual said purge and the gate said healthy.
 
 ## [v0.1.1] - 2026-11-04
 
