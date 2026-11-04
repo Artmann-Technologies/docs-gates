@@ -21,10 +21,25 @@ match the annotated git tags; anything after the newest tag sits under
   testdata/parity/golden, re-pin via `PARITY_UPDATE=1`. A second corpus
   (corpus-ratchet: annotate_max pinned at 2 over two unannotated strikes)
   goldens the annotate RATCHET arm byte-for-byte, with a discrimination
-  assertion that a stricter pin fails REGRESSION.
+  assertion that a stricter pin fails REGRESSION. A third corpus
+  (corpus-warn) goldens the `config: unknown key` warning through the
+  cadence verb, and `preflight-safe` goldens the strike pre-flight
+  stdin candidate leg (a swapped os.Stdin fixture) plus its
+  already-on-disk refusal arm (exit 2).
 - CI workflow (build / vet / gofmt / stack-drift / test on push + PR) and
   `scripts/stack-drift-check.sh`, which fails CI the moment the root
-  go.mod grows a require/replace/exclude (the stdlib-only contract).
+  go.mod grows a require/replace/exclude (the stdlib-only contract); a
+  second `provider` job runs build/vet/test from pkg/provider so the
+  nested module is gated too (go-finding verified public, no CI creds).
+- gatecli unit coverage pins the shared CLI scaffolding's contract:
+  CutIntFlag last-wins + exact FATAL bytes + untouched-rest sentinels, and
+  LoadConfig warnings-before-error ordering with clean-config silence
+  (captured-stderr assertions).
+- nolint-audit discrimination test (internal/battery): plants a
+  finding-free `//nolint:erraudit` directive in a temp module and asserts
+  erraudit reads it STALE with a failing rc — proof the flake's
+  nolint-audit check cannot rot into a no-op. Wired as a leg of that
+  check; skips on hosts without erraudit on PATH (CI runners).
 - docs/DOMAIN_LANGUAGE.md: the gate vocabulary (verdict matrix, ratchet,
   struck row, harvest, distinctive token, living/historical docs) in one
   greppable glossary.

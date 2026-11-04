@@ -75,7 +75,15 @@ one.
   HEREDOC attribution form, and expect heuristic `chore: auto-commit`
   entries in the log. Never restore/checkout files you did not author —
   and verify `git status` before claiming the daemon committed your work
-  (it has a known blind spot). Pin your verification baseline (`git
+  (it has a known blind spot). NEVER run `git revert HEAD` blind here:
+  between your push and the revert the daemon may have wrapped your own
+  work in a `chore: auto-commit` commit, so `HEAD` is not necessarily the
+  commit you mean (paid for 2026-11-04: a blind revert under the daemon
+  removed a T5 test commit instead of the CI plant it targeted, leaving
+  the break on origin ~9 h). Always `git log -1 --stat` first, revert by
+  explicit SHA, and commit your own work immediately — an uncommitted
+  train is what the daemon wraps into the wrong SHA. Pin your verification
+  baseline (`git
   rev-parse HEAD`) BEFORE any before/after diff — HEAD moves under you
   mid-session, and an unpinned "pre-split" comparison can silently target
   a daemon commit (paid for 2026-11-04: one misdirected losslessness
@@ -176,7 +184,21 @@ one.
   deps never touch this repo's stdlib-only module. The `nolint-audit`
   check needs a real go toolchain in the sandbox (package loading), hence
   the pinned go + tmp GOCACHE/GOPATH + GOPROXY=off (the hermeticity
-  proof).
+  proof). erraudit is ALSO system-installed on fleet hosts
+  (`/run/current-system/sw/bin/erraudit`), so path-dependent erraudit
+  probes and the nolint-audit discrimination test run bare there but skip
+  on CI runners (no binary) — a test that "passes" on CI may be a silent
+  skip; prove it locally before trusting it.
+- **Buildflow's managed `.gitignore` block contains a broad `reports/`
+  rule that silently swallows ANY `reports/` directory** — including new
+  corpus fixtures under `testdata/parity/*/reports/`. The files exist in
+  the working tree (so tests pass locally) but never get staged by `git
+  add <dir>`, and CI fails with golden drift only (paid for 2026-11-04).
+  Scoped negations (`!testdata/parity/*/reports/` +
+  `!testdata/parity/*/reports/**`) were appended OUTSIDE the managed
+  block — buildflow owns the block itself. After adding any testdata or
+  corpus files, run `git check-ignore -v` / `git status --ignored` and
+  verify staged counts BEFORE trusting a green local suite.
 - **Known BuildFlow tool bug (2026-11-04, do not "fix" here):** the
   BuildFlow `nix-fmt`/`treefmt` roundtrip steps fail over THIS repo with
   `failed to create walker: path … not inside the tree root /nix/store`.
@@ -229,6 +251,8 @@ PARITY_UPDATE=1 go test ./internal/battery/ -run TestParityGolden   # re-pin gol
 ```
 
 CI (`.github/workflows/ci.yml`, push/PR): `go build` / `go vet` /
-`gofmt -l` / `scripts/stack-drift-check.sh` / `go test ./...` — root
-module only, so provider regressions surface only in a local run from
-`pkg/provider/`.
+`gofmt -l` / `scripts/stack-drift-check.sh` / `go test ./...` from the
+root (`go` job), plus a `provider` job running build/vet/test from
+`pkg/provider` — both modules gated, provider regressions fail CI. The
+flake (and its erraudit checks) never runs on CI: local-only quality
+loop.
