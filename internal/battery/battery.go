@@ -63,12 +63,6 @@ func gates(root string, cfg config.Config) []gate {
 	}
 }
 
-// skipped reports whether cfg.SkipGates names the gate (the battery verbs
-// share the gate names).
-func skipped(cfg config.Config, name string) bool {
-	return slices.Contains(cfg.SkipGates, name)
-}
-
 // Run is the CLI entry for `docs-gates run` (repo-root positional, no
 // flags: the knobs live in the repo config).
 func Run(args []string) int {

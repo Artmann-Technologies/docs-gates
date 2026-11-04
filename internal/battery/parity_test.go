@@ -24,7 +24,7 @@ import (
 //
 // Re-pin the goldens after an INTENTIONAL output change:
 //
-//	go test ./internal/battery/ -run TestParityGolden -update
+//	PARITY_UPDATE=1 go test ./internal/battery/ -run TestParityGolden
 //
 // then diff them by hand — a golden bump is a contract change.
 
