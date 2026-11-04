@@ -159,6 +159,17 @@ one.
   (`tools/providers/format_roundtrip.go` +
   `nixFmtRoundTripConfigFiles`); the failing steps do not gate anything
   this repo's own commands miss.
+- **Known BuildFlow tool bug (2026-11-04, do not "fix" here):** the
+  file-size-check result cache key is CONSTANT — the provider declares
+  an empty FileContract, and the key's content hash covers only
+  `tool.Files.Inputs`, i.e. no files. After splitting oversized files
+  (this session), `buildflow -s file-size-check` replayed the pre-split
+  findings for files that no longer existed. The honest verdict needs
+  the bypass: `BUILDFLOW_NO_RESULT_CACHE=1 buildflow -s file-size-check
+  --format finding`. Filed upstream as LarsArtmann/BuildFlow#87 (draft
+  at BuildFlow
+  `docs/drafts/file-size-check-empty-filecontract-constant-cache-key.md`);
+  once fixed upstream, drop the bypass from any verification ritual.
 
 ## Testing
 
