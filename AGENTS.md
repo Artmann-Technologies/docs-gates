@@ -258,6 +258,18 @@ one.
   staleness → prove with the real gates → clear the wrapper caches +
   restart; an upstream issue was draft-ready and REFUTED by this
   experiment (verify-before-filing Gate 4).
+- **Striking report-ledger rows by ROW NUMBER is a corruption machine
+  (paid for 2026-11-04, reverted in ef14e11):** the §f "up to 50 things"
+  ledgers share their `| N |` row shape with board-mirror tables in the
+  SAME report, so a row-number sed hits the wrong table, and a greedy
+  `(.*) (\|)$` capture collapses every middle cell into the struck text.
+  If a strike sweep is ever redone: anchor each strike on a UNIQUE TASK
+  TEXT PREFIX, bound the capture with `[^|]*` (cells never contain
+  pipes), run the annotate gate after EVERY batch, and expect the daemon
+  to commit a corrupt intermediate state within ~3 minutes (recovery is
+  a forward `git restore --source=<good-sha>`, never a history rewrite).
+  The ledgers hold 28-49 open rows each — a full sweep is a false-strike
+  factory; only rows with demonstrably-landed work get struck.
 - **Known BuildFlow tool bug (2026-11-04, do not "fix" here):** the
   BuildFlow `nix-fmt`/`treefmt` roundtrip steps fail over THIS repo with
   `failed to create walker: path … not inside the tree root /nix/store`.
