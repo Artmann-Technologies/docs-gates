@@ -109,8 +109,8 @@ Ranked by impact; Effort S <30min, M 30min–2h, L >2h. Items marked **(carry-ov
 5. Re-verify the fresh:skip claim on §f item 9 of the 05-06 report against the BuildFlow repo's actual board; harvest into TODO_LIST if untracked. — High / S / Bug
 6. Add the missing CHANGELOG row for the file-size refactor (26-file reorg, no behavior change). **(carry-over, prior §f 3)** — High / S / Documentation
 7. Fix BuildFlow#87 upstream, then drop the `BUILDFLOW_NO_RESULT_CACHE=1` bypass from AGENTS.md's verification ritual. **(carry-over, prior §f 1)** — High / L / Quality (external)
-8. Confirm GitHub CI green on the daemon's pushed commits from this session. — High / S / Quality
-9. `nix flake check --all-systems --no-build` after this session's changes (both-arch eval re-proof). — Medium / S / Quality
+8. ~~Confirm GitHub CI green on the daemon's pushed commits from this session. — High / S / Quality~~ done — verified via gh run list: 3×success through 2026-11-04 04:51 (docs-health audit)
+9. ~~`nix flake check --all-systems --no-build` after this session's changes (both-arch eval re-proof). — Medium / S / Quality~~ done — all checks passed (docs-health audit 2026-11-04)
 10. Run `buildflow --build-mode dev` once (with the documented bypasses) to confirm no NEW findings beyond the two known tool bugs. — Medium / M / Quality
 11. Consolidate docsrouting's double report-dir glob (RoutingGaps globs; `countUnarchived` globs the same dir again) — derive the count from the existing report list or share one lookup. — Medium / S / Cleanup
 12. Unify the report-path construction: docsfreshness `statusReports` uses `reportGlobPath/archivedGlobPath`; docsrouting hand-rolls `filepath.Join(root, s.reportDir(), s.reportGlob())` — one spelling (note: routing never globs the archived subdir; keep that distinction visible). — Medium / S / Cleanup

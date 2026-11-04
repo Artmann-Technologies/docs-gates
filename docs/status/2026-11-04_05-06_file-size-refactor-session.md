@@ -135,10 +135,12 @@ Immediate, this session's loose ends:
    rest into `ROADMAP.md` (docs-health HARVEST mode).
 3. Add a CHANGELOG row for the file-size refactor (26-file reorganization,
    no behavior change).
-4. Run `nix build .#docs-gates -o /tmp/dg-result` to prove the nix sandbox
-   checkPhase still passes over the split packages.
-5. Run `nix develop -c golangci-lint fmt ./...` (golines/gofumpt/gci) and
-   confirm a zero-diff `git status`.
+4. ~~Run `nix build .#docs-gates -o /tmp/dg-result` to prove the nix sandbox
+   checkPhase still passes over the split packages.~~ done — package build green
+   incl. checkPhase (docs-health audit 2026-11-04)
+5. ~~Run `nix develop -c golangci-lint fmt ./...` (golines/gofumpt/gci) and
+   confirm a zero-diff `git status`.~~ done — formatter zero-diff verified
+   (docs-health audit 2026-11-04)
 6. Reconcile the `nixpkgs_2` flake.nix/flake.lock disagreement the preflight
    FAIL names (input locked at ref nixos-unstable, no matching `url` line in
    flake.nix) — or record it as deliberate.
@@ -154,10 +156,13 @@ Immediate, this session's loose ends:
    board; the earlier fresh:skip marker claimed otherwise and was removed.)
 10. Distill the baseline-pinning lesson (e.1) into AGENTS.md "Non-obvious
     facts" or the global lessons file.
-11. Confirm CI green on GitHub after the daemon's push (root-module
-    workflow), since provider regressions only surface locally.
-12. `nix flake check --all-systems --no-build` once, to re-prove both-arch
-    eval after the new files.
+11. ~~Confirm CI green on GitHub after the daemon's push (root-module
+    workflow), since provider regressions only surface locally.~~ done —
+    verified via gh run list: 3×success through 2026-11-04 04:51 (docs-health
+    audit)
+12. ~~`nix flake check --all-systems --no-build` once, to re-prove both-arch
+    eval after the new files.~~ done — all checks passed (docs-health audit
+    2026-11-04)
 13. Verify `git status` is clean (daemon picked up everything; it has a
     known blind spot).
 

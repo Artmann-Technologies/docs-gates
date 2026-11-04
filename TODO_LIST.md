@@ -28,7 +28,6 @@ resolved items were verified against code and purged to CHANGELOG.
 | Add the provider module suite to flake `checks` (nix gate builds its go 1.27 suite)                                                                                     | 🔴 `TODO` | P3       | M      | 03-34 report §f.10; flake.nix checks                            |
 | Expand the parity corpus: pin the `annotate_max` ratchet arm (new parityGates entry + corpus config) — the newest feature is the one the byte-parity net does not catch  | 🔴 `TODO` | P2       | M      | 02-24 report §f.3; 03-34 report §f.11; internal/battery/parity_test.go |
 | Expand the parity corpus: golden the config-warning path (unknown key → `config:` warning; no golden exercises warnings today) + a `--pre-flight` stdin fixture         | 🔴 `TODO` | P3       | M      | 05-38 report §f.32; 05-06 report §f.19; testdata/parity/        |
-| Confirm CI green on GitHub after the daemon's pushes (root-module workflow; provider legs only local)                                                                   | 🔴 `TODO` | P3       | S      | 05-06 report §f.11; 05-38 report §f.8                           |
 | One end-to-end provider-path battery run (exec the real binary through provider Detect, not only unit tests)                                                            | 🔴 `TODO` | P3       | S      | 05-06 report §f.30; pkg/provider/provider.go                    |
 
 ## 3) Code health
