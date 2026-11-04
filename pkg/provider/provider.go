@@ -68,7 +68,7 @@ func workingDir(ctx context.Context) string {
 // returns its exit code plus both output streams. The binary name is a
 // package constant (gosec G204), and the context bounds the run.
 func runBattery(ctx context.Context, bin, dir string) (int, string, string, error) {
-	cmd := exec.CommandContext( //nolint:gosec,noctx // constant binary, not user input
+	cmd := exec.CommandContext( //nolint:gosec // constant binary, not user input
 		ctx,
 		bin,
 		"run",
