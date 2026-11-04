@@ -1,6 +1,8 @@
 package docsrouting
 
 import (
+	"cmp"
+
 	"github.com/Artmann-Technologies/docs-gates/internal/config"
 	"github.com/Artmann-Technologies/docs-gates/internal/docsfreshness"
 )
@@ -33,25 +35,13 @@ func (s Settings) df() int {
 }
 
 func (s Settings) livingDocs() []string {
-	if len(s.LivingDocs) > 0 {
-		return s.LivingDocs
-	}
-
-	return config.Defaults().LivingDocs
+	return config.OrSlice(s.LivingDocs, config.Defaults().LivingDocs)
 }
 
 func (s Settings) reportDir() string {
-	if s.ReportDir != "" {
-		return s.ReportDir
-	}
-
-	return config.Defaults().ReportDir
+	return cmp.Or(s.ReportDir, config.Defaults().ReportDir)
 }
 
 func (s Settings) reportGlob() string {
-	if s.ReportGlob != "" {
-		return s.ReportGlob
-	}
-
-	return config.Defaults().ReportGlob
+	return cmp.Or(s.ReportGlob, config.Defaults().ReportGlob)
 }

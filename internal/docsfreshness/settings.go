@@ -1,6 +1,7 @@
 package docsfreshness
 
 import (
+	"cmp"
 	"path/filepath"
 
 	"github.com/Artmann-Technologies/docs-gates/internal/config"
@@ -65,27 +66,15 @@ func (s Settings) archivedGlobPath(root string) string {
 }
 
 func (s Settings) dir() string {
-	if s.ReportDir != "" {
-		return s.ReportDir
-	}
-
-	return config.Defaults().ReportDir
+	return cmp.Or(s.ReportDir, config.Defaults().ReportDir)
 }
 
 func (s Settings) archivedSub() string {
-	if s.ArchivedSubdir != "" {
-		return s.ArchivedSubdir
-	}
-
-	return config.Defaults().ArchivedSubdir
+	return cmp.Or(s.ArchivedSubdir, config.Defaults().ArchivedSubdir)
 }
 
 func (s Settings) livingDocs() []string {
-	if len(s.LivingDocs) > 0 {
-		return s.LivingDocs
-	}
-
-	return config.Defaults().LivingDocs
+	return config.OrSlice(s.LivingDocs, config.Defaults().LivingDocs)
 }
 
 // loadSettings resolves the repo config for a Run-shaped entry point and

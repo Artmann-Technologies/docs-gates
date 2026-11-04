@@ -34,8 +34,6 @@ import (
 const SkipMarker = "<!-- routing:skip -->"
 
 var (
-	sectionFRe = regexp.MustCompile(`(?i)^#{2,}\s*f\)`)
-	headingRe  = regexp.MustCompile(`^#{1,2}\s`)
 	// Candidate = an OPEN actionable row anywhere in the report body:
 	// the 🔴 TODO / 🔵 BLOCKED status markers the reports and TODO_LIST
 	// share, or an unticked checkbox. Struck (~~) rows are resolved.
@@ -72,7 +70,7 @@ type Gap struct {
 // dir and returns the open non-§f actionable rows the living docs do not
 // reflect.
 func RoutingGaps(root string, s Settings) []Gap {
-	living := loadLivingLines(root, s.livingDocs())
+	living := docsfreshness.LivingDocsLines(root, s.livingDocs())
 
 	gaps := make([]Gap, 0, gapCap)
 
@@ -88,26 +86,6 @@ func RoutingGaps(root string, s Settings) []Gap {
 	return gaps
 }
 
-// loadLivingLines reads the configured living docs into the raw-line
-// corpus (lowercased raw lines; document frequency counted on RAW lines —
-// the GenericDF threshold is tuned against raw substring counts).
-func loadLivingLines(root string, names []string) []string {
-	var lines []string
-
-	for _, name := range names {
-		data, err := os.ReadFile(filepath.Join(root, name))
-		if err != nil {
-			continue //nolint:erraudit // a not-yet-existing living doc contributes no lines
-		}
-
-		for line := range strings.SplitSeq(string(data), "\n") {
-			lines = append(lines, strings.ToLower(line))
-		}
-	}
-
-	return lines
-}
-
 func reportGaps(report string, living []string, genericDF int) []Gap {
 	data, err := os.ReadFile(report)
 	if err != nil {
@@ -121,11 +99,11 @@ func reportGaps(report string, living []string, genericDF int) []Gap {
 
 	for i, line := range strings.Split(string(data), "\n") {
 		switch {
-		case sectionFRe.MatchString(line):
+		case docsfreshness.SectionFRe.MatchString(line):
 			inF = true
 
 			continue
-		case headingRe.MatchString(line):
+		case docsfreshness.HeadingRe.MatchString(line):
 			inF = false
 
 			continue

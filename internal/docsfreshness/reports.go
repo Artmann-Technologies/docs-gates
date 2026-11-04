@@ -10,11 +10,18 @@ import (
 )
 
 var (
-	sectionFRe = regexp.MustCompile(`(?i)^#{2,}\s*f\)`)
-	headingRe  = regexp.MustCompile(`^#{1,2}\s`)
-	proseRe    = regexp.MustCompile(`^\s*(\d+)[.)]\s+(.*)$`)
-	rowRe      = regexp.MustCompile(`^\|\s*(~~\d+~~|\d+)\s*\|`)
-	sepRowRe   = regexp.MustCompile(`^\|[-: ]+\|?\s*$`)
+	// SectionFRe matches a status report's §f heading (case-insensitive).
+	// Routing shares this definition so both gates agree on where §f
+	// begins — freshness harvests ONLY §f, routing skips ONLY §f; two
+	// spellings of the boundary would let a report be harvested AND
+	// triaged at once.
+	SectionFRe = regexp.MustCompile(`(?i)^#{2,}\s*f\)`)
+	// HeadingRe matches the 1-2-hash heading that closes a §f section
+	// (see SectionFRe for why the definition is shared with routing).
+	HeadingRe = regexp.MustCompile(`^#{1,2}\s`)
+	proseRe   = regexp.MustCompile(`^\s*(\d+)[.)]\s+(.*)$`)
+	rowRe     = regexp.MustCompile(`^\|\s*(~~\d+~~|\d+)\s*\|`)
+	sepRowRe  = regexp.MustCompile(`^\|[-: ]+\|?\s*$`)
 )
 
 func NewestReport(root string, settings Settings) string {
@@ -44,7 +51,7 @@ func ExtractSectionF(report string) string {
 	start := -1
 
 	for i, line := range lines {
-		if sectionFRe.MatchString(line) {
+		if SectionFRe.MatchString(line) {
 			start = i + 1
 
 			break
@@ -58,7 +65,7 @@ func ExtractSectionF(report string) string {
 	var section []string
 
 	for _, line := range lines[start:] {
-		if headingRe.MatchString(line) {
+		if HeadingRe.MatchString(line) {
 			break
 		}
 

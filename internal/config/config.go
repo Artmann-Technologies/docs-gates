@@ -89,6 +89,18 @@ func Defaults() Config {
 	}
 }
 
+// OrSlice is cmp.Or for slices (which are not comparable): the first
+// argument carrying elements wins. Every Settings projection's list
+// fallback rides this, so "a zero-value list falls back to the shipped
+// Defaults" has one spelling across the gates.
+func OrSlice[T any](override, def []T) []T {
+	if len(override) > 0 {
+		return override
+	}
+
+	return def
+}
+
 // Path returns the config file location under a repo root.
 func Path(root string) string {
 	return filepath.Join(root, FileName)

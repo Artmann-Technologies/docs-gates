@@ -39,22 +39,33 @@ func readCandidates() ([]string, *candidatesError) {
 	return candidate, nil
 }
 
-// loadLivingDocs reads the configured living docs into the comparison
-// corpus: lowercased raw lines, their squashed keys, and the raw-line token
-// document frequency.
-func loadLivingDocs(root string, settings Settings) ([]string, []string, func(string) int) {
-	var livingLines []string
+// LivingDocsLines reads the named living docs under root into the
+// raw-line corpus: every line lowercased. The freshness harvest and the
+// routing triage share this corpus shape — both token machineries (the
+// GenericDF bar) are tuned against RAW lowercase lines, so there must be
+// exactly one reader.
+func LivingDocsLines(root string, names []string) []string {
+	var lines []string
 
-	for _, name := range settings.livingDocs() {
+	for _, name := range names {
 		data, err := os.ReadFile(filepath.Join(root, name))
 		if err != nil {
 			continue //nolint:erraudit // a not-yet-existing living doc simply contributes no lines
 		}
 
 		for line := range strings.SplitSeq(string(data), "\n") {
-			livingLines = append(livingLines, strings.ToLower(line))
+			lines = append(lines, strings.ToLower(line))
 		}
 	}
+
+	return lines
+}
+
+// loadLivingDocs reads the configured living docs into the comparison
+// corpus: lowercased raw lines, their squashed keys, and the raw-line token
+// document frequency.
+func loadLivingDocs(root string, settings Settings) ([]string, []string, func(string) int) {
+	livingLines := LivingDocsLines(root, settings.livingDocs())
 
 	return livingLines, squashLines(livingLines), tokenDFOver(livingLines)
 }
