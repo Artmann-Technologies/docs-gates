@@ -1,0 +1,5 @@
+docs-freshness --pre-flight: 1 candidate line(s), replayed over 1 report(s)
+WOULD-DRIFT [{{DATE}}_10-00_ship-it.md]: 1. the lighthouse lens calibration watchrow needs a pass
+                  missing tokens: lighthouse lens calibration watchrow needs pass
+  binds: no open report item is harvested by these candidate lines (fine for generic rows; when a row was MEANT to harvest one, run --explain-item and reword until it binds)
+docs-freshness --pre-flight: UNSAFE — 1 historical item(s) would flip to DRIFT; reword the candidate line(s) before landing them

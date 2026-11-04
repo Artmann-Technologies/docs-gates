@@ -32,17 +32,30 @@ const parityDateToken = "{{DATE}}"
 
 // parityGate is one pinned invocation; corpus names the corpus dir under
 // testdata/parity (default "corpus") the args run over, stdin feeds the
-// verb's standard input (the --pre-flight candidate lines).
+// verb's standard input (the --pre-flight candidate lines), wantCode is
+// the exit the gate owes over the corpus (default clean; the rewrite-mode
+// arm is SUPPOSED to be a findings exit — the bytes are the contract).
 type parityGate struct {
-	name   string
-	args   []string
-	corpus string
-	stdin  string
+	name     string
+	args     []string
+	corpus   string
+	stdin    string
+	wantCode int
 }
 
 // preflightSafeCandidate is the SAFE-arm stdin fixture: brand-new tokens
 // only, nothing already on disk, nothing pushed to the DF boundary.
 const preflightSafeCandidate = "1. the zeppelin hull rivet audit needs scheduling\n"
+
+// preflightReplaceOld / preflightReplaceCandidate are the rewrite-mode
+// pair: the candidate rewords the living line the --replace target names,
+// so the replay judges the new words alone — the item anchored by the old
+// line's tokens loses its anchors and flips (wantCode findings), the
+// discrimination the additions-only model cannot see.
+const (
+	preflightReplaceOld       = "the lighthouse lens calibration watchrow ships this cycle"
+	preflightReplaceCandidate = "the beacon prism alignment matrix ships this cycle\n"
+)
 
 func parityGates() []parityGate {
 	return []parityGate{
@@ -54,7 +67,14 @@ func parityGates() []parityGate {
 		{name: "cadence", args: []string{"cadence"}},
 		{name: "cadence-warn", args: []string{"cadence"}, corpus: "corpus-warn"},
 		{name: "preflight-safe", args: []string{"freshness", "--pre-flight"}, stdin: preflightSafeCandidate},
-		{name: "battery", args: []string{"run"}},
+		{
+			name:     "preflight-replace",
+			args:     []string{"freshness", "--pre-flight", "--replace=" + preflightReplaceOld},
+			stdin:    preflightReplaceCandidate,
+			corpus:   "corpus-replace",
+			wantCode: gatecli.ExitFindings,
+		},
+		{name: "battery", args: []string{"run"}, wantCode: gatecli.ExitClean},
 	}
 }
 
@@ -181,8 +201,14 @@ func TestParityGolden(t *testing.T) {
 			continue
 		}
 
-		if out.Code != gatecli.ExitClean {
-			t.Fatalf("%s exited %d over the golden corpus; stderr: %s", gate.name, out.Code, out.Stderr)
+		if out.Code != gate.wantCode {
+			t.Fatalf(
+				"%s exited %d (want %d) over the golden corpus; stderr: %s",
+				gate.name,
+				out.Code,
+				gate.wantCode,
+				out.Stderr,
+			)
 		}
 
 		if out.Stdout+out.Stderr != golden {
@@ -211,6 +237,20 @@ func TestParityGolden(t *testing.T) {
 	if out.Code != gatecli.ExitUsage || !strings.Contains(out.Stderr, "ALREADY on disk") {
 		t.Fatalf("pre-flight over an on-disk line: code=%d stderr=%s, want refusal exit %d",
 			out.Code, out.Stderr, gatecli.ExitUsage)
+	}
+
+	// Discrimination arm, rewrite-mode: the SAME candidate that flips the
+	// item under --replace (the pinned preflight-replace golden above) is
+	// SAFE without the flag — the old line stays on disk and keeps its
+	// anchors, proving the flip is the rewrite's delta and not the
+	// candidate's own words.
+	out = runCaptured(
+		[]string{"freshness", "--pre-flight", roots["corpus-replace"]},
+		preflightReplaceCandidate,
+	)
+	if out.Code != gatecli.ExitClean || !strings.Contains(out.Stdout, "SAFE") {
+		t.Fatalf("the replace candidate without the flag must be SAFE: code=%d stderr=%s stdout=%s",
+			out.Code, out.Stderr, out.Stdout)
 	}
 }
 
