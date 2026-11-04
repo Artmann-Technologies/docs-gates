@@ -147,9 +147,11 @@ Immediate, this session's loose ends:
    non-fix with rationale.
 8. Clear `quality/formatter-fingerprint-drift` (templ-fmt identity drift) by
    running `buildflow format` once so cached verdicts re-verify.
-9. <!-- fresh:skip: sibling-repo work (BuildFlow binary rebuild lives in that repo, not this board) --> Rebuild/reinstall the BuildFlow binary (`nix build . &&
+9. Rebuild/reinstall the BuildFlow binary (`nix build . &&
    .#reinstall`) to clear the binary-freshness advisory (74a9212 vs 4211653) —
-   coordinate with the concurrent BuildFlow session first.
+   coordinate with the concurrent BuildFlow session first. (Harvested to
+   TODO_LIST §5, 2026-11-04: owner confirmed NOT tracked on the BuildFlow
+   board; the earlier fresh:skip marker claimed otherwise and was removed.)
 10. Distill the baseline-pinning lesson (e.1) into AGENTS.md "Non-obvious
     facts" or the global lessons file.
 11. Confirm CI green on GitHub after the daemon's push (root-module

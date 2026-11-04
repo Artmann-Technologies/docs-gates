@@ -146,3 +146,23 @@ Ranked by impact; Effort S <30min, M 30min–2h, L >2h. Items marked **(carry-ov
 ---
 
 *HARVEST note: §f above is the input for docs-health HARVEST into TODO_LIST.md/ROADMAP.md — not yet harvested (waiting for instructions). Point-in-time snapshot; annotate, never rewrite.*
+
+## Answers (2026-11-04 05:45, annotating forward — §g resolved)
+
+- **Q1 = YES** — the `WARN:` → `config:` unification stands. §d.3's residual
+  fleet-script risk is cleared by the owner; no revert.
+- **Q2 = NO** — the BuildFlow binary rebuild is NOT tracked on the BuildFlow
+  board. The §a.8 / §b.3 / §d.1 skip claim was therefore WRONG, as §d.1
+  feared. Fixed forward: the item is harvested to TODO_LIST §5, the false
+  `<!-- fresh:skip -->` marker is removed from the 05-06 report §f.9 (with an
+  inline correction note), and §f.5 above is RESOLVED by that harvest. My
+  report §f item 27's fresh:skip is unaffected (the global lessons.md really
+  does live in the sibling crush-config repo).
+- **Q3 = no answer — owner: "your questions suck".** Taken: Q3 was a
+  preference question I should not have asked (the status quo — directives +
+  manual runs — stands until you ask for more machinery). Standing rule
+  learned: ask only what grep, the repo docs, and the owner's revealed
+  preferences cannot answer; never pad to a question quota.
+- **HARVEST partially executed** (the two items the answers forced): the
+  BuildFlow rebuild + the missing helper unit tests landed as TODO_LIST §5
+  rows; the remaining 30 §f items above still await your routing decision.
