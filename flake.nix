@@ -149,19 +149,25 @@
 
           # The five legacy names are API (flake wrappers exec'ing the
           # multi-call binary): each must resolve on PATH and answer
-          # --version under its legacy name with exit 0.
+          # --version under its legacy name — with the LDFLAGS-STAMPED
+          # version string, not just exit 0 (a stale stamp under a legacy
+          # name would silently lie about what is installed).
           legacy-wrappers =
             pkgs.runCommand "docs-gates-legacy-wrappers-smoke"
               {
                 nativeBuildInputs = [ self.packages.${system}.default ];
               }
               ''
-                docs-gates --version
-                docs-freshness --version
-                docs-annotate --version
-                docs-routing --version
-                docs-cadence --version
-                docs-strike --version
+                want="${version}"
+
+                for name in docs-gates docs-freshness docs-annotate docs-routing docs-cadence docs-strike; do
+                  got="$($name --version | awk '{print $NF}')"
+                  if [ "$got" != "$want" ]; then
+                    echo "FAIL: $name --version stamped '$got', want '$want'" >&2
+                    exit 1
+                  fi
+                done
+
                 touch $out
               '';
 

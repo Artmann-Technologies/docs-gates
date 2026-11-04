@@ -40,6 +40,13 @@ match the annotated git tags; anything after the newest tag sits under
   erraudit reads it STALE with a failing rc — proof the flake's
   nolint-audit check cannot rot into a no-op. Wired as a leg of that
   check; skips on hosts without erraudit on PATH (CI runners).
+- legacy-wrappers smoke v2: the flake check now asserts each of the six
+  names stamps the ACTUAL version string (the ldflags `-X main.version`
+  value from the same `version` binding the package builds with), not
+  just exit 0 — proven both directions (a wrong expected stamp fails the
+  check naming both values). The nixpkgs maintainer-list still lacks a
+  LarsArtmann entry (re-verified by eval), so the meta.maintainers half
+  of that row stays open pending the owner-gated upstream PR.
 - art-dupl calibration audit: `--show-suppressed` shows six groups — all
   test-file similarity, the intentional class — and a `--structural`
   spot-check found no hidden actionable clones (the one non-test group is
