@@ -46,6 +46,14 @@ match the annotated git tags; anything after the newest tag sits under
   unmigrated site fails `nix flake check`. Discrimination-proven (planted
   errors.As turns the check red, naming the site; sentinel errors.Is is
   deliberately exempt).
+- `provider` flake check: the nested module's suite now gates under
+  `nix flake check` — its own buildGoModule (go 1.27 override, pinned
+  vendorHash over the public go-finding deps, GOTOOLCHAIN=local), so
+  provider regressions fail the nix gate too, not just CI/local. The
+  suite's fake-binary helper moved from `#!/usr/bin/env bash` to
+  `#!/bin/sh`: nix sandboxes have no `/usr/bin`, so every Detect test
+  failed with `fork/exec … no such file or directory` until the shebang
+  went portable POSIX.
 - `erraudit-rev` tripwire (scripts/check-erraudit-rev.sh as a flake
   check): the erraudit input tracks master, so a `nix flake update` can
   silently swap the rule set — the check pins the locked rev and fails

@@ -22,7 +22,7 @@ func writeFakeBinary(t *testing.T, script string, exitCode int) {
 
 	dir := t.TempDir()
 	path := filepath.Join(dir, toolName)
-	body := "#!/usr/bin/env bash\ncat <<'MATRIX'\n" + script + "\nMATRIX\nexit " + strconv.Itoa(exitCode) + "\n"
+	body := "#!/bin/sh\ncat <<'MATRIX'\n" + script + "\nMATRIX\nexit " + strconv.Itoa(exitCode) + "\n"
 
 	if err := os.WriteFile(path, []byte(body), 0o755); err != nil {
 		t.Fatal(err)
