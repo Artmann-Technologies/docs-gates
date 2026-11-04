@@ -18,7 +18,11 @@ type Settings struct {
 	GenericDF  int
 }
 
-func settingsFromConfig(c config.Config) Settings {
+// SettingsFromConfig projects the whole repo config onto the fields the
+// routing gate consumes — exported like every other gate's projection
+// (annotate, freshness, cadence); the zero-values-fallback accessors
+// below keep the config-less repo byte-identical.
+func SettingsFromConfig(c config.Config) Settings {
 	return Settings{
 		ReportDir:  c.ReportDir,
 		ReportGlob: c.ReportGlob,

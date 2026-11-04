@@ -225,7 +225,7 @@ func Run(args []string) int {
 		return gatecli.ExitUsage
 	}
 
-	s := settingsFromConfig(cfg)
+	s := SettingsFromConfig(cfg)
 
 	gaps := RoutingGaps(root, s)
 
