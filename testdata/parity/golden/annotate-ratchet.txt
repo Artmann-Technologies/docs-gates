@@ -1,0 +1,6 @@
+A/evidence: reports/{{DATE}}_11-00_ratchet-debt.md:10: struck item with no verdict marker
+A/evidence: reports/{{DATE}}_11-00_ratchet-debt.md:11: struck item with no verdict marker
+docs-annotate: 1 file(s), 2 struck item(s), 2 finding(s)
+docs-annotate: RATCHET — 2 finding(s) tolerated (pinned --annotate-max=2); red only past 2
+drain them with the docs-health ANNOTATE ritual, then lower the pin
+docs-annotate: no git checkout here - hash/tag rules skipped

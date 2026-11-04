@@ -30,10 +30,12 @@ import (
 
 const parityDateToken = "{{DATE}}"
 
-// parityGate is one pinned invocation.
+// parityGate is one pinned invocation; corpus names the corpus dir under
+// testdata/parity (default "corpus") the args run over.
 type parityGate struct {
-	name string
-	args []string
+	name   string
+	args   []string
+	corpus string
 }
 
 func parityGates() []parityGate {
@@ -41,18 +43,19 @@ func parityGates() []parityGate {
 		{name: "freshness", args: []string{"freshness"}},
 		{name: "audit-all", args: []string{"freshness", "--audit-all", "--audit-max=0"}},
 		{name: "annotate", args: []string{"annotate"}},
+		{name: "annotate-ratchet", args: []string{"annotate"}, corpus: "corpus-ratchet"},
 		{name: "routing", args: []string{"routing", "--strict"}},
 		{name: "cadence", args: []string{"cadence"}},
 		{name: "battery", args: []string{"run"}},
 	}
 }
 
-// materializeCorpus copies testdata/parity/corpus into a fresh temp root,
-// substituting the date token in paths and contents.
-func materializeCorpus(t *testing.T, today string) string {
+// materializeCorpus copies one corpus dir under testdata/parity into a
+// fresh temp root, substituting the date token in paths and contents.
+func materializeCorpus(t *testing.T, corpus, today string) string {
 	t.Helper()
 
-	src := filepath.Join("..", "..", "testdata", "parity", "corpus")
+	src := filepath.Join("..", "..", "testdata", "parity", corpus)
 	dst := t.TempDir()
 
 	return copyTree(t, src, dst, today)
@@ -125,9 +128,21 @@ func TestParityGolden(t *testing.T) {
 	update := os.Getenv("PARITY_UPDATE") != ""
 
 	today := time.Now().Format("2006-01-02")
-	root := materializeCorpus(t, today)
+
+	roots := map[string]string{}
 
 	for _, gate := range parityGates() {
+		corpus := gate.corpus
+		if corpus == "" {
+			corpus = "corpus"
+		}
+
+		if roots[corpus] == "" {
+			roots[corpus] = materializeCorpus(t, corpus, today)
+		}
+
+		root := roots[corpus]
+
 		full := append(append([]string{}, gate.args...), root) // verb-first argv, root last
 
 		out := runCaptured(full)
@@ -153,6 +168,16 @@ func TestParityGolden(t *testing.T) {
 			t.Fatalf("%s output drifted from the golden:\n--- want ---\n%s\n--- got ---\n%s",
 				gate.name, golden, out.Stdout+out.Stderr)
 		}
+	}
+
+	// Discrimination arm: the pin must bite. corpus-ratchet carries two
+	// unannotated strikes with annotate_max pinned at 2 in its config; a
+	// stricter pin (1) is a REGRESSION exit 1, proving the ratchet arm
+	// fails past the pin instead of always-green.
+	out := runCaptured([]string{"annotate", "--annotate-max=1", roots["corpus-ratchet"]})
+	if out.Code != gatecli.ExitFindings || !strings.Contains(out.Stderr, "REGRESSION") {
+		t.Fatalf("annotate-max=1 over the 2-finding corpus: code=%d stderr=%s, want REGRESSION exit %d",
+			out.Code, out.Stderr, gatecli.ExitFindings)
 	}
 }
 
