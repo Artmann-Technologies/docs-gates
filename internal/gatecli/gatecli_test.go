@@ -223,6 +223,8 @@ func TestCutIntFlagRestSentinels(t *testing.T) {
 // mis-keyed config announces its warnings BEFORE the error surfaces, and
 // the error message is exactly what the caller's FATAL line prints.
 // Serial: the stderr capture is a process-global swap (CaptureOutput doc).
+//
+//nolint:paralleltest // process-global capture, serialized on purpose
 func TestLoadConfigWarningsOrderingAndSilence(t *testing.T) {
 	root := t.TempDir()
 
@@ -245,6 +247,7 @@ func TestLoadConfigWarningsOrderingAndSilence(t *testing.T) {
 
 	bad := t.TempDir()
 	body := []byte(`{"generic_df_bar": 1, "audit_max": -2}`)
+
 	if err := os.WriteFile(filepath.Join(bad, ".docs-gates.json"), body, 0o600); err != nil {
 		t.Fatal(err)
 	}
