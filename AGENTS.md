@@ -244,6 +244,20 @@ one.
   prints paths relative to the INVOKING cwd, not the repo root — resolve
   each line with `filepath.Abs` or a repoRoot join silently leaves the
   tree.
+- **LSP ghost diagnostics are a CACHE artifact, not a harness bug
+  (root-caused 2026-11-04, do not file upstream):** the
+  `golangci_lint_ls` pane served `undefined: <old-name>` for a symbol
+  renamed in the SAME session — 0 occurrences repo-wide, real
+  `golangci-lint run` + `go build` clean, and the error SURVIVED
+  `lsp_restart`. Root cause: the host-managed wrapper
+  (`~/.local/bin/golangci-lint-lsp-wrapper`) pins
+  `GOLANGCI_LINT_ANALYSIS_CACHE` to a persistent dir whose entries do
+  not invalidate on the edit; clearing the cache dirs + one restart
+  cured it (diagnostics went clean). The templ PreToolUse caveat hook
+  (crush-config) encodes the same family for templ. Protocol: suspect
+  staleness → prove with the real gates → clear the wrapper caches +
+  restart; an upstream issue was draft-ready and REFUTED by this
+  experiment (verify-before-filing Gate 4).
 - **Known BuildFlow tool bug (2026-11-04, do not "fix" here):** the
   BuildFlow `nix-fmt`/`treefmt` roundtrip steps fail over THIS repo with
   `failed to create walker: path … not inside the tree root /nix/store`.
