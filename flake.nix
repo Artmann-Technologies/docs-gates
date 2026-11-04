@@ -182,6 +182,11 @@
               ''
                 cd ${self}
                 erraudit nolint-audit .
+                # Discrimination leg: the check must be able to FAIL. The
+                # permanent planted-stale-directive test (internal/battery)
+                # runs here, where erraudit is on PATH — a bare `go test`
+                # skips it, so the flake gate is what keeps the proof alive.
+                go test ./internal/battery -run TestNolintAuditDiscrimination -count=1
                 touch $out
               '';
         }
