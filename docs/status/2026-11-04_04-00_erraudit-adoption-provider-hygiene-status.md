@@ -28,13 +28,13 @@ brutal-self-review.
 
 ## a) FULLY DONE
 
-| # | Work | Verification artifact |
-| - | ---- | --------------------- |
-| 1 | **erraudit-adopt (TODO §1, P3)**: private `git+ssh` flake input (erraudit is private, gh-verified), rev pinned in flake.lock, consuming erraudit's own hermetic flake package; binary in devShell; AGENTS constraint rewritten INERT → live; Commands +2 lines | `nix develop -c erraudit --version` → `3d1f7ed`; lint rc=0; audit 15/15 needed 0 stale |
-| 2 | **nolint-audit-cadence (TODO §1, P3)**: `nolint-audit` flake check (flake.nix:166) — staleness-checks every erraudit directive on every `nix flake check`; sandboxed hermetic (pinned go, GOCACHE/GOPATH tmp, `GOPROXY=off` as the no-network proof) | check build GREEN twice; discrimination probe: planted stale directive → `STALE`, rc=2 |
+| # | Work                                                                                                                                                                                                                                                                                                                                                              | Verification artifact                                                                                                                                                        |
+| - | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1 | **erraudit-adopt (TODO §1, P3)**: private `git+ssh` flake input (erraudit is private, gh-verified), rev pinned in flake.lock, consuming erraudit's own hermetic flake package; binary in devShell; AGENTS constraint rewritten INERT → live; Commands +2 lines                                                                                                    | `nix develop -c erraudit --version` → `3d1f7ed`; lint rc=0; audit 15/15 needed 0 stale                                                                                       |
+| 2 | **nolint-audit-cadence (TODO §1, P3)**: `nolint-audit` flake check (flake.nix:166) — staleness-checks every erraudit directive on every `nix flake check`; sandboxed hermetic (pinned go, GOCACHE/GOPATH tmp, `GOPROXY=off` as the no-network proof)                                                                                                              | check build GREEN twice; discrimination probe: planted stale directive → `STALE`, rc=2                                                                                       |
 | 3 | **Provider suppression defect fixed**: `//nolint:gosec,noctx` had sat on the closing paren since ship while gosec reports G204 at the call-start line — the suppression NEVER worked, the finding was firing all along. Moved onto the reported line; dropped genuinely-dead `noctx` token (`CommandContext` cannot fire it); magic `2` → `minMatrixFields` const | `buildflow -s "golangci-lint [pkg/provider]" --format finding` → 0 findings (was: gosec G204 + nolintlint unused-directive + mnd, 3 warning findings); provider `go test` ok |
-| 4 | **Docs + dogfood rituals**: TODO_LIST 2 rows struck with landing notes; CHANGELOG +2 entries (Added: erraudit adoption; Changed: provider lint hygiene); AGENTS non-obvious fact for the private-input/sandbox mechanics; golangci `[runner/nolint_filter] unknown linter: erraudit` warning documented as expected warning-only cross-tool artifact | battery over this repo after ALL doc edits: 5/5 gates PASS, rc=0 |
-| 5 | **Commit hygiene**: daemon carried flake+lock / provider / docs in three auto-commits; the daemon-missed AGENTS note committed deliberately (381093d, HEREDOC attribution); tree clean at report time | `git status` clean; `git log` audited |
+| 4 | **Docs + dogfood rituals**: TODO_LIST 2 rows struck with landing notes; CHANGELOG +2 entries (Added: erraudit adoption; Changed: provider lint hygiene); AGENTS non-obvious fact for the private-input/sandbox mechanics; golangci `[runner/nolint_filter] unknown linter: erraudit` warning documented as expected warning-only cross-tool artifact              | battery over this repo after ALL doc edits: 5/5 gates PASS, rc=0                                                                                                             |
+| 5 | **Commit hygiene**: daemon carried flake+lock / provider / docs in three auto-commits; the daemon-missed AGENTS note committed deliberately (381093d, HEREDOC attribution); tree clean at report time                                                                                                                                                             | `git status` clean; `git log` audited                                                                                                                                        |
 
 ## b) PARTIALLY DONE
 
@@ -146,58 +146,58 @@ Brainstorm, not commitment (per status-report skill: extra items are
 ROADMAP fuel; HARVEST must apply routing rigor). Source: [S] session-derived
 this run · [T] already tracked in TODO_LIST §2/§3.
 
-| #  | Item                                                                                                          | Src | Route |
-| -- | ------------------------------------------------------------------------------------------------------------- | --- | ----- |
-| 1  | Add repo-owned `erraudit-lint` flake check (reuse the nolint-audit toolchain plumbing)                          | S   | TODO  |
-| 2  | Permanent discrimination test for the nolint-audit check (temp module + planted stale directive, assert rc≠0)   | S   | TODO  |
-| 3  | Version tripwire for the erraudit input (locked-rev assertion or tag pin)                                       | S   | TODO  |
-| 4  | CI job for pkg/provider (build/vet/test from the nested module dir)                                             | S+T | TODO  |
-| 5  | Annotate TODO_LIST §3 ROUTE row (erraudit-adopt inside it is done)                                              | S   | TODO  |
-| 6  | Triage buildflow "9 tools unavailable (health check failed)" — never diagnosed                                  | S   | TODO  |
-| 7  | Verify flake-pin-consistency preflight FAIL attribution (`buildflow history --last-error`)                      | S   | TODO  |
-| 8  | Provider-module erraudit/nolint-audit posture decision (second leg vs documented exclusion)                     | S   | TODO  |
-| 9  | Resolve system-vs-flake erraudit binary split brain (fa5575f vs 3d1f7ed)                                        | S   | TODO  |
-| 10 | Review provider_test.go coverage — HealthCheck path exercised?                                                  | T   | TODO  |
-| 11 | Investigate stale LSP diagnostic (unused: func skipped) in internal/battery                                     | T   | TODO  |
-| 12 | HARVEST 2026-11-04_02-24 report §f items 1-9, 13-24, 26-38                                                      | T   | TODO  |
-| 13 | ROUTE 2026-11-04_03-34 report §f remainder (blanket row)                                                        | T   | TODO  |
-| 14 | Push main (hardened flake + today's erraudit train), then float SystemNix                                       | T   | TODO  |
-| 15 | Deploy evo-x2 docs-gates onto live PATH (owner-gated window)                                                    | T   | TODO  |
-| 16 | STACK.md row verification for pkg/provider (AGENTS constraint, cheap)                                           | T   | TODO  |
-| 17 | README public install/usage section (now should mention erraudit too)                                           | T+S | TODO  |
-| 18 | Eval rpi3-dns toplevel after lars-packages change                                                               | T   | TODO  |
-| 19 | Standalone `nix flake check --no-build --all-systems` on SystemNix post-integration                             | T   | TODO  |
-| 20 | legacy-wrappers smoke v2: assert version STRING (ldflags stamp), not just rc=0                                  | T   | TODO  |
-| 21 | Submit lib.maintainers.LarsArtmann upstream to nixpkgs                                                          | T   | TODO  |
-| 22 | pbx-artmann: migrate its docs-gates consumption onto this repo                                                  | T   | TODO  |
-| 23 | SystemNix TODO_LIST row for deploy-pending docs-gates integration                                               | T   | TODO  |
-| 24 | Battery adoption on hosts decision (timer/PMA lane vs PATH-only)                                                | T   | TODO  |
-| 25 | Root go.mod floor unification decision (1.26 vs 1.27)                                                           | T   | TODO  |
-| 26 | Try dropping `GOFLAGS=-mod=mod` from the nolint-audit check env (isolation test; fleet note may be fix-only)     | S   | TODO  |
-| 27 | Measure `nix flake check` runtime delta from the new check (go-compile-in-sandbox cost)                         | S   | TODO  |
-| 28 | Erraudit CI leg with private-repo auth — or document deliberate exclusion                                       | S   | TODO  |
-| 29 | Pre-commit nolint-audit leg (bank-sync pattern) to catch directive rot at commit time                           | S   | TODO |
-| 30 | `erraudit fix ./...` dry-run once over both modules (expect no-op; confirms errors.As hygiene)                   | S   | TODO |
-| 31 | One `erraudit --max` audit sweep (generic-return posture; pbx conversion claims) — audit-only, never a gate      | S   | TODO |
-| 32 | Consider `erraudit.inputs.nixpkgs.follows = "nixpkgs"` to dedupe the second nixpkgs node (verify eval)           | S   | TODO |
-| 33 | Grep-sweep for any other stale "inert directives" / erraudit-adopt language repo-wide                           | S   | TODO |
-| 34 | ROADMAP: fleet-wide nolint-audit cadence as a BuildFlow provider (fleet value per decision checklist 3)          | S   | ROADMAP |
-| 35 | ROADMAP: erraudit-as-golangci-module-plugin — record deliberate non-goal (standalone is the fleet posture)       | S   | ROADMAP |
-| 36 | ROADMAP: exit-code mapping note if erraudit ever joins the battery (2=findings vs battery 1=findings)             | S   | ROADMAP |
-| 37 | ROADMAP: docs-gates v0.1.0 tag decision                                                                          | T   | ROADMAP |
-| 38 | ROADMAP/FEATURES annotation pass (03-34 report §f items already flag these)                                      | T   | ROADMAP |
-| 39 | Verify check under a real aarch64 build when an ARM host/CI runner exists                                        | S   | ROADMAP |
-| 40 | Decide whether FEATURES.md should carry the erraudit devShell tool (current: deliberate non-entry, repo tooling)  | S   | ROADMAP |
-| 41 | DRY the flake: shared let-binding for the duplicated errauditPkg bindings (checks + devShells)                   | S   | BACKLOG |
-| 42 | Add erraudit commands to README once item 17 lands                                                               | S   | BACKLOG |
-| 43 | Confirm daemon lock commit picked the whole train (audit `git show 9ae9355` — done this session, keep ritual)     | S   | BACKLOG |
-| 44 | Re-run buildflow format over the report/TODO edits (dprint verdict re-verify after md edits)                     | S   | BACKLOG |
-| 45 | Consider pinning `erraudit` to an exact tag instead of track-latest if a tripwire is rejected (item 3 alternative)| S   | BACKLOG |
-| 46 | Document `GOEXPERIMENT=jsonv2` non-requirement for lint (skill-verified) wherever erraudit usage gets documented  | S   | BACKLOG |
-| 47 | Keep AGENTS dogfood ritual: battery after doc edits (done this session; it is the freshness gate's food)          | S   | RITUAL |
-| 48 | buildflow `--build-mode dev` re-run after the report lands (fresh md through dprint)                              | S   | RITUAL |
-| 49 | Sweep nolint directives repo-wide for the pbx lesson (short reasons; golines re-trip risk) — all 15 pass today    | S   | BACKLOG |
-| 50 | ROADMAP: aggregate "linter adoption" ADR (erraudit + golangci + battery layering) for the next adopter            | S   | ROADMAP |
+| #  | Item                                                                                                               | Src | Route   |
+| -- | ------------------------------------------------------------------------------------------------------------------ | --- | ------- |
+| 1  | Add repo-owned `erraudit-lint` flake check (reuse the nolint-audit toolchain plumbing)                             | S   | TODO    |
+| 2  | Permanent discrimination test for the nolint-audit check (temp module + planted stale directive, assert rc≠0)      | S   | TODO    |
+| 3  | Version tripwire for the erraudit input (locked-rev assertion or tag pin)                                          | S   | TODO    |
+| 4  | CI job for pkg/provider (build/vet/test from the nested module dir)                                                | S+T | TODO    |
+| 5  | Annotate TODO_LIST §3 ROUTE row (erraudit-adopt inside it is done)                                                 | S   | TODO    |
+| 6  | Triage buildflow "9 tools unavailable (health check failed)" — never diagnosed                                     | S   | TODO    |
+| 7  | Verify flake-pin-consistency preflight FAIL attribution (`buildflow history --last-error`)                         | S   | TODO    |
+| 8  | Provider-module erraudit/nolint-audit posture decision (second leg vs documented exclusion)                        | S   | TODO    |
+| 9  | Resolve system-vs-flake erraudit binary split brain (fa5575f vs 3d1f7ed)                                           | S   | TODO    |
+| 10 | Review provider_test.go coverage — HealthCheck path exercised?                                                     | T   | TODO    |
+| 11 | Investigate stale LSP diagnostic (unused: func skipped) in internal/battery                                        | T   | TODO    |
+| 12 | HARVEST 2026-11-04_02-24 report §f items 1-9, 13-24, 26-38                                                         | T   | TODO    |
+| 13 | ROUTE 2026-11-04_03-34 report §f remainder (blanket row)                                                           | T   | TODO    |
+| 14 | Push main (hardened flake + today's erraudit train), then float SystemNix                                          | T   | TODO    |
+| 15 | Deploy evo-x2 docs-gates onto live PATH (owner-gated window)                                                       | T   | TODO    |
+| 16 | STACK.md row verification for pkg/provider (AGENTS constraint, cheap)                                              | T   | TODO    |
+| 17 | README public install/usage section (now should mention erraudit too)                                              | T+S | TODO    |
+| 18 | Eval rpi3-dns toplevel after lars-packages change                                                                  | T   | TODO    |
+| 19 | Standalone `nix flake check --no-build --all-systems` on SystemNix post-integration                                | T   | TODO    |
+| 20 | legacy-wrappers smoke v2: assert version STRING (ldflags stamp), not just rc=0                                     | T   | TODO    |
+| 21 | Submit lib.maintainers.LarsArtmann upstream to nixpkgs                                                             | T   | TODO    |
+| 22 | pbx-artmann: migrate its docs-gates consumption onto this repo                                                     | T   | TODO    |
+| 23 | SystemNix TODO_LIST row for deploy-pending docs-gates integration                                                  | T   | TODO    |
+| 24 | Battery adoption on hosts decision (timer/PMA lane vs PATH-only)                                                   | T   | TODO    |
+| 25 | Root go.mod floor unification decision (1.26 vs 1.27)                                                              | T   | TODO    |
+| 26 | Try dropping `GOFLAGS=-mod=mod` from the nolint-audit check env (isolation test; fleet note may be fix-only)       | S   | TODO    |
+| 27 | Measure `nix flake check` runtime delta from the new check (go-compile-in-sandbox cost)                            | S   | TODO    |
+| 28 | Erraudit CI leg with private-repo auth — or document deliberate exclusion                                          | S   | TODO    |
+| 29 | Pre-commit nolint-audit leg (bank-sync pattern) to catch directive rot at commit time                              | S   | TODO    |
+| 30 | `erraudit fix ./...` dry-run once over both modules (expect no-op; confirms errors.As hygiene)                     | S   | TODO    |
+| 31 | One `erraudit --max` audit sweep (generic-return posture; pbx conversion claims) — audit-only, never a gate        | S   | TODO    |
+| 32 | Consider `erraudit.inputs.nixpkgs.follows = "nixpkgs"` to dedupe the second nixpkgs node (verify eval)             | S   | TODO    |
+| 33 | Grep-sweep for any other stale "inert directives" / erraudit-adopt language repo-wide                              | S   | TODO    |
+| 34 | ROADMAP: fleet-wide nolint-audit cadence as a BuildFlow provider (fleet value per decision checklist 3)            | S   | ROADMAP |
+| 35 | ROADMAP: erraudit-as-golangci-module-plugin — record deliberate non-goal (standalone is the fleet posture)         | S   | ROADMAP |
+| 36 | ROADMAP: exit-code mapping note if erraudit ever joins the battery (2=findings vs battery 1=findings)              | S   | ROADMAP |
+| 37 | ROADMAP: docs-gates v0.1.0 tag decision                                                                            | T   | ROADMAP |
+| 38 | ROADMAP/FEATURES annotation pass (03-34 report §f items already flag these)                                        | T   | ROADMAP |
+| 39 | Verify check under a real aarch64 build when an ARM host/CI runner exists                                          | S   | ROADMAP |
+| 40 | Decide whether FEATURES.md should carry the erraudit devShell tool (current: deliberate non-entry, repo tooling)   | S   | ROADMAP |
+| 41 | DRY the flake: shared let-binding for the duplicated errauditPkg bindings (checks + devShells)                     | S   | BACKLOG |
+| 42 | Add erraudit commands to README once item 17 lands                                                                 | S   | BACKLOG |
+| 43 | Confirm daemon lock commit picked the whole train (audit `git show 9ae9355` — done this session, keep ritual)      | S   | BACKLOG |
+| 44 | Re-run buildflow format over the report/TODO edits (dprint verdict re-verify after md edits)                       | S   | BACKLOG |
+| 45 | Consider pinning `erraudit` to an exact tag instead of track-latest if a tripwire is rejected (item 3 alternative) | S   | BACKLOG |
+| 46 | Document `GOEXPERIMENT=jsonv2` non-requirement for lint (skill-verified) wherever erraudit usage gets documented   | S   | BACKLOG |
+| 47 | Keep AGENTS dogfood ritual: battery after doc edits (done this session; it is the freshness gate's food)           | S   | RITUAL  |
+| 48 | buildflow `--build-mode dev` re-run after the report lands (fresh md through dprint)                               | S   | RITUAL  |
+| 49 | Sweep nolint directives repo-wide for the pbx lesson (short reasons; golines re-trip risk) — all 15 pass today     | S   | BACKLOG |
+| 50 | ROADMAP: aggregate "linter adoption" ADR (erraudit + golangci + battery layering) for the next adopter             | S   | ROADMAP |
 
 ## g) Questions I can NOT figure out myself
 
