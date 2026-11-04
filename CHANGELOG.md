@@ -7,6 +7,13 @@ before v0.1.0.
 
 ### Added
 
+- erraudit adoption (the TODO erraudit-adopt coin): the `//nolint:erraudit`
+  directives are live via a private git+ssh flake input + devShell package
+  (erraudit's own hermetic flake build, rev pinned in flake.lock), and a
+  `nolint-audit` flake check staleness-checks every directive on each
+  `nix flake check` (root module; sandboxed with the pinned go toolchain,
+  GOPROXY=off). All 15 directives verified needed, 0 stale; the check is
+  discrimination-proven against a planted stale directive.
 - BuildFlow provider: `pkg/provider` as its own go module (go-finding
   v1.15.0 + toolsdk v1.16.0 — the root module stays stdlib-only).
   Blank-import self-registration via toolsdk.Register; Detect exec's the
@@ -31,6 +38,12 @@ before v0.1.0.
   `pkgs.lib.`); checks extended with `default` (wrapper surface) and
   `legacy-wrappers` (smoke: each of the five legacy names +
   `docs-gates` answers `--version` rc=0 from the installed PATH).
+- pkg/provider lint hygiene: the `//nolint:gosec,noctx` directive moved
+  onto the `exec.CommandContext` call-start line (golangci reports G204
+  there — the closing-paren placement never matched, so the gosec finding
+  it meant to suppress was firing), the genuinely unused `noctx` token
+  dropped (CommandContext cannot trigger noctx), and the matrix parser's
+  magic `2` became the `minMatrixFields` constant.
 
 ## 2026-11-03 (late)
 

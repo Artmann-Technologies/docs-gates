@@ -74,9 +74,11 @@ one.
   and verify `git status` before claiming the daemon committed your work
   (it has a known blind spot).
 - **Lint: the fleet golangci config runs at 0 findings.** Keep it there.
-  Ported `//nolint:erraudit` directives are INERT until erraudit is
-  adopted into the devShell (TODO erraudit-adopt) — adopt or strip, never
-  add new ones.
+  erraudit rides the devShell since 2026-11-04 (flake input — see
+  Non-obvious facts): the `//nolint:erraudit` directives are LIVE, and
+  the `nolint-audit` flake check fails the moment one goes stale. Never
+  add a directive without a code-adjacent reason; the check and erraudit's
+  own audit keep them honest.
 
 ## Verdict arithmetic (battery)
 
@@ -134,6 +136,16 @@ one.
 - **Darwin is deliberately absent** from the flake systems: current
   nixos-unstable no longer evaluates x86_64-darwin; no consumer rides
   macOS. Revisit only on a real consumer (ROADMAP).
+- **erraudit rides the flake as a PRIVATE git+ssh input** (2026-11-04):
+  the repo is private (gh-verified), so the input forces SSH auth for
+  `nix` commands from fresh clones; CI never touches the flake, so only
+  local dev pays. The input tracks master with the rev pinned in
+  flake.lock (BuildFlow's 2026-10-05 track-latest input policy) and
+  consumes erraudit's OWN hermetic flake package — its private transitive
+  deps never touch this repo's stdlib-only module. The `nolint-audit`
+  check needs a real go toolchain in the sandbox (package loading), hence
+  the pinned go + tmp GOCACHE/GOPATH + GOPROXY=off (the hermeticity
+  proof).
 - **Known BuildFlow tool bug (2026-11-04, do not "fix" here):** the
   BuildFlow `nix-fmt`/`treefmt` roundtrip steps fail over THIS repo with
   `failed to create walker: path … not inside the tree root /nix/store`.
@@ -165,6 +177,8 @@ nix develop -c go test ./...                      # root-module suite (provider 
 (cd pkg/provider && nix develop -c go test ./...) # provider module's own suite
 nix develop -c golangci-lint run ./...            # the fleet config, 0 findings expected
 nix develop -c golangci-lint fmt ./...            # golines/gofumpt/gci imports
+nix develop -c erraudit lint ./... --type-aware   # error-handling audit, rc=0 expected (//nolint:erraudit directives live)
+nix develop -c erraudit nolint-audit .            # directive staleness over the root module (also the nolint-audit flake check)
 nix fmt                                           # nixfmt-tree over *.nix (via treefmt.toml)
 nix flake check --all-systems --no-build          # both-arch eval
 go run ./cmd/docs-gates run <repo-root>           # the battery over any repo (run it over THIS repo after doc edits)
