@@ -139,6 +139,13 @@ match the annotated git tags; anything after the newest tag sits under
 
 ### Changed
 
+- The pre-flight `--replace` rewrite-mode contract is pinned in the
+  byte-parity net: a dedicated corpus-replace fixture drives the binary
+  to the UNSAFE bytes (the flipped item naming its vanished anchors),
+  and a discrimination arm proves the same candidate is SAFE without the
+  flag — the flip is provably the rewrite's delta, not the candidate's
+  words. The parity harness now supports per-gate expected exit codes
+  (the rewrite arm is SUPPOSED to be a findings exit).
 - The `.gitignore` `reports/` trap is now a failing suite instead of a
   surprise: a battery test asserts every testdata file is tracked
   (`git ls-files`) and none matches an ignore rule (`git check-ignore
