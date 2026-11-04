@@ -213,7 +213,7 @@ echo "   after: $after"
 
 if [ "$no_verify" -eq 0 ] && [ "$gate" -eq 1 ]; then
 	echo "safe-strike: gate per batch — running the annotate gate"
-	if command -v docs-gates > /dev/null 2>&1; then
+	if command -v docs-gates >/dev/null 2>&1; then
 		docs-gates annotate .
 	else
 		go run ./cmd/docs-gates annotate .

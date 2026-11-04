@@ -269,7 +269,12 @@ one.
   to commit a corrupt intermediate state within ~3 minutes (recovery is
   a forward `git restore --source=<good-sha>`, never a history rewrite).
   The ledgers hold 28-49 open rows each — a full sweep is a false-strike
-  factory; only rows with demonstrably-landed work get struck.
+  factory; only rows with demonstrably-landed work get struck. These
+  mechanics are scripted: `scripts/safe-strike.sh` enforces them
+  (one-line unique text anchors that must carry ≥4 letters, `[^|]*`-
+  bounded cell rewrites, clean-commit-boundary check, dry-run default,
+  `--gate` runs the annotate gate per batch) — use it instead of hand
+  sed.
 - **Known BuildFlow tool bug (2026-11-04, do not "fix" here):** the
   BuildFlow `nix-fmt`/`treefmt` roundtrip steps fail over THIS repo with
   `failed to create walker: path … not inside the tree root /nix/store`.

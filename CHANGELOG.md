@@ -181,6 +181,14 @@ match the annotated git tags; anything after the newest tag sits under
   module through the same walked-up config the repo's lint command
   uses. The runner's unknown-linter warning about the
   `//nolint:erraudit` directives is expected and warning-only.
+- The strike-sweep safety rails are now a script, not tribal memory:
+  `scripts/safe-strike.sh` refuses anchors that match zero or several
+  lines (printing the full inventory), anchors that carry no task text
+  (the bare-row-number corruption machine), cell rewrites that could
+  swallow a neighboring cell, and writes to a file that is not at a
+  clean commit boundary; dry-run is the default and `--gate` runs the
+  annotate gate after every applied batch. Landed by striking its own
+  TODO row through the script.
 - The provider's end-to-end Detect leg can no longer vanish silently: a
   skip inside the nix provider sandbox (root source not adjacent, no go
   on PATH) records a ledger note that a sentinel cross-checks against an
