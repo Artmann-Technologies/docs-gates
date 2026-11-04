@@ -40,6 +40,17 @@ match the annotated git tags; anything after the newest tag sits under
   erraudit reads it STALE with a failing rc — proof the flake's
   nolint-audit check cannot rot into a no-op. Wired as a leg of that
   check; skips on hosts without erraudit on PATH (CI runners).
+- Shared-helper round 2 (zero behavior change, goldens byte-identical):
+  docsfreshness.Corpus is now the ONE prepared living-docs corpus (raw +
+  squashed lines, Contains/Count) — docsrouting's hand-rolled
+  tokenIn/squashContains/livingLineCount predicates are deleted and the
+  routing triage rides the same squash-arm semantics as the harvest
+  (for tokenized input the two conditions were equivalent, and now they
+  cannot drift); the double report-dir glob collapsed into one
+  unarchivedReports site via Settings.reportGlobPath. The CutStringFlag
+  survey ruled docsstrike's next-arg value style a deliberate non-fix:
+  its `--file X` shape is fleet API and only CutIntFlag ever had two
+  consumers.
 - Code-health train (zero behavior change, goldens byte-identical):
   docsannotate gained the settings.go projection (Settings +
   DefaultSettings/SettingsFromConfig/loadSettings, Run no longer touches
