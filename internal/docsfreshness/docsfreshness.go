@@ -74,6 +74,23 @@ func refuseOutsidePreFlight(flags map[string]bool, replacesUsed bool) int {
 	return 0
 }
 
+// dumpReportArg is the positional index of the --dump-items report path
+// (positional[0] is the repo root).
+const dumpReportArg = 1
+
+// runDumpItems validates the report positional and prints the extraction
+// decisions for it.
+func runDumpItems(positional []string) int {
+	if len(positional) <= dumpReportArg {
+		gatecli.Errln("FATAL: --dump-items needs the report path after the root: " +
+			"docs-freshness . --dump-items docs/status/2026-11-04_16-45_report.md")
+
+		return gatecli.ExitUsage
+	}
+
+	return DumpItems(positional[dumpReportArg])
+}
+
 // runPreFlight reads the candidate lines from stdin and runs the
 // additions-only or rewrite-mode replay.
 func runPreFlight(root string, flags map[string]bool, replaces []string, settings Settings) int {
@@ -150,7 +167,14 @@ func Run(args []string) int {
 	}
 
 	flags, positional, unknown := gatecli.ParseFlags(
-		rest, "--audit-all", "--explain-token", "--pre-flight", "--duplicates", "--explain-item",
+		rest,
+		"--audit-all",
+		"--explain-token",
+		"--pre-flight",
+		"--duplicates",
+		"--explain-item",
+		"--margins",
+		"--dump-items",
 	)
 	if len(unknown) > 0 {
 		gatecli.Errf("FATAL: %v\n", gatecli.NewUnknownFlagsError(unknown))
@@ -183,6 +207,14 @@ func Run(args []string) int {
 		// DF just below the bar. The needle is the SECOND positional:
 		// `docs-freshness . --explain-item rewrite`.
 		return runExplainItem(root, positional, settings)
+	}
+
+	if flags["--margins"] {
+		return TokenMargins(root, settings)
+	}
+
+	if flags["--dump-items"] {
+		return runDumpItems(positional)
 	}
 
 	if flags["--pre-flight"] {

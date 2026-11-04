@@ -40,6 +40,16 @@ match the annotated git tags; anything after the newest tag sits under
   erraudit reads it STALE with a failing rc — proof the flake's
   nolint-audit check cannot rot into a no-op. Wired as a leg of that
   check; skips on hosts without erraudit on PATH (CI runners).
+- Freshness debuggability train: `--margins` prints the proactive
+  token-margin report (every living-docs token within 2 DF of the
+  generic bar, worst first, with its remaining line budget — so drafts
+  avoid boundary words first-try instead of through a failed gate);
+  `--dump-items <report>` makes the §f extraction inspectable (section
+  found, items extracted, per-item tokens) without test scaffolding; and
+  every UNHARVESTED finding now carries harvest attributions — matched
+  tokens with their DF (generic-tagged at the bar) plus example living
+  lines, the preflight culprit idea extended to the harvest findings
+  themselves. All informational: goldens untouched.
 - Pre-flight rewrite-mode + heading-awareness (the preflight-bind-check
   remaining legs): `--replace=OLD` removes the named living-doc line
   before the replay, so a REWRITE is judged by its new words alone — an

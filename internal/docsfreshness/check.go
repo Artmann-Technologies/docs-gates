@@ -103,10 +103,71 @@ func itemVerdict(item string, livingLines, livingSquashed []string, tokenDF func
 	return ""
 }
 
+// attributionExamples is how many example living lines a matched token
+// shows in the harvest attributions (two suffice to see the pattern).
+const attributionExamples = 2
+
 // culpritLimit caps the per-item attribution list (a 7-candidate batch can
 // match several generic tokens on several lines — the first entries name
 // the reword targets, the rest is noise).
 const culpritLimit = 6
+
+// harvestAttributions names, for a FAILING item, each matched token with
+// its living-docs DF and up to two example lines — the preflight's
+// culprit attribution (preflight-culprit) extended to the harvest
+// findings themselves, so a red item shows WHERE its anchors live
+// instead of naming bare tokens. Bounded by culpritLimit.
+func harvestAttributions(
+	item string,
+	livingLines, livingSquashed []string,
+	tokenDF func(string) int,
+	genericDF int,
+) []string {
+	var out []string
+
+	seen := map[string]bool{}
+
+	for _, t := range Tokens(item) {
+		if seen[t] || !tokenPresent(t, livingLines, livingSquashed) {
+			continue
+		}
+
+		seen[t] = true
+
+		d := tokenDF(t)
+
+		label := fmt.Sprintf("  matched: %s (DF %d", t, d)
+		if d >= genericDF {
+			label += ", generic"
+		}
+
+		label += ")"
+
+		out = append(out, label)
+
+		shown := 0
+
+		for _, line := range livingLines {
+			if !strings.Contains(line, t) {
+				continue
+			}
+
+			out = append(out, "    line: "+gatecli.Truncate(line, reasonMax))
+
+			shown++
+
+			if shown == attributionExamples {
+				break
+			}
+		}
+
+		if len(out) >= culpritLimit {
+			break
+		}
+	}
+
+	return out
+}
 
 // culpritAttributions names the candidate lines that carry a match of one
 // of the item's now-generic tokens — TODO preflight-culprit (the

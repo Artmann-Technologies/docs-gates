@@ -99,6 +99,10 @@ func checkNewest(
 		gatecli.Outf("UNHARVESTED: %s\n", gatecli.Truncate(f[0], itemMax))
 		gatecli.Outf("             %s\n", f[1])
 
+		for _, line := range harvestAttributions(f[0], livingLines, livingSquashed, tokenDF, settings.df()) {
+			gatecli.Outln(line)
+		}
+
 		if explain {
 			for _, line := range TokenTable(f[0], livingLines, livingSquashed, tokenDF, settings.df()) {
 				gatecli.Outln(line)
