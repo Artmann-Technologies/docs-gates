@@ -139,6 +139,12 @@ match the annotated git tags; anything after the newest tag sits under
 
 ### Changed
 
+- The `.gitignore` `reports/` trap is now a failing suite instead of a
+  surprise: a battery test asserts every testdata file is tracked
+  (`git ls-files`) and none matches an ignore rule (`git check-ignore
+  --no-index` — the plain form is blind to tracked files), both legs
+  red-controlled live (a swallowed fixture names itself with the exact
+  2026-11-04 failure shape). Rides the existing `go test` CI job.
 - The provider's end-to-end Detect leg can no longer vanish silently: a
   skip inside the nix provider sandbox (root source not adjacent, no go
   on PATH) records a ledger note that a sentinel cross-checks against an
