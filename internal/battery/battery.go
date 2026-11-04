@@ -73,15 +73,11 @@ func Run(args []string) int {
 		return gatecli.ExitUsage
 	}
 
-	cfg, warnings, err := config.Load(root)
+	cfg, err := gatecli.LoadConfig(root)
 	if err != nil {
 		gatecli.Errf("FATAL: %v\n", err)
 
 		return gatecli.ExitUsage
-	}
-
-	for _, warning := range warnings {
-		gatecli.Errf("WARN: %s\n", warning)
 	}
 
 	type result struct {

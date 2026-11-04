@@ -16,8 +16,11 @@ import (
 	"path/filepath"
 	"slices"
 	"sort"
+	"strconv"
 	"strings"
 	"unicode/utf8"
+
+	"github.com/Artmann-Technologies/docs-gates/internal/config"
 )
 
 // The gate-CLI exit-code contract (see the package comment).
@@ -115,6 +118,54 @@ func Parse(argv []string, allowed ...string) (map[string]bool, string, error) {
 	}
 
 	return flags, root, nil
+}
+
+// CutIntFlag splits a valued `--flag=N` off argv BEFORE ParseFlags runs (a
+// valued flag would die there as an unknown boolean). Every occurrence is
+// split off and the last value wins. The value must be a non-negative
+// integer — anything else is the returned error, whose message is ready
+// for the caller's `FATAL: %v` line. rest is non-nil on success and nil
+// on error, so a nil rest can double as the caller's failure sentinel.
+func CutIntFlag(args []string, flag string) (value int, rest []string, err error) {
+	value = -1
+
+	rest = make([]string, 0, len(args))
+
+	prefix := "--" + flag + "="
+
+	for _, a := range args {
+		v, ok := strings.CutPrefix(a, prefix)
+		if !ok {
+			rest = append(rest, a)
+
+			continue
+		}
+
+		n, parseErr := strconv.Atoi(v)
+		if parseErr != nil || n < 0 {
+			return -1, nil, fmt.Errorf("--%s wants a non-negative integer, got %q", flag, v)
+		}
+
+		value = n
+	}
+
+	return value, rest, nil
+}
+
+// LoadConfig is the gate-verb config prologue: load the repo's
+// .docs-gates.json, print non-fatal unknown-key warnings to stderr as
+// `config: ...` lines, and return the error for the caller's `FATAL: %v`
+// line (exit 2). Warnings print before the error is surfaced, so a config
+// that is BOTH unreadable and mis-keyed still announces what it announced.
+// One home for the shape so the gates cannot drift apart on warning
+// wording or drop warnings on the FATAL path.
+func LoadConfig(root string) (config.Config, error) {
+	cfg, warnings, err := config.Load(root)
+	for _, w := range warnings {
+		Errf("config: %s\n", w)
+	}
+
+	return cfg, err
 }
 
 // ResolveRoot resolves the repo root: the FIRST positional argument when

@@ -38,7 +38,6 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/Artmann-Technologies/docs-gates/internal/config"
 	"github.com/Artmann-Technologies/docs-gates/internal/gatecli"
 )
 
@@ -66,15 +65,11 @@ func Run(argv []string) int {
 		return gatecli.ExitUsage
 	}
 
-	cfg, warnings, err := config.Load(opts.Root)
+	cfg, err := gatecli.LoadConfig(opts.Root)
 	if err != nil {
 		gatecli.Errf("FATAL: %v\n", err)
 
 		return gatecli.ExitUsage
-	}
-
-	for _, warning := range warnings {
-		gatecli.Errf("WARN: %s\n", warning)
 	}
 
 	if opts.File == "" {

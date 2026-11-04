@@ -39,10 +39,8 @@ import (
 	"os"
 	"path/filepath"
 	"sort"
-	"strconv"
 	"strings"
 
-	"github.com/Artmann-Technologies/docs-gates/internal/config"
 	"github.com/Artmann-Technologies/docs-gates/internal/gatecli"
 )
 
@@ -112,27 +110,14 @@ func checkFile(root, path string, g gitRunner, hasGit bool, infos *[]Finding) ([
 // parseAnnotateMax splits --annotate-max=N off the argument list BEFORE
 // gatecli.Parse (a valued flag would die there as an unknown boolean). The
 // parsed pin rides out; the remaining argv is the Parse input. Strict (-1)
-// when absent; a malformed value FATALs with exit 2 via the ok=false +
-// fatal=true pair.
+// when absent; a malformed value FATALs with exit 2 via the argv=nil
+// sentinel (nil only on the error path).
 func parseAnnotateMax(args []string) (int, []string) {
-	annotateMax := -1
+	annotateMax, rest, err := gatecli.CutIntFlag(args, "annotate-max")
+	if err != nil {
+		gatecli.Errf("FATAL: %v\n", err)
 
-	rest := make([]string, 0, len(args))
-
-	for _, a := range args {
-		if v, ok := strings.CutPrefix(a, "--annotate-max="); ok {
-			if n, parseErr := strconv.Atoi(v); parseErr == nil && n >= 0 {
-				annotateMax = n
-
-				continue
-			}
-
-			gatecli.Errf("FATAL: --annotate-max wants a non-negative integer, got %q\n", v)
-
-			return -1, nil
-		}
-
-		rest = append(rest, a)
+		return -1, nil
 	}
 
 	return annotateMax, rest
@@ -160,11 +145,7 @@ func Run(argv []string) int {
 		return gatecli.ExitUsage
 	}
 
-	cfg, warnings, err := config.Load(root)
-	for _, w := range warnings {
-		gatecli.Errf("config: %s\n", w)
-	}
-
+	cfg, err := gatecli.LoadConfig(root)
 	if err != nil {
 		gatecli.Errf("FATAL: %v\n", err)
 

@@ -25,7 +25,6 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/Artmann-Technologies/docs-gates/internal/config"
 	"github.com/Artmann-Technologies/docs-gates/internal/docsfreshness"
 	"github.com/Artmann-Technologies/docs-gates/internal/gatecli"
 )
@@ -272,11 +271,7 @@ func Run(args []string) int {
 		return gatecli.ExitUsage
 	}
 
-	cfg, warnings, err := config.Load(root)
-	for _, w := range warnings {
-		gatecli.Errf("config: %s\n", w)
-	}
-
+	cfg, err := gatecli.LoadConfig(root)
 	if err != nil {
 		gatecli.Errf("FATAL: %v\n", err)
 

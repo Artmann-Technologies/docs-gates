@@ -92,11 +92,7 @@ func (s Settings) livingDocs() []string {
 // reports it ready-to-use: config warnings go to stderr (non-fatal), a
 // malformed config is an error (the caller FATALs with exit 2).
 func loadSettings(root string) (Settings, error) {
-	cfg, warnings, err := config.Load(root)
-	for _, w := range warnings {
-		gatecli.Errf("config: %s\n", w)
-	}
-
+	cfg, err := gatecli.LoadConfig(root)
 	if err != nil {
 		return DefaultSettings(), err
 	}

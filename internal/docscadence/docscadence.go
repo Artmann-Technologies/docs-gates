@@ -99,15 +99,11 @@ func Run(args []string) int {
 
 	_ = flags // no flags yet; the positional root is the only input
 
-	cfg, warnings, err := config.Load(root)
+	cfg, err := gatecli.LoadConfig(root)
 	if err != nil {
 		gatecli.Errf("FATAL: %v\n", err)
 
 		return gatecli.ExitUsage
-	}
-
-	for _, warning := range warnings {
-		gatecli.Errf("WARN: %s\n", warning)
 	}
 
 	settings := SettingsFromConfig(cfg)

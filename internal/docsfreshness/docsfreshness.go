@@ -42,9 +42,6 @@
 package docsfreshness
 
 import (
-	"strconv"
-	"strings"
-
 	"github.com/Artmann-Technologies/docs-gates/internal/gatecli"
 )
 
@@ -52,25 +49,11 @@ import (
 // (-1 = strict), the remaining args, and a nonzero exit code on a malformed
 // value (0 = ok).
 func parseAuditMax(args []string) (int, []string, int) {
-	auditMax := -1
+	auditMax, rest, err := gatecli.CutIntFlag(args, "audit-max")
+	if err != nil {
+		gatecli.Errf("FATAL: %v\n", err)
 
-	var rest []string
-
-	for _, a := range args {
-		if v, ok := strings.CutPrefix(a, "--audit-max="); ok {
-			n, err := strconv.Atoi(v)
-			if err != nil || n < 0 {
-				gatecli.Errf("FATAL: --audit-max wants a non-negative integer, got %q\n", v)
-
-				return -1, nil, gatecli.ExitUsage
-			}
-
-			auditMax = n
-
-			continue
-		}
-
-		rest = append(rest, a)
+		return -1, nil, gatecli.ExitUsage
 	}
 
 	return auditMax, rest, 0
