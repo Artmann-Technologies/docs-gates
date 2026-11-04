@@ -1,0 +1,4 @@
+docs-freshness --margins: 3 token(s) within 2 DF of the generic bar (2) — a new line mentioning them costs budget:
+  cycle                              DF 1 — 1 more line(s) genericize it
+  notes                              DF 1 — 1 more line(s) genericize it
+  ships                              DF 1 — 1 more line(s) genericize it

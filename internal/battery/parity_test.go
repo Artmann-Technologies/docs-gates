@@ -76,6 +76,17 @@ func parityGates() []parityGate {
 		{name: "cadence-warn", args: []string{"cadence"}, corpus: "corpus-warn"},
 		{name: "margins", args: []string{"freshness", "--margins"}},
 		{
+			// The exclusion pin lives here, not over the main corpus: bar 2
+			// (corpus config) puts the one-line living doc's every token in
+			// the near-bar window, so the four item-claimed tokens
+			// (lighthouse lens calibration watchrow) would headline the
+			// report without claimedItemTokens — the golden names only the
+			// unclaimed pair (cycle, ships).
+			name:   "margins-replace",
+			args:   []string{"freshness", "--margins"},
+			corpus: "corpus-replace",
+		},
+		{
 			name:          "dump-items",
 			args:          []string{"freshness", "--dump-items"},
 			argsAfterRoot: []string{"<corpus>/reports/{{DATE}}_10-00_ship-it.md"},

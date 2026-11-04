@@ -6,7 +6,7 @@
   "annotate_extra_globs": [],
   "rule_f": false,
   "rule_f_extensions": [".md"],
-  "generic_df": 4,
+  "generic_df": 2,
   "audit_max": 0,
   "todo_file": "TODOS.md",
   "cadence": {
