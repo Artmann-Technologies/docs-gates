@@ -57,7 +57,10 @@ func (s Settings) archivedSub() string {
 }
 
 func (s Settings) extraGlobs() []string {
-	return config.OrSlice(s.AnnotateExtraGlobs, config.Defaults().AnnotateExtraGlobs)
+	// No OrSlice here: an explicit empty list in the config means "no
+	// extra globs" (the corpus pins this), and LoadConfig decodes over
+	// Defaults() anyway, so s already carries the resolved list.
+	return s.AnnotateExtraGlobs
 }
 
 func (s Settings) ruleFExtensions() []string {

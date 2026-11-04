@@ -145,21 +145,21 @@ func Run(argv []string) int {
 		return gatecli.ExitUsage
 	}
 
-	cfg, err := gatecli.LoadConfig(root)
+	settings, err := loadSettings(root)
 	if err != nil {
 		gatecli.Errf("FATAL: %v\n", err)
 
 		return gatecli.ExitUsage
 	}
 
-	if cfg.AnnotateMax >= 0 && annotateMax < 0 {
-		annotateMax = cfg.AnnotateMax
+	if settings.AnnotateMax >= 0 && annotateMax < 0 {
+		annotateMax = settings.AnnotateMax
 	}
 
 	docGlobs := append([]string{
-		filepath.Join(cfg.ReportDir, "*.md"),
-		filepath.Join(cfg.ReportDir, cfg.ArchivedSubdir, "*.md"),
-	}, cfg.AnnotateExtraGlobs...)
+		filepath.Join(settings.dir(), "*.md"),
+		filepath.Join(settings.dir(), settings.archivedSub(), "*.md"),
+	}, settings.extraGlobs()...)
 
 	files := collectDocFiles(root, docGlobs)
 
@@ -185,8 +185,8 @@ func Run(argv []string) int {
 		struckTotal += struck
 	}
 
-	if cfg.RuleF {
-		findings = append(findings, CheckSpacing(root, g, hasGit, cfg.RuleFExtensions)...)
+	if settings.RuleF {
+		findings = append(findings, CheckSpacing(root, g, hasGit, settings.ruleFExtensions())...)
 	}
 
 	printFindings(flags, infos, findings, len(files), struckTotal)

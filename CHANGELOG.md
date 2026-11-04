@@ -40,6 +40,17 @@ match the annotated git tags; anything after the newest tag sits under
   erraudit reads it STALE with a failing rc — proof the flake's
   nolint-audit check cannot rot into a no-op. Wired as a leg of that
   check; skips on hosts without erraudit on PATH (CI runners).
+- Code-health train (zero behavior change, goldens byte-identical):
+  docsannotate gained the settings.go projection (Settings +
+  DefaultSettings/SettingsFromConfig/loadSettings, Run no longer touches
+  config.Config directly); docscadence.go pre-split along its two seams
+  into classify.go (TODO purge counting) and archive.go (report
+  inventory), the host file down to 192 lines ahead of the 350 gate; and
+  docscadence's TodoFile/ReportDir fallbacks now spell the
+  `cmp.Or(override, Defaults)` convention (int cadence bars stay explicit
+  if-forms). One parity trap documented in-source: annotate_extra_globs
+  needs NO OrSlice fallback — an explicit `[]` means "no extra globs",
+  and OrSlice's len>0 check would resurrect the planning-glob defaults.
 - erraudit posture sweep (audit-only, never a gate): `erraudit fix`
   dry-run finds zero auto-fixable sites in either module; the `--max`
   audit (suppressions bypassed) reports root 34 / provider 2 violations —
