@@ -21,7 +21,7 @@ func classify(body string) (int, int) {
 		hasDone := false
 
 		for cell := range strings.SplitSeq(line, "|") {
-			if c := strings.TrimSpace(cell); c == "✅ `DONE`" || c == "DONE" {
+			if c := strings.TrimSpace(cell); isDoneCell(c) {
 				hasDone = true
 
 				break
@@ -37,4 +37,15 @@ func classify(body string) (int, int) {
 	}
 
 	return struck, bareDone
+}
+
+// isDoneCell reports whether a table cell is a DONE status cell. The
+// canonical docs-strike shape is `✅ \`DONE\``, but strike rituals also
+// land dated verdicts (`✅ DONE 2026-11-04`, `DONE — evidence …`): a
+// cell that STARTS with a DONE marker counts, while task text merely
+// containing the word ("the switch IS DONE") never occupies a whole
+// cell and stays excluded.
+func isDoneCell(cell string) bool {
+	return cell == "✅ `DONE`" || cell == "DONE" ||
+		strings.HasPrefix(cell, "✅ DONE") || strings.HasPrefix(cell, "DONE ")
 }

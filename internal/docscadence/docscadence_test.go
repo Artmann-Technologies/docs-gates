@@ -104,6 +104,26 @@ func TestProseDoneIsNotAStatusCell(t *testing.T) {
 	}
 }
 
+// The strike ritual also lands DATED verdicts in the status cell
+// ("✅ DONE 2026-11-04", "DONE — evidence"): the 2026-11-04 execution
+// sessions struck 21 rows that shape and the counter read 0, so the
+// purge tripwire could never fire (found by the 19:15 docs-health pass).
+// A cell STARTING with a DONE marker counts; prose DONE still never
+// occupies a whole cell.
+func TestDatedDoneCellsAreStruckRows(t *testing.T) {
+	t.Parallel()
+
+	body := "# TODO\n\n" +
+		"| ~~dated task~~ | ✅ DONE 2026-11-04 | P1 | 5m | ev |\n" +
+		"| ~~dash task~~ | DONE — landed in ab12cd3 | P1 | 5m | ev |\n" +
+		"| open task | 🔴 `TODO` | P1 | 5m | ev |\n"
+
+	struck, bare := classify(body)
+	if struck != 2 || bare != 0 {
+		t.Fatalf("want 2 struck (dated DONE cells), got %d/%d", struck, bare)
+	}
+}
+
 // writeReports stages dated report filenames under root's docs/status/.
 func writeReports(t *testing.T, root string, names ...string) {
 	t.Helper()

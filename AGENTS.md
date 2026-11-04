@@ -267,6 +267,7 @@ nix develop -c golangci-lint run ./...            # the fleet config, 0 findings
 nix develop -c golangci-lint fmt ./...            # golines/gofumpt/gci imports
 nix develop -c erraudit lint ./... --type-aware   # error-handling audit, rc=0 expected (//nolint:erraudit directives live)
 nix develop -c erraudit nolint-audit .            # directive staleness over the root module (also the nolint-audit flake check)
+bash scripts/check-erraudit-rev.sh                # erraudit-rev tripwire (also a flake check): run after bumping the erraudit input
 nix fmt                                           # nixfmt-tree over *.nix (via treefmt.toml)
 nix flake check --all-systems --no-build          # both-arch eval
 go run ./cmd/docs-gates run <repo-root>           # the battery over any repo (run it over THIS repo after doc edits)
