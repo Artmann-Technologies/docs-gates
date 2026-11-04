@@ -139,6 +139,15 @@ match the annotated git tags; anything after the newest tag sits under
 
 ### Changed
 
+- Three diagnostic surfaces joined the byte-parity net: `--margins` pins
+  its near-bar token report, `--dump-items` pins the extraction dump
+  (now including a struck-row arm — WHY a `~~row~~` is exempt — plus the
+  no-§f refusal bytes), and the corpus carries a dated-DONE struck row
+  plus a struck report item so the cadence dated-cell classify fix and
+  the strike exemption ride the golden contract. The parity harness
+  gained per-gate expected exit codes (the rewrite/refusal arms are
+  SUPPOSED to be non-clean) and corpus-root normalization for
+  path-carrying outputs.
 - Directive honesty now has a commit-time leg (the bank-sync pre-commit
   pattern): git-hooks.nix drives the same `erraudit nolint-audit .`
   staleness check on every Go-touching commit — one hook config shared

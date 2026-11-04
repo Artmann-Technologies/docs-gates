@@ -1,6 +1,7 @@
 package docsfreshness
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -9,12 +10,14 @@ import (
 	"github.com/Artmann-Technologies/docs-gates/internal/gatecli"
 )
 
-// TestTokenMarginsNamesNearBarTokens: the preFlightRoot corpus rides
-// alpha-probe at DF 7 (bar 8) — the margins report must name it as one
-// line away from genericizing, and stay exit-clean.
+// TestTokenMarginsExcludesClaimedItemTokens: the preFlightRoot corpus
+// rides alpha-probe at DF 7 (bar 8) — but alpha-probe is the newest
+// report's §f item anchor, so the exclusion (19:01 §f.39) removes it
+// from the budget report: that vocabulary is claimed, freshness watches
+// the item strictly. Exit stays clean.
 //
 //nolint:paralleltest // stdout swap is unsafe under t.Parallel()
-func TestTokenMarginsNamesNearBarTokens(t *testing.T) {
+func TestTokenMarginsExcludesClaimedItemTokens(t *testing.T) {
 	root := preFlightRoot(t)
 
 	captured := gatecli.CaptureOutput(func() int {
@@ -25,9 +28,54 @@ func TestTokenMarginsNamesNearBarTokens(t *testing.T) {
 		t.Fatalf("the margins report is informational and must stay clean, got %d", captured.Code)
 	}
 
-	if !strings.Contains(captured.Stdout, "alpha-probe") ||
+	if strings.Contains(captured.Stdout, "alpha-probe") {
+		t.Fatalf("an item-claimed token must not make the budget report, stdout:\n%s", captured.Stdout)
+	}
+}
+
+// TestTokenMarginsNamesUnclaimedNearBarTokens: a near-bar token the
+// newest report does NOT claim keeps its budget warning — the report's
+// purpose is unclaimed vocabulary one or two lines away from genericizing.
+//
+//nolint:paralleltest // stdout swap is unsafe under t.Parallel()
+func TestTokenMarginsNamesUnclaimedNearBarTokens(t *testing.T) {
+	root := t.TempDir()
+
+	status := filepath.Join(root, "docs", "status")
+	if err := os.MkdirAll(status, 0o755); err != nil {
+		t.Fatal(err)
+	}
+
+	report := "# Report\n\n## f) Next\n\n1. the zephyr-quartz widget needs a home\n"
+	if err := os.WriteFile(filepath.Join(status, "2026-09-01_00-00_BASE.md"), []byte(report), 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	lines := make([]string, 0, 7)
+
+	for i := range 7 {
+		lines = append(lines, fmt.Sprintf("- quartzfill evidence number %d", i))
+	}
+
+	if err := os.WriteFile(
+		filepath.Join(root, "TODO_LIST.md"),
+		[]byte("# TODO\n\n"+strings.Join(lines, "\n")+"\n"),
+		0o644,
+	); err != nil {
+		t.Fatal(err)
+	}
+
+	captured := gatecli.CaptureOutput(func() int {
+		return TokenMargins(root, DefaultSettings())
+	})
+
+	if captured.Code != gatecli.ExitClean {
+		t.Fatalf("the margins report is informational and must stay clean, got %d", captured.Code)
+	}
+
+	if !strings.Contains(captured.Stdout, "quartzfill") ||
 		!strings.Contains(captured.Stdout, "1 more line(s) genericize it") {
-		t.Fatalf("margins must name the DF-7 token and its remaining budget, stdout:\n%s", captured.Stdout)
+		t.Fatalf("margins must name the unclaimed DF-7 token, stdout:\n%s", captured.Stdout)
 	}
 }
 

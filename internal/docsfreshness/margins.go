@@ -2,6 +2,7 @@ package docsfreshness
 
 import (
 	"sort"
+	"strings"
 
 	"github.com/Artmann-Technologies/docs-gates/internal/gatecli"
 )
@@ -21,10 +22,16 @@ type marginToken struct {
 // TokenMargins prints the proactive token-margin report (--margins):
 // every living-docs token within marginNearBar DF of the generic bar,
 // so living-doc drafts avoid those words FIRST-TRY instead of
-// discovering the boundary through a failed gate run. Informational
-// only — the report never flips a verdict.
+// discovering the boundary through a failed gate run. Tokens already
+// present in the newest report's §f items are EXCLUDED (19:01 §f.39):
+// that vocabulary is claimed — the freshness gate watches those items
+// strictly, and their own harvest lines pushed the DF — so the budget
+// report speaks only about unclaimed words. Informational only — the
+// report never flips a verdict.
 func TokenMargins(root string, settings Settings) int {
 	lines, _, tokenDF := loadLivingDocs(root, settings)
+
+	claimed := claimedItemTokens(root, settings)
 
 	bar := settings.df()
 
@@ -34,7 +41,7 @@ func TokenMargins(root string, settings Settings) int {
 
 	for _, line := range lines {
 		for _, tok := range Tokens(line) {
-			if seen[tok] {
+			if seen[tok] || claimed[tok] {
 				continue
 			}
 
@@ -68,4 +75,31 @@ func TokenMargins(root string, settings Settings) int {
 	}
 
 	return gatecli.ExitClean
+}
+
+// claimedItemTokens collects the tokens of the newest report's OPEN §f
+// items — the vocabulary whose anchors can still flip a run. Struck and
+// fresh:skip items are exempt from harvesting forever, so their
+// vocabulary is unclaimed by definition and keeps its budget warning. An
+// empty corpus yields an empty set, so the margins report is unchanged
+// for report-less repos.
+func claimedItemTokens(root string, settings Settings) map[string]bool {
+	claimed := map[string]bool{}
+
+	report := NewestReport(root, settings)
+	if report == "" {
+		return claimed
+	}
+
+	for _, item := range ExtractItems(ExtractSectionF(report)) {
+		if strings.Contains(item, "~~") || strings.Contains(item, SkipMarker) {
+			continue
+		}
+
+		for _, tok := range Tokens(item) {
+			claimed[tok] = true
+		}
+	}
+
+	return claimed
 }
