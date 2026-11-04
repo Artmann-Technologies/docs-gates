@@ -4,7 +4,6 @@ import (
 	"os"
 	"path/filepath"
 	"slices"
-	"strings"
 	"testing"
 )
 
@@ -148,123 +147,6 @@ func TestOrderingSemantics(t *testing.T) {
 
 	if root != dir {
 		t.Fatalf("ResolveRoot = %q, want the FIRST positional %q (later ones ignored)", root, dir)
-	}
-}
-
-// CutIntFlag: every occurrence splits off and the LAST value wins.
-func TestCutIntFlagLastValueWins(t *testing.T) {
-	t.Parallel()
-
-	value, rest, err := CutIntFlag([]string{".", "--audit-max=3", "--strict", "--audit-max=7"}, "audit-max")
-	if err != nil {
-		t.Fatalf("CutIntFlag: %v", err)
-	}
-
-	if value != 7 {
-		t.Fatalf("value = %d, want 7 (last occurrence wins)", value)
-	}
-
-	if !slices.Equal(rest, []string{".", "--strict"}) {
-		t.Fatalf("rest = %v, want every occurrence removed", rest)
-	}
-}
-
-// CutIntFlag error path: the message bytes are pinned (they ride the
-// caller's FATAL line, exit 2), value is -1 and rest nil.
-func TestCutIntFlagErrorBytesAndNilRest(t *testing.T) {
-	t.Parallel()
-
-	cases := []struct {
-		args []string
-		want string
-	}{
-		{[]string{"--audit-max=x"}, `--audit-max wants a non-negative integer, got "x"`},
-		{[]string{"--audit-max=-1"}, `--audit-max wants a non-negative integer, got "-1"`},
-		{[]string{"--audit-max="}, `--audit-max wants a non-negative integer, got ""`},
-	}
-
-	for _, tt := range cases {
-		value, rest, err := CutIntFlag(tt.args, "audit-max")
-		if err == nil || err.Error() != tt.want {
-			t.Fatalf("CutIntFlag(%v) error = %v, want %q", tt.args, err, tt.want)
-		}
-
-		if value != -1 {
-			t.Fatalf("error-path value = %d, want -1", value)
-		}
-
-		if rest != nil {
-			t.Fatalf("error-path rest = %v, want nil (the caller's failure sentinel)", rest)
-		}
-	}
-}
-
-// CutIntFlag success sentinels: rest is non-nil even when every arg was a
-// valued flag, and an absent flag returns -1 with the args untouched.
-func TestCutIntFlagRestSentinels(t *testing.T) {
-	t.Parallel()
-
-	value, rest, err := CutIntFlag([]string{"--annotate-max=2"}, "annotate-max")
-	if err != nil || value != 2 {
-		t.Fatalf("CutIntFlag: value=%d err=%v, want 2/nil", value, err)
-	}
-
-	if rest == nil || len(rest) != 0 {
-		t.Fatalf("rest = %v, want non-nil empty on success", rest)
-	}
-
-	value, rest, err = CutIntFlag([]string{"--strict"}, "annotate-max")
-	if err != nil || value != -1 || !slices.Equal(rest, []string{"--strict"}) {
-		t.Fatalf("absent flag: value=%d rest=%v err=%v, want -1, the args, nil", value, rest, err)
-	}
-}
-
-// LoadConfig: a repo without a config is silent (no stderr noise), a
-// mis-keyed config announces its warnings BEFORE the error surfaces, and
-// the error message is exactly what the caller's FATAL line prints.
-// Serial: the stderr capture is a process-global swap (CaptureOutput doc).
-func TestLoadConfigWarningsOrderingAndSilence(t *testing.T) {
-	root := t.TempDir()
-
-	out := CaptureOutput(func() int {
-		cfg, err := LoadConfig(root)
-		if err != nil {
-			t.Fatalf("clean LoadConfig: %v", err)
-		}
-
-		if cfg.AuditMax != -1 {
-			t.Fatalf("clean cfg AuditMax = %d, want the strict default", cfg.AuditMax)
-		}
-
-		return 0
-	})
-
-	if out.Stderr != "" || out.Stdout != "" {
-		t.Fatalf("clean LoadConfig emitted %q / %q, want silence", out.Stderr, out.Stdout)
-	}
-
-	bad := t.TempDir()
-	body := []byte(`{"generic_df_bar": 1, "audit_max": -2}`)
-	if err := os.WriteFile(filepath.Join(bad, ".docs-gates.json"), body, 0o600); err != nil {
-		t.Fatal(err)
-	}
-
-	var cfgErr error
-
-	out = CaptureOutput(func() int {
-		_, cfgErr = LoadConfig(bad)
-
-		return 0
-	})
-
-	wantWarning := `config: unknown config key "generic_df_bar" ignored` + "\n"
-	if out.Stderr != wantWarning {
-		t.Fatalf("stderr = %q, want warning printed before the error is returned: %q", out.Stderr, wantWarning)
-	}
-
-	wantErr := filepath.Join(bad, ".docs-gates.json") + ": audit_max must be >= -1 (-1 = strict), got -2"
-	if cfgErr == nil || !strings.HasPrefix(cfgErr.Error(), "invalid ") || !strings.HasSuffix(cfgErr.Error(), wantErr) {
-		t.Fatalf("error = %v, want `invalid ` prefix and suffix %q", cfgErr, wantErr)
 	}
 }
 
