@@ -14,15 +14,15 @@ mechanism riding PMA), or keep the PATH-only scope (binaries available;
 only repos that opt in — via BuildFlow detect, CI, or a manual run —
 execute it)?
 
-| Axis                 | PATH-only (status quo)                                                                                     | Timer/PMA lane                                                                                                   |
-| -------------------- | ---------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
-| What runs today      | Binary on PATH (post-T3 deploy); BuildFlow consumers auto-run it per build; evo-x2's own CI-style gates     | Nothing extra — a timer would run `docs-gates run <repo>` on a cadence over selected repos                        |
-| Failure surface      | A repo nobody builds drifts silently                                                                       | Drift is caught within one timer period, fleet-wide                                                              |
-| Noise                | Zero (nothing runs uninvited)                                                                              | Every red battery = a notification somebody must triage; repos WITHOUT living docs are permanently red            |
-| Cost to operate      | None                                                                                                       | Timer units + state + triage rota; reds in non-doctrine repos are UNACTIONABLE (no TODO_LIST to harvest into)      |
-| Preconditions        | Deploy (T3) only                                                                                            | Deploy + a per-repo allowlist + a doctrine-freshness bar (the battery only makes sense where the rituals run)      |
-| Rollback             | Trivial (nothing to disable)                                                                                | Mask/disable timer; state cleanup                                                                                  |
-| Reversibility        | High                                                                                                        | Medium (notification channels and triage expectations accrete)                                                     |
+| Axis            | PATH-only (status quo)                                                                                  | Timer/PMA lane                                                                                                |
+| --------------- | ------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
+| What runs today | Binary on PATH (post-T3 deploy); BuildFlow consumers auto-run it per build; evo-x2's own CI-style gates | Nothing extra — a timer would run `docs-gates run <repo>` on a cadence over selected repos                    |
+| Failure surface | A repo nobody builds drifts silently                                                                    | Drift is caught within one timer period, fleet-wide                                                           |
+| Noise           | Zero (nothing runs uninvited)                                                                           | Every red battery = a notification somebody must triage; repos WITHOUT living docs are permanently red        |
+| Cost to operate | None                                                                                                    | Timer units + state + triage rota; reds in non-doctrine repos are UNACTIONABLE (no TODO_LIST to harvest into) |
+| Preconditions   | Deploy (T3) only                                                                                        | Deploy + a per-repo allowlist + a doctrine-freshness bar (the battery only makes sense where the rituals run) |
+| Rollback        | Trivial (nothing to disable)                                                                            | Mask/disable timer; state cleanup                                                                             |
+| Reversibility   | High                                                                                                    | Medium (notification channels and triage expectations accrete)                                                |
 
 **Interaction with the pilot ratchets (T11):** crm + go-appkit run the
 battery under adoption ratchets seeded at measured debt. A timer lane
@@ -63,13 +63,13 @@ collapses to one sentence), or hold 1.26?
   suite is green on both (the 1.26 devShell path is what the parity
   guarantee originally rode).
 
-| Axis                  | Hold 1.26 (status quo)                                                                                       | Raise root floor to 1.27                                                                                      |
-| --------------------- | ------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------- |
-| `go install …@latest` | Works for go ≥ 1.26 users                                                                                    | Requires go ≥ 1.27 (one minor older toolchain excluded; Go users auto-upgrade fast, but the install line in the README becomes a requirement, not a nicety) |
-| AGENTS.md story       | Three-sentence toolchain paragraph explaining the 1.26/1.27 split + why local                                  | One sentence: "the floor is 1.27 everywhere" — the split explanation (the longest AGENTS paragraph) disappears |
-| Mismatch surface      | The root floor and every real build disagree TODAY — a go 1.26 build of the root works but nothing in the fleet exercises it | Floor = pin; no build anywhere disagrees with the declared floor                                               |
-| Risk                  | A 1.26-only consumer hits a stdlib API newer than their floor (silent drift class)                            | A 1.26 consumer loses `go install` until they upgrade (loud, one-time)                                         |
-| Precedent             | Provider already forced 1.27 as the EFFECTIVE floor for anything importing it                                 | —                                                                                                              |
+| Axis                  | Hold 1.26 (status quo)                                                                                                       | Raise root floor to 1.27                                                                                                                                    |
+| --------------------- | ---------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `go install …@latest` | Works for go ≥ 1.26 users                                                                                                    | Requires go ≥ 1.27 (one minor older toolchain excluded; Go users auto-upgrade fast, but the install line in the README becomes a requirement, not a nicety) |
+| AGENTS.md story       | Three-sentence toolchain paragraph explaining the 1.26/1.27 split + why local                                                | One sentence: "the floor is 1.27 everywhere" — the split explanation (the longest AGENTS paragraph) disappears                                              |
+| Mismatch surface      | The root floor and every real build disagree TODAY — a go 1.26 build of the root works but nothing in the fleet exercises it | Floor = pin; no build anywhere disagrees with the declared floor                                                                                            |
+| Risk                  | A 1.26-only consumer hits a stdlib API newer than their floor (silent drift class)                                           | A 1.26 consumer loses `go install` until they upgrade (loud, one-time)                                                                                      |
+| Precedent             | Provider already forced 1.27 as the EFFECTIVE floor for anything importing it                                                | —                                                                                                                                                           |
 
 **Recommendation:** raise the root floor to 1.27 at the next release
 (v0.2.0, T1). The provider made 1.27 the effective floor on day one; the
@@ -83,6 +83,6 @@ because <reason>".
 
 ---
 
-*Point-in-time snapshot; annotate, never rewrite. Both recommendations
+_Point-in-time snapshot; annotate, never rewrite. Both recommendations
 ride owner questions that have been asked three times today (07:11 §g,
-19:01 §g, 19:25 §g); nothing here executes without the answer.*
+19:01 §g, 19:25 §g); nothing here executes without the answer._
