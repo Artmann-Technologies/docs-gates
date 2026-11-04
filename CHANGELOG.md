@@ -40,6 +40,15 @@ match the annotated git tags; anything after the newest tag sits under
   erraudit reads it STALE with a failing rc — proof the flake's
   nolint-audit check cannot rot into a no-op. Wired as a leg of that
   check; skips on hosts without erraudit on PATH (CI runners).
+- art-dupl calibration audit: `--show-suppressed` shows six groups — all
+  test-file similarity, the intentional class — and a `--structural`
+  spot-check found no hidden actionable clones (the one non-test group is
+  const-declaration shape). The audit's `-t 1` self-scan also caught the
+  fresh docsannotate settings projection mirroring docsfreshness's: both
+  now carry in-source accepts with rationale (baseline re-proven at 0
+  shown groups). The `gatecli.Truncate` canonical-helper triage landed as
+  a deliberate non-fix — the width-budgeted go-output helper would break
+  the stdlib-only contract and the byte-precise golden shapes.
 - Shared-helper round 2 (zero behavior change, goldens byte-identical):
   docsfreshness.Corpus is now the ONE prepared living-docs corpus (raw +
   squashed lines, Contains/Count) — docsrouting's hand-rolled

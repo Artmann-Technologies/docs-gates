@@ -166,14 +166,26 @@ one.
   unharvested "tail" finding whose head carried the `fresh:skip` marker,
   which exempts only the item text containing it). Keep report
   continuation wraps away from a leading number+paren.
-- **The three `//art-dupl:accept` directives** (docsannotate items.go ×2,
-  spacing.go ×1) are the dedup baseline, not decoration: at `-t 1` the
-  art-dupl report must show 0 groups (verified 2026-11-04). A
+- **The five `//art-dupl:accept` directives** (docsannotate items.go ×2,
+  spacing.go ×1, settings.go ×2) are the dedup baseline, not decoration:
+  at `-t 1` the
+  art-dupl report must show 0 groups (verified 2026-11-04, re-proven
+  after the settings-projection accepts). A
   clone gets extracted or accepted-in-source with a rationale; multi-word
   text after the marker is a bare accept (a single hex token would be a
   hash pin). The 2026-11-04 pass extracted `gatecli.CutIntFlag`,
   `gatecli.LoadConfig`, `docsfreshness.LivingDocsLines`, exported
-  `SectionFRe`/`HeadingRe`, and `cmp.Or`/`config.OrSlice` fallbacks.
+  `SectionFRe`/`HeadingRe`, and `cmp.Or`/`config.OrSlice` fallbacks; the
+  settings-projection pair (loadSettings + cmp.Or accessors duplicated
+  across gate packages) is ACCEPTED, not extracted — each gate's
+  Settings is domain-specific and a generic plumbing helper would couple
+  gates for six lines.
+- **`gatecli.Truncate` stays a hand-rolled 10-liner** (deliberate
+  non-fix, triaged 2026-11-04): the canonical candidate
+  (go-output/nom.TruncateVisible over charmbracelet/x/ansi) would break
+  the stdlib-only root contract, and its semantics differ anyway —
+  visible-width budget with an ellipsis vs Truncate's byte-budget
+  UTF-8-safe cut that the parity goldens pin byte-for-byte.
 - **`nix fmt` needs the tracked treefmt.toml** (fleet lesson: without it
   the formatter resolves a read-only store copy and formats nothing while
   exiting 0).

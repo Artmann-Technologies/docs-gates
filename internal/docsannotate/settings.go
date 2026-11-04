@@ -48,6 +48,7 @@ func SettingsFromConfig(c config.Config) Settings {
 	}
 }
 
+//art-dupl:accept the cmp.Or string-fallback accessors are the AGENTS convention spelled per gate field; the fields differ per gate, so a shared accessor set cannot exist
 func (s Settings) dir() string {
 	return cmp.Or(s.ReportDir, config.Defaults().ReportDir)
 }
@@ -70,6 +71,8 @@ func (s Settings) ruleFExtensions() []string {
 // loadSettings resolves the repo config for a Run-shaped entry point and
 // reports it ready-to-use: config warnings go to stderr (non-fatal), a
 // malformed config is an error (the caller FATALs with exit 2).
+//
+//art-dupl:accept the per-gate projection prologue is intentionally repeated per gate package: each Settings type is domain-specific, and a generic plumbing helper would couple the gates for six lines while the field-specific cmp.Or accessors (the real content) stay per-gate regardless
 func loadSettings(root string) (Settings, error) {
 	cfg, err := gatecli.LoadConfig(root)
 	if err != nil {
