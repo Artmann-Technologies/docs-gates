@@ -31,3 +31,27 @@ jobs:
 
       - name: test
         run: go test ./...
+
+  # The nested module is invisible to the root module's ./... (by design,
+  # stdlib-only root): without this job a provider regression ships
+  # unnoticed. go-finding is public, so the proxy needs no credentials.
+  provider:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: pkg/provider/go.mod
+
+      - name: build
+        working-directory: pkg/provider
+        run: go build ./...
+
+      - name: vet
+        working-directory: pkg/provider
+        run: go vet ./...
+
+      - name: test
+        working-directory: pkg/provider
+        run: go test ./...
