@@ -21,11 +21,21 @@
   # follows (2026-11-04).
   inputs.erraudit.inputs.nixpkgs.follows = "nixpkgs";
 
+  # The commit-time nolint-audit leg (the bank-sync pre-commit pattern):
+  # the flake checks keep directives honest per `nix flake check`; this
+  # input lets every `git commit` run the same staleness gate BEFORE the
+  # rot lands. Follows this flake's nixpkgs to dedupe the lock.
+  inputs.git-hooks = {
+    url = "github:cachix/git-hooks.nix";
+    inputs.nixpkgs.follows = "nixpkgs";
+  };
+
   outputs =
     {
       self,
       nixpkgs,
       erraudit,
+      git-hooks,
     }:
     let
       lib = nixpkgs.lib;
@@ -52,6 +62,31 @@
       # One binding for erraudit's hermetic package, shared by the checks
       # and the devShell (was duplicated per-output let). Call per system.
       errauditPkg = system: erraudit.packages.${system}.default;
+
+      # One pre-commit configuration, shared by the sandboxed
+      # `pre-commit-check` and the devShell hook install (was duplicated
+      # per-output). The nolint-audit hook is the commit-time leg of the
+      # directive-honesty gate; the flake `nolint-audit` check stays the
+      # push-time backstop. Sandboxed-safe: the /tmp caches mirror the
+      # flake check's plumbing, because the hook must run green BOTH in
+      # `nix flake check` (read-only, no network, no HOME) and in the
+      # devShell.
+      preCommitCheckFor =
+        system:
+        let
+          pkgs = nixpkgs.legacyPackages.${system};
+        in
+        git-hooks.lib.${system}.run {
+          src = ./.;
+          hooks.nolint-audit = {
+            enable = true;
+            name = "nolint-audit";
+            files = "\\.go$";
+            pass_filenames = false;
+            language = "unsupported";
+            entry = "${pkgs.bash}/bin/bash -c 'PATH=${pkgs.${goPkgAttr}}/bin:$PATH GOTOOLCHAIN=local GOWORK=off GOPROXY=off GOCACHE=/tmp/dg-hooks-gocache GOPATH=/tmp/dg-hooks-gopath exec ${(errauditPkg system)}/bin/erraudit nolint-audit .'";
+          };
+        };
 
       # The legacy standalone binary names. Each wrapper execs the one
       # multi-call binary with the matching verb, so batteries and docs
@@ -275,6 +310,11 @@
                 bash scripts/check-erraudit-rev.sh
                 touch $out
               '';
+
+          # The commit-time leg of the directive-honesty gate: pre-commit
+          # runs the same `erraudit nolint-audit .` staleness check on
+          # every commit touching Go files (see preCommitCheckFor).
+          pre-commit-check = preCommitCheckFor system;
         }
       );
 
@@ -283,6 +323,9 @@
         let
           pkgs = nixpkgs.legacyPackages.${system};
 
+          # The pre-commit machinery: shellHook installs the git hooks and
+          # enabledPackages carries the `pre-commit` binary itself.
+          inherit (preCommitCheckFor system) shellHook enabledPackages;
         in
         {
           # No C compiler anywhere in this repo: the package builds
@@ -293,7 +336,10 @@
               pkgs.golangci-lint
               pkgs.nixfmt-tree
               (errauditPkg system)
-            ];
+            ]
+            ++ enabledPackages;
+
+            inherit shellHook;
 
             GOTOOLCHAIN = "local";
             CGO_ENABLED = "0";

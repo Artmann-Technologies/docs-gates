@@ -222,6 +222,28 @@ one.
   block — buildflow owns the block itself. After adding any testdata or
   corpus files, run `git check-ignore -v` / `git status --ignored` and
   verify staged counts BEFORE trusting a green local suite.
+- **Pre-commit nolint-audit leg (2026-11-04, bank-sync pattern):**
+  git-hooks.nix drives the SAME `erraudit nolint-audit .` staleness check
+  at commit time (hook config in flake.nix `preCommitCheckFor`, shared by
+  the sandboxed `pre-commit-check` flake check and the devShell hook
+  install). Red-controlled live (planted stale directive → hook FAIL
+  naming the count). One local blocker: `core.hooksPath` is explicitly
+  set to its own default (`.git/hooks`), and pre-commit refuses to
+  install over it — unset it locally to arm auto-install; until then run
+  the hook manually (command above). `.pre-commit-config.yaml` is a
+  generated store symlink, gitignored by intent — never commit it.
+- **go1.26+ compile-rejects mixing literals with a slice spread in one
+  variadic call** (`f("a", "b", slice...)` is `too many arguments`, proven
+  on both pinned toolchains 1.26.8 and 1.27.3 — it even hits
+  `fmt.Println`): build the argv with `append` first. Bites exactly the
+  kind of `exec.CommandContext(t.Context(), "git", args...)` probe a
+  test naturally writes.
+- **`git check-ignore` never reports TRACKED files as ignored** — an
+  ignore-arm over committed fixtures needs `--no-index` (the gitignore
+  arm's red control proved the plain form blind), and `git ls-files`
+  prints paths relative to the INVOKING cwd, not the repo root — resolve
+  each line with `filepath.Abs` or a repoRoot join silently leaves the
+  tree.
 - **Known BuildFlow tool bug (2026-11-04, do not "fix" here):** the
   BuildFlow `nix-fmt`/`treefmt` roundtrip steps fail over THIS repo with
   `failed to create walker: path … not inside the tree root /nix/store`.
@@ -267,6 +289,7 @@ nix develop -c golangci-lint run ./...            # the fleet config, 0 findings
 nix develop -c golangci-lint fmt ./...            # golines/gofumpt/gci imports
 nix develop -c erraudit lint ./... --type-aware   # error-handling audit, rc=0 expected (//nolint:erraudit directives live)
 nix develop -c erraudit nolint-audit .            # directive staleness over the root module (also the nolint-audit flake check)
+nix develop -c pre-commit run nolint-audit --all-files   # the commit-time leg of the same gate (bank-sync pattern); auto-install needs `git config --unset core.hooksPath` (set to the default .git/hooks here, which pre-commit refuses to override)
 bash scripts/check-erraudit-rev.sh                # erraudit-rev tripwire (also a flake check): run after bumping the erraudit input
 nix fmt                                           # nixfmt-tree over *.nix (via treefmt.toml)
 nix flake check --all-systems --no-build          # both-arch eval

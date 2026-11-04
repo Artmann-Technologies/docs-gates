@@ -75,3 +75,7 @@ reports/
 # rule above — test fixtures are deliberate repo content.
 !testdata/parity/*/reports/
 !testdata/parity/*/reports/**
+
+# git-hooks.nix generates .pre-commit-config.yaml as a store symlink on
+# `nix develop`; the nix config is the source of truth, never commit the copy.
+.pre-commit-config.yaml
