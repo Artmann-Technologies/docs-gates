@@ -122,13 +122,13 @@ culprit attribution). D1/D2 remain owner decisions.
 12. T20 cmp.Or for docscadence TodoFile/ReportDir + AGENTS sentence.
 13. T20 docscadence pre-split (326 lines, approaching the 350 gate).
 14. T20 docsannotate settings.go projection (config.Config consumer).
-15. T20 shrink annotate Run body to prologue+dispatch.
+15. T20 docsannotate: shrink the Run body to prologue+dispatch (the settings-projection seam).
 16. T21 docsrouting: single report lookup, unified path construction.
 17. T21 export shared token predicates (tokenIn/livingLineCount/…).
 18. T21 squash-corpus consistency: unify or document.
 19. T21 docsstrike parse.go survey → CutStringFlag or documented decline.
 20. T21 art-dupl `-t 1` re-run (expect 0 shown groups).
-21. T22 nixpkgs_2 lock/url reconciliation or deliberate-recording.
+21. T22 nixpkgs_2: reconcile the flake.lock disagreement or record deliberate.
 22. T22 gatecli.Truncate canonical-helper verdict (quality/ finding).
 23. T22 art-dupl `--show-suppressed` audit of 29 groups + spot-checks.
 24. T24 legacy-wrappers smoke v2: assert version STRING = ldflags stamp.
@@ -153,7 +153,7 @@ culprit attribution). D1/D2 remain owner decisions.
     TODO row (F106-F108; depends T1).
 39. D1/D2 recommendation notes inside T23/T24 (battery adoption scope;
     go floor 1.26 vs 1.27) — prepare, do not decide.
-40. Dogfood battery + full gate loop after each doc-heavy landing.
+40. Dogfood ritual: run the docs-health battery over this repo after each doc-heavy landing.
 41. Consider golden arms for `--duplicates` pre-flight (small, optional).
 42. Consider pinning `--verbose` annotate output as a golden arm
     (snippet truncation path, optional).
@@ -162,7 +162,7 @@ culprit attribution). D1/D2 remain owner decisions.
 45. TODO_LIST §5 rows for the two owner questions stay red until
     answered (no agent action).
 46. ROADMAP: no landed rows this session (verified) — nothing to prune.
-47. FEATURES.md CI row: add the provider job mention.
+47. ~~FEATURES.md CI row: add the provider job mention~~ — DONE this session.
 48. DOMAIN_LANGUAGE.md: no new terms this session (ratchet already
     covered) — verified, no edit needed.
 49. /tmp hygiene: trash the probe dirs (dg-discrim, dg-out.txt,

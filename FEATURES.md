@@ -45,7 +45,9 @@ built.
   unknown-key warnings, malformed/invalid = exit 2.
 - **Multi-verb binary** — six verbs, per-verb `--version` under the
   legacy standalone names.
-- **CI workflow** — build / vet / gofmt / stack-drift / test on push + PR
+- **CI workflow** — build / vet / gofmt / stack-drift / test on push + PR;
+  a second job runs the pkg/provider module suite (build / vet / test) so
+  the nested module is no longer invisible to CI
   over the root module.
 - **stack-drift check** — `scripts/stack-drift-check.sh` fails CI the
   moment the root go.mod grows a require/replace/exclude (the
