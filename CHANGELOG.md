@@ -162,6 +162,13 @@ match the annotated git tags; anything after the newest tag sits under
   flag — the flip is provably the rewrite's delta, not the candidate's
   words. The parity harness now supports per-gate expected exit codes
   (the rewrite arm is SUPPOSED to be a findings exit).
+- The `--margins` item-claimed exclusion is byte-pinned through the
+  binary: a margins-replace parity arm rides corpus-replace, whose
+  generic_df drops to 2 so the one-line living doc's whole vocabulary
+  sits inside the near-bar window — the golden names only the unclaimed
+  tokens (cycle, notes, ships) while the four item-claimed ones would
+  headline the report the moment the exclusion regresses. The
+  rewrite-mode UNSAFE golden is byte-untouched by the bar change.
 - The `.gitignore` `reports/` trap is now a failing suite instead of a
   surprise: a battery test asserts every testdata file is tracked
   (`git ls-files`) and none matches an ignore rule (`git check-ignore
