@@ -217,6 +217,7 @@ buildflow --build-mode dev                        # the quality loop: lint+forma
 nix build .#docs-gates -o /tmp/dg-result          # package; checkPhase runs go test ./...
 nix develop -c go test ./...                      # root-module suite (provider excluded — see gotcha)
 (cd pkg/provider && nix develop -c go test ./...) # provider module's own suite
+(cd pkg/provider && nix develop -c golangci-lint run ./...) # provider lint — root ./... never sees the nested module
 nix develop -c golangci-lint run ./...            # the fleet config, 0 findings expected
 nix develop -c golangci-lint fmt ./...            # golines/gofumpt/gci imports
 nix develop -c erraudit lint ./... --type-aware   # error-handling audit, rc=0 expected (//nolint:erraudit directives live)
