@@ -139,6 +139,13 @@ match the annotated git tags; anything after the newest tag sits under
 
 ### Changed
 
+- Directive honesty now has a commit-time leg (the bank-sync pre-commit
+  pattern): git-hooks.nix drives the same `erraudit nolint-audit .`
+  staleness check on every Go-touching commit — one hook config shared
+  by the sandboxed `pre-commit-check` flake check and the devShell hook
+  install, red-controlled live (a planted stale directive fails the
+  hook, naming the count). Auto-install needs `core.hooksPath` unset
+  locally; the manual command is in AGENTS.md.
 - The pre-flight `--replace` rewrite-mode contract is pinned in the
   byte-parity net: a dedicated corpus-replace fixture drives the binary
   to the UNSAFE bytes (the flipped item naming its vanished anchors),
