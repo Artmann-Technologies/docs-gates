@@ -175,6 +175,12 @@ match the annotated git tags; anything after the newest tag sits under
   --no-index` — the plain form is blind to tracked files), both legs
   red-controlled live (a swallowed fixture names itself with the exact
   2026-11-04 failure shape). Rides the existing `go test` CI job.
+- The fleet golangci-lint now gates CI (it ran on developer machines
+  only, so a lint regression could land behind a green CI): v2.15.0 —
+  the flake's pin — over the root module and over the nested provider
+  module through the same walked-up config the repo's lint command
+  uses. The runner's unknown-linter warning about the
+  `//nolint:erraudit` directives is expected and warning-only.
 - The provider's end-to-end Detect leg can no longer vanish silently: a
   skip inside the nix provider sandbox (root source not adjacent, no go
   on PATH) records a ledger note that a sentinel cross-checks against an
