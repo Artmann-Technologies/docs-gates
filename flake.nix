@@ -218,6 +218,25 @@
                 erraudit lint ./... --type-aware
                 touch $out
               '';
+
+          # Rule-behavior determinism: the erraudit input tracks master,
+          # so `nix flake update` can silently swap the rule set. The
+          # tripwire pins the locked rev in scripts/check-erraudit-rev.sh
+          # and fails until that pin is bumped deliberately (precedent:
+          # go-codec's check-erraudit-version.sh).
+          erraudit-rev =
+            pkgs.runCommand "docs-gates-erraudit-rev"
+              {
+                nativeBuildInputs = [
+                  pkgs.bash
+                  pkgs.jq
+                ];
+              }
+              ''
+                cd ${self}
+                bash scripts/check-erraudit-rev.sh
+                touch $out
+              '';
         }
       );
 

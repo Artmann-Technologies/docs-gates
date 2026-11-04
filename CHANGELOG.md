@@ -46,6 +46,12 @@ match the annotated git tags; anything after the newest tag sits under
   unmigrated site fails `nix flake check`. Discrimination-proven (planted
   errors.As turns the check red, naming the site; sentinel errors.Is is
   deliberately exempt).
+- `erraudit-rev` tripwire (scripts/check-erraudit-rev.sh as a flake
+  check): the erraudit input tracks master, so a `nix flake update` can
+  silently swap the rule set — the check pins the locked rev and fails
+  until the pin is bumped deliberately (go-codec's
+  check-erraudit-version.sh precedent). Proven both directions at the
+  flake level (wrong pin → red naming both revs; restored → green).
 - docs/DOMAIN_LANGUAGE.md: the gate vocabulary (verdict matrix, ratchet,
   struck row, harvest, distinctive token, living/historical docs) in one
   greppable glossary.
