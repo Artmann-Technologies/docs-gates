@@ -29,6 +29,20 @@ before v0.1.0.
 
 ### Changed
 
+- Deduplication pass (art-dupl at threshold 1 → zero actionable groups):
+  five shared helpers extracted — `gatecli.CutIntFlag` (one valued
+  `--flag=N` parser for `--audit-max`/`--annotate-max`, identical FATAL
+  wording), `gatecli.LoadConfig` (one config-load + `config:` warnings
+  shape for all six verbs; warnings now also print on the malformed-config
+  FATAL path instead of being dropped, and cadence/strike/battery switch
+  from `WARN:` to the shared `config:` wording), `docsfreshness.LivingDocsLines`
+  (the lowercased raw-line living-docs corpus has exactly one reader for
+  freshness + routing), exported `SectionFRe`/`HeadingRe` (one §f/heading
+  definition, so the two report-scanning gates cannot disagree), and
+  stdlib `cmp.Or` + `config.OrSlice` spelling the zero-value-Settings
+  fallbacks as one-liners. Three idiom clusters (flush/continue boundaries,
+  covered-line bookkeeping, per-file skip arms) accepted in place via
+  `//art-dupl:accept` rationales — acceptance is marked in source, not prose.
 - flake.nix hardened: one pinned toolchain (`go_1_27` via
   `buildGoModule.override` + devShell) with `GOTOOLCHAIN=local` and
   `CGO_ENABLED=0` in the devShell — kills go auto-mode's silent go1.27

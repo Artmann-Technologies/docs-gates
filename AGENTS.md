@@ -20,7 +20,7 @@ library:
 | Package                                                    | Role                                                                                                                                                                                                                                                              |
 | ---------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `cmd/docs-gates`                                           | verb dispatch (`run`, `freshness`, `annotate`, `routing`, `cadence`, `strike`), the verb-to-legacy-name map, `--version`. Version is ldflags-stamped by the flake build; `"dev"` bare-built.                                                                      |
-| `internal/gatecli`                                         | shared CLI scaffolding: exit-code constants, boolean `--flag` parsing, repo-root resolution, `Outf`/`Outln`/`Errf`/`Errln` (the ONE home for unchecked `fmt.Fprint*`), UTF-8-safe `Truncate`, `CaptureOutput`                                                     |
+| `internal/gatecli`                                         | shared CLI scaffolding: exit-code constants, boolean `--flag` parsing, valued `--flag=N` splitting (`CutIntFlag`), the config prologue (`LoadConfig`: load + `config:` warnings, one shape for every verb), repo-root resolution, `Outf`/`Outln`/`Errf`/`Errln` (the ONE home for unchecked `fmt.Fprint*`), UTF-8-safe `Truncate`, `CaptureOutput` |
 | `internal/battery`                                         | the `run` verb: ordered gate list from config, gates run INDEPENDENTLY with captured output, PASS/FAIL/SKIP verdict matrix — no first-failure abort                                                                                                               |
 | `internal/config`                                          | `.docs-gates.json` loader: decode over `Defaults()` (the historical fleet constants), unknown keys WARN, malformed/invalid exit 2                                                                                                                                 |
 | `internal/docs{freshness,annotate,routing,cadence,strike}` | the five gates: each a `Run([]string) int` whose argv shape matches the historical standalone binaries, each with a per-package `Settings` projection (zero values → historical constants)                                                                        |
@@ -51,10 +51,13 @@ one.
 - **Zero-value Settings never reach gate logic.** Every config knob rides
   a per-package Settings projection whose zero values fall back to the
   historical constants (docsfreshness.Settings, docsrouting's own,
-  docscadence.SettingsFromConfig, config.Defaults). A repo WITHOUT a
-  config file gets byte-for-byte the pre-extraction behavior — that is
-  the parity guarantee. Tests rely on it; do not change a default without
-  re-proving parity.
+  docscadence.SettingsFromConfig, config.Defaults). String fallbacks spell
+  `cmp.Or(override, config.Defaults().X)` and list fallbacks
+  `config.OrSlice(...)` — the one-line convention (2026-11-04); int
+  fallbacks with `> 0` semantics stay explicit if-forms (cmp.Or would let
+  negatives through). A repo WITHOUT a config file gets byte-for-byte the
+  pre-extraction behavior — that is the parity guarantee. Tests rely on
+  it; do not change a default without re-proving parity.
 - **The five legacy names are API.** docs-freshness/docs-annotate/
   docs-routing/docs-cadence/docs-strike ride flake wrappers that exec
   `docs-gates <verb>`; each verb answers `--version` under its legacy
@@ -134,6 +137,26 @@ one.
 - **Vars/params named `s` fail the fleet varnamelen config** when their
   scope grows — the Settings plumbing reads `settings`. Method receivers
   on Settings stay `s` (idiomatic, small scope, lint-clean).
+- **Report-vocabulary sharing:** docsfreshness exports the shared
+  status-report definitions docsrouting consumes (`LivingDocsLines`,
+  `SectionFRe`, `HeadingRe`, plus the older `Tokens`/`Squash`/`GenericDF`).
+  Never re-copy these in a second gate — one definition is what keeps the
+  freshness harvest and the routing triage from disagreeing about where
+  §f begins or what the living-docs corpus is.
+- **freshness ExtractItems treats any line-start `\d+[.)]` as an item
+  boundary** (proseRe): a wrapped report line that begins `4211653)`
+  splits one §f item into two false items (burned 2026-11-04 — an
+  unharvested "tail" finding whose head carried the `fresh:skip` marker,
+  which exempts only the item text containing it). Keep report
+  continuation wraps away from a leading number+paren.
+- **The three `//art-dupl:accept` directives** (docsannotate items.go ×2,
+  spacing.go ×1) are the dedup baseline, not decoration: at `-t 1` the
+  art-dupl report must show 0 groups (verified 2026-11-04). A
+  clone gets extracted or accepted-in-source with a rationale; multi-word
+  text after the marker is a bare accept (a single hex token would be a
+  hash pin). The 2026-11-04 pass extracted `gatecli.CutIntFlag`,
+  `gatecli.LoadConfig`, `docsfreshness.LivingDocsLines`, exported
+  `SectionFRe`/`HeadingRe`, and `cmp.Or`/`config.OrSlice` fallbacks.
 - **`nix fmt` needs the tracked treefmt.toml** (fleet lesson: without it
   the formatter resolves a read-only store copy and formats nothing while
   exiting 0).
