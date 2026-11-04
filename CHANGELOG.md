@@ -46,6 +46,12 @@ match the annotated git tags; anything after the newest tag sits under
   unmigrated site fails `nix flake check`. Discrimination-proven (planted
   errors.As turns the check red, naming the site; sentinel errors.Is is
   deliberately exempt).
+- Provider e2e battery run: TestDetectEndToEndOverRealBinary builds the
+  real cmd/docs-gates from the root module and runs provider Detect over
+  a fixture that is red in exactly one gate (an unharvestable §f item —
+  zero reports is a vacuous PASS, which the probe caught), asserting one
+  finding per red gate against the live binary instead of canned matrix
+  text.
 - `provider` flake check: the nested module's suite now gates under
   `nix flake check` — its own buildGoModule (go 1.27 override, pinned
   vendorHash over the public go-finding deps, GOTOOLCHAIN=local), so
