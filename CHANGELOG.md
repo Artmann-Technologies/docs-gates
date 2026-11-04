@@ -139,6 +139,14 @@ match the annotated git tags; anything after the newest tag sits under
 
 ### Changed
 
+- The provider's end-to-end Detect leg can no longer vanish silently: a
+  skip inside the nix provider sandbox (root source not adjacent, no go
+  on PATH) records a ledger note that a sentinel cross-checks against an
+  independent environment probe — any other skip reason, a leg that ran
+  where it could not, or a deleted leg now fails the suite instead of
+  hiding in a green `ok` line; a decision-table test pins every
+  combination (the CI-visible form of the 19:01 §e.3 silent-skip
+  observation).
 - Audit-all findings now carry the same harvest attributions as the
   newest-report leg (matched tokens with DF + example living-docs lines
   under each UNHARVESTED row); a battery corpus arm asserts the lines so
