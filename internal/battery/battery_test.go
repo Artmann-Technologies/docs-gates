@@ -192,6 +192,57 @@ func TestRunAuditMaxFromConfig(t *testing.T) {
 	}
 }
 
+// The audit-all leg must attribute its UNHARVESTED findings the same way
+// the newest-report leg does: each matched token with its DF and the
+// living-docs lines carrying it, so a red replay names WHERE the anchors
+// live instead of bare tokens. A red gate's output rides the battery's
+// stderr (rc=1 forward), so the assertions read Stderr.
+//
+//nolint:paralleltest // process-global capture, serialized on purpose
+func TestRunAuditAllAttributions(t *testing.T) {
+	today := time.Now().Format("2006-01-02")
+
+	root := writeRoot(t)
+
+	body := "# TODO\n\nthe widget budget note lives here\n"
+	if err := os.WriteFile(filepath.Join(root, "TODO_LIST.md"), []byte(body), 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	dir := filepath.Join(root, "docs", "status")
+	if err := os.MkdirAll(dir, 0o755); err != nil {
+		t.Fatal(err)
+	}
+
+	old := "# report\n\n## f) open items\n\n1. the zephyr-quartz widget needs a home\n"
+	if err := os.WriteFile(filepath.Join(dir, today+"_00-00_old.md"), []byte(old), 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	newest := "# report\n\ndrained.\n"
+	if err := os.WriteFile(filepath.Join(dir, today+"_23-00_new.md"), []byte(newest), 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	out := gatecli.CaptureOutput(func() int {
+		return Run([]string{root})
+	})
+
+	if out.Code != gatecli.ExitFindings {
+		t.Fatalf("strict audit with an unharvested item must fail, got rc %d; stderr: %s", out.Code, out.Stderr)
+	}
+
+	for _, want := range []string{
+		"UNHARVESTED [" + today + "_00-00_old.md]",
+		"matched: widget (DF 1)",
+		"line: the widget budget note lives here",
+	} {
+		if !strings.Contains(out.Stderr, want) {
+			t.Fatalf("audit-all attributions missing %q; stderr: %s", want, out.Stderr)
+		}
+	}
+}
+
 //nolint:paralleltest // process-global capture, serialized on purpose
 func TestRunUsageErrors(t *testing.T) {
 	if code := Run([]string{filepath.Join(t.TempDir(), "missing")}); code != gatecli.ExitUsage {
