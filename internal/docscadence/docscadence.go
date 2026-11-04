@@ -18,6 +18,7 @@
 package docscadence
 
 import (
+	"cmp"
 	"os"
 	"path/filepath"
 	"strings"
@@ -61,16 +62,8 @@ func SettingsFromConfig(cfg config.Config) Settings {
 		StruckThreshold:  Threshold,
 		ArchiveThreshold: ArchiveThreshold,
 		ArchiveAgeDays:   ArchiveAgeThresholdDays,
-		TodoFile:         config.Defaults().TodoFile,
-		ReportDir:        config.Defaults().ReportDir,
-	}
-
-	if cfg.TodoFile != "" {
-		settings.TodoFile = cfg.TodoFile
-	}
-
-	if cfg.ReportDir != "" {
-		settings.ReportDir = cfg.ReportDir
+		TodoFile:         cmp.Or(cfg.TodoFile, config.Defaults().TodoFile),
+		ReportDir:        cmp.Or(cfg.ReportDir, config.Defaults().ReportDir),
 	}
 
 	if cfg.Cadence.StruckRows > 0 {
