@@ -120,16 +120,27 @@ func Parse(argv []string, allowed ...string) (map[string]bool, string, error) {
 	return flags, root, nil
 }
 
+// valuedFlagError reports a valued `--flag=N` whose value is not a
+// non-negative integer (a usage error: the gate CLIs exit 2 on it).
+type valuedFlagError struct {
+	flag  string
+	value string
+}
+
+func (e valuedFlagError) Error() string {
+	return "--" + e.flag + " wants a non-negative integer, got " + strconv.Quote(e.value)
+}
+
 // CutIntFlag splits a valued `--flag=N` off argv BEFORE ParseFlags runs (a
 // valued flag would die there as an unknown boolean). Every occurrence is
 // split off and the last value wins. The value must be a non-negative
 // integer — anything else is the returned error, whose message is ready
 // for the caller's `FATAL: %v` line. rest is non-nil on success and nil
 // on error, so a nil rest can double as the caller's failure sentinel.
-func CutIntFlag(args []string, flag string) (value int, rest []string, err error) {
-	value = -1
+func CutIntFlag(args []string, flag string) (int, []string, error) {
+	value := -1
 
-	rest = make([]string, 0, len(args))
+	rest := make([]string, 0, len(args))
 
 	prefix := "--" + flag + "="
 
@@ -143,7 +154,7 @@ func CutIntFlag(args []string, flag string) (value int, rest []string, err error
 
 		n, parseErr := strconv.Atoi(v)
 		if parseErr != nil || n < 0 {
-			return -1, nil, fmt.Errorf("--%s wants a non-negative integer, got %q", flag, v)
+			return -1, nil, valuedFlagError{flag, v}
 		}
 
 		value = n
