@@ -188,7 +188,7 @@ to celebrate.
    (frees the provider from text parsing), or does a new gate family (counts
    gate / link checker) outrank it?
 
-3. **The `(f) Next` list above is this report's §f section** (the `## f)`
+4. **The `(f) Next` list above is this report's §f section** (the `## f)`
    heading is what the freshness gate harvests): [todo] rows 1-8 are
    harvested into TODO_LIST §7, [roadmap] row 9-10 live in ROADMAP.md,
    [skip] rows 11-15 carry individual `<!-- fresh:skip -->` markers.

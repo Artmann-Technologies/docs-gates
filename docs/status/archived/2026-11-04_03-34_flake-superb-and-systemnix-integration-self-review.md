@@ -1,3 +1,9 @@
+> **Live remainder:** archived 2026-11-06 by the cadence ritual (corpus crossed
+> max_unarchived=15 with the 00-33 io-surface pilot report). All open rows were
+> verified harvested/routed at archive time (freshness + audit-all + routing +
+> annotate green over the corpus); owning sections live in TODO_LIST §1-§4,
+> §7-§8 and ROADMAP.md.
+
 # Status: docs-gates flake superb + SystemNix integration — self-review
 
 **Session:** 2026-11-04 ~02:00–03:35 · **Scope:** this session only (flake.nix
