@@ -139,6 +139,19 @@ match the annotated git tags; anything after the newest tag sits under
 
 ### Changed
 
+- Capture-pipe deadlock fixed (2026-11-05, found by the first
+  post-fix fleet run): a gate whose captured output exceeded the pipe
+  buffer (~64KB — crm's 179-finding attribution dump) parked its write
+  on the full pipe while io.ReadAll waited for the gate to return
+  first, netpoll-parked at 0% CPU forever — THE fleet-wedge mechanism,
+  now confirmed by live reproduction (crm audit-all: 5m rc=timeout →
+  790ms honest findings verdict after the fix). Both capture functions
+  now drain the pipes concurrently (readers only; EOF stays
+  deterministic because the write ends close only after the gate
+  returns). Regression test: 4MB per stream through CaptureOutput,
+  red-controlled against the sequential-read plant (45s hang → 50ms
+  pass). The per-gate timeout remains as the bound for any future
+  wedge class.
 - Per-gate wall-clock timeout in the battery (2026-11-05): every gate
   runs under a cap (config `gate_timeout_sec`, default 300, 0 =
   disabled) via gatecli.CaptureOutputWithTimeout — an expired gate

@@ -171,3 +171,20 @@ processes (read-only; the plan's E6):
   default 300, FAIL row rc=timeout) now bounds — a wedged gate fails
   its row instead of hanging the run. The remaining PID is left alive
   for its owning buildflow run (kill still owner question 1).
+
+### Appendix addendum (~04:05): mechanism CONFIRMED by live reproduction
+
+The first post-fix fleet battery run (crm) reproduced the wedge under
+the new code and closed the question: crm's audit-all (179 findings ×
+attribution lines ≈ >64KB captured output) hit the per-gate timeout at
+5m0s — and the direct, un-captured run of the same gate completed in
+seconds. That is the capture-pipe deadlock: a gate writing past the
+pipe buffer parks on the full pipe while io.ReadAll waits for the gate
+to return first (the epoll-thread picture in the autopsy above is the
+parked write's netpoll wait). Fixed the same hour: both capture
+functions drain concurrently (readers only; EOF still gated on the gate
+returning). crm audit-all now: 790ms, honest rc=1. Fleet re-runs with
+the fixed binary: crm FAIL (freshness + audit-all 179 — real debt,
+unpinned), go-appkit PASS with its audit_max=12 ratchet holding exactly
+(memoized semantics byte-identical to the pin's calibration — the
+parity guarantee holding across the fleet).
