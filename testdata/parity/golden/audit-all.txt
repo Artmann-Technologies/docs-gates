@@ -1,2 +1,3 @@
+docs-freshness --audit-all: replaying 1 report(s) against 7 living line(s) — est ~0s (worst case, findings-heavy)
 docs-freshness --audit-all: 1 report(s) replayed, 0 unharvested open item(s)
 docs-freshness --audit-all: FRESH

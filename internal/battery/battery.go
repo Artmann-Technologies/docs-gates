@@ -64,28 +64,6 @@ func gates(root string, cfg config.Config) []gate {
 	}
 }
 
-// Duration-rendering precisions: milliseconds under a second, tenths
-// under a minute, whole seconds past it.
-const (
-	subSecondPrecision = 10 * time.Millisecond
-	subMinutePrecision = 100 * time.Millisecond
-)
-
-// formatDuration renders a gate's wall time for the heartbeat and the
-// verdict matrix. The parity harness normalizes the emitted values to
-// a literal token, so goldens pin the SHAPE of these lines, never the
-// timing.
-func formatDuration(d time.Duration) string {
-	switch {
-	case d < time.Second:
-		return d.Round(subSecondPrecision).String()
-	case d < time.Minute:
-		return d.Round(subMinutePrecision).String()
-	default:
-		return d.Round(time.Second).String()
-	}
-}
-
 // Run is the CLI entry for `docs-gates run` (repo-root positional, no
 // flags: the knobs live in the repo config).
 func Run(args []string) int {
@@ -132,7 +110,7 @@ func Run(args []string) int {
 
 		if out.Code == gatecli.ExitClean {
 			gatecli.Outf("%s", out.Stdout)
-			gatecli.Outf("docs-gates: gate %s done in %s\n", g.name, formatDuration(elapsed))
+			gatecli.Outf("docs-gates: gate %s done in %s\n", g.name, gatecli.FormatDuration(elapsed))
 
 			results = append(results, result{name: g.name, code: out.Code, duration: elapsed})
 
@@ -142,7 +120,7 @@ func Run(args []string) int {
 		gatecli.Errf("docs-gates: gate %s FAILED (rc=%d):\n", g.name, out.Code)
 		gatecli.Errf("%s", out.Stdout)
 		gatecli.Errf("%s", out.Stderr)
-		gatecli.Outf("docs-gates: gate %s done in %s\n", g.name, formatDuration(elapsed))
+		gatecli.Outf("docs-gates: gate %s done in %s\n", g.name, gatecli.FormatDuration(elapsed))
 
 		results = append(results, result{name: g.name, code: out.Code, duration: elapsed})
 	}
@@ -156,9 +134,9 @@ func Run(args []string) int {
 		case r.skip:
 			gatecli.Outf("  %s  %s (skip_gates)\n", verdictSkip, r.name)
 		case r.code == gatecli.ExitClean:
-			gatecli.Outf("  %s  %s (in %s)\n", verdictPass, r.name, formatDuration(r.duration))
+			gatecli.Outf("  %s  %s (in %s)\n", verdictPass, r.name, gatecli.FormatDuration(r.duration))
 		default:
-			gatecli.Outf("  %s  %s (in %s, rc=%d)\n", verdictFail, r.name, formatDuration(r.duration), r.code)
+			gatecli.Outf("  %s  %s (in %s, rc=%d)\n", verdictFail, r.name, gatecli.FormatDuration(r.duration), r.code)
 
 			failed = true
 		}

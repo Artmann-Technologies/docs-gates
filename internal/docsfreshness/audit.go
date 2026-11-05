@@ -2,9 +2,27 @@ package docsfreshness
 
 import (
 	"path/filepath"
+	"time"
 
 	"github.com/Artmann-Technologies/docs-gates/internal/gatecli"
 )
+
+// estPerReportLine anchors the pre-replay cost estimate to the worst
+// REAL corpus measured (CV, 2026-11-05: 1,640 reports × ~2,000 living
+// lines replayed in 49s, findings-heavy — harvest attributions for
+// 8,788 unharvested items dominate that run). A findings-free corpus
+// of the same shape replays ~700x faster (the committed benchmark:
+// ~50ms), so the estimate deliberately overstates — a size warning
+// that fires early beats one that fires late. This is a visibility
+// line, not a performance contract; TestReplaySpeedGuard holds the
+// real one.
+const estPerReportLine = 15 * time.Microsecond
+
+// auditAllEstimate scales the worst-case replay cost linearly with the
+// reports × living-lines product.
+func auditAllEstimate(reports, livingLines int) time.Duration {
+	return time.Duration(reports*max(livingLines, 1)) * estPerReportLine
+}
 
 func auditAll(
 	root string,
@@ -14,6 +32,13 @@ func auditAll(
 	settings Settings,
 ) int {
 	reports := statusReports(root, settings)
+
+	gatecli.Outf(
+		"docs-freshness --audit-all: replaying %d report(s) against %d living line(s) — est ~%s (worst case, findings-heavy)\n",
+		len(reports),
+		len(living.lines),
+		gatecli.FormatDuration(auditAllEstimate(len(reports), len(living.lines))),
+	)
 
 	checked, failed := 0, 0
 

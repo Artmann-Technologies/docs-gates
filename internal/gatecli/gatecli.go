@@ -18,6 +18,7 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"time"
 	"unicode/utf8"
 
 	"github.com/Artmann-Technologies/docs-gates/internal/config"
@@ -29,6 +30,28 @@ const (
 	ExitFindings = 1
 	ExitUsage    = 2
 )
+
+// Duration-rendering precisions: milliseconds under a second, tenths
+// under a minute, whole seconds past it.
+const (
+	subSecondPrecision = 10 * time.Millisecond
+	subMinutePrecision = 100 * time.Millisecond
+)
+
+// FormatDuration renders a wall time for progress lines and verdict
+// matrices (the battery heartbeat, the audit-all replay estimate). The
+// parity harness normalizes the emitted values to a literal token, so
+// goldens pin the SHAPE of a timing-bearing line, never the value.
+func FormatDuration(d time.Duration) string {
+	switch {
+	case d < time.Second:
+		return d.Round(subSecondPrecision).String()
+	case d < time.Minute:
+		return d.Round(subMinutePrecision).String()
+	default:
+		return d.Round(time.Second).String()
+	}
+}
 
 // notDirectoryError reports a repo-root argument that does not resolve to
 // an existing directory (a usage error: the gate CLIs exit 2 on it).
