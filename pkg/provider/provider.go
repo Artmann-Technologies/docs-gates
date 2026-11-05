@@ -18,15 +18,20 @@
 // by design. HealthCheck verifies the binary resolves, and the failure text
 // carries the install line.
 //
-// Detect is read-only by contract (the battery never mutates the tree it
-// judges); Repair stays nil — the docs rituals (harvest, archive, purge)
-// are human edits with their own tooling (docs-strike, the annotate
-// helper), not mechanical fixers.
+// Detect runs the battery's `run --json` machine face and parses the JSON
+// verdict document — findings-as-data, no human-text row scanning (the
+// byte-shape contract is enforced on the battery side by the parity
+// golden, and HERE by the strict decoder: any unknown field fails the
+// parse and surfaces as its own finding instead of silently reading zero
+// values). Detect is read-only by contract (the battery never mutates the
+// tree it judges); Repair stays nil — the docs rituals (harvest, archive,
+// purge) are human edits with their own tooling (docs-strike, the
+// annotate helper), not mechanical fixers.
 package provider
 
 import (
-	"bufio"
 	"context"
+	"encoding/json"
 	"fmt"
 	"os/exec"
 	"strconv"
@@ -39,19 +44,65 @@ import (
 // toolName is the unique identifier BuildFlow uses for this provider.
 const toolName = "docs-gates"
 
-// matrixLinePrefix is the verdict-matrix row shape the battery prints
-// (`  PASS  freshness` / `  FAIL  cadence (rc=1)` / `  SKIP  gate`). The
-// parser matches rows by this exact indentation so prose lines can never
-// parse as verdicts.
-const matrixLinePrefix = "  "
-
-// minMatrixFields is the shortest verdict row the parser accepts: the
-// verdict word plus the gate name.
-const minMatrixFields = 2
+// verdictFail is the JSON verdict word that becomes a finding (PASS and
+// SKIP rows are exit-clean by the battery's contract).
+const verdictFail = "FAIL"
 
 // installHint is the failure text HealthCheck reports when the binary is
 // not on PATH.
 const installHint = "docs-gates binary not on PATH — install via `nix run github:Artmann-Technologies/docs-gates` or `go install github.com/Artmann-Technologies/docs-gates/cmd/docs-gates@latest`"
+
+// batteryReport is the provider-side mirror of the battery's --json
+// document (pkg/provider cannot import internal/battery, so the shape is
+// duplicated by contract and pinned by decodeReport's strict decoder plus
+// the battery's battery-json parity golden).
+type batteryReport struct {
+	Root  string    `json:"root"`
+	Pass  bool      `json:"pass"`
+	Gates []gateRow `json:"gates"`
+}
+
+// gateRow is one matrix row's machine face.
+type gateRow struct {
+	Name       string `json:"name"`
+	Verdict    string `json:"verdict"`
+	ExitCode   int    `json:"exit_code"`
+	Skipped    bool   `json:"skipped"`
+	TimedOut   bool   `json:"timed_out"`
+	DurationMS int64  `json:"duration_ms"`
+	Stdout     string `json:"stdout"`
+	Stderr     string `json:"stderr"`
+}
+
+// decodeReport parses the battery's --json stdout with unknown fields
+// REFUSED: a renamed or removed row field fails the decode (and surfaces
+// as a shape-contract finding) instead of silently decoding to a zero
+// value — the provider-side half of the row-shape contract.
+func decodeReport(stdout string) (batteryReport, error) {
+	var report batteryReport
+
+	dec := json.NewDecoder(strings.NewReader(stdout))
+	dec.DisallowUnknownFields()
+
+	if err := dec.Decode(&report); err != nil {
+		return batteryReport{}, err
+	}
+
+	return report, nil
+}
+
+// failedGates returns the FAIL rows in document order.
+func failedGates(report batteryReport) []gateRow {
+	var failed []gateRow
+
+	for _, g := range report.Gates {
+		if g.Verdict == verdictFail {
+			failed = append(failed, g)
+		}
+	}
+
+	return failed
+}
 
 // workingDir resolves the project directory from the context, falling back
 // to the process working directory. BuildFlow's runner.WithWorkingDir sets
@@ -64,15 +115,17 @@ func workingDir(ctx context.Context) string {
 	return "."
 }
 
-// runBattery execs the docs-gates binary's battery verb over dir and
-// returns its exit code plus both output streams. The binary name is a
-// package constant (gosec G204), and the context bounds the run.
+// runBattery execs the docs-gates binary's battery verb (the --json
+// machine face) over dir and returns its exit code plus both output
+// streams. The binary name is a package constant (gosec G204), and the
+// context bounds the run.
 func runBattery(ctx context.Context, bin, dir string) (int, string, string, error) {
 	cmd := exec.CommandContext( //nolint:gosec // constant binary, not user input
 		ctx,
 		bin,
 		"run",
 		dir,
+		"--json",
 	)
 
 	var out, errOut strings.Builder
@@ -91,47 +144,25 @@ func runBattery(ctx context.Context, bin, dir string) (int, string, string, erro
 	return code, out.String(), errOut.String(), err
 }
 
-// parseMatrix extracts the failed gate names from the battery's verdict
-// matrix, preserving the printed order.
-func parseMatrix(stdout string) []string {
-	var failed []string
-
-	scanner := bufio.NewScanner(strings.NewReader(stdout))
-	for scanner.Scan() {
-		line := scanner.Text()
-		if !strings.HasPrefix(line, matrixLinePrefix) {
-			continue
-		}
-
-		fields := strings.Fields(line)
-		if len(fields) < minMatrixFields {
-			continue
-		}
-
-		if fields[0] == "FAIL" {
-			failed = append(failed, fields[1])
-		}
-	}
-
-	return failed
-}
-
 // Provider is the BuildFlow tool-sdk registration. The var assignment
 // executes toolsdk.Register at package init time, adding this Spec to the
 // process-global registry that BuildFlow walks via ToolsFromSDK().
 //
 // Detect: runs the five-gate battery (freshness, audit-all, annotate,
 // routing --strict, cadence — thresholds from the repo's .docs-gates.json)
-// and reports one finding per red gate. Clean runs produce zero findings;
+// and reports one finding per FAIL row. Clean runs produce zero findings;
 // a usage-environment failure (exit 2) becomes one error finding naming
-// the FATAL line.
+// the FATAL line; a red exit whose stdout does not decode as the JSON
+// verdict document is a shape-contract break and becomes its own finding
+// instead of silently passing.
 //
 //nolint:gochecknoglobals // BuildFlow plugin SDK requires package-level Provider registration
 var Provider = toolsdk.Register(toolsdk.Spec{
 	Name: toolName,
 	Description: "docs-health battery: newest-report harvest freshness, whole-corpus audit replay, " +
 		"struck-item verdicts + inline-code spacing, non-f routing gaps, TODO/report cadence. " +
-		"Reads the repo's .docs-gates.json (defaults are the fleet-proven constants).",
+		"Reads the repo's .docs-gates.json (defaults are the fleet-proven constants). " +
+		"Parses `docs-gates run --json` (requires a battery with the JSON face, v0.2.0+).",
 	// The docs-doctrine file set that activates the tool: a repo without
 	// any of these has nothing for the gates to judge. TODO_LIST.md alone
 	// is enough (the cadence gate needs it; the other gates degrade to
@@ -169,23 +200,38 @@ var Provider = toolsdk.Register(toolsdk.Spec{
 		}
 
 		switch code {
-		case 0:
-			return nil, nil // clean corpus, zero findings
-		case 1:
-			failed := parseMatrix(out)
-			if len(failed) == 0 {
-				// A red exit whose matrix carries no parseable FAIL row is a
-				// verdict-shape contract break — report it as its own finding
-				// instead of silently passing.
-				failed = []string{"battery-exit-without-matrix"}
+		case 0, 1:
+			report, decodeErr := decodeReport(out)
+			if decodeErr != nil {
+				// A battery exit whose stdout is not the pinned JSON
+				// document is a verdict-shape contract break (version skew,
+				// a renamed field) — report it as its own finding instead
+				// of silently passing.
+				return []finding.Finding{finding.NewFinding(
+					"battery-exit-without-report",
+					toolName,
+					"docs-gates battery output over "+dir+" is not the pinned --json document (exit "+
+						strconv.Itoa(code)+"): "+decodeErr.Error(),
+					finding.SeverityError,
+					finding.Position{File: finding.FilePath(dir)},
+					finding.ConfidenceHigh,
+				)}, nil
 			}
+
+			failed := failedGates(report)
 
 			findings := make([]finding.Finding, 0, len(failed))
 			for _, gate := range failed {
+				message := "docs gate " + gate.Name + " is red over " + dir + " — run `docs-gates " + gate.Name + " " + dir + "` for the full output"
+				if gate.TimedOut {
+					message = "docs gate " + gate.Name + " TIMED OUT over " + dir + " (" +
+						strconv.FormatInt(gate.DurationMS, 10) + "ms) — run `docs-gates " + gate.Name + " " + dir + "` for the full output"
+				}
+
 				findings = append(findings, finding.NewFinding(
-					finding.RuleName(gate),
+					finding.RuleName(gate.Name),
 					toolName,
-					"docs gate "+gate+" is red over "+dir+" — run `docs-gates "+gate+" "+dir+"` for the full output",
+					message,
 					finding.SeverityError,
 					finding.Position{File: finding.FilePath(dir)},
 					finding.ConfidenceHigh,
