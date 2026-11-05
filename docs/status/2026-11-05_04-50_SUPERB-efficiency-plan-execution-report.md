@@ -65,18 +65,18 @@ fleet runs, and sibling legs.
 
 ## b) Verification matrix (final sweep)
 
-| Gate | Result |
-| --- | --- |
-| `go test ./...` (root, -count=1) | PASS |
-| `(cd pkg/provider && go test ./...)` | PASS |
-| parity goldens (byte-identical except intentional re-pins, hand-diffed) | PASS |
-| `golangci-lint run ./...` (fleet config) | 0 findings |
-| `erraudit lint --type-aware` / `nolint-audit` | rc=0, 13/13 directives needed |
-| `nix flake check --all-systems --no-build` (incl. 4 new checks) | ALL PASSED |
-| `docs-gates run .` (dogfood) | PASS all five |
-| safe-strike-test.sh (11 rails) | ALL behaved |
-| speed guard / OS-timeout / drift / floors red-controls | all tripped as designed |
-| CI (push df5720d) | [watched to completion — see below] |
+| Gate                                                                    | Result                              |
+| ----------------------------------------------------------------------- | ----------------------------------- |
+| `go test ./...` (root, -count=1)                                        | PASS                                |
+| `(cd pkg/provider && go test ./...)`                                    | PASS                                |
+| parity goldens (byte-identical except intentional re-pins, hand-diffed) | PASS                                |
+| `golangci-lint run ./...` (fleet config)                                | 0 findings                          |
+| `erraudit lint --type-aware` / `nolint-audit`                           | rc=0, 13/13 directives needed       |
+| `nix flake check --all-systems --no-build` (incl. 4 new checks)         | ALL PASSED                          |
+| `docs-gates run .` (dogfood)                                            | PASS all five                       |
+| safe-strike-test.sh (11 rails)                                          | ALL behaved                         |
+| speed guard / OS-timeout / drift / floors red-controls                  | all tripped as designed             |
+| CI (push df5720d)                                                       | [watched to completion — see below] |
 
 ## c) The numbers
 
