@@ -127,9 +127,7 @@ func BenchmarkCheckReportReplay(b *testing.B) {
 	corpus := NewCorpus(living)
 	settings := DefaultSettings()
 
-	b.ResetTimer()
-
-	for range b.N {
+	for b.Loop() {
 		for _, report := range reports {
 			CheckReport(report, corpus, settings)
 		}

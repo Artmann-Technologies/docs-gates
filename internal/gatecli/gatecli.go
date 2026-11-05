@@ -19,6 +19,7 @@ import (
 	"strconv"
 	"strings"
 	"sync"
+	"sync/atomic"
 	"time"
 	"unicode/utf8"
 
@@ -43,8 +44,12 @@ const (
 // matrices (the battery heartbeat, the audit-all replay estimate). The
 // parity harness normalizes the emitted values to a literal token, so
 // goldens pin the SHAPE of a timing-bearing line, never the value.
+// Sub-10ms durations render "<10ms" instead of rounding to a lying
+// "0s" — a gate that ran in 3µs did not run in no time.
 func FormatDuration(d time.Duration) string {
 	switch {
+	case d < subSecondPrecision:
+		return "<10ms"
 	case d < time.Second:
 		return d.Round(subSecondPrecision).String()
 	case d < time.Minute:
@@ -288,6 +293,30 @@ func Errln(args ...any) {
 	_, _ = fmt.Fprintln(os.Stderr, args...) //nolint:erraudit // policy above
 }
 
+// liveOut is the process's REAL stdout while a capture swap is active
+// (nil otherwise). The battery's mid-gate heartbeat must reach the
+// terminal, never the gate's captured buffer — a warning parked in the
+// capture only surfaces after the gate returns, which is exactly when
+// it stops being an early warning.
+//
+//nolint:gochecknoglobals // process-global by nature: the stream swap itself is process-global
+var liveOut atomic.Pointer[os.File]
+
+// Livef writes a formatted progress line to the REAL stdout even while
+// CaptureOutput/CaptureOutputWithTimeout have the process streams
+// swapped: the half-budget early warning fires while a wedged gate
+// holds the capture, and must be visible live. Outside a capture it is
+// plain Outf.
+func Livef(format string, args ...any) {
+	if f := liveOut.Load(); f != nil {
+		_, _ = fmt.Fprintf(f, format, args...) //nolint:erraudit // policy above: a progress write failure is not a finding
+
+		return
+	}
+
+	Outf(format, args...)
+}
+
 // CapturedOutput is what a Run-shaped function emitted plus its exit code.
 type CapturedOutput struct {
 	Stdout string
@@ -338,6 +367,7 @@ func newCapturedPipes() capturedPipes {
 	errR, errW, _ := os.Pipe()
 	origOut, origErr := os.Stdout, os.Stderr
 	os.Stdout, os.Stderr = outW, errW
+	liveOut.Store(origOut)
 
 	var (
 		wg       sync.WaitGroup
@@ -362,7 +392,10 @@ func newCapturedPipes() capturedPipes {
 	}()
 
 	return capturedPipes{
-		restore:     func() { os.Stdout, os.Stderr = origOut, origErr },
+		restore: func() {
+			liveOut.Store(nil)
+			os.Stdout, os.Stderr = origOut, origErr
+		},
 		closeWrites: func() { _ = outW.Close(); _ = errW.Close() },
 		wait: func() (string, string) {
 			wg.Wait()

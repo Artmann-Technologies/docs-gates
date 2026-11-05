@@ -17,6 +17,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"strconv"
 	"strings"
 
 	"github.com/Artmann-Technologies/docs-gates/internal/battery"
@@ -170,18 +171,30 @@ func isHelpWord(arg string) bool {
 // runHelp serves `docs-gates help [verb]` (and `--help`/`-h` with a
 // verb after them): no verb named prints the root usage, one verb named
 // prints that verb's Usage. A name that is not a verb is a usage error
-// carrying the same suggestion the dispatcher gives.
+// carrying the same suggestion the dispatcher gives. Arguments beyond
+// the first verb are never guessed at — they are named on stderr so a
+// typo (`help freshness cadence`) cannot silently eat a word.
 func runHelp(rest []string) int {
 	asked := ""
+
+	var ignored []string
 
 	for _, arg := range rest {
 		if isHelpWord(arg) || arg == "--version" {
 			continue
 		}
 
-		asked = arg
+		if asked == "" {
+			asked = arg
 
-		break
+			continue
+		}
+
+		ignored = append(ignored, arg)
+	}
+
+	if len(ignored) > 0 {
+		gatecli.Errf("docs-gates: help explains one verb — ignoring extra argument(s): %s\n", quoteArgs(ignored))
 	}
 
 	if asked == "" {
@@ -201,6 +214,17 @@ func runHelp(rest []string) int {
 	gatecli.Outf("%s", usage)
 
 	return gatecli.ExitClean
+}
+
+// quoteArgs renders argv the way the refusal messages quote single
+// words (%q), space-joined for a multi-argument warning line.
+func quoteArgs(args []string) string {
+	quoted := make([]string, 0, len(args))
+	for _, a := range args {
+		quoted = append(quoted, strconv.Quote(a))
+	}
+
+	return strings.Join(quoted, " ")
 }
 
 // unknownVerb prints the refusal for a name that is not a verb, with a

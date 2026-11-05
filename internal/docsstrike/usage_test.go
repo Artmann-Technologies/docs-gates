@@ -32,3 +32,15 @@ func TestUsageDocumentsEveryAcceptedFlag(t *testing.T) {
 		t.Error("ParseArgs accepts an undocumented flag")
 	}
 }
+
+// TestUsageDefaultStatusIsTheConst pins the documented --status default
+// to the DefaultStatus constant: the Usage text renders it via a
+// backtick splice, so a constant change would otherwise leave the help
+// describing a status the tool no longer writes.
+func TestUsageDefaultStatusIsTheConst(t *testing.T) {
+	t.Parallel()
+
+	if !strings.Contains(Usage, DefaultStatus) {
+		t.Errorf("Usage default-status text drifted from DefaultStatus %q:\n%s", DefaultStatus, Usage)
+	}
+}

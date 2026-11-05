@@ -53,7 +53,13 @@ type parityGate struct {
 // appears, never how long a gate took — that value is machine-local.
 // The two prefixes are deliberately exact (`done in ` / `(in `): a bare
 // `in ` would also swallow gate counts like "finding(s) in 17 file(s)".
-var parityDurationRe = regexp.MustCompile(`(done in |\(in )[0-9][0-9a-zµ.]*`)
+// The <10ms literal rides the alternation because it starts with `<`,
+// not a digit (the sub-10ms FormatDuration arm).
+var parityDurationRe = regexp.MustCompile(`(done in |\(in )(?:<10ms|[0-9][0-9a-zµ.]*)`)
+
+// parityJSONDurationRe collapses the --json face's millisecond columns
+// the same way: the JSON document's `duration_ms` value is machine-local.
+var parityJSONDurationRe = regexp.MustCompile(`"duration_ms": \d+`)
 
 // parityRootToken replaces the materialized corpus temp root in golden
 // bytes, so path-carrying outputs (--dump-items echoes its argument) stay
@@ -121,6 +127,7 @@ func parityGates() []parityGate {
 			wantCode: gatecli.ExitFindings,
 		},
 		{name: "battery", args: []string{"run"}, wantCode: gatecli.ExitClean},
+		{name: "battery-json", args: []string{"run", "--json"}, wantCode: gatecli.ExitClean},
 	}
 }
 
@@ -246,8 +253,9 @@ func TestParityGolden(t *testing.T) {
 		normalize := func(s string) string {
 			s = strings.ReplaceAll(s, today, parityDateToken)
 			s = strings.ReplaceAll(s, root, parityRootToken)
+			s = parityDurationRe.ReplaceAllString(s, `${1}D`)
 
-			return parityDurationRe.ReplaceAllString(s, `${1}D`)
+			return parityJSONDurationRe.ReplaceAllString(s, `"duration_ms": D`)
 		}
 
 		goldenPath := filepath.Join("..", "..", "testdata", "parity", "golden", gate.name+".txt")

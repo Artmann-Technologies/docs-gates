@@ -5,8 +5,10 @@ import (
 	"testing"
 )
 
-// TestUsageDocumentsNoFlags pins the flagless contract: the verb's Usage
-// must not advertise flags the parser would reject as unknown.
+// TestUsageDocumentsNoFlags pins the flagless contract explicitly: a
+// token scan over every line (not the old "\n  --" substring heuristic,
+// which false-positived on indented prose) — the cadence parser accepts
+// no flags, so Usage must name none.
 func TestUsageDocumentsNoFlags(t *testing.T) {
 	t.Parallel()
 
@@ -14,7 +16,11 @@ func TestUsageDocumentsNoFlags(t *testing.T) {
 		t.Errorf("Usage lost its usage line:\n%s", Usage)
 	}
 
-	if strings.Contains(Usage, "\n  --") {
-		t.Errorf("Usage documents flags, but the cadence parser accepts none:\n%s", Usage)
+	for line := range strings.SplitSeq(Usage, "\n") {
+		for tok := range strings.FieldsSeq(line) {
+			if strings.HasPrefix(tok, "--") {
+				t.Errorf("Usage documents flag %s, but the cadence parser accepts none:\n%s", tok, Usage)
+			}
+		}
 	}
 }
