@@ -233,7 +233,8 @@ func rootUsage() string {
 
 	b.WriteString("\ndocs-gates help <verb> (or <verb> --help) explains one verb's flags.\n")
 	b.WriteString("docs-gates --version prints the version. The knobs (corpus paths,\n")
-	b.WriteString("thresholds, ratchets, skip_gates) live in the repo's .docs-gates.json.\n\n")
+	b.WriteString("thresholds, ratchets, skip_gates) live in the repo's .docs-gates.json —\n")
+	b.WriteString("a repo without one gets the fleet defaults, zero config needed.\n\n")
 	b.WriteString("exit codes: 0 clean, 1 findings, 2 usage/environment error\n")
 
 	return b.String()

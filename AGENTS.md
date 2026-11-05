@@ -19,7 +19,7 @@ library:
 
 | Package                                                    | Role                                                                                                                                                                                                                                                                                                                                               |
 | ---------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `cmd/docs-gates`                                           | verb dispatch (`run`, `freshness`, `annotate`, `routing`, `cadence`, `strike`), the verb-to-legacy-name map, `--version`. Version is ldflags-stamped by the flake build; `"dev"` bare-built.                                                                                                                                                       |
+| `cmd/docs-gates`                                           | verb dispatch (`run`, `freshness`, `annotate`, `routing`, `cadence`, `strike`), the verb-to-legacy-name map, the help surface (`--help`/`-h`/`help [verb]`, did-you-mean verb suggestions), `--version`. Version is ldflags-stamped by the flake build; `"dev"` bare-built.                                                                                                                                                                                                       |
 | `internal/gatecli`                                         | shared CLI scaffolding: exit-code constants, boolean `--flag` parsing, valued `--flag=N` splitting (`CutIntFlag`), the config prologue (`LoadConfig`: load + `config:` warnings, one shape for every verb), repo-root resolution, `Outf`/`Outln`/`Errf`/`Errln` (the ONE home for unchecked `fmt.Fprint*`), UTF-8-safe `Truncate`, `CaptureOutput` |
 | `internal/battery`                                         | the `run` verb: ordered gate list from config, gates run INDEPENDENTLY with captured output, PASS/FAIL/SKIP verdict matrix — no first-failure abort                                                                                                                                                                                                |
 | `internal/config`                                          | `.docs-gates.json` loader: decode over `Defaults()` (the historical fleet constants), unknown keys WARN, malformed/invalid exit 2                                                                                                                                                                                                                  |
@@ -30,9 +30,16 @@ Gate-verb control flow: `main.go` → verb's `Run(rest)` → `gatecli.Parse`
 (flags + root) → `Settings` projection → gate logic → verdict lines via
 gatecli → one of the three exit codes.
 
-`--version` is intercepted in `cmd/docs-gates` BEFORE any gate parser
-sees argv: the parsers reject unknown flags and `--version` would die as
-one.
+`--version` and `--help`/`-h` are intercepted in `cmd/docs-gates`
+BEFORE any gate parser sees argv: the parsers reject unknown flags
+and both would die as one. `help [verb]`/`<verb> --help` print the
+gate packages' exported `Usage` texts (usage_test.go per gate pins
+Usage against the parser's flag vocabulary, both directions — a help
+that lies is worse than none). Usage-class FATALs ride
+`gatecli.FatalUsage(verb, err)` (FATAL line + `usage: docs-gates <verb>
+--help` pointer); config/environment failures keep the bare
+`FATAL: %v` shape. The parity goldens pin none of the help/FATAL-refusal
+paths — the re-pin ritual does not apply to them.
 
 ## Critical constraints
 

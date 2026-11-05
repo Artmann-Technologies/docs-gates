@@ -76,7 +76,8 @@ one red gate never masks the gates behind it. Gates named in skip_gates
 gate_timeout_sec wall-clock cap (0 disables it).
 
 There are no flags: the knobs (skip_gates, audit_max, annotate_max,
-gate_timeout_sec, thresholds) live in the repo's .docs-gates.json.
+gate_timeout_sec, thresholds) live in the repo's .docs-gates.json — a
+repo without one gets the fleet defaults, zero config needed.
 
 Exit codes: 0 all green, 1 any gate FAIL, 2 usage/config error.
 `

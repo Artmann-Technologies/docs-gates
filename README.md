@@ -31,7 +31,9 @@ docs-gates run .
 Verbs: `run | freshness | annotate | routing | cadence | strike`. Each gate
 verb keeps its historical standalone name (`docs-freshness`,
 `docs-annotate`, `docs-routing`, `docs-cadence`, `docs-strike`) as a flake
-wrapper, and answers `--version` under that name.
+wrapper, and answers `--version` under that name. `docs-gates help`
+(or `<verb> --help`) explains every verb and its flags; a typo'd verb
+gets a did-you-mean suggestion.
 
 ### Exit codes
 

@@ -15,8 +15,10 @@ Long-term direction and raw ideas. Refined ideas graduate to TODO_LIST.
   for living docs, a report-freshness age gate distinct from cadence, a
   false item-boundary detector (§f continuation lines that begin with
   `\d+[.)]` — the 2026-11-04 false-split class), and a `--json` verdict
-  output for CI annotations. Nothing here is committed; each wants a
-  Pareto pass first.
+  output for CI annotations (which would also free pkg/provider from
+  parsing the human matrix text — the findings-as-data direction the
+  fleet's tooling takes, cf. the dnsblockd io-surface brainstorm).
+  Nothing here is committed; each wants a Pareto pass first.
 - **Pre-flight model growth** — multi-line/range replacements (block
   swaps, not just single-line `--replace`) and pure removals
   (`--remove=OLD` — deleting a line is not a rewrite) if fleet rewrites

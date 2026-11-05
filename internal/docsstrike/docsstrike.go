@@ -108,9 +108,7 @@ func Run(argv []string) int {
 
 	strike, strikeErr := PlanStrike(string(data), opts)
 	if strikeErr != nil {
-		gatecli.Errf("FATAL: %v\n", strikeErr)
-
-		return gatecli.ExitUsage
+		return gatecli.FatalUsage("strike", strikeErr)
 	}
 
 	gatecli.Outf("--- %s:%d\n%s\n", opts.File, strike.LineNo, strike.Old)

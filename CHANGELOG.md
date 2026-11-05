@@ -8,6 +8,17 @@ match the annotated git tags; anything after the newest tag sits under
 
 ### Added
 
+- CLI help surface, end to end: `docs-gates help [verb]`, `--help`/`-h`
+  (root and per-verb) print the gate packages' exported `Usage` texts —
+  intercepted in the dispatcher before the gate parsers, in the same
+  slot as `--version`. Unknown verbs get did-you-mean suggestions
+  (unique prefix first, then edit distance <= 2; ambiguous prefixes
+  refuse to guess). Usage-class FATALs now end with a
+  `usage: docs-gates <verb> --help` pointer via `gatecli.FatalUsage`
+  (argv-shaped errors only; config/environment failures keep the bare
+  FATAL shape). Each gate's usage_test.go pins its Usage against the
+  parser's flag vocabulary in both directions, so the help cannot drift
+  from the behavior. None of the parity-golden paths change.
 - erraudit adoption (the TODO erraudit-adopt coin): the `//nolint:erraudit`
   directives are live via a private git+ssh flake input + devShell package
   (erraudit's own hermetic flake build, rev pinned in flake.lock), and a
