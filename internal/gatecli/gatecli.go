@@ -18,6 +18,7 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 	"unicode/utf8"
 
@@ -285,20 +286,70 @@ type CapturedOutput struct {
 // consuming suite inherits it from one place (TODO stdout-capture,
 // 2026-10-16: one shared capture instead of one hand-rolled per suite).
 func CaptureOutput(fn func() int) CapturedOutput {
+	pipes := newCapturedPipes()
+
+	code := fn()
+
+	pipes.restore()
+	pipes.closeWrites()
+
+	stdout, stderr := pipes.wait()
+
+	return CapturedOutput{Stdout: stdout, Stderr: stderr, Code: code}
+}
+
+// capturedPipes is one end-to-end stream capture: both pipe pairs with
+// CONCURRENT drainers. Draining while fn runs is not an optimization —
+// it is the 2026-11-05 fleet-wedge fix: a gate writing more than the
+// pipe buffer (~64KB — crm's 179-finding attribution dump) parks its
+// write on a full pipe while io.ReadAll waits for fn to return first,
+// and fn cannot return while its write blocks. Netpoll-parked, 0% CPU,
+// forever (the autopsied epoll-thread wedge). The drainers' EOF stays
+// deterministic: the write ends close only after fn returns, so no
+// partial output can race the verdict — the goroutines only READ.
+type capturedPipes struct {
+	restore     func()
+	closeWrites func()
+	wait        func() (stdout, stderr string)
+}
+
+func newCapturedPipes() capturedPipes {
 	outR, outW, _ := os.Pipe()
 	errR, errW, _ := os.Pipe()
 	origOut, origErr := os.Stdout, os.Stderr
 	os.Stdout, os.Stderr = outW, errW
-	code := fn()
-	os.Stdout, os.Stderr = origOut, origErr
-	_ = outW.Close()
-	_ = errW.Close()
-	outData, _ := io.ReadAll(outR)
-	errData, _ := io.ReadAll(errR)
-	_ = outR.Close()
-	_ = errR.Close()
 
-	return CapturedOutput{Stdout: string(outData), Stderr: string(errData), Code: code}
+	var (
+		wg       sync.WaitGroup
+		outBytes []byte
+		errBytes []byte
+	)
+
+	wg.Add(2)
+
+	go func() {
+		defer wg.Done()
+
+		outBytes, _ = io.ReadAll(outR)
+	}()
+
+	go func() {
+		defer wg.Done()
+
+		errBytes, _ = io.ReadAll(errR)
+	}()
+
+	return capturedPipes{
+		restore:     func() { os.Stdout, os.Stderr = origOut, origErr },
+		closeWrites: func() { _ = outW.Close(); _ = errW.Close() },
+		wait: func() (string, string) {
+			wg.Wait()
+			_ = outR.Close()
+			_ = errR.Close()
+
+			return string(outBytes), string(errBytes)
+		},
+	}
 }
 
 // CaptureOutputWithTimeout runs fn under the captured streams like
@@ -306,35 +357,26 @@ func CaptureOutput(fn func() int) CapturedOutput {
 // the second return reports the timeout. The gate functions take no
 // context, so an expired gate CANNOT be killed — it keeps running as an
 // abandoned goroutine whose late writes fall through to the restored
-// streams (cosmetic interleaving at worst; the observed wedge class
-// blocks on its first write at 0% CPU and never writes again, and
-// os.Exit does not wait for goroutines). A timeout <= 0 never fires —
-// the opt-out shape.
+// streams (cosmetic at worst), and os.Exit does not wait for
+// goroutines. A timeout <= 0 never fires — the opt-out shape.
 func CaptureOutputWithTimeout(fn func() int, timeout time.Duration) (CapturedOutput, bool) {
 	if timeout <= 0 {
 		return CaptureOutput(fn), false
 	}
 
-	outR, outW, _ := os.Pipe()
-	errR, errW, _ := os.Pipe()
-	origOut, origErr := os.Stdout, os.Stderr
-	os.Stdout, os.Stderr = outW, errW
+	pipes := newCapturedPipes()
 
 	done := make(chan CapturedOutput, 1)
 
 	go func() {
 		code := fn()
 
-		_ = outW.Close()
-		_ = errW.Close()
+		pipes.restore()
+		pipes.closeWrites()
 
-		outData, _ := io.ReadAll(outR)
-		errData, _ := io.ReadAll(errR)
+		stdout, stderr := pipes.wait()
 
-		_ = outR.Close()
-		_ = errR.Close()
-
-		done <- CapturedOutput{Stdout: string(outData), Stderr: string(errData), Code: code}
+		done <- CapturedOutput{Stdout: stdout, Stderr: stderr, Code: code}
 	}()
 
 	timer := time.NewTimer(timeout)
@@ -342,18 +384,13 @@ func CaptureOutputWithTimeout(fn func() int, timeout time.Duration) (CapturedOut
 
 	select {
 	case captured := <-done:
-		os.Stdout, os.Stderr = origOut, origErr
-
 		return captured, false
 	case <-timer.C:
 		// Restore what the swap found — NOT devnull: the caller keeps
-		// printing (the matrix must render). A still-alive straggler
-		// writes through the same global and can cosmetically interleave
-		// late lines into the caller's output; the observed wedge class
-		// never writes again, and os.Exit discards it either way.
-		os.Stdout, os.Stderr = origOut, origErr
-		_ = outW.Close()
-		_ = errW.Close()
+		// printing (the matrix must render). Closing the write ends EOFs
+		// the drainers so nothing leaks past the straggler's lifetime.
+		pipes.restore()
+		pipes.closeWrites()
 
 		return CapturedOutput{Code: ExitFindings}, true
 	}
