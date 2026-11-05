@@ -27,6 +27,11 @@ Long-term direction and raw ideas. Refined ideas graduate to TODO_LIST.
   to unrouted rows).
 - **`docs-gates doctor` verb** — PATH, config, flake state in one
   command; the provider HealthCheck hint is the seed.
+- **Board-mechanics fuel** — a split-check verb (verify one item's
+  verdict without a full run), `CutStringFlag` (the string sibling of
+  gatecli.CutIntFlag, re-needed by every new valued flag), and a
+  findings-gate cache-state summary (say WHAT the result cache did to
+  this run) — small mechanics that keep surfacing across sessions.
 - **Fleet-wide nolint staleness tripwires** — erraudit got its audit;
   errcheck/gosec directives have none (a BuildFlow-provider-shaped
   fleet idea).
