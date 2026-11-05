@@ -41,6 +41,18 @@ jobs:
       - name: test
         run: go test ./...
 
+      # The audit-all cliff tripwire: the memoized replay runs the
+      # CV-shaped benchmark (1,600 reports × 2,000 living lines) at
+      # ~50ms/op on CI-class hardware, so 100 iterations under an OS
+      # `timeout` of 45s leave ~9x noise headroom while any regression
+      # past ~10x (the pre-memo cost was ~2.75s/op) is killed with exit
+      # 124. The harness's own -timeout never fires inside a benchmark
+      # loop (probe-proven), so the ceiling must be the OS wrapper; the
+      # sharper memo-loss contract is TestReplaySpeedGuard in the plain
+      # test step above.
+      - name: audit-all cliff benchmark
+        run: timeout 45s go test ./internal/docsfreshness/ -run '^$' -bench BenchmarkCheckReportReplay -benchtime=100x
+
   # The nested module is invisible to the root module's ./... (by design,
   # stdlib-only root): without this job a provider regression ships
   # unnoticed. go-finding is public, so the proxy needs no credentials.
@@ -73,3 +85,22 @@ jobs:
       - name: test
         working-directory: pkg/provider
         run: go test ./...
+
+  # The battery judges the repo that defines green: every push replays
+  # all five gates over this repo's own living docs and status corpus
+  # (the dogfood ritual sessions run by hand, mechanized). A red here is
+  # real: when the cadence archive threshold trips on aging committed
+  # reports, that is the ritual coming due on CI — archive the reports
+  # or harvest the findings, never pin the gate.
+  dogfood:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: go.mod
+
+      - name: battery over this repo
+        run: go run ./cmd/docs-gates run .
+

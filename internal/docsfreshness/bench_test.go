@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+	"time"
 )
 
 // synthBenchCorpus writes a deterministic CV-shaped corpus for the
@@ -80,6 +81,38 @@ func TestSynthBenchCorpusProducesWork(t *testing.T) {
 	findings := CheckReport(reports[0], NewCorpus(living), DefaultSettings())
 	if len(findings) == 0 {
 		t.Fatal("the synthetic corpus must produce unharvested findings, got none")
+	}
+}
+
+// TestReplaySpeedGuard pins the audit-all hot loop's wall time: one
+// full CV-shaped replay must stay under a second. The memoized corpus
+// replays 1,600 reports in ~50ms of token matching while the pre-memo
+// linear rescan cost ~2.75s — the 1s ceiling keeps ~20x headroom for
+// slow CI hardware and fires exactly when the corpus memoization
+// regresses (the 2026-11-05 audit-all cliff class: a wedged CV battery
+// run). NOTE: go test's own -timeout never fires inside a benchmark
+// loop (probe-proven: a 3s sleeping benchmark passes a 1s deadline),
+// so the contract has to be an asserted measurement, not a harness
+// ceiling. Skipped under -short: it is a performance contract, not a
+// correctness one.
+func TestReplaySpeedGuard(t *testing.T) {
+	if testing.Short() {
+		t.Skip("performance contract; skipped in -short mode")
+	}
+
+	reports, living := synthBenchCorpus(t, 1600, 6, 2000, 600)
+	corpus := NewCorpus(living)
+	settings := DefaultSettings()
+
+	start := time.Now()
+
+	for _, report := range reports {
+		CheckReport(report, corpus, settings)
+	}
+
+	if elapsed := time.Since(start); elapsed > time.Second {
+		t.Fatalf("full CV-shaped replay took %v (>1s): the corpus token "+
+			"memoization regressed (the pre-memo rescan cost was ~2.75s)", elapsed)
 	}
 }
 
