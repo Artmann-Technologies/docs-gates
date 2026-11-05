@@ -64,17 +64,23 @@ func gates(root string, cfg config.Config) []gate {
 	}
 }
 
+// Duration-rendering precisions: milliseconds under a second, tenths
+// under a minute, whole seconds past it.
+const (
+	subSecondPrecision = 10 * time.Millisecond
+	subMinutePrecision = 100 * time.Millisecond
+)
+
 // formatDuration renders a gate's wall time for the heartbeat and the
-// verdict matrix: milliseconds under a second, tenths of a second under
-// a minute, whole seconds past it. The parity harness normalizes the
-// emitted values to a literal token, so goldens pin the SHAPE of these
-// lines, never the timing.
+// verdict matrix. The parity harness normalizes the emitted values to
+// a literal token, so goldens pin the SHAPE of these lines, never the
+// timing.
 func formatDuration(d time.Duration) string {
 	switch {
 	case d < time.Second:
-		return d.Round(10 * time.Millisecond).String()
+		return d.Round(subSecondPrecision).String()
 	case d < time.Minute:
-		return d.Round(100 * time.Millisecond).String()
+		return d.Round(subMinutePrecision).String()
 	default:
 		return d.Round(time.Second).String()
 	}
