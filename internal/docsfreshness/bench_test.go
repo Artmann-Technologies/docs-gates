@@ -96,6 +96,8 @@ func TestSynthBenchCorpusProducesWork(t *testing.T) {
 // ceiling. Skipped under -short: it is a performance contract, not a
 // correctness one.
 func TestReplaySpeedGuard(t *testing.T) {
+	t.Parallel()
+
 	if testing.Short() {
 		t.Skip("performance contract; skipped in -short mode")
 	}
