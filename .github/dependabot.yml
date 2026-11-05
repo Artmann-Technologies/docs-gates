@@ -1,0 +1,36 @@
+version: 2
+updates:
+  # The workflow action SHA pins (checkout/setup-go/golangci) age without
+  # a renewal mechanism — weekly grouped PRs keep them reviewable.
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    groups:
+      actions:
+        patterns:
+          - "*"
+    open-pull-requests-limit: 10
+  # Two go modules. The stdlib-only root carries no deps by contract
+  # (a no-op net until that ever changes); the provider module pins
+  # go-finding.
+  - package-ecosystem: gomod
+    directory: /
+    schedule:
+      interval: weekly
+    groups:
+      root-go:
+        patterns:
+          - "github.com/*"
+          - "golang.org/x/*"
+    open-pull-requests-limit: 5
+  - package-ecosystem: gomod
+    directory: /pkg/provider
+    schedule:
+      interval: weekly
+    groups:
+      provider-go:
+        patterns:
+          - "github.com/*"
+          - "golang.org/x/*"
+    open-pull-requests-limit: 5

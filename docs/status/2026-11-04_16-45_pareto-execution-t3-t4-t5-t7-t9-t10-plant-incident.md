@@ -108,7 +108,7 @@ culprit attribution). D1/D2 remain owner decisions.
 ## f) UP TO 50 NEXT THINGS (ordered; ★ = owner-gated or external)
 
 1. Verify CI green on 83c194c (both jobs) — the pending watch.
-2. CHANGELOG rows for T3/T5/T7/T10; strike TODO §2.1 and §3.1.
+~~2. CHANGELOG rows for T3/T5/T7/T10; strike TODO §2.1 and §3.1.~~ ✅ DONE 2026-11-05 (T3/T5/T7/T10 landed + §2.1/§3.1 struck by the 16-45 session; vocabulary lives in this verdict)
 3. AGENTS.md: blind-revert-under-daemon lesson + erraudit-on-PATH fact.
 4. `nix fmt`, `nix flake check --all-systems --no-build`, `nix build
    .#docs-gates` after the T7 flake edit.
