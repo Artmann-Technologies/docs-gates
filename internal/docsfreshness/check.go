@@ -35,17 +35,7 @@ const (
 // CheckReport returns the open §f items of one report that the living docs
 // do not reflect, as (item, reason) pairs. The settings carry the
 // distinctive-token bar.
-func CheckReport(
-	report string,
-	livingLines []string,
-	tokenDF func(string) int,
-	livingSquashed []string,
-	settings Settings,
-) [][2]string {
-	if livingSquashed == nil {
-		livingSquashed = squashLines(livingLines)
-	}
-
+func CheckReport(report string, living Corpus, settings Settings) [][2]string {
 	section := ExtractSectionF(report)
 	if section == "" {
 		return nil
@@ -58,7 +48,7 @@ func CheckReport(
 			continue
 		}
 
-		if reason := itemVerdict(item, livingLines, livingSquashed, tokenDF, settings.df()); reason != "" {
+		if reason := itemVerdict(item, living, settings.df()); reason != "" {
 			findings = append(findings, [2]string{item, reason})
 		}
 	}
@@ -68,7 +58,7 @@ func CheckReport(
 
 // itemVerdict returns the drift reason for one open item, "" when the living
 // docs reflect it: enough tokens matched, at least one of them distinctive.
-func itemVerdict(item string, livingLines, livingSquashed []string, tokenDF func(string) int, genericDF int) string {
+func itemVerdict(item string, living Corpus, genericDF int) string {
 	toks := Tokens(item)
 	if len(toks) == 0 {
 		return ""
@@ -82,7 +72,7 @@ func itemVerdict(item string, livingLines, livingSquashed []string, tokenDF func
 	var found []string
 
 	for _, t := range toks {
-		if tokenPresent(t, livingLines, livingSquashed) {
+		if living.Contains(t) {
 			found = append(found, t)
 		}
 	}
@@ -91,7 +81,7 @@ func itemVerdict(item string, livingLines, livingSquashed []string, tokenDF func
 		return "missing tokens: " + gatecli.Truncate(strings.Join(missingTokens(toks, found), " "), reasonMax)
 	}
 
-	if !hasDistinctive(found, tokenDF, genericDF) {
+	if !hasDistinctive(found, living.Count, genericDF) {
 		return fmt.Sprintf(
 			"only generic tokens matched: %s (each appears on >= %d lines — accidental overlap, "+
 				"not a harvest)",
@@ -119,8 +109,7 @@ const culpritLimit = 6
 // instead of naming bare tokens. Bounded by culpritLimit.
 func harvestAttributions(
 	item string,
-	livingLines, livingSquashed []string,
-	tokenDF func(string) int,
+	living Corpus,
 	genericDF int,
 ) []string {
 	var out []string
@@ -128,13 +117,13 @@ func harvestAttributions(
 	seen := map[string]bool{}
 
 	for _, t := range Tokens(item) {
-		if seen[t] || !tokenPresent(t, livingLines, livingSquashed) {
+		if seen[t] || !living.Contains(t) {
 			continue
 		}
 
 		seen[t] = true
 
-		d := tokenDF(t)
+		d := living.Count(t)
 
 		label := fmt.Sprintf("  matched: %s (DF %d", t, d)
 		if d >= genericDF {
@@ -147,7 +136,7 @@ func harvestAttributions(
 
 		shown := 0
 
-		for _, line := range livingLines {
+		for _, line := range living.lines {
 			if !strings.Contains(line, t) {
 				continue
 			}

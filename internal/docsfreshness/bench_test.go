@@ -2,19 +2,23 @@ package docsfreshness
 
 import (
 	"fmt"
+	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 )
 
-// synthBenchCorpus builds a deterministic CV-shaped corpus for the
-// audit-all cliff benchmark: reportsN reports each carrying itemsPer
-// numbered §f items whose tokens draw from a vocabN-word pool, replayed
-// against livingN living-doc lines. Every third living line spells one
-// of its anchors with spaces instead of hyphens, so the squash arm of
-// the presence match carries realistic weight. The vocabulary/placement
-// arithmetic puts per-token document frequencies around the GenericDF
-// bar, exercising both the distinctive and the generic verdict paths.
-func synthBenchCorpus(reportsN, itemsPer, livingN, vocabN int) (reports, living []string) {
+// synthBenchCorpus writes a deterministic CV-shaped corpus for the
+// audit-all cliff benchmark: reportsN report files each carrying
+// itemsPer numbered §f items whose tokens draw from a vocabN-word pool,
+// replayed against livingN living-doc lines. Every fourth living line
+// spells one of its anchors with spaces instead of hyphens, so the
+// squash arm of the presence match carries realistic weight, and the
+// vocabulary/placement arithmetic puts per-token document frequencies
+// around the GenericDF bar, exercising both verdict paths.
+func synthBenchCorpus(tb testing.TB, reportsN, itemsPer, livingN, vocabN int) (reports, living []string) {
+	tb.Helper()
+
 	vocab := make([]string, vocabN)
 	for i := range vocab {
 		vocab[i] = fmt.Sprintf("tok-%04d", i)
@@ -46,10 +50,36 @@ func synthBenchCorpus(reportsN, itemsPer, livingN, vocabN int) (reports, living 
 				it+1, t0, t1, t2, t3)
 		}
 
-		reports[r] = body.String()
+		path := filepath.Join(tb.TempDir(), fmt.Sprintf("2026-01-%02d_00-00_SYNTH%04d.md", 1+r%28, r))
+		if err := os.WriteFile(path, []byte(body.String()), 0o644); err != nil {
+			tb.Fatal(err)
+		}
+
+		reports[r] = path
 	}
 
 	return reports, living
+}
+
+// TestSynthBenchCorpusProducesWork guards the benchmark's shape: a
+// corpus whose §f sections extract zero items (or whose replay finds
+// zero unharvested findings) would time a no-op — exactly the trap the
+// first version of this benchmark fell into (ExtractSectionF takes a
+// file PATH, and in-memory bodies read as unreadable files).
+func TestSynthBenchCorpusProducesWork(t *testing.T) {
+	t.Parallel()
+
+	reports, living := synthBenchCorpus(t, 4, 6, 200, 60)
+
+	items := ExtractItems(ExtractSectionF(reports[0]))
+	if len(items) != 6 {
+		t.Fatalf("want 6 §f items in the synthetic report, got %d", len(items))
+	}
+
+	findings := CheckReport(reports[0], NewCorpus(living), DefaultSettings())
+	if len(findings) == 0 {
+		t.Fatal("the synthetic corpus must produce unharvested findings, got none")
+	}
 }
 
 // BenchmarkCheckReportReplay times the audit-all hot loop — one full
@@ -57,16 +87,15 @@ func synthBenchCorpus(reportsN, itemsPer, livingN, vocabN int) (reports, living 
 // fleet's largest observed corpus shape (CV, 2026-11-05: 1,643 reports
 // × ~2,000 living lines).
 func BenchmarkCheckReportReplay(b *testing.B) {
-	reports, living := synthBenchCorpus(1600, 6, 2000, 600)
-	squashed := squashLines(living)
-	tokenDF := tokenDFOver(living)
+	reports, living := synthBenchCorpus(b, 1600, 6, 2000, 600)
+	corpus := NewCorpus(living)
 	settings := DefaultSettings()
 
 	b.ResetTimer()
 
 	for range b.N {
 		for _, report := range reports {
-			CheckReport(report, living, tokenDF, squashed, settings)
+			CheckReport(report, corpus, settings)
 		}
 	}
 }

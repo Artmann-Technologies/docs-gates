@@ -42,19 +42,7 @@ func TestTokenTableShowsDFAndDistinctiveness(t *testing.T) {
 
 	living = append(living, "a line with the zephyr-unique token")
 
-	tokenDF := func(tok string) int {
-		n := 0
-
-		for _, line := range living {
-			if strings.Contains(line, tok) {
-				n++
-			}
-		}
-
-		return n
-	}
-
-	table := TokenTable("Re-run the ritual for the batch", living, squashLines(living), tokenDF, DefaultSettings().df())
+	table := TokenTable("Re-run the ritual for the batch", NewCorpus(living), DefaultSettings().df())
 	joined := strings.Join(table, "\n")
 
 	for _, want := range []string{

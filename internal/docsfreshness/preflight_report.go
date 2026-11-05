@@ -13,15 +13,14 @@ type itemKey struct{ report, item string }
 // failingKeys indexes every open §f item the corpus FAILS to reflect, so a
 // delta replay can tell "already failing" from "newly failing".
 func failingKeys(
-	reports, lines []string,
-	tokenDF func(string) int,
-	squashed []string,
+	reports []string,
+	living Corpus,
 	settings Settings,
 ) map[itemKey]bool {
 	out := map[itemKey]bool{}
 
 	for _, report := range reports {
-		for _, f := range CheckReport(report, lines, tokenDF, squashed, settings) {
+		for _, f := range CheckReport(report, living, settings) {
 			out[itemKey{filepath.Base(report), f[0]}] = true
 		}
 	}
@@ -32,16 +31,15 @@ func failingKeys(
 // newlyFailing returns the open §f items that fail only AFTER the
 // candidate lines are added — the would-drift delta of a pre-flight replay.
 func newlyFailing(
-	reports, modLines []string,
-	modDF func(string) int,
-	modSquashed []string,
+	reports []string,
+	mod Corpus,
 	baseFailing map[itemKey]bool,
 	settings Settings,
 ) [][3]string {
 	var newly [][3]string // report, item, reason
 
 	for _, report := range reports {
-		for _, f := range CheckReport(report, modLines, modDF, modSquashed, settings) {
+		for _, f := range CheckReport(report, mod, settings) {
 			if !baseFailing[itemKey{filepath.Base(report), f[0]}] {
 				newly = append(newly, [3]string{filepath.Base(report), f[0], f[1]})
 			}
@@ -57,8 +55,7 @@ func newlyFailing(
 func printNewly(
 	newly [][3]string,
 	explain bool,
-	modLines, modSquashed []string,
-	modDF func(string) int,
+	mod Corpus,
 	candLower, candSquashed []string,
 	genericDF int,
 ) {
@@ -66,12 +63,12 @@ func printNewly(
 		gatecli.Outf("WOULD-DRIFT [%s]: %s\n", f[0], gatecli.Truncate(f[1], itemMax))
 		gatecli.Outf("                  %s\n", f[2])
 
-		for _, c := range culpritAttributions(f[1], candLower, candSquashed, modDF, genericDF) {
+		for _, c := range culpritAttributions(f[1], candLower, candSquashed, mod.Count, genericDF) {
 			gatecli.Outf("  culprit: %s\n", c)
 		}
 
 		if explain {
-			for _, line := range TokenTable(f[1], modLines, modSquashed, modDF, genericDF) {
+			for _, line := range TokenTable(f[1], mod, genericDF) {
 				gatecli.Outln(line)
 			}
 		}
@@ -91,9 +88,8 @@ type bindHit struct{ report, item string }
 // the miss is now visible BEFORE the write, not at the next --audit-all.
 // Informational only: generic rows legitimately bind nothing.
 func printBindings(
-	reports, modLines []string,
-	modDF func(string) int,
-	modSquashed []string,
+	reports []string,
+	mod Corpus,
 	baseFailing map[itemKey]bool,
 	candLower, candSquashed []string,
 	genericDF int,
@@ -111,7 +107,7 @@ func printBindings(
 				continue
 			}
 
-			if itemVerdict(item, modLines, modSquashed, modDF, genericDF) != "" {
+			if itemVerdict(item, mod, genericDF) != "" {
 				continue
 			}
 

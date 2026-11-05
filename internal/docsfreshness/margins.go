@@ -29,7 +29,7 @@ type marginToken struct {
 // report speaks only about unclaimed words. Informational only — the
 // report never flips a verdict.
 func TokenMargins(root string, settings Settings) int {
-	lines, _, tokenDF := loadLivingDocs(root, settings)
+	living := loadLivingDocs(root, settings)
 
 	claimed := claimedItemTokens(root, settings)
 
@@ -39,7 +39,7 @@ func TokenMargins(root string, settings Settings) int {
 
 	var nears []marginToken
 
-	for _, line := range lines {
+	for _, line := range living.lines {
 		for _, tok := range Tokens(line) {
 			if seen[tok] || claimed[tok] {
 				continue
@@ -47,7 +47,7 @@ func TokenMargins(root string, settings Settings) int {
 
 			seen[tok] = true
 
-			d := tokenDF(tok)
+			d := living.Count(tok)
 			if d >= bar-marginNearBar && d < bar {
 				nears = append(nears, marginToken{tok, d})
 			}

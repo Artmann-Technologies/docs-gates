@@ -221,11 +221,11 @@ func Run(args []string) int {
 		return runPreFlight(root, flags, replaces, settings)
 	}
 
-	livingLines, livingSquashed, tokenDF := loadLivingDocs(root, settings)
+	living := loadLivingDocs(root, settings)
 
 	if flags["--audit-all"] {
-		return auditAll(root, livingLines, livingSquashed, tokenDF, flags["--explain-token"], auditMax, settings)
+		return auditAll(root, living, flags["--explain-token"], auditMax, settings)
 	}
 
-	return checkNewest(root, livingLines, livingSquashed, tokenDF, flags["--explain-token"], settings)
+	return checkNewest(root, living, flags["--explain-token"], settings)
 }

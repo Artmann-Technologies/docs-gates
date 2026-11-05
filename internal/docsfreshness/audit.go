@@ -8,8 +8,7 @@ import (
 
 func auditAll(
 	root string,
-	livingLines, livingSquashed []string,
-	tokenDF func(string) int,
+	living Corpus,
 	explain bool,
 	auditMax int,
 	settings Settings,
@@ -19,18 +18,18 @@ func auditAll(
 	checked, failed := 0, 0
 
 	for _, report := range reports {
-		for _, f := range CheckReport(report, livingLines, tokenDF, livingSquashed, settings) {
+		for _, f := range CheckReport(report, living, settings) {
 			failed++
 
 			gatecli.Outf("UNHARVESTED [%s]: %s\n", filepath.Base(report), gatecli.Truncate(f[0], itemMax))
 			gatecli.Outf("             %s\n", f[1])
 
-			for _, line := range harvestAttributions(f[0], livingLines, livingSquashed, tokenDF, settings.df()) {
+			for _, line := range harvestAttributions(f[0], living, settings.df()) {
 				gatecli.Outln(line)
 			}
 
 			if explain {
-				for _, line := range TokenTable(f[0], livingLines, livingSquashed, tokenDF, settings.df()) {
+				for _, line := range TokenTable(f[0], living, settings.df()) {
 					gatecli.Outln(line)
 				}
 			}
@@ -78,8 +77,7 @@ func auditAll(
 
 func checkNewest(
 	root string,
-	livingLines, livingSquashed []string,
-	tokenDF func(string) int,
+	living Corpus,
 	explain bool,
 	settings Settings,
 ) int {
@@ -98,17 +96,17 @@ func checkNewest(
 		return gatecli.ExitClean
 	}
 
-	findings := CheckReport(report, livingLines, tokenDF, livingSquashed, settings)
+	findings := CheckReport(report, living, settings)
 	for _, f := range findings {
 		gatecli.Outf("UNHARVESTED: %s\n", gatecli.Truncate(f[0], itemMax))
 		gatecli.Outf("             %s\n", f[1])
 
-		for _, line := range harvestAttributions(f[0], livingLines, livingSquashed, tokenDF, settings.df()) {
+		for _, line := range harvestAttributions(f[0], living, settings.df()) {
 			gatecli.Outln(line)
 		}
 
 		if explain {
-			for _, line := range TokenTable(f[0], livingLines, livingSquashed, tokenDF, settings.df()) {
+			for _, line := range TokenTable(f[0], living, settings.df()) {
 				gatecli.Outln(line)
 			}
 		}

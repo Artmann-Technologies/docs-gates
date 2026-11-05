@@ -144,9 +144,7 @@ func TestHarvestAttributionNamesMatchedLines(t *testing.T) {
 
 	out := harvestAttributions(
 		"1. webphone alpha-probe calibration recheck",
-		lines,
-		squashLines(lines),
-		tokenDFOver(lines),
+		NewCorpus(lines),
 		DefaultSettings().df(),
 	)
 

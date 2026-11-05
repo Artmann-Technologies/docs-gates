@@ -24,24 +24,9 @@ func TestHyphenTokenMatchesSpacedLine(t *testing.T) {
 
 	report := writeReport(t,
 		"# Report\n\n## f) Next\n\n1. close the real-cax gap after the switch\n")
-	living := []string{"after the switch, build on the real cax evidence line"}
-	livingSquashed := []string{Squash(living[0])}
+	living := NewCorpus([]string{"after the switch, build on the real cax evidence line"})
 
-	// Mirrors Run(): matching is squash-augmented, genericity counts stay
-	// on raw lines (the tuned basis).
-	tokenDF := func(token string) int {
-		n := 0
-
-		for _, line := range living {
-			if strings.Contains(line, token) {
-				n++
-			}
-		}
-
-		return n
-	}
-
-	findings := CheckReport(report, living, tokenDF, livingSquashed, DefaultSettings())
+	findings := CheckReport(report, living, DefaultSettings())
 	if len(findings) != 0 {
 		t.Fatalf("hyphen/space mismatch must not drift, got %v", findings)
 	}
@@ -52,22 +37,9 @@ func TestUnmatchedItemStillDrifts(t *testing.T) {
 
 	report := writeReport(t,
 		"# Report\n\n## f) Next\n\n1. wire the zaphod-beeblebrox relay\n")
-	living := []string{"something entirely different"}
-	livingSquashed := []string{Squash(living[0])}
+	living := NewCorpus([]string{"something entirely different"})
 
-	tokenDF := func(token string) int {
-		n := 0
-
-		for _, line := range living {
-			if strings.Contains(line, token) {
-				n++
-			}
-		}
-
-		return n
-	}
-
-	findings := CheckReport(report, living, tokenDF, livingSquashed, DefaultSettings())
+	findings := CheckReport(report, living, DefaultSettings())
 	if len(findings) != 1 {
 		t.Fatalf("want 1 finding, got %v", findings)
 	}

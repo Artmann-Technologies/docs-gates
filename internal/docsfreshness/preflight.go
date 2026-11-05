@@ -34,7 +34,7 @@ func PreFlight(
 		return gatecli.ExitUsage
 	}
 
-	baseLines, baseSquashed, baseDF := loadLivingDocs(root, settings)
+	base := loadLivingDocs(root, settings)
 
 	// Rewrite-mode removes the replaced lines FIRST: the delta then judges
 	// the candidate words only — the old words' DF presence and any
@@ -42,7 +42,7 @@ func PreFlight(
 	// The DELTA BASELINE stays the pre-edit corpus: an item that passes
 	// before and fails after the edit is the rewrite's damage, while one
 	// already failing before is not blamed on it.
-	remaining, missing := applyReplacements(baseLines, replaces)
+	remaining, missing := applyReplacements(base.lines, replaces)
 	if len(missing) > 0 {
 		gatecli.Errln("docs-freshness --pre-flight: --replace target(s) not found in the living docs:")
 
@@ -74,25 +74,24 @@ func PreFlight(
 	}
 
 	modLines := append(slices.Clone(remaining), lowerAll(candidate)...)
-	modSquashed := squashLines(modLines)
-	modDF := tokenDFOver(modLines)
+	mod := NewCorpus(modLines)
 	candLower := modLines[len(remaining):]
 	candSquashed := squashLines(candLower)
 
 	reports := statusReports(root, settings)
-	baseFailing := failingKeys(reports, baseLines, baseDF, baseSquashed, settings)
-	newly := newlyFailing(reports, modLines, modDF, modSquashed, baseFailing, settings)
+	baseFailing := failingKeys(reports, base, settings)
+	newly := newlyFailing(reports, mod, baseFailing, settings)
 
 	gatecli.Outf("docs-freshness --pre-flight: %d candidate line(s), replayed over %d report(s)\n",
 		len(candidate), len(reports))
 
-	for _, c := range BoundaryCrossings(candidate, baseLines, modLines, settings.df()) {
+	for _, c := range BoundaryCrossings(candidate, base.lines, mod.lines, settings.df()) {
 		gatecli.Outf("  boundary token: %-28s DF %d→%d (genericizes every item whose only "+
 			"distinctive token this was)\n", c.Token, c.Before, c.After)
 	}
 
-	printNewly(newly, explain, modLines, modSquashed, modDF, candLower, candSquashed, settings.df())
-	printBindings(reports, modLines, modDF, modSquashed, baseFailing, candLower, candSquashed, settings.df())
+	printNewly(newly, explain, mod, candLower, candSquashed, settings.df())
+	printBindings(reports, mod, baseFailing, candLower, candSquashed, settings.df())
 
 	if len(newly) > 0 {
 		gatecli.Errf("docs-freshness --pre-flight: UNSAFE — %d historical item(s) would flip to "+

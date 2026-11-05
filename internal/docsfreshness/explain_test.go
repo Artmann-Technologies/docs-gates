@@ -61,9 +61,9 @@ func TestExplainItemTablesHarvestedItems(t *testing.T) {
 	t.Parallel()
 
 	root := preFlightRoot(t)
-	livingLines, livingSquashed, tokenDF := loadLivingDocs(root, DefaultSettings())
+	living := loadLivingDocs(root, DefaultSettings())
 
-	rc := ExplainItem(root, "alpha-probe", livingLines, livingSquashed, tokenDF, DefaultSettings())
+	rc := ExplainItem(root, "alpha-probe", living, DefaultSettings())
 	if rc != gatecli.ExitClean {
 		t.Fatalf("diagnostic mode always exits clean, got %d", rc)
 	}
@@ -103,10 +103,10 @@ func TestExplainItemSkipsStruckAndExemptItems(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	livingLines, livingSquashed, tokenDF := loadLivingDocs(root, DefaultSettings())
+	living := loadLivingDocs(root, DefaultSettings())
 
 	captured := gatecli.CaptureOutput(func() int {
-		return ExplainItem(root, "exempt", livingLines, livingSquashed, tokenDF, DefaultSettings())
+		return ExplainItem(root, "exempt", living, DefaultSettings())
 	})
 
 	if captured.Code != gatecli.ExitClean {

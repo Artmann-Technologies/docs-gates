@@ -20,9 +20,9 @@ func runExplainItem(root string, positional []string, settings Settings) int {
 		return gatecli.ExitUsage
 	}
 
-	livingLines, livingSquashed, tokenDF := loadLivingDocs(root, settings)
+	living := loadLivingDocs(root, settings)
 
-	return ExplainItem(root, positional[1], livingLines, livingSquashed, tokenDF, settings)
+	return ExplainItem(root, positional[1], living, settings)
 }
 
 // HtmlBlindSpot describes the docs/status HTML report snapshots this gate
@@ -87,7 +87,7 @@ func warnHtmlBlindSpot(spot HtmlBlindSpot) {
 // DF=7 to 8, silently genericizing a 2026-10-03 item's last distinctive
 // token) needed a hand-rolled grep probe to root-cause; `--explain-token`
 // prints these lines under every UNHARVESTED item.
-func TokenTable(item string, livingLines, livingSquashed []string, tokenDF func(string) int, genericDF int) []string {
+func TokenTable(item string, living Corpus, genericDF int) []string {
 	toks := Tokens(item)
 
 	out := make([]string, 0, 1+len(toks))
@@ -95,16 +95,16 @@ func TokenTable(item string, livingLines, livingSquashed []string, tokenDF func(
 
 	for _, t := range toks {
 		state := "missing"
-		if tokenPresent(t, livingLines, livingSquashed) {
+		if living.Contains(t) {
 			state = "matched"
 		}
 
 		kind := "generic"
-		if tokenDF(t) < genericDF {
+		if living.Count(t) < genericDF {
 			kind = "DISTINCTIVE"
 		}
 
-		out = append(out, fmt.Sprintf("      %-28s DF=%-4d %-8s %s", t, tokenDF(t), state, kind))
+		out = append(out, fmt.Sprintf("      %-28s DF=%-4d %-8s %s", t, living.Count(t), state, kind))
 	}
 
 	return out
@@ -117,8 +117,7 @@ func TokenTable(item string, livingLines, livingSquashed []string, tokenDF func(
 // corpus prints none). Always exits clean: it is a diagnostic, not a gate.
 func ExplainItem(
 	root, needle string,
-	livingLines, livingSquashed []string,
-	tokenDF func(string) int,
+	living Corpus,
 	settings Settings,
 ) int {
 	lowerNeedle := strings.ToLower(needle)
@@ -142,14 +141,14 @@ func ExplainItem(
 			matches++
 
 			verdict := "harvested"
-			if reason := itemVerdict(item, livingLines, livingSquashed, tokenDF, settings.df()); reason != "" {
+			if reason := itemVerdict(item, living, settings.df()); reason != "" {
 				verdict = "UNHARVESTED (" + reason + ")"
 			}
 
 			gatecli.Outf("--explain-item [%s]: %s\n", filepath.Base(report), gatecli.Truncate(item, itemMax))
 			gatecli.Outf("             verdict: %s\n", verdict)
 
-			for _, line := range TokenTable(item, livingLines, livingSquashed, tokenDF, settings.df()) {
+			for _, line := range TokenTable(item, living, settings.df()) {
 				gatecli.Outln(line)
 			}
 		}

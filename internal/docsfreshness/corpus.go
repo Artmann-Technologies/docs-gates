@@ -61,20 +61,38 @@ func LivingDocsLines(root string, names []string) []string {
 	return lines
 }
 
-// Corpus is the prepared living-docs corpus: raw lowercased lines plus
-// their squashed keys. The freshness harvest and the routing triage share
-// this one preparation so the two gates cannot disagree about what
-// "present in the living docs" means (the 2026-11-04 dedup: docsrouting
-// grew its own tokenIn/squashContains/livingLineCount with a subtly
-// different squash-arm length condition; both now ride this type).
+// Corpus is the prepared living-docs corpus: raw lowercased lines,
+// their squashed keys, and the per-token match caches. The freshness
+// harvest and the routing triage share this one preparation so the two
+// gates cannot disagree about what "present in the living docs" means
+// (the 2026-11-04 dedup: docsrouting grew its own tokenIn/
+// squashContains/livingLineCount with a subtly different squash-arm
+// length condition; both now ride this type).
+//
+// The caches are the 2026-11-05 audit-all cliff fix (CV: 1,643 reports ×
+// ~2,000 living lines made every tokenPresent/tokenDF call a full
+// linear rescan, and the same tokens recur across every report): both
+// Contains and Count are pure functions of (token, lines, squashed), so
+// memoizing per prepared corpus cannot change a verdict — the parity
+// goldens pin that byte-for-byte. The maps are deliberately
+// unsynchronized: the gate path is single-goroutine by contract
+// (gatecli.CaptureOutput swaps process-global stdout; no parallelism
+// inside a gate).
 type Corpus struct {
 	lines    []string
 	squashed []string
+	present  map[string]bool // token -> Contains verdict (memoized)
+	df       map[string]int  // token -> raw-line document frequency (memoized)
 }
 
 // NewCorpus prepares raw (already lowercased) lines for token matching.
 func NewCorpus(lines []string) Corpus {
-	return Corpus{lines: lines, squashed: squashLines(lines)}
+	return Corpus{
+		lines:    lines,
+		squashed: squashLines(lines),
+		present:  map[string]bool{},
+		df:       map[string]int{},
+	}
 }
 
 // LivingDocsCorpus is LivingDocsLines prepared for token matching.
@@ -84,26 +102,49 @@ func LivingDocsCorpus(root string, names []string) Corpus {
 
 // Contains reports whether the token is present in the corpus: raw
 // substring match first, then the hyphen/space-collapsed key when the KEY
-// is long enough to carry it — the harvest's reference semantics.
-func (c Corpus) Contains(token string) bool {
-	return tokenPresent(token, c.lines, c.squashed)
+// is long enough to carry it — the harvest's reference semantics. The
+// verdict is memoized per corpus; the underlying tokenPresent scan is
+// unchanged.
+func (c *Corpus) Contains(token string) bool {
+	if c.present == nil {
+		c.present = map[string]bool{}
+	}
+
+	if v, ok := c.present[token]; ok {
+		return v
+	}
+
+	v := tokenPresent(token, c.lines, c.squashed)
+	c.present[token] = v
+
+	return v
 }
 
 // Count is the raw-line document frequency: how many lines contain the
 // token as a substring. Genericity counts stay on RAW lines: GenericDF
 // was tuned against raw substring counts, and squashed counting inflates
-// them (words join across boundaries).
-func (c Corpus) Count(token string) int {
-	return tokenDFOver(c.lines)(token)
+// them (words join across boundaries). The count is memoized per corpus.
+func (c *Corpus) Count(token string) int {
+	if c.df == nil {
+		c.df = map[string]int{}
+	}
+
+	if v, ok := c.df[token]; ok {
+		return v
+	}
+
+	v := tokenDFOver(c.lines)(token)
+	c.df[token] = v
+
+	return v
 }
 
 // loadLivingDocs reads the configured living docs into the comparison
-// corpus: lowercased raw lines, their squashed keys, and the raw-line token
-// document frequency.
-func loadLivingDocs(root string, settings Settings) ([]string, []string, func(string) int) {
-	livingLines := LivingDocsLines(root, settings.livingDocs())
-
-	return livingLines, squashLines(livingLines), tokenDFOver(livingLines)
+// corpus: lowercased raw lines, their squashed keys, the raw-line token
+// document frequency, and the per-token match caches every replay
+// (freshness, audit-all, pre-flight) shares.
+func loadLivingDocs(root string, settings Settings) Corpus {
+	return NewCorpus(LivingDocsLines(root, settings.livingDocs()))
 }
 
 // tokenDFOver is the raw-line document-frequency counter: how many
