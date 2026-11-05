@@ -60,7 +60,7 @@ owner questions in §5.
 | audit-all preflight cost warning when reports × living-doc lines crosses a threshold (print a duration estimate before the replay starts)                                         | 🔴 `TODO` | P3       | S      | 02-15 report §f.5                                                           |
 | Perf regression net: benchmark pinning audit-all runtime vs corpus size + a CI arm over a synthesized ~1.6k-report corpus so the cliff stays visible                             | 🔴 `TODO` | P3       | M      | 02-15 report §f.6                                                           |
 | Wedged-process diagnosis: strace one 0%-CPU docs-gates straggler before asserting the pipe-block class (Go stdout SIGPIPE may not be the mechanism)                              | 🔴 `TODO` | P3       | M      | 02-15 report §f.7, §g Q1                                                    |
-| AGENTS.md non-obvious fact: the audit-all cost model with the CV numbers (1,643 reports × ~2,000 living lines ≈ hours; go-health 66 × ~500 ≈ 2 min)                              | 🔴 `TODO` | P3       | S      | 02-15 report §f.8                                                           |
+| ~~AGENTS.md non-obvious fact: the audit-all cost model with the CV numbers (1,643 reports × ~2,000 living lines ≈ hours; go-health 66 × ~500 ≈ 2 min)~~ | ✅ DONE 2026-11-05 | P3       | S      | AGENTS.md non-obvious facts: size-before-launch (with post-memo numbers: CV hours→49s, synth 59×) + point-in-time gating under foreign daemons; PIPESTATUS lesson → crush-config lessons.md 63f5a81 |
 
 ## 3) External + fleet (work lands in sibling repos; this board tracks the cross-repo leg)
 

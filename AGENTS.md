@@ -301,6 +301,23 @@ one.
   at BuildFlow
   `docs/drafts/file-size-check-empty-filecontract-constant-cache-key.md`);
   once fixed upstream, drop the bypass from any verification ritual.
+- **Size a foreign corpus BEFORE launching the battery** (paid for
+  2026-11-05, the CV wedge): `ls docs/status | wc -l` plus a living-doc
+  line count costs one second and would have predicted the hours-long
+  audit-all. The 2026-11-05 corpus memoization made replay cost one
+  full-corpus scan per DISTINCT token (CV 1,643 reports × ~2,000 lines:
+  hours → 49s; synthetic CV-shape benchmark 2,753ms → 47ms per
+  1,600-report replay, 59×), audit-all now prints its replay shape +
+  worst-case estimate BEFORE replaying, and the battery caps every gate
+  at `gate_timeout_sec` (default 300s, FAIL row rc=timeout) — estimate
+  and cap are circuit breakers, not permission to launch blind.
+- **Gate verdicts are point-in-time under foreign daemons** (paid for
+  2026-11-05): a battery run over a repo whose auto-commit/report
+  daemon is active can flip between two invocations minutes apart — CV's
+  freshness went FAIL→PASS mid-session when its daemon wrote a newer
+  report. When reporting verdicts about a repo you do not own, record
+  the run's timestamp alongside the matrix, and never treat one run as
+  that repo's steady state.
 
 ## Testing
 
