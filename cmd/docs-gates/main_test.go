@@ -203,3 +203,24 @@ func TestSuggestVerb(t *testing.T) {
 		}
 	}
 }
+
+// help takes ONE verb: arguments beyond it are never silently eaten —
+// they are named on stderr while the asked verb's usage still prints,
+// and the exit stays clean (a typo in the tail must not kill the help).
+//
+//nolint:paralleltest // process-global capture, serialized on purpose
+func TestHelpExtraArgsWarn(t *testing.T) {
+	out := gatecli.CaptureOutput(func() int { return run([]string{"help", "strike", "cadence"}) })
+
+	if out.Code != gatecli.ExitClean {
+		t.Fatalf("extra help args warn but stay clean, got rc %d", out.Code)
+	}
+
+	if !strings.Contains(out.Stdout, "usage: docs-strike") {
+		t.Fatalf("asked verb's usage must still print, got:\n%s", out.Stdout)
+	}
+
+	if !strings.Contains(out.Stderr, `ignoring extra argument(s): "cadence"`) {
+		t.Fatalf("the ignored argument must be named on stderr, got: %s", out.Stderr)
+	}
+}

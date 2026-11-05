@@ -161,14 +161,14 @@ func runGates(list []gate, skipGates []string, timeout time.Duration, jsonMode b
 			continue
 		}
 
-		progress := gatecli.Outf
+		progress, warnLive := gatecli.Outf, gatecli.Livef
 		if jsonMode {
-			progress = gatecli.Errf
+			progress, warnLive = gatecli.Errf, gatecli.Errf
 		}
 
 		progress("docs-gates: gate %s ...\n", g.name)
 
-		stopWatchdog := startHalfBudgetWatchdog(g.name, timeout)
+		stopWatchdog := startHalfBudgetWatchdog(g.name, timeout, warnLive)
 
 		start := time.Now()
 
@@ -210,14 +210,16 @@ func runGates(list []gate, skipGates []string, timeout time.Duration, jsonMode b
 }
 
 // startHalfBudgetWatchdog arms the ONE live mid-gate line: once a gate
-// burns past half its wall-clock budget, the watcher names the cap on
-// the REAL stdout (gatecli.Livef — during a capture the swapped streams
-// would park the warning inside the gate's own buffer, killing exactly
-// the early-warning value it exists for). The CV wedge sat invisible in
-// band for hours; a watcher would have named the budget it was burning.
+// burns past half its wall-clock budget, the watcher names the cap
+// LIVE — on the REAL stdout via gatecli.Livef (human face), because
+// during a capture the swapped streams would park the warning inside
+// the gate's own buffer, killing exactly the early-warning value it
+// exists for. The JSON face hands in gatecli.Errf instead: its stdout
+// is contractually the machine document alone. The CV wedge sat
+// invisible in band for hours; a watcher names the budget it burns.
 // timeout <= 0 (the config opt-out) arms nothing; the returned func is
 // always safe to call.
-func startHalfBudgetWatchdog(gateName string, timeout time.Duration) func() {
+func startHalfBudgetWatchdog(gateName string, timeout time.Duration, warnf func(string, ...any)) func() {
 	if timeout <= 0 {
 		return func() {}
 	}
@@ -230,7 +232,7 @@ func startHalfBudgetWatchdog(gateName string, timeout time.Duration) func() {
 
 		select {
 		case <-timer.C:
-			gatecli.Livef(
+			warnf(
 				"docs-gates: gate %s over half its %s budget — abandoned at the cap\n",
 				gateName,
 				gatecli.FormatDuration(timeout),

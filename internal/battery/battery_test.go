@@ -1,6 +1,7 @@
 package battery
 
 import (
+	"encoding/json"
 	"os"
 	"path/filepath"
 	"strings"
@@ -347,7 +348,7 @@ func TestRunJSONFace(t *testing.T) {
 		}
 	}
 
-	for _, human := range []string{"verdict matrix", "docs-gates: PASS"} {
+	for _, human := range []string{"docs-gates: PASS"} {
 		if strings.Contains(out.Stdout, human) {
 			t.Fatalf("human line %q leaked into the JSON stdout: %s", human, out.Stdout)
 		}
@@ -355,6 +356,10 @@ func TestRunJSONFace(t *testing.T) {
 		if !strings.Contains(out.Stderr, human) {
 			t.Fatalf("human line %q missing from stderr: %s", human, out.Stderr)
 		}
+	}
+
+	if strings.Contains(out.Stderr, "verdict matrix") {
+		t.Fatalf("the human matrix must not render in JSON mode: %s", out.Stderr)
 	}
 }
 
@@ -414,19 +419,20 @@ func TestRunJSONTimeoutRow(t *testing.T) {
 	wedged := gate{name: "wedge", fn: func([]string) int { select {} }, args: nil}
 	healthy := gate{name: "after-wedge", fn: func([]string) int { return gatecli.ExitClean }, args: nil}
 
-	var report batteryReport
-
-	out := gatecli.CaptureOutput(func() int {
+	captured := gatecli.CaptureOutput(func() int {
 		rows := runGates([]gate{wedged, healthy}, nil, 50*time.Millisecond, true)
 
-		if renderJSON(rows, "root") == gatecli.ExitFindings {
-			_ = json.Unmarshal([]byte(capturedStdout()), &report)
-		}
-
-		return gatecli.ExitClean
+		return renderJSON(rows, "root")
 	})
 
-	_ = out // the assertion reads the decoded rows below
+	if captured.Code != gatecli.ExitFindings {
+		t.Fatalf("a timed-out row must fail the JSON render, got rc %d", captured.Code)
+	}
+
+	var report batteryReport
+	if err := json.Unmarshal([]byte(captured.Stdout), &report); err != nil {
+		t.Fatalf("stdout must be one JSON document: %v; stdout: %s", err, captured.Stdout)
+	}
 
 	if len(report.Gates) != 2 || report.Pass {
 		t.Fatalf("wedge matrix must fail with two rows: %+v", report)
@@ -469,24 +475,3 @@ func TestRunGateHalfBudgetWarnsLive(t *testing.T) {
 		t.Fatalf("half-budget warning must reach the live stdout, got: %s", out.Stdout)
 	}
 }
-
-// capturedStdout grabs the CURRENT os.Stdout's already-drained bytes is
-// impossible mid-capture; the JSON timeout test instead re-renders the
-// rows and decodes the document directly.
-func capturedStdout() string {
-	var b strings.Builder
-
-	rows := lastRows()
-	report := batteryReport{Root: "root", Pass: false, Gates: make([]gateReport, 0, len(rows))}
-
-	for _, r := range rows {
-		report.Gates = append(report.Gates, gateReport{Name: r.name, Verdict: r.name, ExitCode: r.code})
-	}
-
-	doc, _ := json.Marshal(report)
-	b.Write(doc)
-
-	return string(doc)
-}
-
-func lastRows() []result { return nil }
