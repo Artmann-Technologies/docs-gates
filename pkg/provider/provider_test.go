@@ -80,6 +80,51 @@ const matrixJSON = `{
   ]
 }`
 
+// cleanJSON is the all-green document: every row PASS, pass true — the
+// zero-findings contract.
+const cleanJSON = `{
+  "root": "/repo",
+  "pass": true,
+  "gates": [
+    {
+      "name": "freshness",
+      "verdict": "PASS",
+      "exit_code": 0,
+      "skipped": false,
+      "timed_out": false,
+      "duration_ms": 830,
+      "stdout": "docs-freshness: FRESH\n",
+      "stderr": ""
+    },
+    {
+      "name": "annotate",
+      "verdict": "SKIP",
+      "exit_code": 0,
+      "skipped": true,
+      "timed_out": false,
+      "duration_ms": 0,
+      "stdout": "",
+      "stderr": ""
+    }
+  ]
+}`
+
+//nolint:paralleltest // process-global PATH swap, serialized on purpose
+func TestDetectCleanCorpusYieldsZeroFindings(t *testing.T) {
+	writeFakeBinary(t, cleanJSON, 0)
+
+	findings, err := Provider.Detect.Detect(context.Background())
+	if err != nil {
+		t.Fatalf("Detect: %v", err)
+	}
+
+	if len(findings) != 0 {
+		t.Fatalf("clean battery must yield zero findings, got %+v", findings)
+	}
+}
+
+// Detect trusts the ROWS, not the pass summary: an inconsistent document
+// (pass true over FAIL rows) still yields findings — the safe direction.
 func TestDecodeReportKeepsFailOrder(t *testing.T) {
 	t.Parallel()
 
@@ -152,19 +197,23 @@ func TestDetectRedRowsBecomeFindings(t *testing.T) {
 	}
 }
 
+// Detect trusts the ROWS, not the pass summary: an inconsistent document
+// (exit 0, pass true, FAIL rows present) still yields findings — the
+// safe direction beats the self-consistent one.
+//
 //nolint:paralleltest // process-global PATH swap, serialized on purpose
-func TestDetectCleanCorpusYieldsZeroFindings(t *testing.T) {
-	clean := strings.Replace(matrixJSON, `"pass": false`, `"pass": true`, 1)
+func TestDetectRowsWinOverPassSummary(t *testing.T) {
+	inconsistent := strings.Replace(matrixJSON, `"pass": false`, `"pass": true`, 1)
 
-	writeFakeBinary(t, clean, 0)
+	writeFakeBinary(t, inconsistent, 0)
 
 	findings, err := Provider.Detect.Detect(context.Background())
 	if err != nil {
 		t.Fatalf("Detect: %v", err)
 	}
 
-	if len(findings) != 0 {
-		t.Fatalf("clean battery must yield zero findings, got %+v", findings)
+	if len(findings) != 2 {
+		t.Fatalf("FAIL rows must yield findings even over a lying pass summary, got %+v", findings)
 	}
 }
 
