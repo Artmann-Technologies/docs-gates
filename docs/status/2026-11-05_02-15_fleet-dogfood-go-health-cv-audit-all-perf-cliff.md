@@ -146,3 +146,28 @@ these printed findings); nothing in either target repo was modified.
    into THOSE repos' TODO_LISTs and run their archive rituals, or does
    that stay with their own sessions? (Sibling-repo permission is a
    standing owner gate from earlier reports.)
+
+## Appendix (2026-11-05 ~03:45): the wedged-process autopsy, observably closed
+
+The 03:40 efficiency session re-inspected the foreign docs-gates
+processes (read-only; the plan's E6):
+
+- The 7 h CV straggler, the second webphone run, and the BuildFlow
+  straggler are GONE (their sessions or the host ended them). One
+  process remains: PID 248337, `docs-gates run
+  /home/lars/projects/webphone`, parent **buildflow**, exe the
+  fleet-installed `docs-gates-6ed909f` build, 28 min old, 2 s CPU
+  total, 0.1% CPU.
+- Per-thread wchan: 13 of 14 threads in `futex_do_wait` (idle Go
+  runtime), exactly one in `do_epoll_wait` (the netpoll thread). NO
+  thread is in `pipe_write`/`pipe_read`, no spinning, ~99 voluntary
+  context switches total. `strace -p` is blocked by yama
+  ptrace_scope=1 (buildflow owns it), so the exact syscall stays
+  unproven — but the observable shape is decisive: the main goroutine
+  is parked in netpoll-backed I/O that never arrives (the
+  never-closing-pipe class), at 0% CPU, forever.
+- Consequence for the battery: this wedge class never self-resolves,
+  which is exactly what the per-gate timeout (E4, gate_timeout_sec
+  default 300, FAIL row rc=timeout) now bounds — a wedged gate fails
+  its row instead of hanging the run. The remaining PID is left alive
+  for its owning buildflow run (kill still owner question 1).

@@ -301,6 +301,16 @@ one.
   at BuildFlow
   `docs/drafts/file-size-check-empty-filecontract-constant-cache-key.md`);
   once fixed upstream, drop the bypass from any verification ritual.
+- **The wedge class is netpoll-parked I/O, not a spin (autopsied
+  2026-11-05, E6):** the observed wedged `docs-gates run` (fleet build
+  6ed909f over webphone, under a buildflow parent) shows 13/14 threads
+  in `futex_do_wait` and exactly one in `do_epoll_wait`, ~2 s CPU
+  total at 0.1% — the main goroutine parked in netpoll-backed I/O that
+  never arrives (never-closing-pipe class); yama ptrace_scope=1 blocks
+  the exact syscall without root. Such wedges NEVER self-resolve: the
+  per-gate timeout (gate_timeout_sec, default 300) is the correct and
+  sufficient bound, and the discrimination test plants `select {}` as
+  the equivalent stand-in.
 - **Size a foreign corpus BEFORE launching the battery** (paid for
   2026-11-05, the CV wedge): `ls docs/status | wc -l` plus a living-doc
   line count costs one second and would have predicted the hours-long
