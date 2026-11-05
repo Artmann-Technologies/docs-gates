@@ -32,6 +32,22 @@ import (
 // "dev" in bare go build/run.
 var version = "dev"
 
+// The verb vocabulary. Deliberately cmd-local: config.KnownGates names
+// the BATTERY rows (the skip_gates vocabulary — it has audit-all and
+// lacks run/strike). Overlapping values, distinct concepts.
+const (
+	verbRun       = "run"
+	verbFreshness = "freshness"
+	verbAnnotate  = "annotate"
+	verbRouting   = "routing"
+	verbCadence   = "cadence"
+	verbStrike    = "strike"
+)
+
+// suggestMaxEditDistance is the typo tolerance of suggestVerb: any verb
+// within this Levenshtein distance is offered as a did-you-mean.
+const suggestMaxEditDistance = 2
+
 // displayName maps each verb to the program name its --version line
 // carries: the battery verb answers as docs-gates, the five gate verbs
 // answer under their legacy standalone names (the wrappers exec this
@@ -40,44 +56,57 @@ var version = "dev"
 //
 //nolint:gochecknoglobals // the fixed verb-to-legacy-name map, same class as the contract tables
 var displayName = map[string]string{
-	"run":       "docs-gates",
-	"freshness": "docs-freshness",
-	"annotate":  "docs-annotate",
-	"routing":   "docs-routing",
-	"cadence":   "docs-cadence",
-	"strike":    "docs-strike",
+	verbRun:       "docs-gates",
+	verbFreshness: "docs-freshness",
+	verbAnnotate:  "docs-annotate",
+	verbRouting:   "docs-routing",
+	verbCadence:   "docs-cadence",
+	verbStrike:    "docs-strike",
+}
+
+// verbHandlers is the dispatch table: every verb to its gate's Run. The
+// table IS the vocabulary — unknownVerb answers for anything not in it.
+//
+//nolint:gochecknoglobals // the fixed dispatch table, same class as the contract tables
+var verbHandlers = map[string]func([]string) int{
+	verbRun:       battery.Run,
+	verbFreshness: docsfreshness.Run,
+	verbAnnotate:  docsannotate.Run,
+	verbRouting:   docsrouting.Run,
+	verbCadence:   docscadence.Run,
+	verbStrike:    docsstrike.Run,
 }
 
 // verbOrder is the display order of the verbs in the root usage.
 //
 //nolint:gochecknoglobals // the fixed display order, same class as the contract tables
-var verbOrder = []string{"run", "freshness", "annotate", "routing", "cadence", "strike"}
+var verbOrder = []string{verbRun, verbFreshness, verbAnnotate, verbRouting, verbCadence, verbStrike}
 
 // verbOverview is each verb's one-line purpose for the root usage; the
 // detailed flag help lives in the gate packages' Usage.
 //
 //nolint:gochecknoglobals // the fixed verb one-liners, same class as the contract tables
 var verbOverview = map[string]string{
-	"run":       "all five gates as one ordered verdict matrix (the battery)",
-	"freshness": "the newest report's §f items must be harvested into the living docs",
-	"annotate":  "struck items must carry honest, verifiable verdicts",
-	"routing":   "open actionable rows outside §f must be routed to a living doc",
-	"cadence":   "TODO_LIST purge and report archive thresholds",
-	"strike":    "strike one TODO_LIST row (dry-run by default)",
+	verbRun:       "all five gates as one ordered verdict matrix (the battery)",
+	verbFreshness: "the newest report's §f items must be harvested into the living docs",
+	verbAnnotate:  "struck items must carry honest, verifiable verdicts",
+	verbRouting:   "open actionable rows outside §f must be routed to a living doc",
+	verbCadence:   "TODO_LIST purge and report archive thresholds",
+	verbStrike:    "strike one TODO_LIST row (dry-run by default)",
 }
 
 // verbUsage wires each verb to its package's Usage text — the same
-// packages the switch dispatches to, so the help and the behavior
+// packages the dispatch table calls, so the help and the behavior
 // cannot fork.
 //
 //nolint:gochecknoglobals // the fixed verb-to-usage map, same class as the contract tables
 var verbUsage = map[string]string{
-	"run":       battery.Usage,
-	"freshness": docsfreshness.Usage,
-	"annotate":  docsannotate.Usage,
-	"routing":   docsrouting.Usage,
-	"cadence":   docscadence.Usage,
-	"strike":    docsstrike.Usage,
+	verbRun:       battery.Usage,
+	verbFreshness: docsfreshness.Usage,
+	verbAnnotate:  docsannotate.Usage,
+	verbRouting:   docsrouting.Usage,
+	verbCadence:   docscadence.Usage,
+	verbStrike:    docsstrike.Usage,
 }
 
 func main() {
@@ -95,7 +124,7 @@ func run(argv []string) int {
 
 	// Help-shaped invocations: `docs-gates --help`, `-h`, or the `help`
 	// verb (optionally naming one verb to explain).
-	if len(argv) > 0 && (argv[0] == "--help" || argv[0] == "-h" || argv[0] == "help") {
+	if len(argv) > 0 && isHelpWord(argv[0]) {
 		return runHelp(argv[1:])
 	}
 
@@ -107,7 +136,8 @@ func run(argv []string) int {
 
 	verb, rest := argv[0], argv[1:]
 
-	if _, ok := displayName[verb]; !ok {
+	handler, ok := verbHandlers[verb]
+	if !ok {
 		unknownVerb(verb)
 		printUsageError()
 
@@ -129,22 +159,12 @@ func run(argv []string) int {
 		return gatecli.ExitClean
 	}
 
-	switch verb {
-	case "run":
-		return battery.Run(rest)
-	case "freshness":
-		return docsfreshness.Run(rest)
-	case "annotate":
-		return docsannotate.Run(rest)
-	case "routing":
-		return docsrouting.Run(rest)
-	case "cadence":
-		return docscadence.Run(rest)
-	case "strike":
-		return docsstrike.Run(rest)
-	}
+	return handler(rest)
+}
 
-	return gatecli.ExitUsage // unreachable: the map and the switch cover the same verbs
+// isHelpWord reports whether arg is one of the three root help shapes.
+func isHelpWord(arg string) bool {
+	return arg == "--help" || arg == "-h" || arg == "help"
 }
 
 // runHelp serves `docs-gates help [verb]` (and `--help`/`-h` with a
@@ -155,7 +175,7 @@ func runHelp(rest []string) int {
 	asked := ""
 
 	for _, arg := range rest {
-		if arg == "--help" || arg == "-h" || arg == "help" || arg == "--version" {
+		if isHelpWord(arg) || arg == "--version" {
 			continue
 		}
 
@@ -220,8 +240,9 @@ func rootUsage() string {
 }
 
 // suggestVerb names the verb the user probably meant: a unique prefix
-// wins first (fresh → freshness), else any verb within edit distance 2
-// (freshnness → freshness). Empty when nothing is close enough.
+// wins first (fresh → freshness), else any verb within edit distance
+// suggestMaxEditDistance (freshnness → freshness). Empty when nothing
+// is close enough.
 func suggestVerb(typed string) (string, bool) {
 	if typed == "" {
 		return "", false
@@ -246,7 +267,7 @@ func suggestVerb(typed string) (string, bool) {
 	}
 
 	for _, verb := range verbOrder {
-		if editDistance(want, verb) <= 2 {
+		if editDistance(want, verb) <= suggestMaxEditDistance {
 			return verb, true
 		}
 	}
@@ -255,16 +276,18 @@ func suggestVerb(typed string) (string, bool) {
 }
 
 // editDistance is the Levenshtein distance between two lowercase words.
+// The DP rows are append-built: length expressions the makezero lint
+// cannot prove non-zero are exactly the indexing class it exists for.
 func editDistance(a, b string) int {
-	prev := make([]int, len(b)+1)
-	curr := make([]int, len(b)+1)
+	prev := make([]int, 0, len(b)+1)
 
-	for j := range prev {
-		prev[j] = j
+	for j := 0; j <= len(b); j++ {
+		prev = append(prev, j)
 	}
 
 	for i := 1; i <= len(a); i++ {
-		curr[0] = i
+		curr := make([]int, 0, len(b)+1)
+		curr = append(curr, i)
 
 		for j := 1; j <= len(b); j++ {
 			cost := 1
@@ -272,10 +295,10 @@ func editDistance(a, b string) int {
 				cost = 0
 			}
 
-			curr[j] = min(prev[j]+1, curr[j-1]+1, prev[j-1]+cost)
+			curr = append(curr, min(prev[j]+1, curr[j-1]+1, prev[j-1]+cost))
 		}
 
-		prev, curr = curr, prev
+		prev = curr
 	}
 
 	return prev[len(b)]
