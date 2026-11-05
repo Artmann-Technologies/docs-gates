@@ -1,3 +1,8 @@
+> **Live remainder:** archived 2026-11-06 by the cadence ritual (corpus crossed
+> max_unarchived=15). All open rows were verified harvested/routed at archive
+> time (freshness + audit-all + routing + annotate green over the corpus);
+> owning sections live in TODO_LIST §1-§4 and ROADMAP.md.
+
 # Status Report — AGENTS.md overhaul + full repo verification (docs-gates)
 
 **2026-11-04 02:24 CET** · session: single train, "analyze codebase and
