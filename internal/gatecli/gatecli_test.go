@@ -340,7 +340,6 @@ func TestFatalUsagePrintsFATALAndHelpPointer(t *testing.T) {
 	}
 }
 
-
 // TestCaptureOutputSurvivesLargeOutput is the 2026-11-05 fleet-wedge
 // regression: a gate writing past the ~64KB pipe buffer into its own
 // capture used to deadlock (the write parked on the full pipe while
