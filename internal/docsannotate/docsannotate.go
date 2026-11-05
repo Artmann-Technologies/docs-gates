@@ -107,20 +107,41 @@ func checkFile(root, path string, g gitRunner, hasGit bool, infos *[]Finding) ([
 	return findings, struck, nil
 }
 
+// Usage is the `docs-annotate --help` text — the verb's contract in one
+// place, printed by the dispatcher before the parser runs. usage_test.go
+// pins it against the parser's flag vocabulary.
+const Usage = `docs-annotate — struck items must carry honest, verifiable verdicts
+
+usage: docs-annotate [repo-root] [--annotate-max=N] [--check] [--verbose]
+
+  --annotate-max=N  ratchet pin: tolerated findings, red only past N
+  --check           accepted no-op — checking is the gate's only mode
+  --verbose         print the struck item text under each finding
+
+The annotate corpus (report dir + archived subdir + extra globs) and the
+rule-F toggle come from the repo's .docs-gates.json.
+
+Exit codes: 0 clean, 1 findings, 2 usage error.
+`
+
+// allowedFlags is the boolean flag vocabulary Run accepts. Usage
+// documents every entry; usage_test.go pins the pair together.
+//
+//nolint:gochecknoglobals // the fixed flag vocabulary, same class as the contract tables
+var allowedFlags = []string{"--check", "--verbose"}
+
 // parseAnnotateMax splits --annotate-max=N off the argument list BEFORE
 // gatecli.Parse (a valued flag would die there as an unknown boolean). The
 // parsed pin rides out; the remaining argv is the Parse input. Strict (-1)
-// when absent; a malformed value FATALs with exit 2 via the argv=nil
-// sentinel (nil only on the error path).
-func parseAnnotateMax(args []string) (int, []string) {
+// when absent; a malformed value FATALs with exit 2 via the badExit
+// sentinel (nonzero only on the error path).
+func parseAnnotateMax(args []string) (int, []string, int) {
 	annotateMax, rest, err := gatecli.CutIntFlag(args, "annotate-max")
 	if err != nil {
-		gatecli.Errf("FATAL: %v\n", err)
-
-		return -1, nil
+		return -1, nil, gatecli.FatalUsage("annotate", err)
 	}
 
-	return annotateMax, rest
+	return annotateMax, rest, 0
 }
 
 // Run is the CLI entry: [--check] [--verbose] [repo-root]. The annotate
@@ -133,16 +154,14 @@ func Run(argv []string) int {
 	// annotate_max with the measured finding count and drain down — red
 	// only PAST the pin (a regression), mirroring the freshness audit
 	// ratchet. Strict (-1, the default) is the pre-extraction behavior.
-	annotateMax, argv := parseAnnotateMax(argv)
-	if argv == nil {
-		return gatecli.ExitUsage
+	annotateMax, argv, badExit := parseAnnotateMax(argv)
+	if badExit != 0 {
+		return badExit
 	}
 
-	flags, root, err := gatecli.Parse(argv, "--check", "--verbose")
+	flags, root, err := gatecli.Parse(argv, allowedFlags...)
 	if err != nil {
-		gatecli.Errf("FATAL: %v\n", err)
-
-		return gatecli.ExitUsage
+		return gatecli.FatalUsage("annotate", err)
 	}
 
 	settings, err := loadSettings(root)

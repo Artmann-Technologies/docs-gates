@@ -64,14 +64,29 @@ func gates(root string, cfg config.Config) []gate {
 	}
 }
 
+// Usage is the `docs-gates run --help` text — the verb's contract in one
+// place, printed by the dispatcher before any gate parser runs.
+const Usage = `docs-gates run — all five doc gates as one ordered verdict matrix
+
+usage: docs-gates run [repo-root]
+
+Runs freshness, audit-all, annotate, routing and cadence INDEPENDENTLY:
+one red gate never masks the gates behind it. Gates named in skip_gates
+(config) print SKIP and stay exit-clean. Every gate runs under the
+gate_timeout_sec wall-clock cap (0 disables it).
+
+There are no flags: the knobs (skip_gates, audit_max, annotate_max,
+gate_timeout_sec, thresholds) live in the repo's .docs-gates.json.
+
+Exit codes: 0 all green, 1 any gate FAIL, 2 usage/config error.
+`
+
 // Run is the CLI entry for `docs-gates run` (repo-root positional, no
 // flags: the knobs live in the repo config).
 func Run(args []string) int {
 	_, root, err := gatecli.Parse(args)
 	if err != nil {
-		gatecli.Errf("FATAL: %v\n", err)
-
-		return gatecli.ExitUsage
+		return gatecli.FatalUsage("run", err)
 	}
 
 	cfg, err := gatecli.LoadConfig(root)

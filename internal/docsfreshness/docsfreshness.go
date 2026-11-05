@@ -47,6 +47,52 @@ import (
 	"github.com/Artmann-Technologies/docs-gates/internal/gatecli"
 )
 
+// Usage is the `docs-freshness --help` text — the verb's contract in
+// one place, printed by the dispatcher before the parser runs.
+// usage_test.go pins it against the parser's flag vocabulary.
+const Usage = `docs-freshness — the newest report's §f items must be harvested into the living docs
+
+usage: docs-freshness [repo-root] [--audit-all] [--audit-max=N] [--explain-token]
+                     [--explain-item NEEDLE] [--margins] [--dump-items REPORT]
+                     [--pre-flight] [--duplicates] [--replace=OLD]
+
+  (default)        check only the NEWEST docs/status report
+  --audit-all      replay the WHOLE unarchived corpus
+  --audit-max=N    ratchet pin: tolerated unharvested count, red only past N
+  --explain-token  print the token evidence tables alongside the findings
+  --explain-item   explain one item's token math (NEEDLE is the second
+                   positional: docs-freshness . --explain-item rewrite)
+  --margins        list the near-bar tokens — one line from genericizing
+  --dump-items     print the extraction decisions for one report
+                   (REPORT is the report path: the second positional)
+  --pre-flight     judge CANDIDATE lines from stdin before they land
+  --duplicates     (pre-flight) the candidate is a deliberate second copy
+  --replace=OLD    (pre-flight rewrite) remove the named living-doc line
+                   before the replay, repeatable
+
+Exit codes: 0 fresh, 1 drift, 2 usage error.
+`
+
+// allowedFlags is the boolean flag vocabulary Run accepts. Usage
+// documents every entry; usage_test.go pins the pair together.
+//
+//nolint:gochecknoglobals // the fixed flag vocabulary, same class as the contract tables
+var allowedFlags = []string{
+	"--audit-all",
+	"--explain-token",
+	"--pre-flight",
+	"--duplicates",
+	"--explain-item",
+	"--margins",
+	"--dump-items",
+}
+
+// valuedFlags are the =-form flags split off before ParseFlags sees them
+// (CutIntFlag for --audit-max, parseReplaceFlags for --replace).
+//
+//nolint:gochecknoglobals // the fixed valued-flag vocabulary, same class as the contract tables
+var valuedFlags = []string{"--audit-max", "--replace"}
+
 // refuseOutsidePreFlight rejects the pre-flight-only flags used outside
 // pre-flight mode: --duplicates asserts a deliberate second copy (its +1
 // DF push is modeled), --replace names the living-doc line a rewrite
@@ -110,9 +156,7 @@ func runPreFlight(root string, flags map[string]bool, replaces []string, setting
 func parseAuditMax(args []string) (int, []string, int) {
 	auditMax, rest, err := gatecli.CutIntFlag(args, "audit-max")
 	if err != nil {
-		gatecli.Errf("FATAL: %v\n", err)
-
-		return -1, nil, gatecli.ExitUsage
+		return -1, nil, gatecli.FatalUsage("freshness", err)
 	}
 
 	return auditMax, rest, 0
@@ -136,6 +180,7 @@ func parseReplaceFlags(args []string) ([]string, []string, int) {
 
 		if arg == "--replace" {
 			gatecli.Errln("FATAL: --replace needs the old line in = form: --replace=the old line text")
+			gatecli.Errln("usage: docs-gates freshness --help")
 
 			return nil, nil, gatecli.ExitUsage
 		}
@@ -166,27 +211,14 @@ func Run(args []string) int {
 		return badExit
 	}
 
-	flags, positional, unknown := gatecli.ParseFlags(
-		rest,
-		"--audit-all",
-		"--explain-token",
-		"--pre-flight",
-		"--duplicates",
-		"--explain-item",
-		"--margins",
-		"--dump-items",
-	)
+	flags, positional, unknown := gatecli.ParseFlags(rest, allowedFlags...)
 	if len(unknown) > 0 {
-		gatecli.Errf("FATAL: %v\n", gatecli.NewUnknownFlagsError(unknown))
-
-		return gatecli.ExitUsage
+		return gatecli.FatalUsage("freshness", gatecli.NewUnknownFlagsError(unknown))
 	}
 
 	root, err := gatecli.ResolveRoot(positional)
 	if err != nil {
-		gatecli.Errf("FATAL: %v\n", err)
-
-		return gatecli.ExitUsage
+		return gatecli.FatalUsage("freshness", err)
 	}
 
 	settings, err := loadSettings(root)

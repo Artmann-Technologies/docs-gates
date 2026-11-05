@@ -207,15 +207,36 @@ func tokenHint(row string, living docsfreshness.Corpus) string {
 	return strings.Join(parts, " ")
 }
 
+// Usage is the `docs-routing --help` text — the verb's contract in one
+// place, printed by the dispatcher before the parser runs. usage_test.go
+// pins it against the parser's flag vocabulary.
+const Usage = `docs-routing — open actionable rows outside §f must be routed to a living doc
+
+usage: docs-routing [repo-root] [--strict]
+
+  --strict  exit 1 on any unrouted row (default: report-only)
+
+Scans the non-§f body of every unarchived docs/status report for OPEN
+actionable rows (status markers, unticked checkboxes, TODO/BLOCKED table
+cells) whose tokens appear nowhere in the living docs. Exempt one line
+with <!-- routing:skip -->.
+
+Exit codes: 0 clean/report-only, 1 drift (--strict), 2 usage error.
+`
+
+// allowedFlags is the boolean flag vocabulary Run accepts. Usage
+// documents every entry; usage_test.go pins the pair together.
+//
+//nolint:gochecknoglobals // the fixed flag vocabulary, same class as the contract tables
+var allowedFlags = []string{"--strict"}
+
 // Run is the CLI: report-only by default, --strict fails on any gap.
 // The report corpus and the living-docs list come from the repo's
 // .docs-gates.json when present.
 func Run(args []string) int {
-	flags, root, err := gatecli.Parse(args, "--strict")
+	flags, root, err := gatecli.Parse(args, allowedFlags...)
 	if err != nil {
-		gatecli.Errf("FATAL: %v\n", err)
-
-		return gatecli.ExitUsage
+		return gatecli.FatalUsage("routing", err)
 	}
 
 	cfg, err := gatecli.LoadConfig(root)
@@ -247,10 +268,10 @@ func Run(args []string) int {
 			"are not represented in TODO_LIST/ROADMAP/CHANGELOG. Harvest them, annotate them " +
 			"resolved, or mark the line with <!-- routing:skip -->.")
 
-		return 1
+		return gatecli.ExitFindings
 	}
 
-	return 0
+	return gatecli.ExitClean
 }
 
 func countUnarchived(root string, s Settings) int {

@@ -55,14 +55,33 @@ const TODOColumns = 7
 // cannot be observed (fresh-file creation).
 const defaultFileMode = 0o644
 
+// Usage is the `docs-strike --help` text — the verb's contract in one
+// place, printed by the dispatcher before the parser runs. usage_test.go
+// drives ParseArgs with every flag it documents.
+const Usage = `docs-strike — strike one TODO_LIST row (dry-run by default)
+
+usage: docs-strike [repo-root] --row <selector> --verdict <text>
+                   [--evidence <text>] [--status <text>]
+                   [--file TODO_LIST.md] [--apply]
+
+  --row       substring matching EXACTLY ONE table row (required)
+  --verdict   the done (…) evidence payload, WITHOUT a leading verdict
+              word — the tool adds the wrap (required)
+  --evidence  replacement Evidence cell (default: preserved byte-identically)
+  --status    replacement Status cell (default: ✅ ` + "`DONE`" + `)
+  --file      target file (default: the config's todo_file)
+  --apply     write the strike; without it the old→new pair is printed
+              and nothing is written
+
+Exit codes: 0 strike planned/applied, 2 usage or selector error.
+`
+
 // Run is the CLI entry: parse, plan, print the old→new pair, and write
 // only under --apply.
 func Run(argv []string) int {
 	opts, err := ParseArgs(argv)
 	if err != nil {
-		gatecli.Errf("FATAL: %v\n", err)
-
-		return gatecli.ExitUsage
+		return gatecli.FatalUsage("strike", err)
 	}
 
 	cfg, err := gatecli.LoadConfig(opts.Root)

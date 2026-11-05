@@ -80,13 +80,25 @@ func SettingsFromConfig(cfg config.Config) Settings {
 	return settings
 }
 
+// Usage is the `docs-cadence --help` text — the verb's contract in one
+// place, printed by the dispatcher before the parser runs.
+const Usage = `docs-cadence — pins the TODO_LIST purge and report archive cadence
+
+usage: docs-cadence [repo-root]
+
+No flags: the thresholds (struck_rows, max_unarchived, oldest_days) live
+in the repo's .docs-gates.json. The gate fails once struck DONE rows or
+unarchived reports cross their threshold, or the oldest report ages out —
+the purge/archive rituals are then owed.
+
+Exit codes: 0 healthy, 1 a ritual is owed, 2 usage error.
+`
+
 // Run is the CLI entry (repo-root positional).
 func Run(args []string) int {
 	flags, root, err := gatecli.Parse(args)
 	if err != nil {
-		gatecli.Errf("FATAL: %v\n", err)
-
-		return gatecli.ExitUsage
+		return gatecli.FatalUsage("cadence", err)
 	}
 
 	_ = flags // no flags yet; the positional root is the only input

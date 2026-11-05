@@ -70,6 +70,26 @@ func (e unknownFlagsError) Error() string { return "unknown flag(s): " + strings
 // and still want the exact Parse-style FATAL message.
 func NewUnknownFlagsError(flags []string) error { return unknownFlagsError{flags} }
 
+// WantsHelp reports whether argv asks for help (--help or -h anywhere).
+// The gate parsers reject both as unknown flags, so the dispatcher must
+// intercept them BEFORE the gate prologue — the same slot --version rides
+// (HandleVersion).
+func WantsHelp(args []string) bool {
+	return slices.Contains(args, "--help") || slices.Contains(args, "-h")
+}
+
+// FatalUsage prints the FATAL line for a usage-class failure plus the
+// pointer to the verb's help, and returns ExitUsage — one shape so every
+// gate's parse refusal ends with a path to discovery instead of a dead
+// end. Config/environment failures (LoadConfig, unreadable files) stay
+// on the bare `FATAL: %v` shape: their fix is not in the argv.
+func FatalUsage(verb string, err error) int {
+	Errf("FATAL: %v\n", err)
+	Errf("usage: docs-gates %s --help\n", verb)
+
+	return ExitUsage
+}
+
 // HandleVersion prints "<name> <version>" and reports true when --version
 // is among the args; the caller returns immediately in that case. It MUST
 // run before any flag/gatecli.Parse prologue — the gate parsers reject
