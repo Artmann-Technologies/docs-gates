@@ -325,7 +325,9 @@ func newCapturedPipes() capturedPipes {
 		errBytes []byte
 	)
 
-	wg.Add(2)
+	const pipeCount = 2
+
+	wg.Add(pipeCount)
 
 	go func() {
 		defer wg.Done()
@@ -344,6 +346,7 @@ func newCapturedPipes() capturedPipes {
 		closeWrites: func() { _ = outW.Close(); _ = errW.Close() },
 		wait: func() (string, string) {
 			wg.Wait()
+
 			_ = outR.Close()
 			_ = errR.Close()
 
