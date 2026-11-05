@@ -287,6 +287,60 @@ func TestHandleVersion(t *testing.T) {
 	}
 }
 
+// WantsHelp: the --help/-h detection the dispatcher runs in the same
+// slot as HandleVersion (the gate parsers reject both as unknown).
+func TestWantsHelp(t *testing.T) {
+	t.Parallel()
+
+	for _, argv := range [][]string{
+		{"--help"},
+		{"-h"},
+		{".", "--help"},
+		{".", "report", "-h"},
+	} {
+		if !WantsHelp(argv) {
+			t.Errorf("WantsHelp(%v) = false, want true", argv)
+		}
+	}
+
+	for _, argv := range [][]string{
+		nil,
+		{},
+		{"."},
+		{".", "--audit-all"},
+		{"--version"},
+	} {
+		if WantsHelp(argv) {
+			t.Errorf("WantsHelp(%v) = true, want false", argv)
+		}
+	}
+}
+
+// FatalUsage: the FATAL line plus the verb's help pointer, one shape for
+// every gate's parse refusal.
+//
+//nolint:paralleltest // process-global capture, serialized on purpose
+func TestFatalUsagePrintsFATALAndHelpPointer(t *testing.T) {
+	out := CaptureOutput(func() int {
+		code := FatalUsage("freshness", NewUnknownFlagsError([]string{"--bogus"}))
+		if code != ExitUsage {
+			t.Fatalf("code = %d, want ExitUsage", code)
+		}
+
+		return code
+	})
+
+	want := "FATAL: unknown flag(s): --bogus\nusage: docs-gates freshness --help\n"
+	if out.Stderr != want {
+		t.Fatalf("stderr = %q, want %q", out.Stderr, want)
+	}
+
+	if out.Stdout != "" {
+		t.Fatalf("stdout = %q, want empty", out.Stdout)
+	}
+}
+
+
 // TestCaptureOutputSurvivesLargeOutput is the 2026-11-05 fleet-wedge
 // regression: a gate writing past the ~64KB pipe buffer into its own
 // capture used to deadlock (the write parked on the full pipe while
