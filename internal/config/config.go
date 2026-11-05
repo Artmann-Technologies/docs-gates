@@ -30,13 +30,13 @@ const FileName = ".docs-gates.json"
 // The shipped default values (see Defaults). Named so the defaults block
 // reads as a table of decisions, not a pile of magic numbers.
 const (
-	DefaultGenericDF        = 8
-	DefaultAuditMax         = -1
-	DefaultAnnotateMax      = -1
-	DefaultStruckRows       = 20
-	DefaultMaxUnarchived    = 15
-	DefaultOldestDays       = 21
-	DefaultGateTimeoutSec   = 300
+	DefaultGenericDF      = 8
+	DefaultAuditMax       = -1
+	DefaultAnnotateMax    = -1
+	DefaultStruckRows     = 20
+	DefaultMaxUnarchived  = 15
+	DefaultOldestDays     = 21
+	DefaultGateTimeoutSec = 300
 )
 
 // The battery's gate names — the whole valid skip_gates vocabulary.
@@ -80,8 +80,8 @@ type Config struct {
 	AnnotateMax        int      `json:"annotate_max"`         // docs-annotate adoption ratchet pin (-1 = strict)
 	TodoFile           string   `json:"todo_file"`            // the TODO_LIST file (cadence reads it, docs-strike edits it)
 	Cadence            Cadence  `json:"cadence"`
-	GateTimeoutSec     int      `json:"gate_timeout_sec"`     // battery per-gate wall-clock cap in seconds (0 = no timeout)
-	SkipGates          []string `json:"skip_gates"` // battery verbs to skip (docs-gates run)
+	GateTimeoutSec     int      `json:"gate_timeout_sec"` // battery per-gate wall-clock cap in seconds (0 = no timeout)
+	SkipGates          []string `json:"skip_gates"`       // battery verbs to skip (docs-gates run)
 }
 
 // Defaults returns the shipped configuration — the exact constants the

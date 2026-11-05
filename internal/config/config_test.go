@@ -99,12 +99,12 @@ func TestLoadInvalidValuesAreErrors(t *testing.T) {
 	t.Parallel()
 
 	cases := map[string]string{
-		"generic_df zero":   `{"generic_df": 0}`,
-		"audit_max too low": `{"audit_max": -2}`,
-		"empty todo_file":   `{"todo_file": ""}`,
-		"cadence zero":      `{"cadence": {"struck_rows": 0}}`,
-		"bad extension":     `{"rule_f_extensions": ["md"]}`,
-		"abs report_dir":    `{"report_dir": "/tmp/status"}`,
+		"generic_df zero":       `{"generic_df": 0}`,
+		"audit_max too low":     `{"audit_max": -2}`,
+		"empty todo_file":       `{"todo_file": ""}`,
+		"cadence zero":          `{"cadence": {"struck_rows": 0}}`,
+		"bad extension":         `{"rule_f_extensions": ["md"]}`,
+		"abs report_dir":        `{"report_dir": "/tmp/status"}`,
 		"unknown skip_gate":     `{"skip_gates": ["freshnes"]}`,
 		"empty skip_gate":       `{"skip_gates": [""]}`,
 		"negative gate_timeout": `{"gate_timeout_sec": -1}`,

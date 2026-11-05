@@ -139,6 +139,19 @@ match the annotated git tags; anything after the newest tag sits under
 
 ### Changed
 
+- Per-gate wall-clock timeout in the battery (2026-11-05): every gate
+  runs under a cap (config `gate_timeout_sec`, default 300, 0 =
+  disabled) via gatecli.CaptureOutputWithTimeout — an expired gate
+  becomes a FAIL row `(rc=timeout)` naming the gate and its cap while
+  the battery moves on, so a wedged gate can never hang the whole run
+  (the CV wedge class, now bounded). Gates take no context, so an
+  expired gate is ABANDONED, not killed: it keeps running as a
+  goroutine whose late writes fall through to the restored streams
+  (cosmetic at worst; the observed class blocks at 0% CPU and never
+  writes again) and os.Exit discards it. Discrimination-proven with a
+  planted select{} wedge: runGates returns past the cap, the row fails
+  rc=timeout, the gate behind the wedge still runs, the battery exits
+  1. Run split into runGates/renderMatrix for exactly that injection.
 - audit-all performance cliff fixed (2026-11-05 fleet dogfood): the
   prepared Corpus now memoizes token presence and raw-line document
   frequency per corpus, so a replay pays one full-corpus scan per

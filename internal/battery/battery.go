@@ -141,7 +141,10 @@ func runGates(list []gate, skipGates []string, timeout time.Duration) []result {
 			gatecli.Outf("docs-gates: gate %s abandoned after %s (timeout)\n",
 				g.name, gatecli.FormatDuration(elapsed))
 
-			results = append(results, result{name: g.name, code: gatecli.ExitFindings, timedOut: true, duration: elapsed})
+			results = append(
+				results,
+				result{name: g.name, code: gatecli.ExitFindings, timedOut: true, duration: elapsed},
+			)
 		case out.Code == gatecli.ExitClean:
 			gatecli.Outf("%s", out.Stdout)
 			gatecli.Outf("docs-gates: gate %s done in %s\n", g.name, gatecli.FormatDuration(elapsed))
