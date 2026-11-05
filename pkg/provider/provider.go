@@ -222,10 +222,12 @@ var Provider = toolsdk.Register(toolsdk.Spec{
 
 			findings := make([]finding.Finding, 0, len(failed))
 			for _, gate := range failed {
-				message := "docs gate " + gate.Name + " is red over " + dir + " — run `docs-gates " + gate.Name + " " + dir + "` for the full output"
+				message := "docs gate " + gate.Name + " is red over " + dir +
+					" — run `docs-gates " + gate.Name + " " + dir + "` for the full output"
 				if gate.TimedOut {
 					message = "docs gate " + gate.Name + " TIMED OUT over " + dir + " (" +
-						strconv.FormatInt(gate.DurationMS, 10) + "ms) — run `docs-gates " + gate.Name + " " + dir + "` for the full output"
+						strconv.FormatInt(gate.DurationMS, 10) + "ms)" +
+						" — run `docs-gates " + gate.Name + " " + dir + "` for the full output"
 				}
 
 				findings = append(findings, finding.NewFinding(
