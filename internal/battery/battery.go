@@ -81,68 +81,12 @@ func Run(args []string) int {
 		return gatecli.ExitUsage
 	}
 
-	type result struct {
-		name     string
-		code     int
-		skip     bool
-		duration time.Duration
-	}
+	// result rows flow through the package-level runGates/renderMatrix
+	// pair so the timeout discrimination test can plant a wedged gate
+	// without going through the real gate list.
+	results := runGates(gates(root, cfg), cfg.SkipGates, time.Duration(cfg.GateTimeoutSec)*time.Second)
 
-	list := gates(root, cfg)
-	results := make([]result, 0, len(list))
-
-	for _, g := range list {
-		if slices.Contains(cfg.SkipGates, g.name) {
-			results = append(results, result{name: g.name, code: gatecli.ExitClean, skip: true})
-
-			continue
-		}
-
-		gatecli.Outf("docs-gates: gate %s ...\n", g.name)
-
-		start := time.Now()
-
-		out := gatecli.CaptureOutput(func() int {
-			return g.fn(g.args)
-		})
-
-		elapsed := time.Since(start)
-
-		if out.Code == gatecli.ExitClean {
-			gatecli.Outf("%s", out.Stdout)
-			gatecli.Outf("docs-gates: gate %s done in %s\n", g.name, gatecli.FormatDuration(elapsed))
-
-			results = append(results, result{name: g.name, code: out.Code, duration: elapsed})
-
-			continue
-		}
-
-		gatecli.Errf("docs-gates: gate %s FAILED (rc=%d):\n", g.name, out.Code)
-		gatecli.Errf("%s", out.Stdout)
-		gatecli.Errf("%s", out.Stderr)
-		gatecli.Outf("docs-gates: gate %s done in %s\n", g.name, gatecli.FormatDuration(elapsed))
-
-		results = append(results, result{name: g.name, code: out.Code, duration: elapsed})
-	}
-
-	gatecli.Outln("docs-gates: verdict matrix")
-
-	failed := false
-
-	for _, r := range results {
-		switch {
-		case r.skip:
-			gatecli.Outf("  %s  %s (skip_gates)\n", verdictSkip, r.name)
-		case r.code == gatecli.ExitClean:
-			gatecli.Outf("  %s  %s (in %s)\n", verdictPass, r.name, gatecli.FormatDuration(r.duration))
-		default:
-			gatecli.Outf("  %s  %s (in %s, rc=%d)\n", verdictFail, r.name, gatecli.FormatDuration(r.duration), r.code)
-
-			failed = true
-		}
-	}
-
-	if failed {
+	if renderMatrix(results) {
 		gatecli.Errln("docs-gates: FAIL — the matrix above names the red gates")
 
 		return gatecli.ExitFindings

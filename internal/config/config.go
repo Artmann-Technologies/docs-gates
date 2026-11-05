@@ -30,12 +30,13 @@ const FileName = ".docs-gates.json"
 // The shipped default values (see Defaults). Named so the defaults block
 // reads as a table of decisions, not a pile of magic numbers.
 const (
-	DefaultGenericDF     = 8
-	DefaultAuditMax      = -1
-	DefaultAnnotateMax   = -1
-	DefaultStruckRows    = 20
-	DefaultMaxUnarchived = 15
-	DefaultOldestDays    = 21
+	DefaultGenericDF        = 8
+	DefaultAuditMax         = -1
+	DefaultAnnotateMax      = -1
+	DefaultStruckRows       = 20
+	DefaultMaxUnarchived    = 15
+	DefaultOldestDays       = 21
+	DefaultGateTimeoutSec   = 300
 )
 
 // The battery's gate names — the whole valid skip_gates vocabulary.
@@ -79,6 +80,7 @@ type Config struct {
 	AnnotateMax        int      `json:"annotate_max"`         // docs-annotate adoption ratchet pin (-1 = strict)
 	TodoFile           string   `json:"todo_file"`            // the TODO_LIST file (cadence reads it, docs-strike edits it)
 	Cadence            Cadence  `json:"cadence"`
+	GateTimeoutSec     int      `json:"gate_timeout_sec"`     // battery per-gate wall-clock cap in seconds (0 = no timeout)
 	SkipGates          []string `json:"skip_gates"` // battery verbs to skip (docs-gates run)
 }
 
@@ -104,7 +106,8 @@ func Defaults() Config {
 			MaxUnarchived: DefaultMaxUnarchived,
 			OldestDays:    DefaultOldestDays,
 		},
-		SkipGates: nil,
+		GateTimeoutSec: DefaultGateTimeoutSec,
+		SkipGates:      nil,
 	}
 }
 
@@ -247,6 +250,10 @@ func (c Config) validateNumbers() error {
 		return invalidf("cadence thresholds must all be >= 1, got %+v", c.Cadence)
 	}
 
+	if c.GateTimeoutSec < 0 {
+		return invalidf("gate_timeout_sec must be >= 0 (0 = no timeout), got %d", c.GateTimeoutSec)
+	}
+
 	return nil
 }
 
@@ -292,6 +299,7 @@ func knownKeys() map[string]bool {
 		"annotate_max":         true,
 		"todo_file":            true,
 		"cadence":              true,
+		"gate_timeout_sec":     true,
 		"skip_gates":           true,
 	}
 }

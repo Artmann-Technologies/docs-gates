@@ -300,3 +300,62 @@ func CaptureOutput(fn func() int) CapturedOutput {
 
 	return CapturedOutput{Stdout: string(outData), Stderr: string(errData), Code: code}
 }
+
+// CaptureOutputWithTimeout runs fn under the captured streams like
+// CaptureOutput, but abandons it once the wall-clock budget expires:
+// the second return reports the timeout. The gate functions take no
+// context, so an expired gate CANNOT be killed — it keeps running as an
+// abandoned goroutine. Containment, not recovery: the process streams
+// are repointed at devnull so a straggler's late write lands nowhere
+// instead of interleaving into the caller's matrix (the observed wedge
+// class blocks on its first write at 0% CPU and never writes again;
+// the battery exits past it regardless, os.Exit does not wait for
+// goroutines). A timeout <= 0 never fires — the opt-out shape.
+func CaptureOutputWithTimeout(fn func() int, timeout time.Duration) (CapturedOutput, bool) {
+	if timeout <= 0 {
+		return CaptureOutput(fn), false
+	}
+
+	outR, outW, _ := os.Pipe()
+	errR, errW, _ := os.Pipe()
+	origOut, origErr := os.Stdout, os.Stderr
+	os.Stdout, os.Stderr = outW, errW
+
+	done := make(chan CapturedOutput, 1)
+
+	go func() {
+		code := fn()
+
+		_ = outW.Close()
+		_ = errW.Close()
+
+		outData, _ := io.ReadAll(outR)
+		errData, _ := io.ReadAll(errR)
+
+		_ = outR.Close()
+		_ = errR.Close()
+
+		done <- CapturedOutput{Stdout: string(outData), Stderr: string(errData), Code: code}
+	}()
+
+	timer := time.NewTimer(timeout)
+	defer timer.Stop()
+
+	select {
+	case captured := <-done:
+		os.Stdout, os.Stderr = origOut, origErr
+
+		return captured, false
+	case <-timer.C:
+		devNull, err := os.OpenFile(os.DevNull, os.O_WRONLY, 0)
+		if err != nil {
+			devNull = origOut
+		}
+
+		os.Stdout, os.Stderr = devNull, devNull
+		_ = outW.Close()
+		_ = errW.Close()
+
+		return CapturedOutput{Code: ExitFindings}, true
+	}
+}
