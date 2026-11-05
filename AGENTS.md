@@ -301,6 +301,18 @@ one.
   at BuildFlow
   `docs/drafts/file-size-check-empty-filecontract-constant-cache-key.md`);
   once fixed upstream, drop the bypass from any verification ritual.
+- **The --margins near-bar arithmetic (documented 2026-11-05, §2c
+  row):** the window is `[bar-2, bar)` — a token at DF bar-2 is
+  "two more lines genericize it", bar-1 "one more" — and the DF counts
+  LIVING-DOC LINES ONLY (TODO_LIST/ROADMAP/CHANGELOG), never report
+  lines, so report edits never push budget. The corpus-replace parity
+  fixture's `generic_df: 2` is load-bearing TWICE: it powers the
+  rewrite-mode delta arm AND puts the one-line living doc's whole
+  vocabulary inside the near-bar window for the margins-replace golden
+  (the claimed-token exclusion pin). Heading tokens are deliberately
+  NOT excluded: a heading word that reaches the bar DOES genericize
+  items, and the report is informational — hiding a real path would be
+  worse than listing it.
 - **The wedge class was the capture-pipe deadlock (root-caused
   2026-11-05 by live reproduction, E6+E12):** gate output past the
   ~64KB pipe buffer parked its write on the full capture pipe while

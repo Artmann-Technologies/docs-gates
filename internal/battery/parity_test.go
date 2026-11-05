@@ -91,6 +91,12 @@ func parityGates() []parityGate {
 			// (lighthouse lens calibration watchrow) would headline the
 			// report without claimedItemTokens — the golden names only the
 			// unclaimed pair (cycle, ships).
+			//
+			// generic_df: 2 in this fixture's .docs-gates.json is
+			// load-bearing for BOTH arms it serves: the rewrite-mode
+			// --replace delta below (a one-line living corpus makes the
+			// anchor-flip maximally visible) AND this margins arm. Touching
+			// it re-pins preflight-replace AND margins-replace together.
 			name:   "margins-replace",
 			args:   []string{"freshness", "--margins"},
 			corpus: "corpus-replace",

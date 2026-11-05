@@ -22,8 +22,10 @@ jobs:
       - name: vet
         run: go vet ./...
 
-      - name: gofmt
-        run: test -z "$(gofmt -l . )" || { gofmt -l .; exit 1; }
+      # No standalone gofmt step by design: the fleet golangci config
+      # runs gofumpt (a strict superset of gofmt) on the lint step below,
+      # so a separate gofmt pass only added latency (§2c assessment
+      # 2026-11-05).
 
       # The fleet lint (same .golangci.yml the flake's devShell runs at 0
       # findings; v2.15.0 matches the flake pin). The //nolint:erraudit

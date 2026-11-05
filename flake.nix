@@ -358,6 +358,29 @@
                 touch $out
               '';
 
+          # Dual-floor guard: the root (go 1.26) and provider (go 1.27)
+          # floors must both sit within the ONE pinned toolchain — a
+          # floor past the pin fails LOUDLY here (and under
+          # GOTOOLCHAIN=local at build time) instead of silently
+          # fetching a toolchain at dev time (the 2026-11-04 go1.27
+          # lesson). Mechanical so the invariant survives go bumps.
+          go-floors = pkgs.runCommand "docs-gates-go-floors" { nativeBuildInputs = [ pkgs.bash ]; } ''
+            cd ${self}
+            pin="${pkgs.${goPkgAttr}.version}"
+            pin_mm="${lib.versions.majorMinor pkgs.${goPkgAttr}.version}"
+            for mod in go.mod pkg/provider/go.mod; do
+              floor="$(awk '/^go /{print $2; exit}' "$mod")"
+              floor_mm="$(printf '%s' "$floor" | cut -d. -f1,2)"
+              greatest="$(printf '%s\n' "$floor_mm" "$pin_mm" | sort -V | tail -1)"
+              if [ "$greatest" != "$pin_mm" ]; then
+                echo "FATAL: $mod floors go $floor but the pinned toolchain is $pin — bump goPkgAttr and both floors in ONE commit (the silent-download lesson, AGENTS.md)." >&2
+                exit 1
+              fi
+              echo "ok: $mod floor $floor within toolchain $pin"
+            done
+            touch $out
+          '';
+
           # Shell + workflow lint: shellcheck over the repo's scripts
           # (safe-strike and its refusal-matrix harness are the
           # corruption guardrails — they must lint clean themselves)

@@ -91,6 +91,15 @@ values exit 2 — a gate silently running wrong thresholds is worse than a
 loud failure. JSON, not YAML: the module is stdlib-only by contract, and
 JSON is jq-able.
 
+## Scripts
+
+| Script | What it does |
+| --- | --- |
+| `scripts/safe-strike.sh` | Strike TODO/report rows by unique task-text anchor: exactly-one-match, cell-bounded rewrites, dry-run default, `--gate`/`--battery` verify per batch — the mechanical rails from the 2026-11-04 strike-corruption lesson. |
+| `scripts/safe-strike-test.sh` | The refusal-matrix harness for safe-strike (11 cases on a scratch git repo; all must behave). |
+| `scripts/stack-drift-check.sh` | Fails the moment the root `go.mod` grows a require/replace/exclude — the stdlib-only contract, wired into CI. |
+| `scripts/check-erraudit-rev.sh` | Tripwire pinning the erraudit flake input's locked rev (also a flake check). |
+
 ## Freshness diagnostics
 
 Three read-only inspection modes on the freshness verb:
