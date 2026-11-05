@@ -73,13 +73,17 @@ historical constant (see `internal/config.Defaults`):
   "audit_max": -1,
   "annotate_max": -1,
   "cadence": { "struck_rows": 20, "max_unarchived": 15, "oldest_days": 21 },
+  "gate_timeout_sec": 300,
   "skip_gates": []
 }
 ```
 
 The ratchet keys are strict by default (`-1` omits the flag entirely);
 a repo with measured debt pins the count (`audit_max`/`annotate_max` >= 0)
-and drains it down — REGRESSION past the pin fails. `skip_gates` entries
+and drains it down — REGRESSION past the pin fails. `gate_timeout_sec`
+caps each battery gate's wall clock (default 300s; `0` disables) — an
+expired gate becomes a FAIL row (`rc=timeout`) and the battery moves
+on, so a wedged gate can never hang the run. `skip_gates` entries
 must name real battery gates (`freshness`, `audit-all`, `annotate`,
 `routing`, `cadence`) — a typo exits 2 rather than silently running the
 gate you meant to drop. Unknown keys warn; malformed JSON or invalid

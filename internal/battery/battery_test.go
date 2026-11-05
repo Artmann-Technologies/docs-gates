@@ -255,3 +255,63 @@ func TestRunUsageErrors(t *testing.T) {
 		t.Fatalf("unknown flag must be usage exit 2, got %d", code)
 	}
 }
+
+// TestRunGateTimeoutBoundsTheBattery plants the true wedge class — a
+// gate that blocks forever at 0% CPU (select {}, no writes) — ahead of
+// a healthy gate and asserts the battery-class contract: runGates
+// RETURNS (bounded wall time, no hang), the wedged row renders FAIL
+// rc=timeout in the matrix, and the gate BEHIND the wedge still ran.
+// The wedged goroutine stays abandoned for the rest of the test
+// process; os.Exit discards it in production.
+//
+//nolint:paralleltest // process-global capture, serialized on purpose
+func TestRunGateTimeoutBoundsTheBattery(t *testing.T) {
+	wedged := gate{name: "wedge", fn: func([]string) int { select {} }, args: nil}
+	ranAfterWedge := false
+
+	after := gate{
+		name: "after-wedge",
+		fn: func([]string) int {
+			ranAfterWedge = true
+
+			return gatecli.ExitClean
+		},
+		args: nil,
+	}
+
+	start := time.Now()
+
+	out := gatecli.CaptureOutput(func() int {
+		rows := runGates([]gate{wedged, after}, nil, 50*time.Millisecond)
+
+		if renderMatrix(rows) {
+			return gatecli.ExitFindings
+		}
+
+		return gatecli.ExitClean
+	})
+
+	if elapsed := time.Since(start); elapsed > 5*time.Second {
+		t.Fatalf("runGates must return shortly past the cap, took %v", elapsed)
+	}
+
+	if out.Code != gatecli.ExitFindings {
+		t.Fatalf("a timed-out gate must fail the battery (exit 1), got rc %d", out.Code)
+	}
+
+	if !strings.Contains(out.Stdout, "FAIL  wedge (in ") || !strings.Contains(out.Stdout, "rc=timeout)") {
+		t.Fatalf("matrix must carry FAIL wedge rc=timeout, got: %s", out.Stdout)
+	}
+
+	if !strings.Contains(out.Stderr, "gate wedge TIMED OUT") {
+		t.Fatalf("the timeout must be named on stderr, got: %s", out.Stderr)
+	}
+
+	if !ranAfterWedge {
+		t.Fatal("the gate behind the wedge must still run — no first-failure hang")
+	}
+
+	if !strings.Contains(out.Stdout, "PASS  after-wedge") {
+		t.Fatalf("matrix must carry the post-wedge PASS row, got: %s", out.Stdout)
+	}
+}

@@ -305,12 +305,11 @@ func CaptureOutput(fn func() int) CapturedOutput {
 // CaptureOutput, but abandons it once the wall-clock budget expires:
 // the second return reports the timeout. The gate functions take no
 // context, so an expired gate CANNOT be killed — it keeps running as an
-// abandoned goroutine. Containment, not recovery: the process streams
-// are repointed at devnull so a straggler's late write lands nowhere
-// instead of interleaving into the caller's matrix (the observed wedge
-// class blocks on its first write at 0% CPU and never writes again;
-// the battery exits past it regardless, os.Exit does not wait for
-// goroutines). A timeout <= 0 never fires — the opt-out shape.
+// abandoned goroutine whose late writes fall through to the restored
+// streams (cosmetic interleaving at worst; the observed wedge class
+// blocks on its first write at 0% CPU and never writes again, and
+// os.Exit does not wait for goroutines). A timeout <= 0 never fires —
+// the opt-out shape.
 func CaptureOutputWithTimeout(fn func() int, timeout time.Duration) (CapturedOutput, bool) {
 	if timeout <= 0 {
 		return CaptureOutput(fn), false
@@ -347,12 +346,12 @@ func CaptureOutputWithTimeout(fn func() int, timeout time.Duration) (CapturedOut
 
 		return captured, false
 	case <-timer.C:
-		devNull, err := os.OpenFile(os.DevNull, os.O_WRONLY, 0)
-		if err != nil {
-			devNull = origOut
-		}
-
-		os.Stdout, os.Stderr = devNull, devNull
+		// Restore what the swap found — NOT devnull: the caller keeps
+		// printing (the matrix must render). A still-alive straggler
+		// writes through the same global and can cosmetically interleave
+		// late lines into the caller's output; the observed wedge class
+		// never writes again, and os.Exit discards it either way.
+		os.Stdout, os.Stderr = origOut, origErr
 		_ = outW.Close()
 		_ = errW.Close()
 

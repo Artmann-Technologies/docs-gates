@@ -105,8 +105,9 @@ func TestLoadInvalidValuesAreErrors(t *testing.T) {
 		"cadence zero":      `{"cadence": {"struck_rows": 0}}`,
 		"bad extension":     `{"rule_f_extensions": ["md"]}`,
 		"abs report_dir":    `{"report_dir": "/tmp/status"}`,
-		"unknown skip_gate": `{"skip_gates": ["freshnes"]}`,
-		"empty skip_gate":   `{"skip_gates": [""]}`,
+		"unknown skip_gate":     `{"skip_gates": ["freshnes"]}`,
+		"empty skip_gate":       `{"skip_gates": [""]}`,
+		"negative gate_timeout": `{"gate_timeout_sec": -1}`,
 	}
 
 	for name, body := range cases {
@@ -139,6 +140,30 @@ func TestLoadValidSkipGatesPasses(t *testing.T) {
 
 	if !reflect.DeepEqual(cfg.SkipGates, []string{"audit-all", "cadence"}) {
 		t.Fatalf("SkipGates = %v, want the config's list", cfg.SkipGates)
+	}
+}
+
+func TestLoadGateTimeoutSecIsAKnownKey(t *testing.T) {
+	t.Parallel()
+
+	root := t.TempDir()
+	writeConfig(t, root, `{"gate_timeout_sec": 30}`)
+
+	cfg, warnings, err := Load(root)
+	if err != nil {
+		t.Fatalf("Load: %v", err)
+	}
+
+	if len(warnings) != 0 {
+		t.Fatalf("warnings = %v, want none for gate_timeout_sec", warnings)
+	}
+
+	if cfg.GateTimeoutSec != 30 {
+		t.Fatalf("GateTimeoutSec = %d, want 30", cfg.GateTimeoutSec)
+	}
+
+	if Defaults().GateTimeoutSec != DefaultGateTimeoutSec {
+		t.Fatalf("Defaults().GateTimeoutSec = %d, want %d", Defaults().GateTimeoutSec, DefaultGateTimeoutSec)
 	}
 }
 

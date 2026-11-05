@@ -96,3 +96,93 @@ func Run(args []string) int {
 
 	return gatecli.ExitClean
 }
+
+// result is one gate's outcome for the verdict matrix; a timedOut row
+// renders as FAIL (rc=timeout) — an expired wedge counts as a finding,
+// never a hang of the whole battery.
+type result struct {
+	name     string
+	code     int
+	skip     bool
+	timedOut bool
+	duration time.Duration
+}
+
+// runGates executes the gate list INDEPENDENTLY under one per-gate
+// wall-clock cap: a gate that exceeds it is abandoned (the gate cannot
+// be killed — see gatecli.CaptureOutputWithTimeout) and its row fails
+// while the battery moves on, so one wedged gate can never mask the
+// gates behind it (the 2026-10-30 failure class, now also bounded in
+// time). A timeout <= 0 never fires — the config opt-out.
+func runGates(list []gate, skipGates []string, timeout time.Duration) []result {
+	results := make([]result, 0, len(list))
+
+	for _, g := range list {
+		if slices.Contains(skipGates, g.name) {
+			results = append(results, result{name: g.name, code: gatecli.ExitClean, skip: true})
+
+			continue
+		}
+
+		gatecli.Outf("docs-gates: gate %s ...\n", g.name)
+
+		start := time.Now()
+
+		out, timedOut := gatecli.CaptureOutputWithTimeout(func() int {
+			return g.fn(g.args)
+		}, timeout)
+
+		elapsed := time.Since(start)
+
+		switch {
+		case timedOut:
+			gatecli.Errf("docs-gates: gate %s TIMED OUT after %s (cap %s) — row fails, battery continues\n",
+				g.name, gatecli.FormatDuration(elapsed), gatecli.FormatDuration(timeout))
+			gatecli.Outf("docs-gates: gate %s abandoned after %s (timeout)\n",
+				g.name, gatecli.FormatDuration(elapsed))
+
+			results = append(results, result{name: g.name, code: gatecli.ExitFindings, timedOut: true, duration: elapsed})
+		case out.Code == gatecli.ExitClean:
+			gatecli.Outf("%s", out.Stdout)
+			gatecli.Outf("docs-gates: gate %s done in %s\n", g.name, gatecli.FormatDuration(elapsed))
+
+			results = append(results, result{name: g.name, code: out.Code, duration: elapsed})
+		default:
+			gatecli.Errf("docs-gates: gate %s FAILED (rc=%d):\n", g.name, out.Code)
+			gatecli.Errf("%s", out.Stdout)
+			gatecli.Errf("%s", out.Stderr)
+			gatecli.Outf("docs-gates: gate %s done in %s\n", g.name, gatecli.FormatDuration(elapsed))
+
+			results = append(results, result{name: g.name, code: out.Code, duration: elapsed})
+		}
+	}
+
+	return results
+}
+
+// renderMatrix prints the verdict rows and reports whether any gate
+// failed (skip rows never count).
+func renderMatrix(results []result) bool {
+	gatecli.Outln("docs-gates: verdict matrix")
+
+	failed := false
+
+	for _, r := range results {
+		switch {
+		case r.skip:
+			gatecli.Outf("  %s  %s (skip_gates)\n", verdictSkip, r.name)
+		case r.timedOut:
+			gatecli.Outf("  %s  %s (in %s, rc=timeout)\n", verdictFail, r.name, gatecli.FormatDuration(r.duration))
+
+			failed = true
+		case r.code == gatecli.ExitClean:
+			gatecli.Outf("  %s  %s (in %s)\n", verdictPass, r.name, gatecli.FormatDuration(r.duration))
+		default:
+			gatecli.Outf("  %s  %s (in %s, rc=%d)\n", verdictFail, r.name, gatecli.FormatDuration(r.duration), r.code)
+
+			failed = true
+		}
+	}
+
+	return failed
+}
