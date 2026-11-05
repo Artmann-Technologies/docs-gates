@@ -62,6 +62,23 @@ owner questions in §5.
 | ~~Wedged-process diagnosis: strace one 0%-CPU docs-gates straggler before asserting the pipe-block class (Go stdout SIGPIPE may not be the mechanism)~~                                                                                                                                                | ✅ DONE 2026-11-05 | P3       | M      | E6 autopsy (02-15 report appendix): 13/14 threads futex-idle + 1 epoll, 2 s CPU, buildflow parent; netpoll-parked never-arriving I/O class, never self-resolves → E4 timeout is the bound; strace blocked by yama (kill stays owner Q1); AGENTS fact added |
 | ~~AGENTS.md non-obvious fact: the audit-all cost model with the CV numbers (1,643 reports × ~2,000 living lines ≈ hours; go-health 66 × ~500 ≈ 2 min)~~                                                                                                                                                | ✅ DONE 2026-11-05 | P3       | S      | AGENTS.md non-obvious facts: size-before-launch (with post-memo numbers: CV hours→49s, synth 59×) + point-in-time gating under foreign daemons; PIPESTATUS lesson → crush-config lessons.md 63f5a81                                                        |
 
+## 2e) New from the 06-39 brutal self-review (session hygiene debts + small wins)
+
+| Task | Status | Priority | Effort | Evidence |
+| --- | --- | --- | --- | --- |
+| AGENTS.md: document the four new flake checks (golangci-drift, shell-lint, go-floors, bench CI arm) in Commands/Testing — future sessions don't know they exist | 🔴 `TODO` | P1 | S | 06-39 report §e.1, §f.1 |
+| CHANGELOG rows for the E26/E27 trains (safe-strike harness, --battery, drift/shell-lint/go-floors checks, dependabot, gofmt-step drop) — v0.2.0 would ship an incomplete section | 🔴 `TODO` | P1 | S | 06-39 report §e.2 |
+| FEATURES.md rows for heartbeat, gate_timeout_sec, audit-all estimate, new checks, safe-strike --battery, dependabot | 🔴 `TODO` | P2 | S | 06-39 report §e.3 |
+| Provider test pinning the NEW matrix row shapes (duration columns, rc=timeout rows) so a future row-shape change cannot silently break Detect | 🔴 `TODO` | P2 | S | 06-39 report §e.4 |
+| Resolve the nixpkgs githubId placeholder myself: `gh api users/LarsArtmann --jq .id` → update the §3 E22 row | 🔴 `TODO` | P3 | S | 06-39 report §d.5, §f.5 |
+| Measure CI bench-step wall time on real runners; retune 100x/45s if headroom < 5x (ubuntu runners ~3-5x slower than dev host) | 🔴 `TODO` | P3 | S | 06-39 report §e.5 |
+| Read BuildFlow's dependabot grouping rule; fix the YAML or file the detector quirk upstream (assumed-quirk is unverified) | 🔴 `TODO` | P3 | S | 06-39 report §e.6 |
+| `done in <10ms` cosmetic for sub-10ms gates (renders 0s today) + mechanical golden re-pin | 🔴 `TODO` | P3 | S | 06-39 report §e.7 |
+| AGENTS command examples: wrap standalone gate runs in `timeout 300` (the battery bounds the wedge; standalone runs still can) | 🔴 `TODO` | P3 | S | 06-39 report §e.8 |
+| AGENTS fact: run freshness --pre-flight before any TODO evidence-rewrite batch (this session genericized two anchors skipping it) | 🔴 `TODO` | P2 | S | 06-39 report §e.9, §d.6 |
+| Heartbeat budget early-warning: name the timeout cap in the opener line once a gate exceeds half its budget | 🔴 `TODO` | P3 | S | 06-39 report §f.33 |
+| Archive-pressure check: 13/15 unarchived reports here — run the archive ritual before the cadence gate (or CI dogfood) trips | 🔴 `TODO` | P2 | S | 06-39 report §f.28 |
+
 ## 3) External + fleet (work lands in sibling repos; this board tracks the cross-repo leg)
 
 | Task                                                                                                                                                                                                                                               | Status             | Priority | Effort | Evidence                                                                                                                                                                                                                                                                                                                        |
