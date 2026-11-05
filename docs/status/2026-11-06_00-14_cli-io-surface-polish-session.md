@@ -140,6 +140,13 @@ to celebrate.
   session).
 - **The b.N → b.Loop() modernization** in docsfreshness/bench_test.go surfaced
   by gopls twice this session and left alone.
+- **Report-authoring footgun, caught by this repo's own gate (live this
+  session)**: the `## f) ...` heading IS the freshness §f section — a `## §f)`
+  heading does NOT match the gate's `^#{2,}\s*f\)` regex and is inert; every
+  deliberately-not-harvested §f row needs its OWN `<!-- fresh:skip: ... -->`
+  marker (a shared "rows 11-15 stay local" note exempts nothing), and rows
+  that pass on accidental generic-token overlap are passing on sand — mark
+  them, do not trust the match.
 
 ## f) Next (harvested where actionable; tags: [todo] now in TODO_LIST, [roadmap] already in ROADMAP, [skip] brainstorm-only)
 
@@ -160,12 +167,12 @@ to celebrate.
    HealthCheck hint is the seed).
 10. [roadmap] Generic counts gate, link/reference checker, report-age gate,
     false item-boundary detector (all ROADMAP'd candidates).
-11. [skip] `--version` handling when it appears at argv[0] with trailing args.
-12. [skip] Usage-text byte goldens per verb (beyond contains-assertions).
-13. [skip] e2e-level help smoke in pkg/provider (it builds the real binary
+11. [skip] <!-- fresh:skip: brainstorm-only, deliberately report-local --> `--version` handling when it appears at argv[0] with trailing args.
+12. [skip] <!-- fresh:skip: brainstorm-only, deliberately report-local --> Usage-text byte goldens per verb (beyond contains-assertions).
+13. [skip] <!-- fresh:skip: brainstorm-only, deliberately report-local --> e2e-level help smoke in pkg/provider (it builds the real binary
     already).
-14. [skip] Interactive/alias surfaces (`docs-gates verbs`) — low value.
-15. [skip] Fleet rollout acceleration (pbx-artmann migration) — untouched
+14. [skip] <!-- fresh:skip: brainstorm-only, deliberately report-local --> Interactive/alias surfaces (`docs-gates verbs`) — low value.
+15. [skip] <!-- fresh:skip: brainstorm-only, deliberately report-local --> Fleet rollout acceleration (pbx-artmann migration) — untouched
     here, unaffected by the help surface (wrappers exec valid verbs only).
 
 ## g) Questions for the owner
@@ -181,16 +188,7 @@ to celebrate.
    (frees the provider from text parsing), or does a new gate family (counts
    gate / link checker) outrank it?
 
----
-
-## §f) Forward-looking items
-
-<!-- Conventions: [todo] rows are harvested into TODO_LIST section 7; [roadmap] items live in ROADMAP.md; [skip] rows are brainstorm-only and deliberately not harvested. -->
-
-1. [todo] The `--json` verdict-matrix output face and the provider migration off human-text parsing — the findings-as-data direction from the io-surface brainstorm. (TODO_LIST §7 row 1)
-2. [todo] The 18 bare-DONE TODO_LIST rows need the wrap-or-strike ritual (cadence's half-strike finding). (TODO_LIST §7 row 2)
-3. [todo] Pin the strike Usage default-status text to the DefaultStatus const, and replace the flagless-usage heuristic with an explicit assertion. (TODO_LIST §7 rows 3-4)
-4. [todo] Reconcile the AGENTS.md erraudit directive count, warn on ignored extra args in runHelp, adopt b.Loop() in bench_test. (TODO_LIST §7 rows 5-7)
-5. [todo] The archive cadence: the corpus sits at the 15-report threshold again after this session's archive — the next report owes the next archive ritual. (TODO_LIST §7 row 8)
-6. [roadmap] The doctor verb and the further gate-family candidates live in ROADMAP.md gate-family growth.
-7. [skip] <!-- fresh:skip: brainstorm-only rows (version-at-argv0 handling, usage byte goldens, provider help smoke, alias surfaces) — deliberately not harvested, disposition at a future docs-health pass --> The remaining brainstorm rows (f.11-f.15) stay report-local by design.
+3. **The `(f) Next` list above is this report's §f section** (the `## f)`
+   heading is what the freshness gate harvests): [todo] rows 1-8 are
+   harvested into TODO_LIST §7, [roadmap] row 9-10 live in ROADMAP.md,
+   [skip] rows 11-15 carry individual `<!-- fresh:skip -->` markers.
