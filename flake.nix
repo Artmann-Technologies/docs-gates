@@ -331,6 +331,55 @@
                 touch $out
               '';
 
+          # Golangci drift guard: the CI action version must match the
+          # flake's nixpkgs-locked golangci-lint (the engine local dev
+          # runs at 0 findings). Drift means CI lints a different
+          # rule set than the devShell — findings diverge silently in
+          # BOTH directions. Eval-time interpolation of
+          # pkgs.golangci-lint.version keeps the check hermetic (no
+          # network, the lock is the truth).
+          golangci-drift =
+            pkgs.runCommand "docs-gates-golangci-drift" { nativeBuildInputs = [ pkgs.bash ]; }
+              ''
+                cd ${self}
+                want="${pkgs.golangci-lint.version}"
+                got_all="$(grep -h '^          version: ' .github/workflows/ci.yml | awk '{print $2}' | sort -u)"
+                count="$(printf '%s\n' "$got_all" | grep -c .)"
+                if [ "$count" -ne 2 ]; then
+                  echo "FATAL: expected exactly 2 pinned golangci action versions (go + provider jobs), found $count:" >&2
+                  printf '%s\n' "$got_all" >&2
+                  exit 1
+                fi
+                if [ "$got_all" != "v$want" ]; then
+                  echo "FATAL: golangci drift — CI action pins $got_all but the flake's locked nixpkgs builds v$want." >&2
+                  echo "Remedy: align .github/workflows/ci.yml's action version with the flake pin (or bump the nixpkgs input deliberately), in ONE commit." >&2
+                  exit 1
+                fi
+                touch $out
+              '';
+
+          # Shell + workflow lint: shellcheck over the repo's scripts
+          # (safe-strike and its refusal-matrix harness are the
+          # corruption guardrails — they must lint clean themselves)
+          # and actionlint over the CI workflows.
+          shell-lint =
+            pkgs.runCommand "docs-gates-shell-lint"
+              {
+                nativeBuildInputs = [
+                  pkgs.bash
+                  pkgs.shellcheck
+                  pkgs.actionlint
+                ];
+              }
+              ''
+                cd ${self}
+                # --severity warning: SC2016 info fires on the harness's
+                # deliberately literal backtick verdict strings
+                shellcheck --severity warning scripts/*.sh
+                actionlint
+                touch $out
+              '';
+
           # The commit-time leg of the directive-honesty gate: pre-commit
           # runs the same `erraudit nolint-audit .` staleness check on
           # every commit touching Go files (see preCommitCheckFor).
@@ -355,6 +404,8 @@
               pkgs.${goPkgAttr}
               pkgs.golangci-lint
               pkgs.nixfmt-tree
+              pkgs.actionlint
+              pkgs.shellcheck
               (errauditPkg system)
             ]
             ++ enabledPackages;

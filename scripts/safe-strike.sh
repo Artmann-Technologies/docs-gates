@@ -14,9 +14,11 @@
 #     work) unless --allow-dirty
 #   - --dry-run is the default; only --apply writes
 #   - --gate runs the annotate gate after an apply and refuses non-zero
+#   - --battery runs the WHOLE battery after an apply instead (superset:
+#     a strike can flip freshness/cadence too, not just annotate)
 #
 # Usage:
-#   safe-strike.sh [--apply] [--gate] [--allow-dirty]
+#   safe-strike.sh [--apply] [--gate] [--battery] [--allow-dirty]
 #                  [--cell N] [--set-cell M=TEXT] [--no-verify]
 #                  <file> <anchor-regex> [verdict]
 #
@@ -33,13 +35,14 @@
 set -euo pipefail
 
 usage() {
-	echo "usage: safe-strike.sh [--apply] [--gate] [--allow-dirty] [--cell N] \\" >&2
+	echo "usage: safe-strike.sh [--apply] [--gate] [--battery] [--allow-dirty] [--cell N] \\" >&2
 	echo "                      [--set-cell M=TEXT] [--no-verify] <file> <anchor-regex> [verdict]" >&2
 	exit 2
 }
 
 apply=0
 gate=0
+battery=0
 allow_dirty=0
 cell=0
 set_cell=""
@@ -49,6 +52,7 @@ while [ $# -gt 0 ]; do
 	case "$1" in
 	--apply) apply=1 ;;
 	--gate) gate=1 ;;
+	--battery) battery=1 ;;
 	--allow-dirty) allow_dirty=1 ;;
 	--no-verify) no_verify=1 ;;
 	--cell)
@@ -155,8 +159,10 @@ fi
 export STRIKE_LINE="$line_no"
 export STRIKE_CELL="$cell"
 export STRIKE_SET="$set_cell"
-export STRIKE_VERDICT="$(printf '%s' "$verdict" | base64 -w0)"
-export STRIKE_FILE_WANT="$(printf '%s' "$line_content" | base64 -w0)"
+verdict_b64="$(printf '%s' "$verdict" | base64 -w0)"
+line_want_b64="$(printf '%s' "$line_content" | base64 -w0)"
+export STRIKE_VERDICT="$verdict_b64"
+export STRIKE_FILE_WANT="$line_want_b64"
 
 # perl does the single-line rewrite with bounded captures; STRIKE_FILE_WANT
 # re-verifies the line byte-for-byte between match and write, so a file
@@ -217,6 +223,15 @@ if [ "$no_verify" -eq 0 ] && [ "$gate" -eq 1 ]; then
 		docs-gates annotate .
 	else
 		go run ./cmd/docs-gates annotate .
+	fi
+fi
+
+if [ "$no_verify" -eq 0 ] && [ "$battery" -eq 1 ]; then
+	echo "safe-strike: battery per batch — running all five gates"
+	if command -v docs-gates >/dev/null 2>&1; then
+		docs-gates run .
+	else
+		go run ./cmd/docs-gates run .
 	fi
 fi
 
