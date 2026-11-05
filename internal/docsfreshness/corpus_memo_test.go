@@ -57,10 +57,13 @@ func TestCorpusMemoMatchesNaiveScans(t *testing.T) {
 	squashed := squashLines(living)
 	corpus := NewCorpus(living)
 
-	probes := []string{
+	fixed := []string{
 		"webphone", "alpha-probe", "calibration", "real-cax", "evidence",
 		"verify", "relay", "binds", "absent-zephyr-xyz", "tok-0000", "tok 0001", "anchor",
 	}
+
+	probes := make([]string, 0, len(fixed)+2*len(living))
+	probes = append(probes, fixed...)
 
 	for _, line := range living {
 		probes = append(probes, Tokens(line)...)

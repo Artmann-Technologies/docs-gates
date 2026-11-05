@@ -139,6 +139,32 @@ match the annotated git tags; anything after the newest tag sits under
 
 ### Changed
 
+- audit-all performance cliff fixed (2026-11-05 fleet dogfood): the
+  prepared Corpus now memoizes token presence and raw-line document
+  frequency per corpus, so a replay pays one full-corpus scan per
+  DISTINCT token instead of per occurrence per report — the same tokens
+  recur across every report, and CV-shaped corpora made every call a
+  full rescan. Measured on the committed CV-shaped benchmark
+  (1,600 reports × 2,000 living lines): 2,753ms → 47ms per replay
+  (59×); a memo≡naive equivalence test guards every verdict class
+  (red-controlled with a planted inverted cache), and the parity goldens
+  stayed byte-identical with NO re-pin — a pure cache of a pure
+  function. Corpus now flows as one value through the freshness gate
+  (CheckReport/itemVerdict/harvestAttributions/TokenTable/preflight
+  ride it; the lines+squashed+DF-closure triple is gone), so
+  docsrouting shares the same warmed caches.
+- TODO_LIST purge (20 struck rows → this entry): the 2026-11-04
+  freshness-diagnostics, parity-net, CI-lint, safe-strike and
+  golangci-lint-lsp-wrapper batches left the board — harvest
+  attributions, --margins golden, --dump-items and the dated-DONE
+  struck-row parity arm, the gitignore-trap regression net, the
+  pre-commit nolint-audit leg, the settings-projection export, the CI
+  lint jobs, the e2e sentinel proof: substance lives in the commits
+  named in their evidence cells (d92f7f8, ff7cfcd, 510ff58, 94350f5,
+  7a16061, 4777163, 9fa4a3a, e3226d7, 4e87b4a, 2508f53) and the
+  CHANGELOG entries above; the board reopens at two freshly struck rows
+  (the token-memoization win and its subsumed audit-all short-circuit
+  sibling, both closed 2026-11-05).
 - Three diagnostic surfaces joined the byte-parity net: `--margins` pins
   its near-bar token report, `--dump-items` pins the extraction dump
   (now including a struck-row arm — WHY a `~~row~~` is exempt — plus the
