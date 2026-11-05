@@ -309,7 +309,10 @@ var liveOut atomic.Pointer[os.File]
 // plain Outf.
 func Livef(format string, args ...any) {
 	if f := liveOut.Load(); f != nil {
-		_, _ = fmt.Fprintf(f, format, args...) //nolint:erraudit // policy above: a progress write failure is not a finding
+		_, _ = fmt.Fprintf(
+			f,
+			format,
+			args...) //nolint:erraudit // policy above: a progress write failure is not a finding
 
 		return
 	}
@@ -367,6 +370,7 @@ func newCapturedPipes() capturedPipes {
 	errR, errW, _ := os.Pipe()
 	origOut, origErr := os.Stdout, os.Stderr
 	os.Stdout, os.Stderr = outW, errW
+
 	liveOut.Store(origOut)
 
 	var (
@@ -394,6 +398,7 @@ func newCapturedPipes() capturedPipes {
 	return capturedPipes{
 		restore: func() {
 			liveOut.Store(nil)
+
 			os.Stdout, os.Stderr = origOut, origErr
 		},
 		closeWrites: func() { _ = outW.Close(); _ = errW.Close() },

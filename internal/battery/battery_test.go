@@ -395,6 +395,7 @@ func TestRunJSONFaceRedGate(t *testing.T) {
 	}
 
 	var cadence *gateReport
+
 	for i := range report.Gates {
 		if report.Gates[i].Name == "cadence" {
 			cadence = &report.Gates[i]
@@ -457,7 +458,11 @@ func TestRunJSONTimeoutRow(t *testing.T) {
 func TestRunGateHalfBudgetWarnsLive(t *testing.T) {
 	slow := gate{
 		name: "slowpoke",
-		fn:   func([]string) int { time.Sleep(1 * time.Second); return gatecli.ExitClean },
+		fn: func([]string) int {
+			time.Sleep(1 * time.Second)
+
+			return gatecli.ExitClean
+		},
 		args: nil,
 	}
 

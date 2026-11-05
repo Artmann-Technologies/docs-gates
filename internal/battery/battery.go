@@ -209,6 +209,10 @@ func runGates(list []gate, skipGates []string, timeout time.Duration, jsonMode b
 	return results
 }
 
+// halfBudgetDivisor splits the wall-clock budget for the early warning:
+// the watcher fires once the gate burns half of its cap.
+const halfBudgetDivisor = 2
+
 // startHalfBudgetWatchdog arms the ONE live mid-gate line: once a gate
 // burns past half its wall-clock budget, the watcher names the cap
 // LIVE — on the REAL stdout via gatecli.Livef (human face), because
@@ -227,7 +231,7 @@ func startHalfBudgetWatchdog(gateName string, timeout time.Duration, warnf func(
 	stop := make(chan struct{})
 
 	go func() {
-		timer := time.NewTimer(timeout / 2)
+		timer := time.NewTimer(timeout / halfBudgetDivisor)
 		defer timer.Stop()
 
 		select {
@@ -277,27 +281,27 @@ func renderJSON(results []result, root string) int {
 
 	failed := false
 
-	for _, r := range results {
+	for _, row := range results {
 		verdict := verdictFail
 
 		switch {
-		case r.skip:
+		case row.skip:
 			verdict = verdictSkip
-		case !r.timedOut && r.code == gatecli.ExitClean:
+		case !row.timedOut && row.code == gatecli.ExitClean:
 			verdict = verdictPass
 		default:
 			failed = true
 		}
 
 		report.Gates = append(report.Gates, gateReport{
-			Name:       r.name,
+			Name:       row.name,
 			Verdict:    verdict,
-			ExitCode:   r.code,
-			Skipped:    r.skip,
-			TimedOut:   r.timedOut,
-			DurationMS: r.duration.Milliseconds(),
-			Stdout:     r.stdout,
-			Stderr:     r.stderr,
+			ExitCode:   row.code,
+			Skipped:    row.skip,
+			TimedOut:   row.timedOut,
+			DurationMS: row.duration.Milliseconds(),
+			Stdout:     row.stdout,
+			Stderr:     row.stderr,
 		})
 	}
 
