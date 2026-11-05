@@ -108,67 +108,67 @@ culprit attribution). D1/D2 remain owner decisions.
 ## f) UP TO 50 NEXT THINGS (ordered; ★ = owner-gated or external)
 
 1. Verify CI green on 83c194c (both jobs) — the pending watch.
-~~2. CHANGELOG rows for T3/T5/T7/T10; strike TODO §2.1 and §3.1.~~ ✅ DONE 2026-11-05 (T3/T5/T7/T10 landed + §2.1/§3.1 struck by the 16-45 session; vocabulary lives in this verdict)
-3. AGENTS.md: blind-revert-under-daemon lesson + erraudit-on-PATH fact.
-4. `nix fmt`, `nix flake check --all-systems --no-build`, `nix build
+   ~~2. CHANGELOG rows for T3/T5/T7/T10; strike TODO §2.1 and §3.1.~~ ✅ DONE 2026-11-05 (T3/T5/T7/T10 landed + §2.1/§3.1 struck by the 16-45 session; vocabulary lives in this verdict)
+2. AGENTS.md: blind-revert-under-daemon lesson + erraudit-on-PATH fact.
+3. `nix fmt`, `nix flake check --all-systems --no-build`, `nix build
    .#docs-gates` after the T7 flake edit.
-5. Plan-file errata: mark T3/T4/T5/T7/T9/T10 done (annotate, not rewrite).
-6. T6 erraudit-lint flake check (reuse nolint-audit plumbing; F23-F27).
-7. T8 erraudit input rev tripwire (go-codec precedent; F32-F35).
-8. T17 nolint-audit hygiene: GOFLAGS isolation probe, erraudit.inputs
+4. Plan-file errata: mark T3/T4/T5/T7/T9/T10 done (annotate, not rewrite).
+5. T6 erraudit-lint flake check (reuse nolint-audit plumbing; F23-F27).
+6. T8 erraudit input rev tripwire (go-codec precedent; F32-F35).
+7. T17 nolint-audit hygiene: GOFLAGS isolation probe, erraudit.inputs
    .nixpkgs.follows, DRY errauditPkg let-binding (F76-F79).
-9. T11 provider module suite in flake checks (F48-F50, depends T3 ✓).
-10. T12 provider-path e2e battery run (exec real binary via Detect).
-11. T19 erraudit posture sweep (fix dry-run both modules + --max audit).
-12. T20 cmp.Or for docscadence TodoFile/ReportDir + AGENTS sentence.
-13. T20 docscadence pre-split (326 lines, approaching the 350 gate).
-14. T20 docsannotate settings.go projection (config.Config consumer).
-15. T20 docsannotate: shrink the Run body to prologue+dispatch (the settings-projection seam).
-16. T21 docsrouting: single report lookup, unified path construction.
-17. T21 export shared token predicates (tokenIn/livingLineCount/…).
-18. T21 squash-corpus consistency: unify or document.
-19. T21 docsstrike parse.go survey → CutStringFlag or documented decline.
-20. T21 art-dupl `-t 1` re-run (expect 0 shown groups).
-21. T22 nixpkgs_2: reconcile the flake.lock disagreement or record deliberate.
-22. T22 gatecli.Truncate canonical-helper verdict (quality/ finding).
-23. T22 art-dupl `--show-suppressed` audit of 29 groups + spot-checks.
-24. T24 legacy-wrappers smoke v2: assert version STRING = ldflags stamp.
-25. T24 `lib.maintainers.LarsArtmann` nixpkgs PR draft + flake meta ref.
-26. T25 preflight rewrite-mode leg + tests (F113-F114).
-27. T25 preflight heading-awareness leg + tests (F115-F117).
-28. T26 token-margin-report (near-bar tokens before they genericize).
-29. T27 freshness `--dump-items` flag (ExtractItems inspectability).
-30. T27 culprit attribution for harvest findings (preflight parity).
-31. ★T1 SystemNix float: `nix flake update docs-gates` + expected-locks
+8. T11 provider module suite in flake checks (F48-F50, depends T3 ✓).
+9. T12 provider-path e2e battery run (exec real binary via Detect).
+10. T19 erraudit posture sweep (fix dry-run both modules + --max audit).
+11. T20 cmp.Or for docscadence TodoFile/ReportDir + AGENTS sentence.
+12. T20 docscadence pre-split (326 lines, approaching the 350 gate).
+13. T20 docsannotate settings.go projection (config.Config consumer).
+14. T20 docsannotate: shrink the Run body to prologue+dispatch (the settings-projection seam).
+15. T21 docsrouting: single report lookup, unified path construction.
+16. T21 export shared token predicates (tokenIn/livingLineCount/…).
+17. T21 squash-corpus consistency: unify or document.
+18. T21 docsstrike parse.go survey → CutStringFlag or documented decline.
+19. T21 art-dupl `-t 1` re-run (expect 0 shown groups).
+20. T22 nixpkgs_2: reconcile the flake.lock disagreement or record deliberate.
+21. T22 gatecli.Truncate canonical-helper verdict (quality/ finding).
+22. T22 art-dupl `--show-suppressed` audit of 29 groups + spot-checks.
+23. T24 legacy-wrappers smoke v2: assert version STRING = ldflags stamp.
+24. T24 `lib.maintainers.LarsArtmann` nixpkgs PR draft + flake meta ref.
+25. T25 preflight rewrite-mode leg + tests (F113-F114).
+26. T25 preflight heading-awareness leg + tests (F115-F117).
+27. T26 token-margin-report (near-bar tokens before they genericize).
+28. T27 freshness `--dump-items` flag (ExtractItems inspectability).
+29. T27 culprit attribution for harvest findings (preflight parity).
+30. ★T1 SystemNix float: `nix flake update docs-gates` + expected-locks
     regen + evo-x2 toplevel proof (F1-F5).
-32. ★T2 evo-x2 deploy in a quiescent window + live-PATH smoke of the six
+31. ★T2 evo-x2 deploy in a quiescent window + live-PATH smoke of the six
     binaries (F6-F8) — needs owner confirmation.
-33. ★T13 pbx-artmann migration onto this repo + fleet announcement
+32. ★T13 pbx-artmann migration onto this repo + fleet announcement
     (F53-F59; lands in the sibling repo).
-34. ★T14 pilot ratchet drain in crm + go-appkit (F60-F64; sibling repos).
-35. ★T15 BuildFlow#87 fix + roundtrip walker fix upstream (F65-F70).
-36. ★T16 BuildFlow hygiene: binary rebuild, format run, 9-tools triage,
+33. ★T14 pilot ratchet drain in crm + go-appkit (F60-F64; sibling repos).
+34. ★T15 BuildFlow#87 fix + roundtrip walker fix upstream (F65-F70).
+35. ★T16 BuildFlow hygiene: binary rebuild, format run, 9-tools triage,
     preflight FAIL attribution, LSP-ghost repro (F71-F75).
-37. ★T18 pre-commit nolint-audit leg (bank-sync pattern; F80-F82).
-38. T23 rpi3-dns toplevel eval + standalone SystemNix flake check + its
+36. ★T18 pre-commit nolint-audit leg (bank-sync pattern; F80-F82).
+37. T23 rpi3-dns toplevel eval + standalone SystemNix flake check + its
     TODO row (F106-F108; depends T1).
-39. D1/D2 recommendation notes inside T23/T24 (battery adoption scope;
+38. D1/D2 recommendation notes inside T23/T24 (battery adoption scope;
     go floor 1.26 vs 1.27) — prepare, do not decide.
-40. Dogfood ritual: run the docs-health battery over this repo after each doc-heavy landing.
-41. Consider golden arms for `--duplicates` pre-flight (small, optional).
-42. Consider pinning `--verbose` annotate output as a golden arm
+39. Dogfood ritual: run the docs-health battery over this repo after each doc-heavy landing.
+40. Consider golden arms for `--duplicates` pre-flight (small, optional).
+41. Consider pinning `--verbose` annotate output as a golden arm
     (snippet truncation path, optional).
-43. provider module: confirm go.sum/go.mod hygiene untouched by CI legs.
-44. CI: provider job go-module caching (speed polish, optional).
-45. TODO_LIST §5 rows for the two owner questions stay red until
+42. provider module: confirm go.sum/go.mod hygiene untouched by CI legs.
+43. CI: provider job go-module caching (speed polish, optional).
+44. TODO_LIST §5 rows for the two owner questions stay red until
     answered (no agent action).
-46. ROADMAP: no landed rows this session (verified) — nothing to prune.
-47. ~~FEATURES.md CI row: add the provider job mention~~ — DONE this session.
-48. DOMAIN_LANGUAGE.md: no new terms this session (ratchet already
+45. ROADMAP: no landed rows this session (verified) — nothing to prune.
+46. ~~FEATURES.md CI row: add the provider job mention~~ — DONE this session.
+47. DOMAIN_LANGUAGE.md: no new terms this session (ratchet already
     covered) — verified, no edit needed.
-49. /tmp hygiene: trash the probe dirs (dg-discrim, dg-out.txt,
+48. /tmp hygiene: trash the probe dirs (dg-discrim, dg-out.txt,
     dg-modcache-probe) instead of leaving them.
-50. Session-end ritual: re-run lint + test + battery + flake check, pin
+49. Session-end ritual: re-run lint + test + battery + flake check, pin
     HEAD, confirm CI green, THEN stop.
 
 ## g) QUESTIONS FOR THE OWNER (not self-answerable)

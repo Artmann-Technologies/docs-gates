@@ -27,7 +27,7 @@ trap 'rm -rf "$scratch"' EXIT
 git init -q "$scratch/board"
 cd "$scratch/board"
 
-cat > TODOS.md <<'EOF'
+cat >TODOS.md <<'EOF'
 # Board
 
 | # | Task | Status |
@@ -68,26 +68,26 @@ expect_untouched() {
 	fi
 }
 
-expect_rc 1 "zero-match anchor"   TODOS.md 'nonexistent-zephyr-anchor' 'done'
+expect_rc 1 "zero-match anchor" TODOS.md 'nonexistent-zephyr-anchor' 'done'
 expect_untouched "zero-match anchor"
 
-expect_rc 1 "two-match anchor"    TODOS.md 'wire the alpha relay harness' 'done'
+expect_rc 1 "two-match anchor" TODOS.md 'wire the alpha relay harness' 'done'
 expect_untouched "two-match anchor"
 
 expect_rc 1 "ordinal-only anchor" TODOS.md '^\| 3 \|' 'done'
 expect_untouched "ordinal-only anchor"
 
-expect_rc 2 "missing file"        TODOS.md.absent 'alpha relay' 'done'
-expect_rc 2 "no verdict"          TODOS.md 'alpha relay harness \|'
-expect_rc 2 "cell with verdict"   --cell 2 TODOS.md 'alpha relay harness \|' 'done'
-expect_rc 2 "same cell+set-cell"  --cell 2 --set-cell 2=x TODOS.md 'alpha relay harness \|'
+expect_rc 2 "missing file" TODOS.md.absent 'alpha relay' 'done'
+expect_rc 2 "no verdict" TODOS.md 'alpha relay harness \|'
+expect_rc 2 "cell with verdict" --cell 2 TODOS.md 'alpha relay harness \|' 'done'
+expect_rc 2 "same cell+set-cell" --cell 2 --set-cell 2=x TODOS.md 'alpha relay harness \|'
 
 # 8: dry-run default leaves the file byte-identical.
-expect_rc 0 "dry-run default"     TODOS.md 'beta lantern fixture' 'done at `deadbee`'
+expect_rc 0 "dry-run default" TODOS.md 'beta lantern fixture' 'done at `deadbee`'
 expect_untouched "dry-run default"
 
 # 9: apply strikes exactly the anchored line and nothing else.
-expect_rc 0 "apply whole line"    --apply TODOS.md 'beta lantern fixture' 'done at `deadbee`'
+expect_rc 0 "apply whole line" --apply TODOS.md 'beta lantern fixture' 'done at `deadbee`'
 if [ "$(grep -c 'beta lantern' TODOS.md)" -ne 1 ] || ! grep -q '~~| 3 | ship the beta lantern fixture | TODO |~~ done at `deadbee`' TODOS.md; then
 	echo "FAIL [apply whole line]: struck shape wrong:" >&2
 	cat TODOS.md >&2
@@ -99,7 +99,7 @@ git add TODOS.md
 git -c user.name=test -c user.email=test@test commit -qm strike
 
 # 10: a dirty file refuses without --allow-dirty.
-echo "draft line" >> TODOS.md
+echo "draft line" >>TODOS.md
 expect_rc 1 "dirty refusal" --apply TODOS.md 'alpha relay harness \| TODO \|' 'done'
 expect_rc 0 "dirty override" --allow-dirty --apply TODOS.md 'alpha relay harness \| TODO \|' 'done'
 git restore --source=HEAD -- TODOS.md

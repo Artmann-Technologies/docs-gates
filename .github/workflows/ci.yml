@@ -105,4 +105,3 @@ jobs:
 
       - name: battery over this repo
         run: go run ./cmd/docs-gates run .
-
