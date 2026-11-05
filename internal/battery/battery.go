@@ -15,6 +15,7 @@ package battery
 import (
 	"slices"
 	"strconv"
+	"time"
 
 	"github.com/Artmann-Technologies/docs-gates/internal/config"
 	"github.com/Artmann-Technologies/docs-gates/internal/docsannotate"
@@ -63,6 +64,22 @@ func gates(root string, cfg config.Config) []gate {
 	}
 }
 
+// formatDuration renders a gate's wall time for the heartbeat and the
+// verdict matrix: milliseconds under a second, tenths of a second under
+// a minute, whole seconds past it. The parity harness normalizes the
+// emitted values to a literal token, so goldens pin the SHAPE of these
+// lines, never the timing.
+func formatDuration(d time.Duration) string {
+	switch {
+	case d < time.Second:
+		return d.Round(10 * time.Millisecond).String()
+	case d < time.Minute:
+		return d.Round(100 * time.Millisecond).String()
+	default:
+		return d.Round(time.Second).String()
+	}
+}
+
 // Run is the CLI entry for `docs-gates run` (repo-root positional, no
 // flags: the knobs live in the repo config).
 func Run(args []string) int {
@@ -81,9 +98,10 @@ func Run(args []string) int {
 	}
 
 	type result struct {
-		name string
-		code int
-		skip bool
+		name     string
+		code     int
+		skip     bool
+		duration time.Duration
 	}
 
 	list := gates(root, cfg)
@@ -98,14 +116,19 @@ func Run(args []string) int {
 
 		gatecli.Outf("docs-gates: gate %s ...\n", g.name)
 
+		start := time.Now()
+
 		out := gatecli.CaptureOutput(func() int {
 			return g.fn(g.args)
 		})
 
+		elapsed := time.Since(start)
+
 		if out.Code == gatecli.ExitClean {
 			gatecli.Outf("%s", out.Stdout)
+			gatecli.Outf("docs-gates: gate %s done in %s\n", g.name, formatDuration(elapsed))
 
-			results = append(results, result{name: g.name, code: out.Code})
+			results = append(results, result{name: g.name, code: out.Code, duration: elapsed})
 
 			continue
 		}
@@ -113,8 +136,9 @@ func Run(args []string) int {
 		gatecli.Errf("docs-gates: gate %s FAILED (rc=%d):\n", g.name, out.Code)
 		gatecli.Errf("%s", out.Stdout)
 		gatecli.Errf("%s", out.Stderr)
+		gatecli.Outf("docs-gates: gate %s done in %s\n", g.name, formatDuration(elapsed))
 
-		results = append(results, result{name: g.name, code: out.Code})
+		results = append(results, result{name: g.name, code: out.Code, duration: elapsed})
 	}
 
 	gatecli.Outln("docs-gates: verdict matrix")
@@ -126,9 +150,9 @@ func Run(args []string) int {
 		case r.skip:
 			gatecli.Outf("  %s  %s (skip_gates)\n", verdictSkip, r.name)
 		case r.code == gatecli.ExitClean:
-			gatecli.Outf("  %s  %s\n", verdictPass, r.name)
+			gatecli.Outf("  %s  %s (in %s)\n", verdictPass, r.name, formatDuration(r.duration))
 		default:
-			gatecli.Outf("  %s  %s (rc=%d)\n", verdictFail, r.name, r.code)
+			gatecli.Outf("  %s  %s (in %s, rc=%d)\n", verdictFail, r.name, formatDuration(r.duration), r.code)
 
 			failed = true
 		}

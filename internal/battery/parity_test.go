@@ -3,6 +3,7 @@ package battery
 import (
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"testing"
 	"time"
@@ -45,6 +46,14 @@ type parityGate struct {
 	wantCode      int
 	argsAfterRoot []string
 }
+
+// parityDurationRe collapses the battery's wall-time renderings (the
+// per-gate heartbeat `done in 830ms` lines and the matrix `(in 2.4s)`
+// columns) to a literal D token: the goldens pin where a duration
+// appears, never how long a gate took — that value is machine-local.
+// The two prefixes are deliberately exact (`done in ` / `(in `): a bare
+// `in ` would also swallow gate counts like "finding(s) in 17 file(s)".
+var parityDurationRe = regexp.MustCompile(`(done in |\(in )[0-9][0-9a-zµ.]*`)
 
 // parityRootToken replaces the materialized corpus temp root in golden
 // bytes, so path-carrying outputs (--dump-items echoes its argument) stay
@@ -225,12 +234,14 @@ func TestParityGolden(t *testing.T) {
 		out := runCaptured(full, gate.stdin)
 
 		// normalize puts a captured run into golden form: dates collapse to
-		// the token and the ephemeral corpus root to <corpus>, so path-
-		// carrying outputs stay byte-stable.
+		// the token, the ephemeral corpus root to <corpus>, and wall-time
+		// renderings to D, so path- and timing-carrying outputs stay
+		// byte-stable.
 		normalize := func(s string) string {
 			s = strings.ReplaceAll(s, today, parityDateToken)
+			s = strings.ReplaceAll(s, root, parityRootToken)
 
-			return strings.ReplaceAll(s, root, parityRootToken)
+			return parityDurationRe.ReplaceAllString(s, `${1}D`)
 		}
 
 		goldenPath := filepath.Join("..", "..", "testdata", "parity", "golden", gate.name+".txt")

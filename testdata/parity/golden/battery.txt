@@ -1,23 +1,28 @@
 docs-gates: gate freshness ...
 docs-freshness: {{DATE}}_10-00_ship-it.md: 0 unharvested open §f item(s)
 docs-freshness: FRESH
+docs-gates: gate freshness done in D
 docs-gates: gate audit-all ...
 docs-freshness --audit-all: 1 report(s) replayed, 0 unharvested open item(s)
 docs-freshness --audit-all: FRESH
+docs-gates: gate audit-all done in D
 docs-gates: gate annotate ...
 docs-annotate: 1 file(s), 1 struck item(s), 0 finding(s)
 docs-annotate: CLEAN
+docs-gates: gate annotate done in D
 docs-gates: gate routing ...
 docs-routing (STRICT): 1 unarchived report(s) scanned, 0 unrouted open row(s)
+docs-gates: gate routing done in D
 docs-gates: gate cadence ...
 docs-cadence: 1 struck DONE row(s) in TODOS.md (threshold 5)
 docs-cadence: PURGE-HEALTHY
 docs-cadence: 1 unarchived report(s) in reports/ (threshold 3); oldest {{DATE}}_10-00_ship-it.md is 0 day(s) old (threshold 10)
 docs-cadence: ARCHIVE-HEALTHY
+docs-gates: gate cadence done in D
 docs-gates: verdict matrix
-  PASS  freshness
-  PASS  audit-all
-  PASS  annotate
-  PASS  routing
-  PASS  cadence
+  PASS  freshness (in D)
+  PASS  audit-all (in D)
+  PASS  annotate (in D)
+  PASS  routing (in D)
+  PASS  cadence (in D)
 docs-gates: PASS — all doc gates green
