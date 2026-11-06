@@ -188,13 +188,14 @@ at HEAD. The honest entries are near-misses and self-inflicted noise:
 
 ## f) Up to 50 things we should get done next
 
-*(A brainstorm, not a commitment list — HARVEST must route rigorously.
+_(A brainstorm, not a commitment list — HARVEST must route rigorously.
 Items 1–8 are this session's direct output trail; 9–20 are adjacent
 observables from this session's runs; 21+ are carried from the board
 and AGENTS.md as read this session, marked [board]. Sorted by
-impact/effort within each band.)*
+impact/effort within each band.)_
 
 **This session's direct trail (highest impact, mostly S effort):**
+
 1. Push erraudit `5c841cf2` to origin (owner action; unblocks 2–4).
 2. Update docs-gates' erraudit input to the fixed rev, run
    erraudit-lint + nolint-audit on it, bump `expected_rev` in
@@ -221,134 +222,134 @@ impact/effort within each band.)*
 **Adjacent observables from this session's runs (erraudit-side debts,
 each S–M effort, need erraudit-repo authority):**
 9. erraudit flake-pin-drift: project-discovery-sdk input pins v0.22.0,
-   go.mod requires v0.23.1 — align the flake pin.
+go.mod requires v0.23.1 — align the flake pin.
 10. erraudit cue-vet: ci.yml has conflicting job names ("Self Analysis"
-    vs "Self-Analysis Threshold" under the fleet #CIWorkflow schema).
+vs "Self-Analysis Threshold" under the fleet #CIWorkflow schema).
 11. erraudit cue-vet: release.yml lacks the required `concurrency:`
-    field (fleet #ReleaseWorkflow schema).
+field (fleet #ReleaseWorkflow schema).
 12. erraudit go-mod-ignore-check: `dist/` exists but is not in go.mod's
-    ignore list.
+ignore list.
 13. erraudit file-size-check: 49 oversized files (types.go at 755 lines
-    vs max 350 is the worst) — split or raise the pin deliberately.
+vs max 350 is the worst) — split or raise the pin deliberately.
 14. <!-- fresh:skip --> (sibling-scoped: the ritual belongs to erraudit's
-    own sessions; this board's §3 tracks only the cross-repo leg) erraudit
-    docs-gates findings: its own battery is red
-    (freshness/audit-all/annotate/cadence) — its docs ritual is due.
+own sessions; this board's §3 tracks only the cross-repo leg) erraudit
+docs-gates findings: its own battery is red
+(freshness/audit-all/annotate/cadence) — its docs ritual is due.
 15. erraudit doc-files-age-check: AGENTS/FEATURES/TODO_LIST all stale
-    past the 7-day threshold.
+past the 7-day threshold.
 16. erraudit go-version-auto-configure + go-structure-linter: re-check
-    the go.mod floor story after the daemon sweep (the 1.27→1.27.1
-    move came from a DEP's directive — identify which dep and decide
-    pin-down vs floor-up).
+the go.mod floor story after the daemon sweep (the 1.27→1.27.1
+move came from a DEP's directive — identify which dep and decide
+pin-down vs floor-up).
 17. erraudit: confirm its flake's go_1_27 package satisfies the 1.27.1
-    floor (nix build green suggests yes — pin the proof in its
-    AGENTS.md like docs-gates does).
+floor (nix build green suggests yes — pin the proof in its
+AGENTS.md like docs-gates does).
 
 **docs-gates own surface (S effort each, from this session's contact
 points):**
 18. Arm the pre-commit hooks properly (`git config --unset
     core.hooksPath`) so nolint-audit + docs-battery legs auto-install.
 19. HARVEST this report's §f + the §e items into TODO_LIST/ROADMAP with
-    routing rigor (the standing next ritual; user deferred it).
+routing rigor (the standing next ritual; user deferred it).
 20. Consider running `check-erraudit-rev.sh` as part of the docs-battery
-    pre-commit leg (cheap, closes the manual-discipline gap locally
-    even without a buildflow-side hook).
+pre-commit leg (cheap, closes the manual-discipline gap locally
+even without a buildflow-side hook).
 21. Add a regression test asserting the tripwire FAILS on a drifted
-    lock (the tripwire has a red control documented for nolint-audit
-    but the rev script's own red arm is untested this session — it DID
-    fire live, so evidence exists; pin it as a test if the fleet wants
-    mechanical proof).
+lock (the tripwire has a red control documented for nolint-audit
+but the rev script's own red arm is untested this session — it DID
+fire live, so evidence exists; pin it as a test if the fleet wants
+mechanical proof).
 22. package provider: decide whether `failedGates`'s hand-rolled filter
-    gets a comment naming the no-lo rationale (currently only AGENTS.md
-    carries it; a future contributor reading provider.go:95 sees
-    nothing).
+gets a comment naming the no-lo rationale (currently only AGENTS.md
+carries it; a future contributor reading provider.go:95 sees
+nothing).
 23. Root module: same rationale-comment question for the three
-    Map/Filter/SliceToMap loops go-auto-upgrade names (gatecli.go,
-    docsrouting.go, docsfreshness/check.go) — AGENTS.md documents the
-    class; the sites themselves stay silent.
+Map/Filter/SliceToMap loops go-auto-upgrade names (gatecli.go,
+docsrouting.go, docsfreshness/check.go) — AGENTS.md documents the
+class; the sites themselves stay silent.
 24. Re-verify the parity goldens are untouched by this session (they
-    were — no Go code changed — but the claim deserves its one-line
-    `PARITY_UPDATE` sanity note in the next session log if any gate
-    output shape work starts).
+were — no Go code changed — but the claim deserves its one-line
+`PARITY_UPDATE` sanity note in the next session log if any gate
+output shape work starts).
 
 **Carried from the board (read this session, unchanged, marked so they
 don't get lost in the §f flood):**
 25. [board] Float SystemNix to the hardened flake (P1, blocked on the
-    v0.2.0 tag + push).
+v0.2.0 tag + push).
 26. [board] Deploy evo-x2 for live-PATH docs-gates + wrappers (P1,
-    owner window; also fixes the un-fixed-wedge binary staleness).
+owner window; also fixes the un-fixed-wedge binary staleness).
 27. [board] Standalone `nix flake check --no-build --all-systems` on
-    SystemNix post-integration (P2, PARTIAL).
+SystemNix post-integration (P2, PARTIAL).
 28. [board] Pilot ratchet drain in crm + go-appkit (P3; crm regression
-    168→179 needs the cross-repo authority ruling).
+168→179 needs the cross-repo authority ruling).
 29. [board] File/fix the BuildFlow roundtrip walker bug upstream
-    (diagnosis sharpened 2026-11-05; fix = lane-level --tree-root
-    forwarding; coordinate with active BuildFlow sessions).
+(diagnosis sharpened 2026-11-05; fix = lane-level --tree-root
+forwarding; coordinate with active BuildFlow sessions).
 30. [board] Fix BuildFlow#87 upstream (constant result-cache key), then
-    drop the BUILDFLOW_NO_RESULT_CACHE bypass from AGENTS.md.
+drop the BUILDFLOW_NO_RESULT_CACHE bypass from AGENTS.md.
 31. [board] Submit lib.maintainers.LarsArtmann to nixpkgs, then
-    reference it in flake meta.maintainers (blocked on the nixpkgs PR).
+reference it in flake meta.maintainers (blocked on the nixpkgs PR).
 32. [board] SystemNix switch for the per-process golangci
-    analysis-cache wrapper (59bb7cc35, inert until activation).
+analysis-cache wrapper (59bb7cc35, inert until activation).
 33. [board] SystemNix push decision (4 ahead, mixed-owner trains —
-    owner ruling).
+owner ruling).
 34. [board] pma queue-storm + FastFlowLM monitoring docs (BLOCKED on
-    the concurrent session).
+the concurrent session).
 35. [board] ANNOTATE sweep over older unarchived reports (P3, scoped
-    down; cadence pressure only).
+down; cadence pressure only).
 36. [board] F94: AGENTS.md compression pass (the non-obvious-facts
-    section accreted again this session: +2 bullets).
+section accreted again this session: +2 bullets).
 
 **BuildFlow-side product ideas surfaced by this session (upstream
 value; each needs the verify-before-filing gate):**
 37. Repair-phase lockfile rewrites should trigger a configurable
-    post-repair verification hook (today: silent rewrite + daemon
-    wrap; the consumer's tripwire is the only net).
+post-repair verification hook (today: silent rewrite + daemon
+wrap; the consumer's tripwire is the only net).
 38. go-auto-upgrade: honor per-repo finding suppressions with
-    rationale (the three documented classes would collapse to zero
-    noise without skipping the step wholesale).
+rationale (the three documented classes would collapse to zero
+noise without skipping the step wholesale).
 39. cross-file-wrapper finder: respect `//art-dupl:accept`-style
-    acceptance markers so ACCEPTED settings-projection accessors stop
-    re-surfacing as "no call sites in this file" warnings.
+acceptance markers so ACCEPTED settings-projection accessors stop
+re-surfacing as "no call sites in this file" warnings.
 40. nix-hash-fix: optionally run the consumer-side tripwire scripts
-    (`check-*-rev.sh` convention) after rewriting a lockfile-adjacent
-    hash, so owner repos learn about rev-adjacent repairs.
+(`check-*-rev.sh` convention) after rewriting a lockfile-adjacent
+hash, so owner repos learn about rev-adjacent repairs.
 41. Starvation accounting: when a lane reports "lost to starvation",
-    tag the run summary so downstream readers don't misread polluted
-    steps as real failures (this session's §d1 exactly).
+tag the run summary so downstream readers don't misread polluted
+steps as real failures (this session's §d1 exactly).
 
 **Hygiene / smaller polish:**
 42. docs-gates CHANGELOG: the lockfile-restore + docs train deserve a
-    line when the next CHANGELOG pass happens (no code change; ritual
-    timing only).
+line when the next CHANGELOG pass happens (no code change; ritual
+timing only).
 43. Re-check `git status --ignored` hygiene per the AGENTS.md
-    .gitignore gotcha if any new testdata/corpus files ever land (none
-    did this session — reminder only).
+.gitignore gotcha if any new testdata/corpus files ever land (none
+did this session — reminder only).
 44. Keep `pkg/provider/go.sum` churn watched: two repair steps claim
-    rewrites each build; if content-neutral rewrites keep appearing in
-    run logs, ask BuildFlow whether "rewrote" should mean
-    content-changed (logging honesty).
+rewrites each build; if content-neutral rewrites keep appearing in
+run logs, ask BuildFlow whether "rewrote" should mean
+content-changed (logging honesty).
 45. erraudit: consider its own equivalent of docs-gates' rev tripwire
-    pattern for ITS critical inputs (the fleet pattern proved its
-    worth here; erraudit tracks inputs too).
+pattern for ITS critical inputs (the fleet pattern proved its
+worth here; erraudit tracks inputs too).
 46. docs-gates AGENTS.md: the erraudit-rev bullet could name the
-    recovery commit SHA class (`git restore --source` + own commit) —
-    it already does; verify wording survives the next compression pass
-    (F94) intact.
+recovery commit SHA class (`git restore --source` + own commit) —
+it already does; verify wording survives the next compression pass
+(F94) intact.
 47. Sweep this session's temp artifacts (`/tmp/todo-row-candidate.txt`)
-    — trivial, but the candidate-line file is the only session residue
-    outside git.
+— trivial, but the candidate-line file is the only session residue
+outside git.
 48. When the erraudit bump lands, update the consumer-proof command in
-    AGENTS.md's triage vocabulary if the fleet adopts
-    `git+file://...?rev=` proofs as the standard consumer check.
+AGENTS.md's triage vocabulary if the fleet adopts
+`git+file://...?rev=` proofs as the standard consumer check.
 49. Re-run the five-gate battery right before ANY push train (CI's
-    dogfood job will run it anyway; local pre-run avoids a red CI
-    surprise — this session's final battery green is the baseline).
+dogfood job will run it anyway; local pre-run avoids a red CI
+surprise — this session's final battery green is the baseline).
 50. Decide whether docs-gates should ever auto-update erraudit
-    (track-latest policy) via a scheduled local job that runs the
-    checks + tripwire bump mechanically — today it needs a human
-    session; the policy says deliberate, the cost is staleness risk
-    exactly like this incident (owner-policy question, see §g2).
+(track-latest policy) via a scheduled local job that runs the
+checks + tripwire bump mechanically — today it needs a human
+session; the policy says deliberate, the cost is staleness risk
+exactly like this incident (owner-policy question, see §g2).
 
 ## g) Three questions I can NOT figure out myself
 
