@@ -82,8 +82,8 @@ in the final sweep only; nixpkgs/SystemNix/crm untouched (owner-gated).
    - **extractor**: 26 sites / 34 locations over docs-gates, all
      resolved-tier, **all verified at their exact source lines, 0
      drift** — closing §8.3 as verified (no context-trust needed).
-   The §8 filing row carries all of this; filing itself stays blocked
-   (active sibling session).
+     The §8 filing row carries all of this; filing itself stays blocked
+     (active sibling session).
 9. **§f.23 fleet skill text**: docs-health SKILL.md battery section now
    names the --json face (stdout-only consumers parse THAT, not the
    human matrix), the half-budget warning, the µs render, and the purge
@@ -162,46 +162,46 @@ in the final sweep only; nixpkgs/SystemNix/crm untouched (owner-gated).
 
 ## h) HARVEST ledger — 01-36 report §f dispositions
 
-| §f item                       | Disposition     | Destination / reason                                                                 |
-| ----------------------------- | --------------- | ------------------------------------------------------------------------------------ |
-| 1 cut v0.2.0                  | existing row    | §4 v0.2.0 (evidence extended: 5th ask, §f.26 collapse note)                           |
-| 2 push trains                 | done in code    | origin/main carries them (verified at session start) — moot                           |
-| 3 archive next report         | executed here   | this report triggered it; 01-36 archived with the live-remainder banner               |
-| 4 merge PR #1                 | new row         | §4 (owner-gated push)                                                                 |
-| 5 file io findings            | existing row    | §8.1 (evidence: b6 cleared → dirty-tree blocker → clean-build revisions)              |
-| 6 re-run probes clean         | done in code    | §a.8 of this report (clean clone f0e9ca5)                                             |
-| 7 widen pre-flight fact       | done in code    | AGENTS first fact widened (`c7c0a4d`)                                                 |
-| 8 pre-commit battery leg      | done in code    | flake.nix docs-battery hook (`09be419`)                                               |
-| 9 purge verb                  | done in code    | `32e5b04` + live dogfood `cb870f7`                                                    |
-| 10 io stdout/stderr note      | merged          | into §8.1 (5-finding list)                                                            |
-| 11 io d1 fix upstream         | merged          | into §8.1 — now MOOT-ish: d1 not reproduced at HEAD                                   |
-| 12 pbx pin bump               | new row         | §3 (blocked on the release)                                                           |
-| 13 SystemNix owner window     | existing row    | §3 consolidation rows                                                                 |
-| 14 dependabot-auto-configure  | existing (ROADMAP-adjacent) | §a.15 of 01-36 verified fix upstream unreleased; fleet-side wait          |
-| 15 nixpkgs maintainers PR     | existing row    | §3 E22 (githubId resolved)                                                            |
-| 16 D1 ruling                  | existing row    | §4 (matrix linked)                                                                    |
-| 17 D2 ruling                  | existing row    | §4 (go-floors enforces mechanically)                                                  |
-| 18 io-surface adoption ruling | existing row    | §4                                                                                    |
-| 19 provider handshake         | existing        | ROADMAP provider-contract bullet                                                      |
-| 20 JSON schema_version        | new (ROADMAP)   | JSON-face contract growth bullet                                                      |
-| 21 watchdog field             | new (ROADMAP)   | same bullet                                                                           |
-| 22 size-series bench          | new (ROADMAP)   | perf-net shape series bullet                                                          |
-| 23 fleet skill text pass      | done in code    | SKILLS repo `647e897`                                                                 |
-| 24 safe-strike --battery test | done in code    | harness cases 12–13                                                                   |
-| 25 go-appkit bench case       | done in code    | BenchmarkCheckReportReplayGoAppkitShape                                               |
-| 26 collapse purge entries     | existing row    | §4 v0.2.0 evidence (at the cut)                                                       |
-| 27 estimate µs precision      | done in code    | FormatDuration tiers + goldens re-pinned                                              |
-| 28 AGENTS compression (F94)   | existing row    | §2c owner-gated tier                                                                  |
-| 29/30 post-switch LSP rows    | existing rows   | §2c (blocked on the SystemNix switch)                                                 |
-| 31/32 crm/go-appkit ratchets  | existing rows   | §3                                                                                    |
-| 33–37 doctor/margins-json/CutStringFlag/split-check/cache-state | existing | ROADMAP bullets (verified current)          |
-| 38–43 gate-family candidates  | existing        | ROADMAP gate-family bullet                                                            |
-| 44/45 BuildFlow upstream      | existing rows   | §3 (concurrency constraint noted)                                                     |
-| 46 golangci merge-train       | declined        | the golangci-drift flake check owns the pin mechanically; nothing to do               |
-| 47 wrap-or-strike ritual      | executed here   | the board carries zero bare-DONE rows; purge verb covers the cycle                    |
-| 48 skip_gates parity arm      | new (ROADMAP)   | JSON-face contract growth bullet                                                      |
-| 49 provider findings message  | new (ROADMAP)   | same bullet                                                                           |
-| 50 rc=N in row message        | new (ROADMAP)   | same bullet                                                                           |
+| §f item                                                         | Disposition                 | Destination / reason                                                     |
+| --------------------------------------------------------------- | --------------------------- | ------------------------------------------------------------------------ |
+| 1 cut v0.2.0                                                    | existing row                | §4 v0.2.0 (evidence extended: 5th ask, §f.26 collapse note)              |
+| 2 push trains                                                   | done in code                | origin/main carries them (verified at session start) — moot              |
+| 3 archive next report                                           | executed here               | this report triggered it; 01-36 archived with the live-remainder banner  |
+| 4 merge PR #1                                                   | new row                     | §4 (owner-gated push)                                                    |
+| 5 file io findings                                              | existing row                | §8.1 (evidence: b6 cleared → dirty-tree blocker → clean-build revisions) |
+| 6 re-run probes clean                                           | done in code                | §a.8 of this report (clean clone f0e9ca5)                                |
+| 7 widen pre-flight fact                                         | done in code                | AGENTS first fact widened (`c7c0a4d`)                                    |
+| 8 pre-commit battery leg                                        | done in code                | flake.nix docs-battery hook (`09be419`)                                  |
+| 9 purge verb                                                    | done in code                | `32e5b04` + live dogfood `cb870f7`                                       |
+| 10 io stdout/stderr note                                        | merged                      | into §8.1 (5-finding list)                                               |
+| 11 io d1 fix upstream                                           | merged                      | into §8.1 — now MOOT-ish: d1 not reproduced at HEAD                      |
+| 12 pbx pin bump                                                 | new row                     | §3 (blocked on the release)                                              |
+| 13 SystemNix owner window                                       | existing row                | §3 consolidation rows                                                    |
+| 14 dependabot-auto-configure                                    | existing (ROADMAP-adjacent) | §a.15 of 01-36 verified fix upstream unreleased; fleet-side wait         |
+| 15 nixpkgs maintainers PR                                       | existing row                | §3 E22 (githubId resolved)                                               |
+| 16 D1 ruling                                                    | existing row                | §4 (matrix linked)                                                       |
+| 17 D2 ruling                                                    | existing row                | §4 (go-floors enforces mechanically)                                     |
+| 18 io-surface adoption ruling                                   | existing row                | §4                                                                       |
+| 19 provider handshake                                           | existing                    | ROADMAP provider-contract bullet                                         |
+| 20 JSON schema_version                                          | new (ROADMAP)               | JSON-face contract growth bullet                                         |
+| 21 watchdog field                                               | new (ROADMAP)               | same bullet                                                              |
+| 22 size-series bench                                            | new (ROADMAP)               | perf-net shape series bullet                                             |
+| 23 fleet skill text pass                                        | done in code                | SKILLS repo `647e897`                                                    |
+| 24 safe-strike --battery test                                   | done in code                | harness cases 12–13                                                      |
+| 25 go-appkit bench case                                         | done in code                | BenchmarkCheckReportReplayGoAppkitShape                                  |
+| 26 collapse purge entries                                       | existing row                | §4 v0.2.0 evidence (at the cut)                                          |
+| 27 estimate µs precision                                        | done in code                | FormatDuration tiers + goldens re-pinned                                 |
+| 28 AGENTS compression (F94)                                     | existing row                | §2c owner-gated tier                                                     |
+| 29/30 post-switch LSP rows                                      | existing rows               | §2c (blocked on the SystemNix switch)                                    |
+| 31/32 crm/go-appkit ratchets                                    | existing rows               | §3                                                                       |
+| 33–37 doctor/margins-json/CutStringFlag/split-check/cache-state | existing                    | ROADMAP bullets (verified current)                                       |
+| 38–43 gate-family candidates                                    | existing                    | ROADMAP gate-family bullet                                               |
+| 44/45 BuildFlow upstream                                        | existing rows               | §3 (concurrency constraint noted)                                        |
+| 46 golangci merge-train                                         | declined                    | the golangci-drift flake check owns the pin mechanically; nothing to do  |
+| 47 wrap-or-strike ritual                                        | executed here               | the board carries zero bare-DONE rows; purge verb covers the cycle       |
+| 48 skip_gates parity arm                                        | new (ROADMAP)               | JSON-face contract growth bullet                                         |
+| 49 provider findings message                                    | new (ROADMAP)               | same bullet                                                              |
+| 50 rc=N in row message                                          | new (ROADMAP)               | same bullet                                                              |
 
 ---
 

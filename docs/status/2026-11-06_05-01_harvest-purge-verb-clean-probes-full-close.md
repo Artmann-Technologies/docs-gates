@@ -249,58 +249,58 @@ board/ROADMAP inventory this session verified current — each already
 lives in TODO_LIST/ROADMAP with evidence; listed here so the next
 session's HARVEST has the full picture without re-reading the board.)
 
-| #  | Task                                                                                     | Impact   | Effort | Category      |
-| -- | ---------------------------------------------------------------------------------------- | -------- | ------ | ------------- |
-| 1  | Cut v0.2.0 (section cut collapses the purge entries; go-release ritual; fleet announce)  | Critical | M      | Release       |
-| 2  | Merge dependabot PR #1 (drift-verified; the merge is a push)                             | High     | S      | Release       |
-| 3  | Push the session's deliberate trains (owner ruling — see §g Q3)                          | High     | S      | Release       |
-| 4  | File the io-surface findings when its tree quiets (clean-build data: b7 headline, d1 moot) | High    | S      | External      |
-| 5  | Post-release: bump pbx-artmann's pin (§3 row)                                            | Medium   | S      | External      |
-| 6  | SystemNix owner window: float + evo-x2 deploy + wrapper switch (one window)              | High     | M      | External      |
-| 7  | nixpkgs lib.maintainers.LarsArtmann PR (owner-gated)                                     | Low      | S      | External      |
-| 8  | crm harvest authority ruling; then the ratchet drain                                     | Medium   | M      | External      |
-| 9  | D1 ruling: host battery adoption vs PATH-only (matrix exists)                            | Medium   | S      | Decision      |
-| 10 | D2 ruling: root go.mod floor unification (recommendation written)                        | Low      | S      | Decision      |
-| 11 | io-surface adoption ruling (§4; ROADMAP data point current)                              | Medium   | S      | Decision      |
-| 12 | Arm the local pre-commit hooks (unset core.hooksPath) so docs-battery guards local work  | Medium   | S      | Quality       |
-| 13 | `scripts/dogfood-commit.sh`: battery-then-commit, failing closed (§e.3)                  | Medium   | S      | Quality       |
-| 14 | `docs-gates purge --group` mode or canonicalize one-bullet-per-row (§e.1)                | Low      | S      | Feature       |
-| 15 | Probe-protocol lesson → crush-config references/lessons.md (§e.2, needs a commit there)  | Medium   | S      | Documentation |
-| 16 | F94: AGENTS non-obvious-facts compression pass (owner tier)                              | Low      | M      | Documentation |
-| 17 | JSON face: `schema_version` field BEFORE any shape change (ROADMAP doctrine)             | Medium   | S      | Feature       |
-| 18 | JSON face: `watchdog` gate-row field (contract change → re-pin golden + provider)        | Low      | M      | Feature       |
-| 19 | Provider: per-gate captured findings into finding.Message                                | Low      | M      | Feature       |
-| 20 | JSON row message: render `rc=N` (human-face parity)                                      | Low      | S      | Polish        |
-| 21 | battery-json golden: `skip_gates` parity arm                                             | Low      | S      | Quality       |
-| 22 | Audit-all size-series benchmark (100/400/1600) — cliff SHAPE                             | Medium   | M      | Quality       |
-| 23 | Provider handshake: mechanical version check (Spec version vs `--version` probe)         | Medium   | M      | Feature       |
-| 24 | go-appkit/crm: tighten ratchets as owning sessions land items (standing doctrine)        | Medium   | M      | Ritual        |
-| 25 | Post-switch: LSP-ghost protocol becomes "restart suffices" (§2c.1)                       | Low      | S      | Documentation |
-| 26 | Post-switch: cold-cache experiment IF ghosts survive (§2c.2)                             | Low      | M      | Quality       |
-| 27 | dependabot-auto-configure release carrying HasUnmodeledGroups; then bump BuildFlow's dep | Low      | S      | External      |
-| 28 | BuildFlow#87 fix upstream; drop the BUILDFLOW_NO_RESULT_CACHE bypass                     | Low      | L      | External      |
-| 29 | BuildFlow roundtrip --tree-root forwarding (coordinate with their sessions)              | Low      | M      | External      |
-| 30 | `docs-gates doctor` verb (PATH, config, flake state in one command)                      | Low      | M      | Feature       |
-| 31 | `--margins --json` for tooling consumption                                               | Low      | M      | Feature       |
-| 32 | `CutStringFlag` (string sibling; re-needed by every new valued flag)                     | Low      | S      | Feature       |
-| 33 | Split-check verb (verify one item's verdict without a full run)                          | Low      | M      | Feature       |
-| 34 | Findings-gate cache-state summary                                                        | Low      | S      | Feature       |
-| 35 | Pre-flight model growth: block replacements + `--remove` (ROADMAP)                       | Low      | M      | Feature       |
-| 36 | Margins/routing convergence: Gap rows carrying harvest suggestions                       | Low      | M      | Feature       |
-| 37 | False item-boundary detector (§f continuation `\d+[.)]` class)                           | Low      | M      | Feature       |
-| 38 | Generic counts gate design pass (FEATURES claims vs the tree)                            | Low      | L      | Feature       |
-| 39 | Link/reference checker for living docs (design pass)                                     | Low      | L      | Feature       |
-| 40 | Report-freshness age gate distinct from cadence (design pass)                            | Low      | M      | Feature       |
-| 41 | errcheck/gosec fleet-wide nolint staleness tripwires                                     | Low      | M      | Quality       |
-| 42 | tokencorpus extraction IF gates ever version independently                               | Low      | M      | Cleanup       |
-| 43 | §1 board row: annotate sweep over older unarchived reports — only at cadence pressure    | Low      | M      | Ritual        |
-| 44 | Estimate-line suppression under a threshold (µs render may have settled it — decide)     | Low      | S      | Polish        |
-| 45 | Verify the docs-battery hook cost inside pre-commit-check; prebuild if slow              | Low      | S      | Quality       |
-| 46 | Archive the next report when it lands (standing ritual; corpus at 15/15 again)           | Medium   | S      | Ritual        |
-| 47 | Windows/macOS consumers revisit only on a real consumer (ROADMAP)                        | Low      | -      | Non-goal      |
-| 48 | Sub-10ms estimate honest-but-useless follow-up: drop if µs render satisfies              | Low      | S      | Polish        |
-| 49 | Keep the §8 filing row's clean-build evidence fresh if the sibling lands more work       | Low      | S      | External      |
-| 50 | Retire the ROADMAP provider-contract bullet the day the handshake decision lands         | Low      | S      | Documentation |
+| #  | Task                                                                                       | Impact   | Effort | Category      |
+| -- | ------------------------------------------------------------------------------------------ | -------- | ------ | ------------- |
+| 1  | Cut v0.2.0 (section cut collapses the purge entries; go-release ritual; fleet announce)    | Critical | M      | Release       |
+| 2  | Merge dependabot PR #1 (drift-verified; the merge is a push)                               | High     | S      | Release       |
+| 3  | Push the session's deliberate trains (owner ruling — see §g Q3)                            | High     | S      | Release       |
+| 4  | File the io-surface findings when its tree quiets (clean-build data: b7 headline, d1 moot) | High     | S      | External      |
+| 5  | Post-release: bump pbx-artmann's pin (§3 row)                                              | Medium   | S      | External      |
+| 6  | SystemNix owner window: float + evo-x2 deploy + wrapper switch (one window)                | High     | M      | External      |
+| 7  | nixpkgs lib.maintainers.LarsArtmann PR (owner-gated)                                       | Low      | S      | External      |
+| 8  | crm harvest authority ruling; then the ratchet drain                                       | Medium   | M      | External      |
+| 9  | D1 ruling: host battery adoption vs PATH-only (matrix exists)                              | Medium   | S      | Decision      |
+| 10 | D2 ruling: root go.mod floor unification (recommendation written)                          | Low      | S      | Decision      |
+| 11 | io-surface adoption ruling (§4; ROADMAP data point current)                                | Medium   | S      | Decision      |
+| 12 | Arm the local pre-commit hooks (unset core.hooksPath) so docs-battery guards local work    | Medium   | S      | Quality       |
+| 13 | `scripts/dogfood-commit.sh`: battery-then-commit, failing closed (§e.3)                    | Medium   | S      | Quality       |
+| 14 | `docs-gates purge --group` mode or canonicalize one-bullet-per-row (§e.1)                  | Low      | S      | Feature       |
+| 15 | Probe-protocol lesson → crush-config references/lessons.md (§e.2, needs a commit there)    | Medium   | S      | Documentation |
+| 16 | F94: AGENTS non-obvious-facts compression pass (owner tier)                                | Low      | M      | Documentation |
+| 17 | JSON face: `schema_version` field BEFORE any shape change (ROADMAP doctrine)               | Medium   | S      | Feature       |
+| 18 | JSON face: `watchdog` gate-row field (contract change → re-pin golden + provider)          | Low      | M      | Feature       |
+| 19 | Provider: per-gate captured findings into finding.Message                                  | Low      | M      | Feature       |
+| 20 | JSON row message: render `rc=N` (human-face parity)                                        | Low      | S      | Polish        |
+| 21 | battery-json golden: `skip_gates` parity arm                                               | Low      | S      | Quality       |
+| 22 | Audit-all size-series benchmark (100/400/1600) — cliff SHAPE                               | Medium   | M      | Quality       |
+| 23 | Provider handshake: mechanical version check (Spec version vs `--version` probe)           | Medium   | M      | Feature       |
+| 24 | go-appkit/crm: tighten ratchets as owning sessions land items (standing doctrine)          | Medium   | M      | Ritual        |
+| 25 | Post-switch: LSP-ghost protocol becomes "restart suffices" (§2c.1)                         | Low      | S      | Documentation |
+| 26 | Post-switch: cold-cache experiment IF ghosts survive (§2c.2)                               | Low      | M      | Quality       |
+| 27 | dependabot-auto-configure release carrying HasUnmodeledGroups; then bump BuildFlow's dep   | Low      | S      | External      |
+| 28 | BuildFlow#87 fix upstream; drop the BUILDFLOW_NO_RESULT_CACHE bypass                       | Low      | L      | External      |
+| 29 | BuildFlow roundtrip --tree-root forwarding (coordinate with their sessions)                | Low      | M      | External      |
+| 30 | `docs-gates doctor` verb (PATH, config, flake state in one command)                        | Low      | M      | Feature       |
+| 31 | `--margins --json` for tooling consumption                                                 | Low      | M      | Feature       |
+| 32 | `CutStringFlag` (string sibling; re-needed by every new valued flag)                       | Low      | S      | Feature       |
+| 33 | Split-check verb (verify one item's verdict without a full run)                            | Low      | M      | Feature       |
+| 34 | Findings-gate cache-state summary                                                          | Low      | S      | Feature       |
+| 35 | Pre-flight model growth: block replacements + `--remove` (ROADMAP)                         | Low      | M      | Feature       |
+| 36 | Margins/routing convergence: Gap rows carrying harvest suggestions                         | Low      | M      | Feature       |
+| 37 | False item-boundary detector (§f continuation `\d+[.)]` class)                             | Low      | M      | Feature       |
+| 38 | Generic counts gate design pass (FEATURES claims vs the tree)                              | Low      | L      | Feature       |
+| 39 | Link/reference checker for living docs (design pass)                                       | Low      | L      | Feature       |
+| 40 | Report-freshness age gate distinct from cadence (design pass)                              | Low      | M      | Feature       |
+| 41 | errcheck/gosec fleet-wide nolint staleness tripwires                                       | Low      | M      | Quality       |
+| 42 | tokencorpus extraction IF gates ever version independently                                 | Low      | M      | Cleanup       |
+| 43 | §1 board row: annotate sweep over older unarchived reports — only at cadence pressure      | Low      | M      | Ritual        |
+| 44 | Estimate-line suppression under a threshold (µs render may have settled it — decide)       | Low      | S      | Polish        |
+| 45 | Verify the docs-battery hook cost inside pre-commit-check; prebuild if slow                | Low      | S      | Quality       |
+| 46 | Archive the next report when it lands (standing ritual; corpus at 15/15 again)             | Medium   | S      | Ritual        |
+| 47 | Windows/macOS consumers revisit only on a real consumer (ROADMAP)                          | Low      | -      | Non-goal      |
+| 48 | Sub-10ms estimate honest-but-useless follow-up: drop if µs render satisfies                | Low      | S      | Polish        |
+| 49 | Keep the §8 filing row's clean-build evidence fresh if the sibling lands more work         | Low      | S      | External      |
+| 50 | Retire the ROADMAP provider-contract bullet the day the handshake decision lands           | Low      | S      | Documentation |
 
 ## g) Three questions I can NOT figure out myself
 
@@ -327,55 +327,55 @@ report was archived as superseded by THIS report)._
 
 ## h) HARVEST ledger — 01-36 report §f dispositions
 
-| §f item                                        | Disposition   | Destination / reason                                                        |
-| ---------------------------------------------- | ------------- | --------------------------------------------------------------------------- |
-| 1 cut v0.2.0                                   | existing row  | §4 (evidence extended: 6th ask, §f.26 collapse note)                        |
-| 2 push trains                                  | done          | origin carried them at session start — moot                                 |
-| 3 archive next report                          | executed      | 01-36 archived this session; corpus 15/15 again                             |
-| 4 merge PR #1                                  | new row       | §4 (owner-gated push)                                                       |
-| 5 file io findings                             | existing row  | §8.1 (three evidence revisions this session)                                |
-| 6 re-run probes clean                          | done          | §a.11 (clean clone f0e9ca5)                                                 |
-| 7 widen pre-flight fact                        | done          | AGENTS first fact (`c7c0a4d`)                                               |
-| 8 pre-commit battery leg                       | done          | flake.nix docs-battery hook (`09be419`)                                     |
-| 9 purge verb                                   | done          | `32e5b04` + live dogfood `cb870f7`                                          |
-| 10 io stdout/stderr note                       | merged        | into §8.1's finding list                                                    |
-| 11 io d1 fix upstream                          | merged/moot   | d1 not reproduced at HEAD (§a.11)                                           |
-| 12 pbx pin bump                                | new row       | §3 (blocked on the release)                                                 |
-| 13 SystemNix owner window                      | existing row  | §3 consolidation                                                            |
-| 14 dependabot-auto-configure release           | existing      | fix verified upstream-unreleased (01-36 §a.15); fleet-side wait             |
-| 15 nixpkgs maintainers PR                      | existing row  | §3 E22                                                                      |
-| 16 D1 ruling                                   | existing row  | §4 + planning matrix                                                        |
-| 17 D2 ruling                                   | existing row  | §4 + go-floors mechanical enforcement                                       |
-| 18 io-surface adoption ruling                  | existing row  | §4                                                                          |
-| 19 provider handshake                          | existing      | ROADMAP bullet                                                              |
-| 20 JSON schema_version                         | new (ROADMAP) | JSON-face contract growth bullet                                            |
-| 21 watchdog field                              | new (ROADMAP) | same bullet                                                                 |
-| 22 size-series bench                           | new (ROADMAP) | perf-net shape series bullet                                                |
-| 23 fleet skill text pass                       | done          | SKILLS `647e897`, fan-out verified                                          |
-| 24 safe-strike --battery test                  | done          | harness cases 12–13                                                         |
-| 25 go-appkit bench case                        | done          | BenchmarkCheckReportReplayGoAppkitShape                                     |
-| 26 collapse purge entries                      | existing row  | §4 v0.2.0 evidence (at the cut)                                             |
-| 27 estimate µs precision                       | done          | FormatDuration tiers + goldens re-pinned                                    |
-| 28 AGENTS compression (F94)                    | existing row  | §2c owner tier                                                              |
-| 29 post-switch LSP "restart suffices"          | existing row  | §2c.1                                                                       |
-| 30 post-switch cold-cache experiment           | existing row  | §2c.2                                                                       |
-| 31 crm harvest                                 | existing row  | §3 (authority ruling)                                                       |
-| 32 go-appkit/crm ratchet tightening            | existing row  | §3 doctrine                                                                 |
-| 33 doctor verb                                 | existing      | ROADMAP                                                                     |
-| 34 --margins --json                            | existing      | ROADMAP                                                                     |
-| 35 CutStringFlag                               | existing      | ROADMAP                                                                     |
-| 36 split-check verb                            | existing      | ROADMAP                                                                     |
-| 37 cache-state summary                         | existing      | ROADMAP                                                                     |
-| 38 false item-boundary detector                | existing      | ROADMAP gate-family bullet                                                  |
-| 39 generic counts gate                         | existing      | ROADMAP gate-family bullet                                                  |
-| 40 link/reference checker                      | existing      | ROADMAP gate-family bullet                                                  |
-| 41 report-freshness age gate                   | existing      | ROADMAP gate-family bullet                                                  |
-| 42 errcheck/gosec tripwires                    | existing      | ROADMAP fleet bullet                                                        |
-| 43 tokencorpus extraction                      | existing      | ROADMAP decoupling bullet                                                   |
-| 44 BuildFlow#87                                | existing row  | §3                                                                          |
-| 45 BuildFlow roundtrip --tree-root             | existing row  | §3                                                                          |
-| 46 golangci merge-train                        | declined      | the golangci-drift flake check owns the pin mechanically — nothing to do    |
-| 47 wrap-or-strike ritual                       | executed      | zero bare-DONE rows; the purge verb now covers the DONE→strike→purge cycle  |
-| 48 skip_gates parity arm                       | new (ROADMAP) | JSON-face contract growth bullet                                            |
-| 49 provider findings message                   | new (ROADMAP) | same bullet                                                                 |
-| 50 rc=N in row message                         | new (ROADMAP) | same bullet                                                                 |
+| §f item                               | Disposition   | Destination / reason                                                       |
+| ------------------------------------- | ------------- | -------------------------------------------------------------------------- |
+| 1 cut v0.2.0                          | existing row  | §4 (evidence extended: 6th ask, §f.26 collapse note)                       |
+| 2 push trains                         | done          | origin carried them at session start — moot                                |
+| 3 archive next report                 | executed      | 01-36 archived this session; corpus 15/15 again                            |
+| 4 merge PR #1                         | new row       | §4 (owner-gated push)                                                      |
+| 5 file io findings                    | existing row  | §8.1 (three evidence revisions this session)                               |
+| 6 re-run probes clean                 | done          | §a.11 (clean clone f0e9ca5)                                                |
+| 7 widen pre-flight fact               | done          | AGENTS first fact (`c7c0a4d`)                                              |
+| 8 pre-commit battery leg              | done          | flake.nix docs-battery hook (`09be419`)                                    |
+| 9 purge verb                          | done          | `32e5b04` + live dogfood `cb870f7`                                         |
+| 10 io stdout/stderr note              | merged        | into §8.1's finding list                                                   |
+| 11 io d1 fix upstream                 | merged/moot   | d1 not reproduced at HEAD (§a.11)                                          |
+| 12 pbx pin bump                       | new row       | §3 (blocked on the release)                                                |
+| 13 SystemNix owner window             | existing row  | §3 consolidation                                                           |
+| 14 dependabot-auto-configure release  | existing      | fix verified upstream-unreleased (01-36 §a.15); fleet-side wait            |
+| 15 nixpkgs maintainers PR             | existing row  | §3 E22                                                                     |
+| 16 D1 ruling                          | existing row  | §4 + planning matrix                                                       |
+| 17 D2 ruling                          | existing row  | §4 + go-floors mechanical enforcement                                      |
+| 18 io-surface adoption ruling         | existing row  | §4                                                                         |
+| 19 provider handshake                 | existing      | ROADMAP bullet                                                             |
+| 20 JSON schema_version                | new (ROADMAP) | JSON-face contract growth bullet                                           |
+| 21 watchdog field                     | new (ROADMAP) | same bullet                                                                |
+| 22 size-series bench                  | new (ROADMAP) | perf-net shape series bullet                                               |
+| 23 fleet skill text pass              | done          | SKILLS `647e897`, fan-out verified                                         |
+| 24 safe-strike --battery test         | done          | harness cases 12–13                                                        |
+| 25 go-appkit bench case               | done          | BenchmarkCheckReportReplayGoAppkitShape                                    |
+| 26 collapse purge entries             | existing row  | §4 v0.2.0 evidence (at the cut)                                            |
+| 27 estimate µs precision              | done          | FormatDuration tiers + goldens re-pinned                                   |
+| 28 AGENTS compression (F94)           | existing row  | §2c owner tier                                                             |
+| 29 post-switch LSP "restart suffices" | existing row  | §2c.1                                                                      |
+| 30 post-switch cold-cache experiment  | existing row  | §2c.2                                                                      |
+| 31 crm harvest                        | existing row  | §3 (authority ruling)                                                      |
+| 32 go-appkit/crm ratchet tightening   | existing row  | §3 doctrine                                                                |
+| 33 doctor verb                        | existing      | ROADMAP                                                                    |
+| 34 --margins --json                   | existing      | ROADMAP                                                                    |
+| 35 CutStringFlag                      | existing      | ROADMAP                                                                    |
+| 36 split-check verb                   | existing      | ROADMAP                                                                    |
+| 37 cache-state summary                | existing      | ROADMAP                                                                    |
+| 38 false item-boundary detector       | existing      | ROADMAP gate-family bullet                                                 |
+| 39 generic counts gate                | existing      | ROADMAP gate-family bullet                                                 |
+| 40 link/reference checker             | existing      | ROADMAP gate-family bullet                                                 |
+| 41 report-freshness age gate          | existing      | ROADMAP gate-family bullet                                                 |
+| 42 errcheck/gosec tripwires           | existing      | ROADMAP fleet bullet                                                       |
+| 43 tokencorpus extraction             | existing      | ROADMAP decoupling bullet                                                  |
+| 44 BuildFlow#87                       | existing row  | §3                                                                         |
+| 45 BuildFlow roundtrip --tree-root    | existing row  | §3                                                                         |
+| 46 golangci merge-train               | declined      | the golangci-drift flake check owns the pin mechanically — nothing to do   |
+| 47 wrap-or-strike ritual              | executed      | zero bare-DONE rows; the purge verb now covers the DONE→strike→purge cycle |
+| 48 skip_gates parity arm              | new (ROADMAP) | JSON-face contract growth bullet                                           |
+| 49 provider findings message          | new (ROADMAP) | same bullet                                                                |
+| 50 rc=N in row message                | new (ROADMAP) | same bullet                                                                |
