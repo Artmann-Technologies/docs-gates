@@ -1,3 +1,13 @@
+> **Archived per cadence** (2026-11-06, corpus at max_unarchived=15
+> again) — this session's work is DONE and its findings pinned: the
+> file-size bypass is documented in AGENTS.md (file-size-check
+> constant-cache-key bug, filed as BuildFlow#87), the roundtrip walker
+> diagnosis lives in AGENTS.md's known-tool-bug entries, and the open
+> legs ride TODO_LIST §3 (BuildFlow#87 fix, roundtrip upstream fix).
+> Successor report:
+> 2026-11-06_05-43_buildflow-lockfile-drift-erraudit-recovery-status.md.
+> Nothing in here is unrecoverable; the archive keeps the full record.
+
 # Status Report — file-size refactor session (2026-11-04 05:06)
 
 **Scope line.** VERIFIED this session, with commands: the five oversized-file
