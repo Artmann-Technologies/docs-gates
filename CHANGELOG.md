@@ -471,6 +471,8 @@ match the annotated git tags; anything after the newest tag sits under
 - Pre-commit `docs-battery` leg (the bank-sync hook pattern, same git-hooks.nix config as nolint-audit): a commit staging TODO_LIST/CHANGELOG/ROADMAP/AGENTS/FEATURES runs the whole dogfood battery BEFORE the commit lands — the 4cf0e50 ungated-train lesson is now mechanical. The safe-strike-test harness grew the --battery legs (a fake docs-gates on PATH proves the stub is invoked; without it the go-run fallback fails loudly, never silently skips), and the audit-all benchmark family gained the go-appkit corpus shape (12×150, the pilot ratchet shape) beside the CV cliff.
 - Sub-10ms durations render at honest microsecond precision: `<1µs` below a microsecond, exact µs to 1ms, 100µs steps to 10ms — the audit-all estimate stays legible as a cost signal where the old `<10ms` bucket was honest but useless (`est ~105µs` over the fixture corpus; parity goldens re-pinned to the deterministic value, matrix/heartbeat lines unchanged).
 
+- TODO_LIST purge (2026-11-06): Verify the remaining 15 of 18 extracted sites against source, or record the context-trust explicitly — done at clean-build re-extraction (2026-11-06): the corpus grew to 26 sites / 34 locations by HEAD f0e9ca5; ALL verified at their exact source lines, 0 drift — no context-trust needed
+
 ### Fixed
 
 - `skip_gates` validation: a typo'd gate name used to be a silent no-op
