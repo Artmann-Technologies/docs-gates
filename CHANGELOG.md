@@ -147,6 +147,73 @@ match the annotated git tags; anything after the newest tag sits under
 - docs/DOMAIN_LANGUAGE.md: the gate vocabulary (verdict matrix, ratchet,
   struck row, harvest, distinctive token, living/historical docs) in one
   greppable glossary.
+- CI dogfood job: every push runs the battery over THIS repo (full
+  history checkout so annotate's hash/tag claims resolve against the
+  real commit graph — a depth-1 checkout false-fails them, caught on
+  the job's first run). The gates that define green now judge their own
+  repo in CI; a red dogfood row is the docs ritual coming due, never a
+  pin.
+- CI audit-all cliff benchmark arm: the CV-shaped
+  BenchmarkCheckReportReplay at 100 iterations under an OS `timeout
+  45s` — ~9x noise headroom on CI-class hardware while any regression
+  past ~10x (the pre-memoization cost) exits 124. The harness's own
+  -timeout never fires inside a benchmark loop (probe-proven), so the
+  ceiling is the OS wrapper; TestReplaySpeedGuard stays the sharper
+  contract in the plain test step.
+- golangci-drift flake check: the ci.yml golangci action `version:`
+  input and the flake's nixpkgs golangci pin must move in one train —
+  the check interpolates the locked golangci version at eval time and
+  fails on divergence (red-controlled with a planted v9.9.9).
+- go-floors flake check: the root (1.26) and provider (1.27) go floors
+  must both stay within the pinned toolchain (`sort -V` comparison) —
+  the AGENTS toolchain invariant becomes mechanical (red-controlled
+  with a planted go 1.28).
+- shell-lint devShell + flake check: shellcheck (severity warning) over
+  every script and actionlint over the workflow YAML — the workflow and
+  bash scripts finally have standing validators (the 2 SC2155 findings
+  in safe-strike.sh it surfaced were fixed in the same train).
+- Dependabot enrollment (`.github/dependabot.yml`): weekly grouped
+  updates for the workflow action SHAs and both go modules — the
+  checkout/setup-go/golangci pins age without a renewal mechanism no
+  more.
+- `scripts/safe-strike-test.sh`: safe-strike's nine-case refusal matrix
+  is now an in-repo bash harness (11 rails over a scratch git repo, all
+  green) — the matrix lived only in a session transcript, so the
+  script's next edit had no regression net.
+- safe-strike `--battery` flag: the per-batch gate leg can run the
+  WHOLE five-gate battery (`--battery`) instead of only the annotate
+  verb (`--gate`) — bulk sweeps now see freshness/routing drift their
+  own strikes cause.
+- The battery's `--json` machine face (2026-11-06): `docs-gates run
+  [root] --json` prints exactly one verdict document on stdout —
+  snake_case (tagliatelle-pinned): per-gate name/verdict/exit_code/
+  skipped/timed_out/duration_ms plus the gate's captured stdout/stderr
+  embedded verbatim; every human line (heartbeat, red-gate output,
+  final PASS/FAIL) detours to stderr; exit contract unchanged. Pinned
+  byte-for-byte by a battery-json parity golden (a `duration_ms`-
+  normalizing regex joins the harness). Consumers parse data instead of
+  scanning human matrix rows.
+- The battery's half-budget watchdog: once a gate burns past half its
+  `gate_timeout_sec` cap, a live line names the budget and the
+  abandonment point (`gate X over half its <cap> budget — abandoned at
+  the cap`) while the gate still runs. The human face writes it to the
+  REAL stdout mid-capture via the new gatecli.Livef (the capture swap
+  would otherwise park the warning inside the gate's own buffer —
+  exactly when it stops being an early warning); the JSON face keeps
+  stdout pure and warns on stderr. Red-controlled with a 300ms-cap
+  slow gate.
+- The BuildFlow provider migrated onto the JSON face: Detect execs
+  `docs-gates run --json` and decodes the verdict document (the old
+  human-text matrix scan is gone). The decoder refuses unknown fields —
+  a renamed or removed row field fails the decode and surfaces as a
+  `battery-exit-without-report` finding instead of silently reading
+  zero values (the provider-side half of the row-shape contract; the
+  battery-json parity golden is the battery-side half). Canned-document
+  tests pin every row shape the battery can emit (PASS/FAIL/SKIP,
+  rc=timeout rows with duration columns, document order), Detect trusts
+  rows over the pass summary, and the old human matrix is red-proven to
+  be a shape break. The real-binary e2e leg passes unchanged through
+  the JSON face.
 
 ### Changed
 

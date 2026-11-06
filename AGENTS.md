@@ -24,7 +24,7 @@ library:
 | `internal/battery`                                         | the `run` verb: ordered gate list from config, gates run INDEPENDENTLY with captured output, PASS/FAIL/SKIP verdict matrix — no first-failure abort                                                                                                                                                                                                |
 | `internal/config`                                          | `.docs-gates.json` loader: decode over `Defaults()` (the historical fleet constants), unknown keys WARN, malformed/invalid exit 2                                                                                                                                                                                                                  |
 | `internal/docs{freshness,annotate,routing,cadence,strike}` | the five gates: each a `Run([]string) int` whose argv shape matches the historical standalone binaries, each with a per-package `Settings` projection (zero values → historical constants)                                                                                                                                                         |
-| `pkg/provider`                                             | BuildFlow toolsdk provider — a SEPARATE go module that EXECS the `docs-gates` binary from PATH (internal/ is unimportable across module boundaries), parses the verdict matrix into findings, registers via `toolsdk.Register` at init; consumers blank-import it                                                                                  |
+| `pkg/provider`                                             | BuildFlow toolsdk provider — a SEPARATE go module that EXECS the `docs-gates` binary from PATH (internal/ is unimportable across module boundaries), parses the `run --json` verdict document into findings (strict decoder: unknown fields fail, shape drift becomes findings), registers via `toolsdk.Register` at init; consumers blank-import it                                                                                  |
 
 Gate-verb control flow: `main.go` → verb's `Run(rest)` → `gatecli.Parse`
 (flags + root) → `Settings` projection → gate logic → verdict lines via
@@ -77,7 +77,9 @@ paths — the re-pin ritual does not apply to them.
   env var (not a flag): `PARITY_UPDATE=1 go test ./internal/battery/
   -run TestParityGolden`, then diff by hand — a golden bump is a contract
   change.
-- **This repo has an auto-commit daemon** (commits ~every 3 min, NEVER
+- **This repo has an auto-commit daemon** (commits per the host config
+  `/etc/projects-management-automation/service.yaml` — `min_commit_interval: 120s`
+  + `debounce_duration: 60s` (read 2026-11-06), so ~2-3 min cadence, NEVER
   pushes — the host config sets `autoPush = false` (SystemNix
   configuration.nix, since 2026-06-01; the afternoon session's
   "22-commit push lag" root cause: the daemon was doing exactly what
@@ -115,7 +117,10 @@ paths — the re-pin ritual does not apply to them.
   `[runner/nolint_filter] Found unknown linters in //nolint directives:
   erraudit` — expected cross-tool artifact (erraudit is a standalone
   binary, not a golangci linter; the fleet runs it standalone, no plugin),
-  warning-only with 0 issues and rc=0.
+  warning-only with 0 issues and rc=0. Live directive count: 14
+  non-test directives, 0 stale (nolint-audit counts NON-TEST files;
+  2026-11-06) — never cite a count from memory, run `erraudit
+  nolint-audit .` when a doc or report needs the number.
 
 ## Verdict arithmetic (battery)
 
@@ -128,9 +133,29 @@ paths — the re-pin ritual does not apply to them.
   failures (bad root, bad config) exit 2 from `docs-gates run`.
 - Findings live in the gate's own output (stdout on green, forwarded to
   stderr on red); the matrix names gates, not findings.
+- The `--json` machine face (`docs-gates run [root] --json`) puts EXACTLY
+  one JSON document on stdout (snake_case tags, `duration_ms` integer
+  columns, per-gate `stdout`/`stderr` embedded verbatim); every human
+  line rides stderr; the exit contract is unchanged. The battery-json
+  parity golden pins the document byte-for-byte, and pkg/provider parses
+  THIS face (its decoder refuses unknown fields — row-shape drift
+  surfaces as `battery-exit-without-report` findings, never silent zero
+  values). Add a knob to the document = intentional contract change:
+  re-pin the golden AND the provider tests together.
+- A gate burning past HALF its `gate_timeout_sec` budget triggers the
+  live watchdog line (`gate X over half its <cap> budget — abandoned at
+  the cap`): human face prints it on the REAL stdout mid-capture via
+  `gatecli.Livef` (the capture swap would otherwise park it in the
+  gate's own buffer); the JSON face keeps stdout pure and warns on
+  stderr. Fire-only, informational — the matrix arithmetic never reads
+  it.
 
 ## Non-obvious facts (paid for)
 
+- **Run `docs-freshness --pre-flight` BEFORE any TODO evidence-rewrite
+  batch** (paid 2026-11-05/06): the 06-39 session genericized two TODO
+  evidence anchors skipping the pre-flight and only the afterwards run
+  caught the flips. stdin the candidate lines, rewrite only on SAFE.
 - **The root `./...` never sees `pkg/provider`** — it is a nested go
   module. `go test ./...`, `go vet ./...`, the nix checkPhase, and CI
   (which runs all of those from the root) all exclude it. Test the
@@ -375,14 +400,26 @@ nix develop -c erraudit nolint-audit .            # directive staleness over the
 nix develop -c pre-commit run nolint-audit --all-files   # the commit-time leg of the same gate (bank-sync pattern); auto-install needs `git config --unset core.hooksPath` (set to the default .git/hooks here, which pre-commit refuses to override)
 bash scripts/check-erraudit-rev.sh                # erraudit-rev tripwire (also a flake check): run after bumping the erraudit input
 nix fmt                                           # nixfmt-tree over *.nix (via treefmt.toml)
-nix flake check --all-systems --no-build          # both-arch eval
-go run ./cmd/docs-gates run <repo-root>           # the battery over any repo (run it over THIS repo after doc edits)
+nix flake check --all-systems --no-build          # both-arch eval (checks: nolint-audit, erraudit-lint, provider-suite, golangci-drift, go-floors, shell-lint + the skills guards)
+timeout 300 go run ./cmd/docs-gates run <repo-root>  # the battery over any repo (run it over THIS repo after doc edits; timeout bounds a standalone run the way gate_timeout_sec bounds the battery's gates)
+go run ./cmd/docs-gates run <repo-root> --json    # the machine face: one JSON verdict document on stdout, humans on stderr
+timeout 300 go run ./cmd/docs-gates <verb> <repo-root>  # a standalone gate (same timeout discipline — standalone runs have NO cap of their own)
 PARITY_UPDATE=1 go test ./internal/battery/ -run TestParityGolden   # re-pin goldens after an INTENTIONAL output change
 ```
 
 CI (`.github/workflows/ci.yml`, push/PR): `go build` / `go vet` /
-`gofmt -l` / `scripts/stack-drift-check.sh` / `go test ./...` from the
-root (`go` job), plus a `provider` job running build/vet/test from
-`pkg/provider` — both modules gated, provider regressions fail CI. The
-flake (and its erraudit checks) never runs on CI: local-only quality
-loop.
+`scripts/stack-drift-check.sh` / `go test ./...` plus the audit-all
+cliff benchmark arm (`go test -bench BenchmarkCheckReportReplay
+-benchtime=100x` under an OS `timeout 45s`; the ~10x-regression kill
+switch for the corpus memoization; no standalone gofmt step — golangci
+gates format on both jobs via gofumpt) from the root (`go` job), a
+`provider` job running build/vet/test from `pkg/provider`, and the
+`dogfood` job running the battery over THIS repo every push — both
+modules gated, provider regressions fail CI, and a red dogfood row is
+the docs ritual coming due, never a pin. The flake (and its erraudit
+checks) never runs on CI: local-only quality loop. The ci.yml golangci
+action `version:` and the flake's nixpkgs golangci pin are kept in one
+train by the `golangci-drift` flake check; `shell-lint` shellchecks
+every script + actionlints the workflow YAML; `go-floors` asserts both
+go.mod floors stay within the pinned toolchain; dependabot (actions +
+both go modules, grouped, weekly) keeps the action SHA pins fresh.
