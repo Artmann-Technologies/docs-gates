@@ -17,14 +17,14 @@ goes red over the repo that defines green.
 One binary, six verbs; `cmd/docs-gates` dispatches, everything else is a
 library:
 
-| Package                                                    | Role                                                                                                                                                                                                                                                                                                                                               |
-| ---------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `cmd/docs-gates`                                           | verb dispatch (`run`, `freshness`, `annotate`, `routing`, `cadence`, `strike`), the verb-to-legacy-name map, the help surface (`--help`/`-h`/`help [verb]`, did-you-mean verb suggestions), `--version`. Version is ldflags-stamped by the flake build; `"dev"` bare-built.                                                                        |
-| `internal/gatecli`                                         | shared CLI scaffolding: exit-code constants, boolean `--flag` parsing, valued `--flag=N` splitting (`CutIntFlag`), the config prologue (`LoadConfig`: load + `config:` warnings, one shape for every verb), repo-root resolution, `Outf`/`Outln`/`Errf`/`Errln` (the ONE home for unchecked `fmt.Fprint*`), UTF-8-safe `Truncate`, `CaptureOutput` |
-| `internal/battery`                                         | the `run` verb: ordered gate list from config, gates run INDEPENDENTLY with captured output, PASS/FAIL/SKIP verdict matrix — no first-failure abort                                                                                                                                                                                                |
-| `internal/config`                                          | `.docs-gates.json` loader: decode over `Defaults()` (the historical fleet constants), unknown keys WARN, malformed/invalid exit 2                                                                                                                                                                                                                  |
-| `internal/docs{freshness,annotate,routing,cadence,strike}` | the five gates: each a `Run([]string) int` whose argv shape matches the historical standalone binaries, each with a per-package `Settings` projection (zero values → historical constants)                                                                                                                                                         |
-| `pkg/provider`                                             | BuildFlow toolsdk provider — a SEPARATE go module that EXECS the `docs-gates` binary from PATH (internal/ is unimportable across module boundaries), parses the `run --json` verdict document into findings (strict decoder: unknown fields fail, shape drift becomes findings), registers via `toolsdk.Register` at init; consumers blank-import it                                                                                  |
+| Package                                                    | Role                                                                                                                                                                                                                                                                                                                                                 |
+| ---------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `cmd/docs-gates`                                           | verb dispatch (`run`, `freshness`, `annotate`, `routing`, `cadence`, `strike`), the verb-to-legacy-name map, the help surface (`--help`/`-h`/`help [verb]`, did-you-mean verb suggestions), `--version`. Version is ldflags-stamped by the flake build; `"dev"` bare-built.                                                                          |
+| `internal/gatecli`                                         | shared CLI scaffolding: exit-code constants, boolean `--flag` parsing, valued `--flag=N` splitting (`CutIntFlag`), the config prologue (`LoadConfig`: load + `config:` warnings, one shape for every verb), repo-root resolution, `Outf`/`Outln`/`Errf`/`Errln` (the ONE home for unchecked `fmt.Fprint*`), UTF-8-safe `Truncate`, `CaptureOutput`   |
+| `internal/battery`                                         | the `run` verb: ordered gate list from config, gates run INDEPENDENTLY with captured output, PASS/FAIL/SKIP verdict matrix — no first-failure abort                                                                                                                                                                                                  |
+| `internal/config`                                          | `.docs-gates.json` loader: decode over `Defaults()` (the historical fleet constants), unknown keys WARN, malformed/invalid exit 2                                                                                                                                                                                                                    |
+| `internal/docs{freshness,annotate,routing,cadence,strike}` | the five gates: each a `Run([]string) int` whose argv shape matches the historical standalone binaries, each with a per-package `Settings` projection (zero values → historical constants)                                                                                                                                                           |
+| `pkg/provider`                                             | BuildFlow toolsdk provider — a SEPARATE go module that EXECS the `docs-gates` binary from PATH (internal/ is unimportable across module boundaries), parses the `run --json` verdict document into findings (strict decoder: unknown fields fail, shape drift becomes findings), registers via `toolsdk.Register` at init; consumers blank-import it |
 
 Gate-verb control flow: `main.go` → verb's `Run(rest)` → `gatecli.Parse`
 (flags + root) → `Settings` projection → gate logic → verdict lines via
@@ -79,30 +79,30 @@ paths — the re-pin ritual does not apply to them.
   change.
 - **This repo has an auto-commit daemon** (commits per the host config
   `/etc/projects-management-automation/service.yaml` — `min_commit_interval: 120s`
-  + `debounce_duration: 60s` (read 2026-11-06), so ~2-3 min cadence, NEVER
-  pushes — the host config sets `autoPush = false` (SystemNix
-  configuration.nix, since 2026-06-01; the afternoon session's
-  "22-commit push lag" root cause: the daemon was doing exactly what
-  its config says while sessions believed it pushes and waited —
-  every push in this repo's history was a manual session push, so
-  PUSH YOUR OWN TRAINS; the phantom "pushes too" belief cost one
-  session a 22-commit surprise): format and lint AT WRITE TIME, commit deliberate trains with the
-  HEREDOC attribution form, and expect heuristic `chore: auto-commit`
-  entries in the log. Never restore/checkout files you did not author —
-  and verify `git status` before claiming the daemon committed your work
-  (it has a known blind spot). NEVER run `git revert HEAD` blind here:
-  between your push and the revert the daemon may have wrapped your own
-  work in a `chore: auto-commit` commit, so `HEAD` is not necessarily the
-  commit you mean (paid for 2026-11-04: a blind revert under the daemon
-  removed a T5 test commit instead of the CI plant it targeted, leaving
-  the break on origin ~9 h). Always `git log -1 --stat` first, revert by
-  explicit SHA, and commit your own work immediately — an uncommitted
-  train is what the daemon wraps into the wrong SHA. Pin your verification
-  baseline (`git
+  - `debounce_duration: 60s` (read 2026-11-06), so ~2-3 min cadence, NEVER
+    pushes — the host config sets `autoPush = false` (SystemNix
+    configuration.nix, since 2026-06-01; the afternoon session's
+    "22-commit push lag" root cause: the daemon was doing exactly what
+    its config says while sessions believed it pushes and waited —
+    every push in this repo's history was a manual session push, so
+    PUSH YOUR OWN TRAINS; the phantom "pushes too" belief cost one
+    session a 22-commit surprise): format and lint AT WRITE TIME, commit deliberate trains with the
+    HEREDOC attribution form, and expect heuristic `chore: auto-commit`
+    entries in the log. Never restore/checkout files you did not author —
+    and verify `git status` before claiming the daemon committed your work
+    (it has a known blind spot). NEVER run `git revert HEAD` blind here:
+    between your push and the revert the daemon may have wrapped your own
+    work in a `chore: auto-commit` commit, so `HEAD` is not necessarily the
+    commit you mean (paid for 2026-11-04: a blind revert under the daemon
+    removed a T5 test commit instead of the CI plant it targeted, leaving
+    the break on origin ~9 h). Always `git log -1 --stat` first, revert by
+    explicit SHA, and commit your own work immediately — an uncommitted
+    train is what the daemon wraps into the wrong SHA. Pin your verification
+    baseline (`git
   rev-parse HEAD`) BEFORE any before/after diff — HEAD moves under you
-  mid-session, and an unpinned "pre-split" comparison can silently target
-  a daemon commit (paid for 2026-11-04: one misdirected losslessness
-  check).
+    mid-session, and an unpinned "pre-split" comparison can silently target
+    a daemon commit (paid for 2026-11-04: one misdirected losslessness
+    check).
 - **Lint: the fleet golangci config runs at 0 findings.** Keep it there.
   erraudit rides the devShell since 2026-11-04 (flake input — see
   Non-obvious facts): the `//nolint:erraudit` directives are LIVE, and
