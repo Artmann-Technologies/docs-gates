@@ -354,7 +354,8 @@ paths — the re-pin ritual does not apply to them.
   in erraudit itself (`buildflow -s nix-hash-fix --fix` there), never by
   hand-pasting a hash into this repo.
 - **go-auto-upgrade warnings over this repo are deliberate non-fixes
-  (2026-11-06):** the samber/lo suggestions stay withheld — lo is in no
+  (2026-11-06, the full 26-finding set reduces to three classes):** the
+  samber/lo suggestions stay withheld — lo is in no
   go.mod here, the root module is stdlib-only by contract, and
   pkg/provider is a thin toolsdk shim where one 8-line filter does not
   justify a new dependency (the gatecli.Truncate judgment). The
@@ -362,7 +363,13 @@ paths — the re-pin ritual does not apply to them.
   1.26 floor, and pkg/provider stays on encoding/json v1 ON PURPOSE:
   `DisallowUnknownFields` strict decode is the row-shape contract, v1
   semantics are what the provider tests pin, and a v2 swap is exactly
-  the runtime-invisible break the finding describes.
+  the runtime-invisible break the finding describes (the root's JSON
+  face is additionally byte-pinned by the parity goldens). The six
+  cross-file-wrapper warnings name the cmp.Or accessors
+  (dir/archivedSub/reportGlob/reportDir) as "no call sites in this
+  file" — that is the ACCEPTED settings-projection pair (2026-11-04:
+  each gate's Settings is domain-specific; a generic plumbing helper
+  would couple gates for six lines), not dead code.
 - **The --margins near-bar arithmetic (documented 2026-11-05, §2c
   row):** the window is `[bar-2, bar)` — a token at DF bar-2 is
   "two more lines genericize it", bar-1 "one more" — and the DF counts
