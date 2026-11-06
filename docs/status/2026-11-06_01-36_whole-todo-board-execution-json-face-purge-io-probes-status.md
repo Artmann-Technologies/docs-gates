@@ -291,58 +291,58 @@ session, all recovered, listed so they are not repeated:
 (HARVEST input — the top ~12 belong in TODO_LIST, the tail is ROADMAP
 fuel; routing rigor applies per docs-health HARVEST.)
 
-| #  | Task                                                                                                          | Impact   | Effort | Category    |
-| -- | ------------------------------------------------------------------------------------------------------------- | -------- | ------ | ----------- |
-| 1  | Cut v0.2.0 (owner-gated 4th ask; versions the JSON contract the provider names; announcement + pbx bump ride it) | Critical | M      | Release     |
-| 2  | Push the 6 local trains (owner ruling vs harness push gate; AGENTS says push your own trains)                  | High     | S      | Release     |
-| 3  | Archive the next report when it lands — THIS report puts the corpus back at 15/15                              | High     | S      | Ritual      |
-| 4  | Merge dependabot PR #1 (drift-verified safe; only the action SHA moved)                                        | Medium   | S      | Bug         |
-| 5  | File the 4 io-surface pilot findings + today's d1/b7/extractor results into io-surface's TODO (b6 blocker may have cleared — verify first) | High | S | External    |
-| 6  | Re-run the io-surface probes against a CLEAN sibling build before any upstream filing                          | Medium   | S      | External    |
-| 7  | Widen the AGENTS pre-flight fact to all living-docs edits (this session's repeat argues for it)                | High     | S      | Documentation |
-| 8  | Mechanical pre-commit battery leg: run the dogfood battery when living docs are staged (bank-sync hook pattern) | High     | M      | Quality     |
-| 9  | `docs-gates purge` verb: strike-collect → entry draft → pre-flight → apply as ONE command (safe-strike rails)   | High     | M      | Feature     |
-| 10 | io-surface upstream note: stdout/stderr are unwatched seams (blind spot; or add them as a family)               | Medium   | S      | External    |
-| 11 | io-surface d1 fix upstream (init --force destroys claims.cue despite its own header promise)                    | Medium   | S      | External    |
-| 12 | Post-release: bump pbx-artmann's docs-gates pin to v0.2.0                                                       | Medium   | S      | External    |
-| 13 | SystemNix owner window: float to hardened flake + evo-x2 deploy + wrapper switch (§3 consolidation)              | High     | M      | External    |
-| 14 | dependabot-auto-configure: cut the release carrying HasUnmodeledGroups; then bump BuildFlow's dep                | Low      | S      | External    |
-| 15 | nixpkgs lib.maintainers.LarsArtmann PR (githubId 23587853 resolved; owner-gated)                                | Low      | S      | External    |
-| 16 | D1 ruling: battery adoption on hosts vs PATH-only (matrix exists in docs/planning)                              | Medium   | S      | Decision    |
-| 17 | D2 ruling: root go.mod floor unification, then simplify the AGENTS toolchain paragraph                          | Low      | S      | Decision    |
-| 18 | io-surface adoption ruling (owner question #3) — pilot + probe data now on the table                            | Medium   | S      | Decision    |
-| 19 | Provider handshake: mechanical version check in HealthCheck vs Spec version (ROADMAP decision; prose versions rot) | Medium | M | Feature     |
-| 20 | JSON face: schema_version field before the shape ever changes (ROADMAP schema-versioning doctrine applied to the document) | Medium | S | Feature     |
-| 21 | JSON face: watchdog surfacing as a gate-row field (info parity between faces; contract change → re-pin golden + provider) | Low | M | Feature     |
-| 22 | Audit-all size-series benchmark (100/400/1600 reports) so the cliff SHAPE is pinned, not one point              | Medium   | M      | Quality     |
-| 23 | Fleet skill text pass: --json face, watchdog, <10ms render (the 2026-11-05 cross-check already predates them)   | Medium   | S      | Documentation |
-| 24 | safe-strike-test.sh: add a --battery leg case (fake docs-gates on PATH; skip-clean without one)                 | Low      | S      | Quality     |
-| 25 | Bench: go-appkit-corpus-shape case so the RATCHET line shape rides the net                                      | Low      | S      | Quality     |
-| 26 | Collapse the two same-day purge entries at the v0.2.0 section cut (or document per-day granularity as the shape) | Low      | S      | Cleanup     |
-| 27 | Estimate line: µs precision below 10ms or suppress under a threshold (honest-but-useless cost signal)            | Low      | S      | Polish      |
-| 28 | AGENTS non-obvious-facts compression pass (F94; the section grew again today — owner-gated tier)                | Low      | M      | Documentation |
-| 29 | Post-switch: LSP-ghost protocol becomes "restart suffices" (blocked on SystemNix switch)                        | Low      | S      | Documentation |
-| 30 | Post-switch: cold-cache experiment IF ghosts survive the per-process wrapper (§2c second row)                   | Low      | M      | Quality     |
-| 31 | crm harvest + ratchet drain (blocked on the cross-repo authority ruling)                                        | Medium   | M      | External    |
-| 32 | go-appkit/crm: tighten ratchets as owning sessions land items (standing doctrine)                               | Medium   | M      | Ritual      |
-| 33 | `docs-gates doctor` verb (PATH, config, flake state in one command)                                             | Low      | M      | Feature     |
-| 34 | `--margins --json` for tooling consumption (jq-able)                                                            | Low      | M      | Feature     |
-| 35 | CutStringFlag (string sibling of CutIntFlag; every new valued flag re-needs it)                                 | Low      | S      | Feature     |
-| 36 | Split-check verb (verify one item's verdict without a full run)                                                 | Low      | M      | Feature     |
-| 37 | Findings-gate cache-state summary (say WHAT the result cache did to this run)                                   | Low      | S      | Feature     |
-| 38 | False item-boundary detector (§f continuation lines beginning `\d+[.)]` — the 2026-11-04 false-split class)     | Low      | M      | Feature     |
-| 39 | Generic counts gate design pass (FEATURES claims vs the tree)                                                   | Low      | L      | Feature     |
-| 40 | Link/reference checker for living docs (design pass)                                                            | Low      | L      | Feature     |
-| 41 | Report-freshness age gate distinct from cadence (design pass)                                                   | Low      | M      | Feature     |
-| 42 | errcheck/gosec fleet-wide nolint staleness tripwires (erraudit got its audit; the rest have none)               | Low      | M      | Quality     |
-| 43 | tokencorpus extraction IF gates ever version independently (decoupling precondition)                            | Low      | M      | Cleanup     |
-| 44 | BuildFlow#87 fix upstream; then drop the BUILDFLOW_NO_RESULT_CACHE bypass from AGENTS                           | Low      | L      | External    |
-| 45 | BuildFlow nix-fmt/treefmt roundtrip --tree-root forwarding (§3; coordinate with active BuildFlow sessions)       | Low      | M      | External    |
-| 46 | Verify golangci-action bump PR's CI + merge-train the flake pin if the linter version ever moves (drift check owns it mechanically) | Low | S | Quality |
-| 47 | Wrap-or-strike standing ritual: next cadence report names any new bare-DONEs (3 struck rows currently on board) | Low      | S      | Ritual      |
-| 48 | Consider `skip_gates` parity arm for the battery-json golden (skip rows in the document are pinned only by provider canned tests) | Low | S | Quality |
-| 49 | Provider: feed per-gate captured findings into finding.Message (today the row names the gate; the stderr text travels only in the doc) | Low | M | Feature |
-| 50 | Consider rendering the matrix `rc=N` into the JSON row message (currently exit_code only; rc=timeout is derivable but the human face is richer) | Low | S | Polish |
+| #  | Task                                                                                                                                            | Impact   | Effort | Category      |
+| -- | ----------------------------------------------------------------------------------------------------------------------------------------------- | -------- | ------ | ------------- |
+| 1  | Cut v0.2.0 (owner-gated 4th ask; versions the JSON contract the provider names; announcement + pbx bump ride it)                                | Critical | M      | Release       |
+| 2  | Push the 6 local trains (owner ruling vs harness push gate; AGENTS says push your own trains)                                                   | High     | S      | Release       |
+| 3  | Archive the next report when it lands — THIS report puts the corpus back at 15/15                                                               | High     | S      | Ritual        |
+| 4  | Merge dependabot PR #1 (drift-verified safe; only the action SHA moved)                                                                         | Medium   | S      | Bug           |
+| 5  | File the 4 io-surface pilot findings + today's d1/b7/extractor results into io-surface's TODO (b6 blocker may have cleared — verify first)      | High     | S      | External      |
+| 6  | Re-run the io-surface probes against a CLEAN sibling build before any upstream filing                                                           | Medium   | S      | External      |
+| 7  | Widen the AGENTS pre-flight fact to all living-docs edits (this session's repeat argues for it)                                                 | High     | S      | Documentation |
+| 8  | Mechanical pre-commit battery leg: run the dogfood battery when living docs are staged (bank-sync hook pattern)                                 | High     | M      | Quality       |
+| 9  | `docs-gates purge` verb: strike-collect → entry draft → pre-flight → apply as ONE command (safe-strike rails)                                   | High     | M      | Feature       |
+| 10 | io-surface upstream note: stdout/stderr are unwatched seams (blind spot; or add them as a family)                                               | Medium   | S      | External      |
+| 11 | io-surface d1 fix upstream (init --force destroys claims.cue despite its own header promise)                                                    | Medium   | S      | External      |
+| 12 | Post-release: bump pbx-artmann's docs-gates pin to v0.2.0                                                                                       | Medium   | S      | External      |
+| 13 | SystemNix owner window: float to hardened flake + evo-x2 deploy + wrapper switch (§3 consolidation)                                             | High     | M      | External      |
+| 14 | dependabot-auto-configure: cut the release carrying HasUnmodeledGroups; then bump BuildFlow's dep                                               | Low      | S      | External      |
+| 15 | nixpkgs lib.maintainers.LarsArtmann PR (githubId 23587853 resolved; owner-gated)                                                                | Low      | S      | External      |
+| 16 | D1 ruling: battery adoption on hosts vs PATH-only (matrix exists in docs/planning)                                                              | Medium   | S      | Decision      |
+| 17 | D2 ruling: root go.mod floor unification, then simplify the AGENTS toolchain paragraph                                                          | Low      | S      | Decision      |
+| 18 | io-surface adoption ruling (owner question #3) — pilot + probe data now on the table                                                            | Medium   | S      | Decision      |
+| 19 | Provider handshake: mechanical version check in HealthCheck vs Spec version (ROADMAP decision; prose versions rot)                              | Medium   | M      | Feature       |
+| 20 | JSON face: schema_version field before the shape ever changes (ROADMAP schema-versioning doctrine applied to the document)                      | Medium   | S      | Feature       |
+| 21 | JSON face: watchdog surfacing as a gate-row field (info parity between faces; contract change → re-pin golden + provider)                       | Low      | M      | Feature       |
+| 22 | Audit-all size-series benchmark (100/400/1600 reports) so the cliff SHAPE is pinned, not one point                                              | Medium   | M      | Quality       |
+| 23 | Fleet skill text pass: --json face, watchdog, <10ms render (the 2026-11-05 cross-check already predates them)                                   | Medium   | S      | Documentation |
+| 24 | safe-strike-test.sh: add a --battery leg case (fake docs-gates on PATH; skip-clean without one)                                                 | Low      | S      | Quality       |
+| 25 | Bench: go-appkit-corpus-shape case so the RATCHET line shape rides the net                                                                      | Low      | S      | Quality       |
+| 26 | Collapse the two same-day purge entries at the v0.2.0 section cut (or document per-day granularity as the shape)                                | Low      | S      | Cleanup       |
+| 27 | Estimate line: µs precision below 10ms or suppress under a threshold (honest-but-useless cost signal)                                           | Low      | S      | Polish        |
+| 28 | AGENTS non-obvious-facts compression pass (F94; the section grew again today — owner-gated tier)                                                | Low      | M      | Documentation |
+| 29 | Post-switch: LSP-ghost protocol becomes "restart suffices" (blocked on SystemNix switch)                                                        | Low      | S      | Documentation |
+| 30 | Post-switch: cold-cache experiment IF ghosts survive the per-process wrapper (§2c second row)                                                   | Low      | M      | Quality       |
+| 31 | crm harvest + ratchet drain (blocked on the cross-repo authority ruling)                                                                        | Medium   | M      | External      |
+| 32 | go-appkit/crm: tighten ratchets as owning sessions land items (standing doctrine)                                                               | Medium   | M      | Ritual        |
+| 33 | `docs-gates doctor` verb (PATH, config, flake state in one command)                                                                             | Low      | M      | Feature       |
+| 34 | `--margins --json` for tooling consumption (jq-able)                                                                                            | Low      | M      | Feature       |
+| 35 | CutStringFlag (string sibling of CutIntFlag; every new valued flag re-needs it)                                                                 | Low      | S      | Feature       |
+| 36 | Split-check verb (verify one item's verdict without a full run)                                                                                 | Low      | M      | Feature       |
+| 37 | Findings-gate cache-state summary (say WHAT the result cache did to this run)                                                                   | Low      | S      | Feature       |
+| 38 | False item-boundary detector (§f continuation lines beginning `\d+[.)]` — the 2026-11-04 false-split class)                                     | Low      | M      | Feature       |
+| 39 | Generic counts gate design pass (FEATURES claims vs the tree)                                                                                   | Low      | L      | Feature       |
+| 40 | Link/reference checker for living docs (design pass)                                                                                            | Low      | L      | Feature       |
+| 41 | Report-freshness age gate distinct from cadence (design pass)                                                                                   | Low      | M      | Feature       |
+| 42 | errcheck/gosec fleet-wide nolint staleness tripwires (erraudit got its audit; the rest have none)                                               | Low      | M      | Quality       |
+| 43 | tokencorpus extraction IF gates ever version independently (decoupling precondition)                                                            | Low      | M      | Cleanup       |
+| 44 | BuildFlow#87 fix upstream; then drop the BUILDFLOW_NO_RESULT_CACHE bypass from AGENTS                                                           | Low      | L      | External      |
+| 45 | BuildFlow nix-fmt/treefmt roundtrip --tree-root forwarding (§3; coordinate with active BuildFlow sessions)                                      | Low      | M      | External      |
+| 46 | Verify golangci-action bump PR's CI + merge-train the flake pin if the linter version ever moves (drift check owns it mechanically)             | Low      | S      | Quality       |
+| 47 | Wrap-or-strike standing ritual: next cadence report names any new bare-DONEs (3 struck rows currently on board)                                 | Low      | S      | Ritual        |
+| 48 | Consider `skip_gates` parity arm for the battery-json golden (skip rows in the document are pinned only by provider canned tests)               | Low      | S      | Quality       |
+| 49 | Provider: feed per-gate captured findings into finding.Message (today the row names the gate; the stderr text travels only in the doc)          | Low      | M      | Feature       |
+| 50 | Consider rendering the matrix `rc=N` into the JSON row message (currently exit_code only; rc=timeout is derivable but the human face is richer) | Low      | S      | Polish        |
 
 ## g) Three questions I can NOT figure out myself
 
@@ -355,8 +355,8 @@ fuel; routing rigor applies per docs-health HARVEST.)
    prose now says "requires the JSON face, v0.2.0+" — a version that
    does not exist. Cutting settles the CHANGELOG-granularity question
    de facto, versions the JSON contract, and unblocks the pbx pin bump
-   + fleet announcement. If yes, the CHANGELOG section cut collapses the
-   two purge entries and I tag with the go-release ritual.
+   - fleet announcement. If yes, the CHANGELOG section cut collapses the
+     two purge entries and I tag with the go-release ritual.
 3. **Dependabot PR #1 (golangci-lint-action SHA bump): merge it now?**
    I verified the diff only moves the action SHA — the linter
    `version: v2.15.0` input and the flake pin are untouched, so the
@@ -365,7 +365,7 @@ fuel; routing rigor applies per docs-health HARVEST.)
 
 ---
 
-*Point-in-time snapshot; the daemon may have moved HEAD after `c0e5053`.
+_Point-in-time snapshot; the daemon may have moved HEAD after `c0e5053`.
 Section (f) is the docs-health HARVEST input — items 3-12 deserve
 TODO_LIST rows; the tail is ROADMAP fuel. Not harvested yet: waiting
-for instructions.*
+for instructions._
