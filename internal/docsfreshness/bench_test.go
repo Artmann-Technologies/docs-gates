@@ -133,3 +133,20 @@ func BenchmarkCheckReportReplay(b *testing.B) {
 		}
 	}
 }
+
+// BenchmarkCheckReportReplayGoAppkitShape pins the SMALL-board cost
+// point next to the CV cliff: go-appkit carries 12 reports over a
+// ~150-line living corpus (the shape the adoption ratchets replay on
+// every pilot battery run), so a memoization regression shows up on the
+// pilot shape too, not only at the cliff.
+func BenchmarkCheckReportReplayGoAppkitShape(b *testing.B) {
+	reports, living := synthBenchCorpus(b, 12, 8, 150, 80)
+	corpus := NewCorpus(living)
+	settings := DefaultSettings()
+
+	for b.Loop() {
+		for _, report := range reports {
+			CheckReport(report, corpus, settings)
+		}
+	}
+}

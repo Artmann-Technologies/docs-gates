@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # safe-strike-test: the refusal-matrix harness for safe-strike.sh (the
 # 2026-11-04 corruption class — every rail must refuse loudly, never
-# guess). Nine cases on a scratch git repo + board fixture:
+# guess). Thirteen cases on a scratch git repo + board fixture:
 #
 #   1. anchor matching ZERO lines        -> refuse, exit 1, file intact
 #   2. anchor matching TWO lines         -> refuse, exit 1, full inventory, file intact
@@ -12,7 +12,9 @@
 #   7. --cell + --set-cell same column   -> usage, exit 2
 #   8. dry-run default                   -> exit 0, file UNCHANGED
 #   9. --apply on a clean repo           -> exit 0, line struck, neighbors intact;
-#      plus the dirty-file refusal (10) and the beyond-columns cell (11)
+#      plus the dirty-file refusal (10), the beyond-columns cell (11),
+#      the --battery leg through docs-gates on PATH (12), and the loud
+#      --battery failure without the binary (13)
 #
 # Exit codes: 0 all cases behaved, 1 a rail failed to refuse (or struck
 # wrongly), 2 harness setup failure.
@@ -107,6 +109,55 @@ git restore --source=HEAD -- TODOS.md
 
 # 11: a cell beyond the row's column count refuses and leaves the row intact.
 expect_rc 1 "beyond-column cell" --apply --cell 9 TODOS.md 'quux thing'
+
+# 12/13: the --battery leg. Reset to the committed struck shape, then add
+# dedicated rows so neither case depends on the state cases 1-11 left.
+git checkout HEAD -- TODOS.md
+cat >>TODOS.md <<'EOF'
+| 5 | run the gamma battery verifier | TODO |
+EOF
+git add TODOS.md
+git -c user.name=test -c user.email=test@test commit -qm "battery fixture"
+
+# 12: --battery goes through docs-gates ON PATH — a fake binary proves
+# the leg invokes it (a marker line) instead of silently skipping.
+mkdir -p "$scratch/bin"
+cat >"$scratch/bin/docs-gates" <<'STUB'
+#!/usr/bin/env sh
+echo "battery ran with: $*" >>"$DOCSGATES_STUB_LOG"
+exit 0
+STUB
+chmod +x "$scratch/bin/docs-gates"
+old_path="$PATH"
+PATH="$scratch/bin:$PATH"
+export DOCSGATES_STUB_LOG="$scratch/battery.log"
+expect_rc 0 "battery via docs-gates on PATH" --apply --battery TODOS.md 'gamma battery verifier' 'done at `feedbac`'
+if ! grep -q "battery ran with: run ." "$DOCSGATES_STUB_LOG"; then
+	echo "FAIL [battery via docs-gates on PATH]: the stub was never invoked" >&2
+	fail=1
+else
+	echo "ok   [battery via docs-gates on PATH] stub invoked"
+fi
+PATH="$old_path"
+unset DOCSGATES_STUB_LOG
+
+# 13: without docs-gates the leg falls back to `go run`, which fails in
+# a non-module scratch repo — the failure MUST be loud (non-zero), never
+# a silently-skipped verification.
+cat >>TODOS.md <<'EOF'
+| 6 | probe the delta loud-failure path | TODO |
+EOF
+git add TODOS.md
+git -c user.name=test -c user.email=test@test commit -qm "battery fixture 2"
+
+got=0
+"$strike" --apply --battery TODOS.md 'delta loud-failure probe' 'done at `feedbac`' >/dev/null 2>&1 || got=$?
+if [ "$got" -eq 0 ]; then
+	echo "FAIL [battery without docs-gates]: the leg silently passed (exit 0)" >&2
+	fail=1
+else
+	echo "ok   [battery without docs-gates] failed loudly (exit $got)"
+fi
 
 if [ "$fail" -eq 0 ]; then
 	echo "safe-strike-test: ALL cases behaved"

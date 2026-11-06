@@ -67,8 +67,12 @@
       # `pre-commit-check` and the devShell hook install (was duplicated
       # per-output). The nolint-audit hook is the commit-time leg of the
       # directive-honesty gate; the flake `nolint-audit` check stays the
-      # push-time backstop. Sandboxed-safe: the /tmp caches mirror the
-      # flake check's plumbing, because the hook must run green BOTH in
+      # push-time backstop. The docs-battery hook is the commit-time leg
+      # of the dogfood ritual: a commit touching the living docs runs the
+      # whole battery BEFORE the commit lands (the 2026-11-06 lesson:
+      # 4cf0e50 carried audit-all drift the afterwards run alone caught).
+      # Sandboxed-safe: the /tmp caches mirror the flake check's
+      # plumbing, because the hooks must run green BOTH in
       # `nix flake check` (read-only, no network, no HOME) and in the
       # devShell.
       preCommitCheckFor =
@@ -85,6 +89,14 @@
             pass_filenames = false;
             language = "unsupported";
             entry = "${pkgs.bash}/bin/bash -c 'PATH=${pkgs.${goPkgAttr}}/bin:$PATH GOTOOLCHAIN=local GOWORK=off GOPROXY=off GOCACHE=/tmp/dg-hooks-gocache GOPATH=/tmp/dg-hooks-gopath exec ${(errauditPkg system)}/bin/erraudit nolint-audit .'";
+          };
+          hooks.docs-battery = {
+            enable = true;
+            name = "docs-battery";
+            files = "^(TODO_LIST\\.md|CHANGELOG\\.md|ROADMAP\\.md|AGENTS\\.md|FEATURES\\.md)$";
+            pass_filenames = false;
+            language = "unsupported";
+            entry = "${pkgs.bash}/bin/bash -c 'PATH=${pkgs.${goPkgAttr}}/bin:$PATH GOTOOLCHAIN=local GOWORK=off GOPROXY=off GOCACHE=/tmp/dg-hooks-gocache GOPATH=/tmp/dg-hooks-gopath exec go run ./cmd/docs-gates run .'";
           };
         };
 

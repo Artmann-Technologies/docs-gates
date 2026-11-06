@@ -14,12 +14,12 @@ goes red over the repo that defines green.
 
 ## Layout and control flow
 
-One binary, six verbs; `cmd/docs-gates` dispatches, everything else is a
+One binary, seven verbs; `cmd/docs-gates` dispatches, everything else is a
 library:
 
 | Package                                                    | Role                                                                                                                                                                                                                                                                                                                                                 |
 | ---------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `cmd/docs-gates`                                           | verb dispatch (`run`, `freshness`, `annotate`, `routing`, `cadence`, `strike`), the verb-to-legacy-name map, the help surface (`--help`/`-h`/`help [verb]`, did-you-mean verb suggestions), `--version`. Version is ldflags-stamped by the flake build; `"dev"` bare-built.                                                                          |
+| `cmd/docs-gates`                                           | verb dispatch (`run`, `freshness`, `annotate`, `routing`, `cadence`, `strike`, `purge`), the verb-to-legacy-name map, the help surface (`--help`/`-h`/`help [verb]`, did-you-mean verb suggestions), `--version`. Version is ldflags-stamped by the flake build; `"dev"` bare-built.                                                                          |
 | `internal/gatecli`                                         | shared CLI scaffolding: exit-code constants, boolean `--flag` parsing, valued `--flag=N` splitting (`CutIntFlag`), the config prologue (`LoadConfig`: load + `config:` warnings, one shape for every verb), repo-root resolution, `Outf`/`Outln`/`Errf`/`Errln` (the ONE home for unchecked `fmt.Fprint*`), UTF-8-safe `Truncate`, `CaptureOutput`   |
 | `internal/battery`                                         | the `run` verb: ordered gate list from config, gates run INDEPENDENTLY with captured output, PASS/FAIL/SKIP verdict matrix — no first-failure abort                                                                                                                                                                                                  |
 | `internal/config`                                          | `.docs-gates.json` loader: decode over `Defaults()` (the historical fleet constants), unknown keys WARN, malformed/invalid exit 2                                                                                                                                                                                                                    |
@@ -268,10 +268,13 @@ paths — the re-pin ritual does not apply to them.
   at commit time (hook config in flake.nix `preCommitCheckFor`, shared by
   the sandboxed `pre-commit-check` flake check and the devShell hook
   install). Red-controlled live (planted stale directive → hook FAIL
-  naming the count). One local blocker: `core.hooksPath` is explicitly
+  naming the count). The SAME config carries the `docs-battery` leg
+  (2026-11-06): a commit staging any living doc runs the WHOLE dogfood
+  battery before the commit lands — the 4cf0e50 ungated-train lesson is
+  now mechanical. One local blocker: `core.hooksPath` is explicitly
   set to its own default (`.git/hooks`), and pre-commit refuses to
   install over it — unset it locally to arm auto-install; until then run
-  the hook manually (command above). `.pre-commit-config.yaml` is a
+  the hooks manually (command above). `.pre-commit-config.yaml` is a
   generated store symlink, gitignored by intent — never commit it.
 - **go1.26+ compile-rejects mixing literals with a slice spread in one
   variadic call** (`f("a", "b", slice...)` is `too many arguments`, proven
@@ -401,6 +404,8 @@ nix develop -c golangci-lint fmt ./...            # golines/gofumpt/gci imports
 nix develop -c erraudit lint ./... --type-aware   # error-handling audit, rc=0 expected (//nolint:erraudit directives live)
 nix develop -c erraudit nolint-audit .            # directive staleness over the root module (also the nolint-audit flake check)
 nix develop -c pre-commit run nolint-audit --all-files   # the commit-time leg of the same gate (bank-sync pattern); auto-install needs `git config --unset core.hooksPath` (set to the default .git/hooks here, which pre-commit refuses to override)
+nix develop -c pre-commit run docs-battery --all-files  # the commit-time dogfood leg: the whole battery over the repo when living docs are staged
+go run ./cmd/docs-gates purge <repo-root>          # the board purge as one gated command: strike-collect → draft → pre-flight → apply (dry-run default; --apply writes)
 bash scripts/check-erraudit-rev.sh                # erraudit-rev tripwire (also a flake check): run after bumping the erraudit input
 nix fmt                                           # nixfmt-tree over *.nix (via treefmt.toml)
 nix flake check --all-systems --no-build          # both-arch eval (checks: nolint-audit, erraudit-lint, provider-suite, golangci-drift, go-floors, shell-lint + the skills guards)
