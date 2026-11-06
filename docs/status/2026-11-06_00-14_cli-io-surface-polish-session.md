@@ -152,12 +152,16 @@ to celebrate.
 
 1. [todo] `--json` verdict-matrix output face + provider migration off
    human-text parsing (the io-surface findings-as-data direction).
-2. [todo] Wrap-or-strike the 18 bare-DONE TODO_LIST rows (cadence's recurring
-   half-strike finding).
+2. [done] ~~Wrap-or-strike the 18 bare-DONE TODO_LIST rows~~ done (2026-11-06:
+   all 19 bare-DONE rows wrapped through docs-strike with unique anchors;
+   the annotate gate CLEAN over the struck corpus; landed with the day's
+   purge passes).
 3. [todo] Pin strike Usage's default-status text to the `DefaultStatus` const.
 4. [todo] Replace the flagless-usage `\n  --` heuristic with an explicit
    no-flags assertion.
-5. [todo] Reconcile the AGENTS.md erraudit directive count (13 vs 15).
+5. [done] ~~Reconcile the AGENTS.md erraudit directive count~~ done (2026-11-06:
+   live count 14 non-test directives, 0 stale via nolint-audit; AGENTS now
+   records the count WITH the never-cite-from-memory rule).
 6. [todo] runHelp: warn when extra args after `help <verb>` are ignored.
 7. [todo] bench_test.go: adopt `b.Loop()` (gopls modernization).
 8. [todo] Archive-cadence stays tight: this session archived exactly one

@@ -447,6 +447,23 @@ match the annotated git tags; anything after the newest tag sits under
   entries above, AGENTS.md, FEATURES.md, README.md, the scripts, and
   the reports/commits named in the evidence cells; the board reopens
   at the surviving open rows.
+- TODO_LIST purge, second pass of 2026-11-06 (24 struck rows → this
+  entry): the bookkeeping strikes for the day's landed trains — the
+  AGENTS/CHANGELOG/FEATURES catch-up rows, the provider shape-pin row
+  (superseded by the strict JSON decoder), the nixpkgs githubId
+  resolution (23587853, now in the §3 E22 row), the CI bench
+  measurement (67.6ms/op, 6x headroom, no retune), the
+  dependabot-grouping diagnosis (v0.3.0 lacks HasUnmodeledGroups;
+  fixed on that repo's master, unreleased), the corrupt-daemon-commit
+  verification (all three reachable ancestors of main — nothing ages
+  out), the daemon-config citation, the pre-flight fact, the timeout-300
+  discipline, the erraudit count reconciliation (14 non-test, 0 stale),
+  the sub-10ms render, the heartbeat watchdog, the usage pins, the
+  runHelp warning, b.Loop, the --json face + provider migration, the
+  archive ritual, and the ROADMAP io-surface data point — every one's
+  substance lives in the CHANGELOG entries above, AGENTS.md,
+  FEATURES.md, ROADMAP.md, the tests, and the named CI run; the board
+  reopens at the owner-gated and external rows.
 
 ### Fixed
 
