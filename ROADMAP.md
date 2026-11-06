@@ -10,6 +10,17 @@ Long-term direction and raw ideas. Refined ideas graduate to TODO_LIST.
 - **Schema versioning** — if the config schema ever breaks shape, add a
   `schema_version` key BEFORE changing any key's meaning; the loader
   refuses newer majors loudly.
+- **JSON-face contract growth** — before the `run --json` document ever
+  changes shape: a `schema_version` field (the config doctrine applied
+  to the machine face); then candidate additions, each a contract change
+  re-pinning the golden + provider tests together: a `watchdog` field on
+  the gate row (the half-budget warning is invisible to stdout-only
+  consumers), per-gate captured findings in the provider's finding
+  messages, the matrix's `rc=N` rendered into the row message, and a
+  `skip_gates` parity arm for the battery-json golden.
+- **Perf-net shape series** — the audit-all benchmark pins ONE corpus
+  shape (CV-shaped 1,600×2,000); a size series (100/400/1600 reports)
+  would make the cliff SHAPE visible instead of one point.
 - **Gate family growth** — candidates worth a design pass: a generic
   counts gate (claims in FEATURES vs the tree), a link/reference checker
   for living docs, a report-freshness age gate distinct from cadence, and
@@ -26,9 +37,12 @@ Long-term direction and raw ideas. Refined ideas graduate to TODO_LIST.
   rots (the InboxClean b4 lesson), so adoption is gated on io-surface
   persisting `--dirs` in the manifest; until then CI pinning
   `--dirs cmd,internal,pkg` in every invocation is the only safe shape.
-  Pilot findings live in io-surface's tracking (TODO_LIST §8 row 1); the
-  json failure path (text on stderr, empty stdout, rc=1) and the
-  init --force defect still need their scratch probes (§8 rows 2-3).
+  Pilot findings live in io-surface's tracking (TODO_LIST §8 row 1);
+  the scratch probes RAN 2026-11-06 (findings route to TODO_LIST §8
+  row 1): d1 reproduced (init --force destroys claims.cue despite its
+  own never-overwrite header), b7 refuted (check --json is well-formed
+  JSON on stdout even on the rc=1 failure path), and the extractor
+  blind spot named (os.Stdout/os.Stderr writes are unwatched seams).
 - **Pre-flight model growth** — multi-line/range replacements (block
   swaps, not just single-line `--replace`) and pure removals
   (`--remove=OLD` — deleting a line is not a rewrite) if fleet rewrites

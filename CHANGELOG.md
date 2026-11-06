@@ -465,6 +465,8 @@ match the annotated git tags; anything after the newest tag sits under
   FEATURES.md, ROADMAP.md, the tests, and the named CI run; the board
   reopens at the owner-gated and external rows.
 
+- TODO_LIST purge, third pass of 2026-11-06 (3 struck rows → this entry): the io-surface probe verdicts — d1 REPRODUCED (init --force destroyed a hand-written claims.cue append on a scratch manifest while the file header promises Tooling never overwrites it), b7 REFUTED for the current build (check --json over an error-class red tree puts the full valid JSON document on stdout, findings array included, rc=1; only the one-line summary rides stderr), and the extractor seam question answered from source (io.Pipe IS watched via stream-copy so the gatecli capture pipes are visible; os.Stdout/os.Stderr method writes are NOT watched seams — a real extraction blind spot); the surviving §8 row now carries all five pilot findings plus these results, blocked on the sibling's dirty tree — substance lives in the 01-36 report §a.16/§b.1 and the pilot report.
+
 ### Fixed
 
 - `skip_gates` validation: a typo'd gate name used to be a silent no-op

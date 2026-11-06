@@ -152,10 +152,13 @@ paths — the re-pin ritual does not apply to them.
 
 ## Non-obvious facts (paid for)
 
-- **Run `docs-freshness --pre-flight` BEFORE any TODO evidence-rewrite
-  batch** (paid 2026-11-05/06): the 06-39 session genericized two TODO
-  evidence anchors skipping the pre-flight and only the afterwards run
-  caught the flips. stdin the candidate lines, rewrite only on SAFE.
+- **Run `docs-freshness --pre-flight` BEFORE ANY living-docs edit
+  batch** (TODO_LIST/ROADMAP/CHANGELOG — paid TWICE, 2026-11-05/06): the
+  06-39 session genericized two TODO evidence anchors skipping the
+  pre-flight, and the `4cf0e50` docs train went out ungated — only the
+  afterwards battery run caught both. stdin the candidate lines, rewrite
+  only on SAFE, and run the dogfood battery BEFORE the commit, never
+  after.
 - **The root `./...` never sees `pkg/provider`** — it is a nested go
   module. `go test ./...`, `go vet ./...`, the nix checkPhase, and CI
   (which runs all of those from the root) all exclude it. Test the
