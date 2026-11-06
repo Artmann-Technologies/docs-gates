@@ -124,7 +124,8 @@ match the annotated git tags; anything after the newest tag sits under
   unmigrated site fails `nix flake check`. Discrimination-proven (planted
   errors.As turns the check red, naming the site; sentinel errors.Is is
   deliberately exempt).
-- Provider e2e battery run: TestDetectEndToEndOverRealBinary builds the
+- Provider e2e battery run (the T12 provider-path leg):
+  TestDetectEndToEndOverRealBinary builds the
   real cmd/docs-gates from the root module and runs provider Detect over
   a fixture that is red in exactly one gate (an unharvestable §f item —
   zero reports is a vacuous PASS, which the probe caught), asserting one
