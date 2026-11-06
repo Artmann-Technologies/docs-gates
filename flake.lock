@@ -38,11 +38,11 @@
         "samber-do-auditlog": "samber-do-auditlog"
       },
       "locked": {
-        "lastModified": 1793932709,
-        "narHash": "sha256-YD48okCNIUkxvkOYFNNO9zOfhp/aQEadWWlYvHPJtUI=",
+        "lastModified": 1793747667,
+        "narHash": "sha256-84ppsY4DQbr+1ihDpwz60BJ3coF4c3/s9kpVlpgeVPY=",
         "ref": "refs/heads/master",
-        "rev": "c1902feae1284abc160b166501368e8d31ef3971",
-        "revCount": 1887,
+        "rev": "3d1f7ed37a1c52a7cc8b9c3e1749a2c8a423256f",
+        "revCount": 1886,
         "type": "git",
         "url": "ssh://git@github.com/LarsArtmann/erraudit"
       },
