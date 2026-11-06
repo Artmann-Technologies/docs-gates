@@ -33,9 +33,12 @@ const (
 	ExitUsage    = 2
 )
 
-// Duration-rendering precisions: milliseconds under a second, tenths
-// under a minute, whole seconds past it.
+// Duration-rendering precisions: exact microseconds and 100µs steps
+// under 10ms, milliseconds under a second, tenths under a minute, whole
+// seconds past it.
 const (
+	microPrecision     = 1 * time.Microsecond
+	subMilliPrecision  = 100 * time.Microsecond
 	subSecondPrecision = 10 * time.Millisecond
 	subMinutePrecision = 100 * time.Millisecond
 )
@@ -44,12 +47,18 @@ const (
 // matrices (the battery heartbeat, the audit-all replay estimate). The
 // parity harness normalizes the emitted values to a literal token, so
 // goldens pin the SHAPE of a timing-bearing line, never the value.
-// Sub-10ms durations render "<10ms" instead of rounding to a lying
-// "0s" — a gate that ran in 3µs did not run in no time.
+// Sub-second durations render at honest precision instead of rounding
+// to a lying "0s" — a gate that ran in 3µs did not run in no time, and
+// a sub-10ms estimate must stay legible as a cost signal (the <10ms
+// bucket was honest but useless there).
 func FormatDuration(d time.Duration) string {
 	switch {
+	case d < microPrecision:
+		return "<1µs"
+	case d < time.Millisecond:
+		return d.Round(microPrecision).String()
 	case d < subSecondPrecision:
-		return "<10ms"
+		return d.Round(subMilliPrecision).String()
 	case d < time.Second:
 		return d.Round(subSecondPrecision).String()
 	case d < time.Minute:

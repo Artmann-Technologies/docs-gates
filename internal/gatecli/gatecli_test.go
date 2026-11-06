@@ -374,3 +374,32 @@ func TestCaptureOutputSurvivesLargeOutput(t *testing.T) {
 		t.Fatalf("capture lost bytes: stdout %d/%d, stderr %d/%d", len(out.Stdout), want, len(out.Stderr), want)
 	}
 }
+
+func TestFormatDurationHonestPrecisionTiers(t *testing.T) {
+	t.Parallel()
+
+	cases := []struct {
+		name string
+		in   time.Duration
+		want string
+	}{
+		{"sub-microsecond rounds to a floor, not a lie", 400, "<1µs"},
+		{"exact microsecond tier renders µs", 800 * time.Microsecond, "800µs"},
+		{"sub-millisecond keeps one decimal", 1500 * time.Microsecond, "1.5ms"},
+		{"sub-10ms rounds to 100µs steps", 3140 * time.Microsecond, "3.1ms"},
+		{"the old <10ms bucket is gone", 9 * time.Millisecond, "9ms"},
+		{"sub-second keeps 10ms steps", 123 * time.Millisecond, "120ms"},
+		{"sub-minute keeps 100ms steps", 4 * time.Second + 567 * time.Millisecond, "4.6s"},
+		{"minutes round whole seconds", 65 * time.Second, "1m5s"},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			if got := FormatDuration(tc.in); got != tc.want {
+				t.Fatalf("FormatDuration(%v) = %q, want %q", tc.in, got, tc.want)
+			}
+		})
+	}
+}
