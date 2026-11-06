@@ -100,7 +100,7 @@ func execute(opts Options) int {
 
 	todoPath := filepath.Join(opts.Root, opts.File)
 
-	todoData, err := os.ReadFile(todoPath) //nolint:gosec // G304,G703: the file argument IS the tool's input contract
+	todoData, err := os.ReadFile(todoPath)
 	if err != nil {
 		gatecli.Errf("FATAL: reading %s: %v\n", todoPath, err)
 
@@ -148,7 +148,7 @@ func gateRefused(applied bool, code int) int {
 func applyPurge(opts Options, todoPath, todoData string, rows []struckRow, bullets []string) int {
 	changelogPath := filepath.Join(opts.Root, opts.Changelog)
 
-	changelogData, err := os.ReadFile(changelogPath) //nolint:gosec // G304,G703: the file argument IS the tool's input contract
+	changelogData, err := os.ReadFile(changelogPath)
 	if err != nil {
 		gatecli.Errf("FATAL: reading %s: %v\n", changelogPath, err)
 
@@ -174,8 +174,12 @@ func applyPurge(opts Options, todoPath, todoData string, rows []struckRow, bulle
 		return gatecli.ExitUsage
 	}
 
-	gatecli.Outf("docs-purge: purged %d struck row(s) from %s into %s — run `docs-gates cadence` to verify the backlog\n",
-		len(rows), opts.File, opts.Changelog)
+	gatecli.Outf(
+		"docs-purge: purged %d struck row(s) from %s into %s — run `docs-gates cadence` to verify the backlog\n",
+		len(rows),
+		opts.File,
+		opts.Changelog,
+	)
 
 	return gatecli.ExitClean
 }
@@ -351,5 +355,9 @@ func writePreservingMode(path, content string) error {
 		mode = info.Mode().Perm()
 	}
 
-	return os.WriteFile(path, []byte(content), mode) //nolint:gosec // G306,G703: the mode IS the source file's; the path argument IS the tool's input contract
+	return os.WriteFile( //nolint:gosec // G306,G703: the mode IS the source file's; the path argument IS the tool's input contract
+		path,
+		[]byte(content),
+		mode,
+	)
 }
