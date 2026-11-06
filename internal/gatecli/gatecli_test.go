@@ -389,7 +389,7 @@ func TestFormatDurationHonestPrecisionTiers(t *testing.T) {
 		{"sub-10ms rounds to 100µs steps", 3140 * time.Microsecond, "3.1ms"},
 		{"the old <10ms bucket is gone", 9 * time.Millisecond, "9ms"},
 		{"sub-second keeps 10ms steps", 123 * time.Millisecond, "120ms"},
-		{"sub-minute keeps 100ms steps", 4 * time.Second + 567 * time.Millisecond, "4.6s"},
+		{"sub-minute keeps 100ms steps", 4*time.Second + 567*time.Millisecond, "4.6s"},
 		{"minutes round whole seconds", 65 * time.Second, "1m5s"},
 	}
 
