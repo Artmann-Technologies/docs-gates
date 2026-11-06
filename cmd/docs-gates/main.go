@@ -24,6 +24,7 @@ import (
 	"github.com/Artmann-Technologies/docs-gates/internal/docsannotate"
 	"github.com/Artmann-Technologies/docs-gates/internal/docscadence"
 	"github.com/Artmann-Technologies/docs-gates/internal/docsfreshness"
+	"github.com/Artmann-Technologies/docs-gates/internal/docspurge"
 	"github.com/Artmann-Technologies/docs-gates/internal/docsrouting"
 	"github.com/Artmann-Technologies/docs-gates/internal/docsstrike"
 	"github.com/Artmann-Technologies/docs-gates/internal/gatecli"
@@ -43,6 +44,7 @@ const (
 	verbRouting   = "routing"
 	verbCadence   = "cadence"
 	verbStrike    = "strike"
+	verbPurge     = "purge"
 )
 
 // suggestMaxEditDistance is the typo tolerance of suggestVerb: any verb
@@ -63,6 +65,7 @@ var displayName = map[string]string{
 	verbRouting:   "docs-routing",
 	verbCadence:   "docs-cadence",
 	verbStrike:    "docs-strike",
+	verbPurge:     "docs-gates",
 }
 
 // verbHandlers is the dispatch table: every verb to its gate's Run. The
@@ -76,12 +79,13 @@ var verbHandlers = map[string]func([]string) int{
 	verbRouting:   docsrouting.Run,
 	verbCadence:   docscadence.Run,
 	verbStrike:    docsstrike.Run,
+	verbPurge:     docspurge.Run,
 }
 
 // verbOrder is the display order of the verbs in the root usage.
 //
 //nolint:gochecknoglobals // the fixed display order, same class as the contract tables
-var verbOrder = []string{verbRun, verbFreshness, verbAnnotate, verbRouting, verbCadence, verbStrike}
+var verbOrder = []string{verbRun, verbFreshness, verbAnnotate, verbRouting, verbCadence, verbStrike, verbPurge}
 
 // verbOverview is each verb's one-line purpose for the root usage; the
 // detailed flag help lives in the gate packages' Usage.
@@ -94,6 +98,7 @@ var verbOverview = map[string]string{
 	verbRouting:   "open actionable rows outside §f must be routed to a living doc",
 	verbCadence:   "TODO_LIST purge and report archive thresholds",
 	verbStrike:    "strike one TODO_LIST row (dry-run by default)",
+	verbPurge:     "collect struck TODO rows into a CHANGELOG purge entry (dry-run by default)",
 }
 
 // verbUsage wires each verb to its package's Usage text — the same
@@ -108,6 +113,7 @@ var verbUsage = map[string]string{
 	verbRouting:   docsrouting.Usage,
 	verbCadence:   docscadence.Usage,
 	verbStrike:    docsstrike.Usage,
+	verbPurge:     docspurge.Usage,
 }
 
 func main() {
