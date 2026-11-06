@@ -1,3 +1,9 @@
+> **Superseded within the hour** by the full session close
+> (2026-11-06_05-01_harvest-purge-verb-clean-probes-full-close.md), which
+> carries this report's §h harvest ledger forward as its own §h and adds
+> the final verification sweep. Archived by the cadence ritual (the
+> corpus crossed max_unarchived=15); nothing in here is unrecoverable.
+
 # Status Report — Whole-TODO-Board Harvest & Execution: Purge Verb, Gated Trains, Clean-Build io-surface Probes
 
 **Report:** 2026-11-06 (session ~02:00–04:45 CET) · **Repo:** docs-gates @ `cb870f7` (main, clean tree) · Origin: pushed to `cb870f7` minus the closing trains (see scope line)
