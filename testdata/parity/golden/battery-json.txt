@@ -19,7 +19,7 @@
       "skipped": false,
       "timed_out": false,
       "duration_ms": D,
-      "stdout": "docs-freshness --audit-all: replaying 1 report(s) against 7 living line(s) — est ~\u003c10ms (worst case, findings-heavy)\ndocs-freshness --audit-all: 1 report(s) replayed, 0 unharvested open item(s)\ndocs-freshness --audit-all: FRESH\n",
+      "stdout": "docs-freshness --audit-all: replaying 1 report(s) against 7 living line(s) — est ~105µs (worst case, findings-heavy)\ndocs-freshness --audit-all: 1 report(s) replayed, 0 unharvested open item(s)\ndocs-freshness --audit-all: FRESH\n",
       "stderr": ""
     },
     {

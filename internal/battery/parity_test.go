@@ -53,9 +53,9 @@ type parityGate struct {
 // appears, never how long a gate took — that value is machine-local.
 // The two prefixes are deliberately exact (`done in ` / `(in `): a bare
 // `in ` would also swallow gate counts like "finding(s) in 17 file(s)".
-// The <10ms literal rides the alternation because it starts with `<`,
-// not a digit (the sub-10ms FormatDuration arm).
-var parityDurationRe = regexp.MustCompile(`(done in |\(in )(?:<10ms|[0-9][0-9a-zµ.]*)`)
+// The µs/ms renderings all start with a digit, so the class catches the
+// whole sub-second FormatDuration range.
+var parityDurationRe = regexp.MustCompile(`(done in |\(in )[0-9][0-9a-zµ.]*`)
 
 // parityJSONDurationRe collapses the --json face's millisecond columns
 // the same way: the JSON document's `duration_ms` value is machine-local.

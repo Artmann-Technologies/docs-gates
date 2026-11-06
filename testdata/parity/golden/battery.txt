@@ -3,7 +3,7 @@ docs-freshness: {{DATE}}_10-00_ship-it.md: 0 unharvested open §f item(s)
 docs-freshness: FRESH
 docs-gates: gate freshness done in D
 docs-gates: gate audit-all ...
-docs-freshness --audit-all: replaying 1 report(s) against 7 living line(s) — est ~<10ms (worst case, findings-heavy)
+docs-freshness --audit-all: replaying 1 report(s) against 7 living line(s) — est ~105µs (worst case, findings-heavy)
 docs-freshness --audit-all: 1 report(s) replayed, 0 unharvested open item(s)
 docs-freshness --audit-all: FRESH
 docs-gates: gate audit-all done in D
