@@ -1,3 +1,10 @@
+> **Live remainder:** archived 2026-11-06 by the cadence ritual (the corpus
+> crossed max_unarchived=15 when the harvest session's report landed). All
+> open rows were verified harvested/routed at archive time (freshness ran
+> 0 unharvested on THIS report; the whole battery 5/5 PASS); owning
+> sections live in TODO_LIST §3/§4/§8, ROADMAP.md and CHANGELOG.md. The
+> §f harvest ledger with per-item dispositions is §h of the 04-45 report.
+
 # Status Report — Whole-TODO-Board Execution: --json Face, Provider Migration, Docs-Health Purges, io-surface Probes
 
 **Report:** 2026-11-06 01:36 CET · **Repo:** docs-gates @ `c0e5053` (main, clean tree) · **Session window:** ~00:30–01:36 CET
