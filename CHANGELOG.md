@@ -428,6 +428,25 @@ match the annotated git tags; anything after the newest tag sits under
   dogfood + cliff-benchmark jobs, the four new flake checks,
   dependabot, the safe-strike rails, the JSON-speaking provider, and
   the CLI help surface (the `--json` WORTH-CONSIDERING row landed).
+- TODO_LIST purge (26 struck rows → this entry, 2026-11-06): the
+  quality-machinery batch (the safe-strike-test.sh refusal-matrix
+  harness, safe-strike --battery, the CI dogfood job, the
+  golangci-drift + go-floors + shell-lint flake checks, actionlint +
+  shellcheck in the devShell, dependabot enrollment, the gofmt CI step
+  drop, the README Scripts table, the margins [bar-2, bar) arithmetic
+  fact and the corpus-replace generic_df 2 coupling note), the battery
+  batch (audit-all token+DF memoization, the per-gate heartbeat
+  elapsed-time lines with the gate_timeout_sec rc=timeout bound, the
+  audit-all short-circuit subsumption, the wedged-process autopsy, the
+  audit-all cost-model fact), and the external/fleet legs (the crm +
+  go-appkit ratchet rerun, the rpi3-dns toplevel eval, the pbx-artmann
+  migration status — pins v0.1.0, the bump rides the v0.2.0 release —
+  the BuildFlow binary rebuild, the 9-unavailable-tools triage, the
+  fleet docs-health skill cross-check, the evo-x2 reboot attribution,
+  and the archive-cadence ritual) — substance lives in the CHANGELOG
+  entries above, AGENTS.md, FEATURES.md, README.md, the scripts, and
+  the reports/commits named in the evidence cells; the board reopens
+  at the surviving open rows.
 
 ### Fixed
 

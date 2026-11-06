@@ -105,8 +105,9 @@ sibling permission, deploy window — remain unanswered, asked 4× today).
 6. docs-surface follow-up: README example for `--dump-items` refusal
    shape is covered; next doc debt is the fleet skill cross-check (T21,
    sibling-gated).
-7. Harvest this report's §f into TODO_LIST before session end (done —
-   see the TODO_LIST rows this session added/updated).
+7. ~~Harvest this report's §f into TODO_LIST before session end~~ done
+   (the rows this session added are the harvest; the 2026-11-06 purge
+   moved them to CHANGELOG).
 
 ## g) Questions for the owner
 
