@@ -339,6 +339,30 @@ paths — the re-pin ritual does not apply to them.
   at BuildFlow
   `docs/drafts/file-size-check-empty-filecontract-constant-cache-key.md`);
   once fixed upstream, drop the bypass from any verification ritual.
+- **Buildflow repair steps rewrite lockfiles mid-run; the daemon wraps
+  the damage (paid for 2026-11-06):** a failing buildflow run's repair
+  phase ran `nix-flake-update`, bumping the erraudit input to a master
+  rev whose own go-modules vendorHash was stale (erraudit's auto-daemon
+  had committed a go.mod/go.sum sweep without re-pinning its flake
+  hash) — the devShell and every erraudit-dependent check went red, and
+  the daemon wrapped the bumped lockfile into a `chore: auto-commit`
+  within minutes. The `scripts/check-erraudit-rev.sh` tripwire caught
+  the drift exactly as designed. Recovery is a forward
+  `git restore --source=<good-sha> -- flake.lock` plus your OWN commit;
+  and after ANY buildflow run that rewrote lockfiles, re-run the
+  tripwire before trusting the tree. The upstream root cause gets fixed
+  in erraudit itself (`buildflow -s nix-hash-fix --fix` there), never by
+  hand-pasting a hash into this repo.
+- **go-auto-upgrade warnings over this repo are deliberate non-fixes
+  (2026-11-06):** the samber/lo suggestions stay withheld — lo is in no
+  go.mod here, the root module is stdlib-only by contract, and
+  pkg/provider is a thin toolsdk shim where one 8-line filter does not
+  justify a new dependency (the gatecli.Truncate judgment). The
+  jsonv1tov2 notes are the tool declining to migrate at the root's go
+  1.26 floor, and pkg/provider stays on encoding/json v1 ON PURPOSE:
+  `DisallowUnknownFields` strict decode is the row-shape contract, v1
+  semantics are what the provider tests pin, and a v2 swap is exactly
+  the runtime-invisible break the finding describes.
 - **The --margins near-bar arithmetic (documented 2026-11-05, §2c
   row):** the window is `[bar-2, bar)` — a token at DF bar-2 is
   "two more lines genericize it", bar-1 "one more" — and the DF counts
