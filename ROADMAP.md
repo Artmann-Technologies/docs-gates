@@ -12,13 +12,23 @@ Long-term direction and raw ideas. Refined ideas graduate to TODO_LIST.
   refuses newer majors loudly.
 - **Gate family growth** — candidates worth a design pass: a generic
   counts gate (claims in FEATURES vs the tree), a link/reference checker
-  for living docs, a report-freshness age gate distinct from cadence, a
-  false item-boundary detector (§f continuation lines that begin with
-  `\d+[.)]` — the 2026-11-04 false-split class), and a `--json` verdict
-  output for CI annotations (which would also free pkg/provider from
-  parsing the human matrix text — the findings-as-data direction the
-  fleet's tooling takes, cf. the dnsblockd io-surface brainstorm).
-  Nothing here is committed; each wants a Pareto pass first.
+  for living docs, a report-freshness age gate distinct from cadence, and
+  a false item-boundary detector (§f continuation lines that begin with
+  `\d+[.)]` — the 2026-11-04 false-split class). The `--json` verdict
+  output LANDED 2026-11-06 (`run --json` machine face + the provider
+  migrated off matrix-text parsing). Nothing else here is committed;
+  each wants a Pareto pass first.
+- **io-surface pilot data point (2026-11-06, input to owner question
+  #3 in TODO_LIST §4 — --json face vs a new gate family):** the pilot
+  over this repo's 18 extraction sites was USEFUL — an accurate BOM,
+  teeth proven both directions (a planted dead claim failed, a live
+  claim passed), and the claims workflow works — but an UNGATED manifest
+  rots (the InboxClean b4 lesson), so adoption is gated on io-surface
+  persisting `--dirs` in the manifest; until then CI pinning
+  `--dirs cmd,internal,pkg` in every invocation is the only safe shape.
+  Pilot findings live in io-surface's tracking (TODO_LIST §8 row 1); the
+  json failure path (text on stderr, empty stdout, rc=1) and the
+  init --force defect still need their scratch probes (§8 rows 2-3).
 - **Pre-flight model growth** — multi-line/range replacements (block
   swaps, not just single-line `--replace`) and pure removals
   (`--remove=OLD` — deleting a line is not a rewrite) if fleet rewrites

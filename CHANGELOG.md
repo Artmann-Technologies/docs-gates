@@ -392,9 +392,6 @@ match the annotated git tags; anything after the newest tag sits under
   dissolved), ROADMAP landed rows removed, AGENTS.md gained the
   baseline-pinning daemon lesson (pin `git rev-parse HEAD` before
   diffing — the daemon moves HEAD mid-session).
-
-### Changed
-
 - Docs surface caught up with the flags (they shipped CHANGELOG-first):
   the README gains a freshness-diagnostics section (`--margins`,
   `--dump-items`, `--pre-flight` with `--replace` rewrite-mode) and a
@@ -405,6 +402,31 @@ match the annotated git tags; anything after the newest tag sits under
   rows cover the three freshness flags, the full flake check list
   (erraudit-lint, erraudit-rev, provider), and the provider suite's
   flake-check wiring.
+- FormatDuration renders sub-10ms durations as `<10ms` instead of a
+  lying `0s` (a gate that ran in 3µs did not run in no time): the two
+  affected parity goldens re-pinned by hand (the audit-all estimate
+  line `est ~0s` → `est ~<10ms`, the only byte delta), and the parity
+  duration normalizer extended to the `<10ms` literal.
+- The standalone-gate discipline is documented in AGENTS Commands:
+  standalone runs wrap in `timeout 300` — the battery bounds its gates
+  with gate_timeout_sec, a bare standalone run has no cap of its own.
+- `help <verb> extra` no longer silently eats the extra arguments: they
+  are named on stderr (`ignoring extra argument(s): "…"`) while the
+  asked verb's usage still prints and the exit stays clean — a typo in
+  the tail must not kill the help.
+- The flagless-usage tests (battery + cadence) replaced the `"\n  --"`
+  substring heuristic with an explicit token scan: the battery's Usage
+  must advertise exactly its accepted flag set (--json), cadence's must
+  name none; docsstrike's Usage is pinned to the DefaultStatus constant
+  so the documented default cannot drift from the written one.
+- The audit-all benchmark rides `b.Loop()` (gopls modernization; the
+  setup-before-loop timing exclusion is automatic).
+- FEATURES.md caught up with the shipped surface: heartbeat,
+  gate_timeout_sec, the half-budget watchdog, the --json face, the
+  audit-all cost model (memoization + estimate + speed guard), the CI
+  dogfood + cliff-benchmark jobs, the four new flake checks,
+  dependabot, the safe-strike rails, the JSON-speaking provider, and
+  the CLI help surface (the `--json` WORTH-CONSIDERING row landed).
 
 ### Fixed
 
