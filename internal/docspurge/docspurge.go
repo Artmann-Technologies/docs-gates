@@ -69,14 +69,20 @@ type struckRow struct {
 	verdict string
 }
 
-// Run is the CLI entry: parse, collect, draft, pre-flight, and write
-// only under --apply.
+// Run is the CLI entry: parse, then execute.
 func Run(argv []string) int {
 	opts, err := ParseArgs(argv)
 	if err != nil {
 		return gatecli.FatalUsage("purge", err)
 	}
 
+	return execute(opts)
+}
+
+// execute carries the purge flow: load config, collect the struck rows,
+// draft the entry, gate it through the freshness pre-flight, and write
+// only under --apply.
+func execute(opts Options) int {
 	cfg, err := gatecli.LoadConfig(opts.Root)
 	if err != nil {
 		gatecli.Errf("FATAL: %v\n", err)
@@ -93,9 +99,8 @@ func Run(argv []string) int {
 	}
 
 	todoPath := filepath.Join(opts.Root, opts.File)
-	changelogPath := filepath.Join(opts.Root, opts.Changelog)
 
-	todoData, err := os.ReadFile(todoPath) //nolint:gosec // G304: the file argument IS the tool's input contract
+	todoData, err := os.ReadFile(todoPath) //nolint:gosec // G304,G703: the file argument IS the tool's input contract
 	if err != nil {
 		gatecli.Errf("FATAL: reading %s: %v\n", todoPath, err)
 
@@ -114,13 +119,7 @@ func Run(argv []string) int {
 
 	settings := docsfreshness.SettingsFromConfig(cfg)
 	if code := docsfreshness.PreFlight(opts.Root, bullets, nil, false, false, settings); code != gatecli.ExitClean {
-		if !opts.Apply {
-			gatecli.Errln("docs-purge: DRY-RUN — nothing was written; the gate above refuses this entry")
-		} else {
-			gatecli.Errln("docs-purge: REFUSED — the pre-flight gate rejects this entry; nothing was written")
-		}
-
-		return code
+		return gateRefused(opts.Apply, code)
 	}
 
 	if !opts.Apply {
@@ -129,9 +128,27 @@ func Run(argv []string) int {
 		return gatecli.ExitClean
 	}
 
-	changelogData, err := os.ReadFile(
-		changelogPath,
-	) //nolint:gosec // G304: the file argument IS the tool's input contract
+	return applyPurge(opts, todoPath, string(todoData), rows, bullets)
+}
+
+// gateRefused reports the pre-flight refusal on both faces and surfaces
+// the gate's own exit code (1 UNSAFE, 2 the on-disk refusal class).
+func gateRefused(applied bool, code int) int {
+	if !applied {
+		gatecli.Errln("docs-purge: DRY-RUN — nothing was written; the gate above refuses this entry")
+	} else {
+		gatecli.Errln("docs-purge: REFUSED — the pre-flight gate rejects this entry; nothing was written")
+	}
+
+	return code
+}
+
+// applyPurge writes both faces: the struck rows leave the TODO file, the
+// bullets join the [Unreleased] Changed section.
+func applyPurge(opts Options, todoPath, todoData string, rows []struckRow, bullets []string) int {
+	changelogPath := filepath.Join(opts.Root, opts.Changelog)
+
+	changelogData, err := os.ReadFile(changelogPath) //nolint:gosec // G304,G703: the file argument IS the tool's input contract
 	if err != nil {
 		gatecli.Errf("FATAL: reading %s: %v\n", changelogPath, err)
 
@@ -145,7 +162,7 @@ func Run(argv []string) int {
 		return gatecli.ExitUsage
 	}
 
-	if err := writePreservingMode(todoPath, removeRows(string(todoData), rows)); err != nil {
+	if err := writePreservingMode(todoPath, removeRows(todoData, rows)); err != nil {
 		gatecli.Errf("FATAL: writing %s: %v\n", todoPath, err)
 
 		return gatecli.ExitUsage
@@ -157,12 +174,8 @@ func Run(argv []string) int {
 		return gatecli.ExitUsage
 	}
 
-	gatecli.Outf(
-		"docs-purge: purged %d struck row(s) from %s into %s — run `docs-gates cadence` to verify the backlog\n",
-		len(rows),
-		opts.File,
-		opts.Changelog,
-	)
+	gatecli.Outf("docs-purge: purged %d struck row(s) from %s into %s — run `docs-gates cadence` to verify the backlog\n",
+		len(rows), opts.File, opts.Changelog)
 
 	return gatecli.ExitClean
 }
@@ -175,44 +188,46 @@ func collectStruck(content string) []struckRow {
 	var rows []struckRow
 
 	for i, line := range strings.Split(content, "\n") {
-		task, verdict, ok := splitStrike(line)
+		row, ok := splitStrike(line, i+1)
 		if !ok {
 			continue
 		}
 
-		rows = append(rows, struckRow{lineNo: i + 1, oldLine: line, task: task, verdict: verdict})
+		rows = append(rows, row)
 	}
 
 	return rows
 }
 
-// splitStrike extracts the task text between the first ~~ pair and the
-// verdict tail after it. A line without a wrap, or one whose wrap is
-// empty on both sides, is not a strike.
-func splitStrike(line string) (task, verdict string, ok bool) {
+// splitStrike extracts the strike at a line: the task text between the
+// first ~~ pair and the verdict tail after it, cut at the next table
+// pipe. A line without a wrap, or one whose wrap is empty on both sides,
+// is not a strike.
+func splitStrike(line string, lineNo int) (struckRow, bool) {
 	first := strings.Index(line, "~~")
 	if first < 0 {
-		return "", "", false
+		return struckRow{}, false
 	}
 
 	second := strings.Index(line[first+2:], "~~")
 	if second < 0 {
-		return "", "", false
+		return struckRow{}, false
 	}
 
-	task = line[first+2 : first+2+second]
+	task := line[first+2 : first+2+second]
+
 	verdictTail := line[first+2+second+2:]
 	if cut := strings.Index(verdictTail, "|"); cut >= 0 {
 		verdictTail = verdictTail[:cut]
 	}
 
-	verdict = strings.TrimSpace(verdictTail)
+	verdict := strings.TrimSpace(verdictTail)
 
 	if strings.TrimSpace(task) == "" && verdict == "" {
-		return "", "", false
+		return struckRow{}, false
 	}
 
-	return task, verdict, true
+	return struckRow{lineNo: lineNo, oldLine: line, task: task, verdict: verdict}, true
 }
 
 // draftBullets renders one CHANGELOG bullet per struck row: the unwrapped
@@ -220,6 +235,7 @@ func splitStrike(line string) (task, verdict string, ok bool) {
 // established.
 func draftBullets(rows []struckRow) []string {
 	date := time.Now().Format("2006-01-02")
+
 	bullets := make([]string, 0, len(rows))
 
 	for _, row := range rows {
@@ -246,12 +262,14 @@ func printPlan(todoFile, changelogFile string, rows []struckRow, bullets []strin
 func removeRows(content string, rows []struckRow) string {
 	struck := make(map[int]bool, len(rows))
 
-	lines := strings.Split(content, "\n")
 	for _, row := range rows {
 		struck[row.lineNo-1] = true
 	}
 
+	lines := strings.Split(content, "\n")
+
 	kept := make([]string, 0, len(lines))
+
 	for i, line := range lines {
 		if !struck[i] {
 			kept = append(kept, line)
@@ -277,8 +295,8 @@ func insertBullets(changelog string, bullets []string) (string, error) {
 	}
 
 	if unreleased < 0 {
-		return "", fmt.Errorf(
-			"%s has no %s heading — refusing to guess an insertion point", //nolint:err113 // user-facing CLI refusal; no errors.Is consumers by design
+		return "", fmt.Errorf( //nolint:err113 // user-facing CLI refusal; no errors.Is consumers by design
+			"%s has no %s heading — refusing to guess an insertion point",
 			defaultChangelog,
 			unreleasedHeading,
 		)
@@ -297,14 +315,15 @@ func insertBullets(changelog string, bullets []string) (string, error) {
 	}
 
 	if changed < 0 {
-		return "", fmt.Errorf(
-			"%s has no %s section under [Unreleased] — refusing to guess an insertion point", //nolint:err113 // user-facing CLI refusal; no errors.Is consumers by design
+		return "", fmt.Errorf( //nolint:err113 // user-facing CLI refusal; no errors.Is consumers by design
+			"%s has no %s section under [Unreleased] — refusing to guess an insertion point",
 			defaultChangelog,
 			changedHeading,
 		)
 	}
 
 	insert := len(lines)
+
 	for i := changed + 1; i < len(lines); i++ {
 		if strings.HasPrefix(lines[i], "### ") || strings.HasPrefix(lines[i], "## ") {
 			insert = i
@@ -332,9 +351,5 @@ func writePreservingMode(path, content string) error {
 		mode = info.Mode().Perm()
 	}
 
-	return os.WriteFile(
-		path,
-		[]byte(content),
-		mode,
-	) //nolint:gosec // G306, G703: the mode IS the source file's; the path argument IS the tool's input contract
+	return os.WriteFile(path, []byte(content), mode) //nolint:gosec // G306,G703: the mode IS the source file's; the path argument IS the tool's input contract
 }
