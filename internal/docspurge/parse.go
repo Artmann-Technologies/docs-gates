@@ -81,7 +81,10 @@ func ParseArgs(argv []string) (Options, error) {
 
 			i = last
 		case strings.HasPrefix(arg, "--"):
-			return opts, fmt.Errorf("unknown flag: %s", arg) //nolint:err113 // user-facing CLI refusal; no errors.Is consumers by design
+			return opts, fmt.Errorf(
+				"unknown flag: %s",
+				arg,
+			) //nolint:err113 // user-facing CLI refusal; no errors.Is consumers by design
 		default:
 			positional = append(positional, arg)
 		}

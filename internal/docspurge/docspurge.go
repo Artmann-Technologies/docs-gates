@@ -110,7 +110,7 @@ func Run(argv []string) int {
 	}
 
 	bullets := draftBullets(rows)
-	printPlan(opts.File, rows, bullets)
+	printPlan(opts.File, opts.Changelog, rows, bullets)
 
 	settings := docsfreshness.SettingsFromConfig(cfg)
 	if code := docsfreshness.PreFlight(opts.Root, bullets, nil, false, false, settings); code != gatecli.ExitClean {
@@ -129,7 +129,9 @@ func Run(argv []string) int {
 		return gatecli.ExitClean
 	}
 
-	changelogData, err := os.ReadFile(changelogPath) //nolint:gosec // G304: the file argument IS the tool's input contract
+	changelogData, err := os.ReadFile(
+		changelogPath,
+	) //nolint:gosec // G304: the file argument IS the tool's input contract
 	if err != nil {
 		gatecli.Errf("FATAL: reading %s: %v\n", changelogPath, err)
 
@@ -155,8 +157,12 @@ func Run(argv []string) int {
 		return gatecli.ExitUsage
 	}
 
-	gatecli.Outf("docs-purge: purged %d struck row(s) from %s into %s — run `docs-gates cadence` to verify the backlog\n",
-		len(rows), opts.File, opts.Changelog)
+	gatecli.Outf(
+		"docs-purge: purged %d struck row(s) from %s into %s — run `docs-gates cadence` to verify the backlog\n",
+		len(rows),
+		opts.File,
+		opts.Changelog,
+	)
 
 	return gatecli.ExitClean
 }
@@ -195,7 +201,12 @@ func splitStrike(line string) (task, verdict string, ok bool) {
 	}
 
 	task = line[first+2 : first+2+second]
-	verdict = strings.TrimSpace(line[first+2+second+2:])
+	verdictTail := line[first+2+second+2:]
+	if cut := strings.Index(verdictTail, "|"); cut >= 0 {
+		verdictTail = verdictTail[:cut]
+	}
+
+	verdict = strings.TrimSpace(verdictTail)
 
 	if strings.TrimSpace(task) == "" && verdict == "" {
 		return "", "", false
@@ -224,10 +235,10 @@ func draftBullets(rows []struckRow) []string {
 }
 
 // printPlan writes the dry-run face: one old→new pair per row.
-func printPlan(file string, rows []struckRow, bullets []string) {
+func printPlan(todoFile, changelogFile string, rows []struckRow, bullets []string) {
 	for i, row := range rows {
-		gatecli.Outf("--- %s:%d\n%s\n", file, row.lineNo, row.oldLine)
-		gatecli.Outf("+++ %s\n%s\n", defaultChangelog, bullets[i])
+		gatecli.Outf("--- %s:%d\n%s\n", todoFile, row.lineNo, row.oldLine)
+		gatecli.Outf("+++ %s\n%s\n", changelogFile, bullets[i])
 	}
 }
 
@@ -266,8 +277,11 @@ func insertBullets(changelog string, bullets []string) (string, error) {
 	}
 
 	if unreleased < 0 {
-		return "", fmt.Errorf("%s has no %s heading — refusing to guess an insertion point", //nolint:err113 // user-facing CLI refusal; no errors.Is consumers by design
-			defaultChangelog, unreleasedHeading)
+		return "", fmt.Errorf(
+			"%s has no %s heading — refusing to guess an insertion point", //nolint:err113 // user-facing CLI refusal; no errors.Is consumers by design
+			defaultChangelog,
+			unreleasedHeading,
+		)
 	}
 
 	for i := unreleased + 1; i < len(lines); i++ {
@@ -283,8 +297,11 @@ func insertBullets(changelog string, bullets []string) (string, error) {
 	}
 
 	if changed < 0 {
-		return "", fmt.Errorf("%s has no %s section under [Unreleased] — refusing to guess an insertion point", //nolint:err113 // user-facing CLI refusal; no errors.Is consumers by design
-			defaultChangelog, changedHeading)
+		return "", fmt.Errorf(
+			"%s has no %s section under [Unreleased] — refusing to guess an insertion point", //nolint:err113 // user-facing CLI refusal; no errors.Is consumers by design
+			defaultChangelog,
+			changedHeading,
+		)
 	}
 
 	insert := len(lines)
@@ -315,5 +332,9 @@ func writePreservingMode(path, content string) error {
 		mode = info.Mode().Perm()
 	}
 
-	return os.WriteFile(path, []byte(content), mode) //nolint:gosec // G306, G703: the mode IS the source file's; the path argument IS the tool's input contract
+	return os.WriteFile(
+		path,
+		[]byte(content),
+		mode,
+	) //nolint:gosec // G306, G703: the mode IS the source file's; the path argument IS the tool's input contract
 }

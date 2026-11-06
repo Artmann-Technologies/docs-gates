@@ -1,10 +1,12 @@
 package docspurge
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/Artmann-Technologies/docs-gates/internal/gatecli"
 )
@@ -18,7 +20,7 @@ const (
 | Task | Status | Priority |
 | ---- | ------ | -------- |
 | ~~Purge the zorphuser legacy gate~~ done at ` + "`abc1234`" + ` | ✅ ` + "`DONE`" + ` | P3 |
-| Keep the zorphuser-free open work moving | 🔴 ` + "`TODO`" + ` | P2 |
+| Keep the open work moving | 🔴 ` + "`TODO`" + ` | P2 |
 `
 	fixtureChangelog = "# CHANGELOG\n\n## [Unreleased]\n\n### Changed\n\n- prior entry\n\n### Fixed\n\n- prior fix\n"
 )
@@ -58,19 +60,19 @@ func readFixtures(t *testing.T, root string) (string, string) {
 
 // TestRunDryRunPrintsPlanAndWritesNothing pins the default face: the
 // old→new plan on stdout, both fixture files byte-identical.
+//
+//nolint:paralleltest // process-global capture, serialized on purpose
 func TestRunDryRunPrintsPlanAndWritesNothing(t *testing.T) {
 	root := writeFixtures(t)
 	beforeTodo, beforeChangelog := readFixtures(t, root)
 
-	var out gatecli.CapturedOutput
-
-	out = gatecli.CaptureOutput(func() int { return Run([]string{root}) })
+	out := gatecli.CaptureOutput(func() int { return Run([]string{root}) })
 
 	if out.Code != gatecli.ExitClean {
 		t.Fatalf("Run = %d, want %d; stderr: %s", out.Code, gatecli.ExitClean, out.Stderr)
 	}
 
-	if !strings.Contains(out.Stdout, "--- TODO_LIST.md:4") || !strings.Contains(out.Stdout, "zorphuser legacy gate") {
+	if !strings.Contains(out.Stdout, "--- TODO_LIST.md:5") || !strings.Contains(out.Stdout, "zorphuser legacy gate") {
 		t.Fatalf("dry-run plan missing the struck-row pair:\n%s", out.Stdout)
 	}
 
@@ -87,12 +89,12 @@ func TestRunDryRunPrintsPlanAndWritesNothing(t *testing.T) {
 // TestRunApplyRemovesRowsAndInsertsBullets pins the write face: the
 // struck row leaves the TODO file, the bullet lands inside the
 // [Unreleased] Changed section before ### Fixed, the open row survives.
+//
+//nolint:paralleltest // process-global capture, serialized on purpose
 func TestRunApplyRemovesRowsAndInsertsBullets(t *testing.T) {
 	root := writeFixtures(t)
 
-	var out gatecli.CapturedOutput
-
-	out = gatecli.CaptureOutput(func() int { return Run([]string{root, "--apply"}) })
+	out := gatecli.CaptureOutput(func() int { return Run([]string{root, "--apply"}) })
 
 	if out.Code != gatecli.ExitClean {
 		t.Fatalf("Run --apply = %d, want %d; stderr: %s", out.Code, gatecli.ExitClean, out.Stderr)
@@ -104,7 +106,7 @@ func TestRunApplyRemovesRowsAndInsertsBullets(t *testing.T) {
 		t.Fatalf("struck row survived the apply:\n%s", todo)
 	}
 
-	if !strings.Contains(todo, "Keep the zorphuser-free open work moving") {
+	if !strings.Contains(todo, "Keep the open work moving") {
 		t.Fatalf("open row was collateral damage:\n%s", todo)
 	}
 
@@ -127,19 +129,23 @@ func TestRunApplyRemovesRowsAndInsertsBullets(t *testing.T) {
 
 // TestRunNoStruckRowsIsCleanNoop pins the empty board face: exit 0 with
 // an explicit nothing-to-purge line, files untouched.
+//
+//nolint:paralleltest // process-global capture, serialized on purpose
 func TestRunNoStruckRowsIsCleanNoop(t *testing.T) {
 	root := writeFixtures(t)
 
-	unstruck := strings.ReplaceAll(fixtureTodo, "~~Purge the zorphuser legacy gate~~ done at `abc1234`", "Purge the zorphuser legacy gate (open)")
+	unstruck := strings.ReplaceAll(
+		fixtureTodo,
+		"~~Purge the zorphuser legacy gate~~ done at `abc1234`",
+		"Purge the zorphuser legacy gate (open)",
+	)
 	if err := os.WriteFile(filepath.Join(root, "TODO_LIST.md"), []byte(unstruck), 0o644); err != nil {
 		t.Fatal(err)
 	}
 
 	beforeTodo, beforeChangelog := readFixtures(t, root)
 
-	var out gatecli.CapturedOutput
-
-	out = gatecli.CaptureOutput(func() int { return Run([]string{root, "--apply"}) })
+	out := gatecli.CaptureOutput(func() int { return Run([]string{root, "--apply"}) })
 
 	if out.Code != gatecli.ExitClean {
 		t.Fatalf("Run = %d, want %d; stderr: %s", out.Code, gatecli.ExitClean, out.Stderr)
@@ -159,20 +165,27 @@ func TestRunNoStruckRowsIsCleanNoop(t *testing.T) {
 // deterministic refusal shape: a bullet already on disk makes PreFlight
 // exit 2, and the purge surfaces that code without touching either file
 // (both dry-run and apply).
+//
+//nolint:paralleltest // process-global capture, serialized on purpose
 func TestRunPreFlightRefusalWritesNothing(t *testing.T) {
 	root := writeFixtures(t)
 
-	poisoned := strings.Replace(fixtureChangelog, "- prior entry",
-		"- prior entry\n- TODO_LIST purge (2026-01-01): Purge the zorphuser legacy gate — done at `abc1234`", 1)
+	poisoned := strings.Replace(
+		fixtureChangelog,
+		"- prior entry",
+		fmt.Sprintf(
+			"- prior entry\n- TODO_LIST purge (%s): Purge the zorphuser legacy gate — done at `abc1234`",
+			time.Now().Format("2006-01-02"),
+		),
+		1,
+	)
 	if err := os.WriteFile(filepath.Join(root, "CHANGELOG.md"), []byte(poisoned), 0o644); err != nil {
 		t.Fatal(err)
 	}
 
 	beforeTodo, beforeChangelog := readFixtures(t, root)
 
-	var out gatecli.CapturedOutput
-
-	out = gatecli.CaptureOutput(func() int { return Run([]string{root, "--apply"}) })
+	out := gatecli.CaptureOutput(func() int { return Run([]string{root, "--apply"}) })
 
 	if out.Code != gatecli.ExitUsage {
 		t.Fatalf("Run over an on-disk bullet = %d, want %d (PreFlight's on-disk refusal); stderr: %s",
@@ -190,9 +203,12 @@ func TestRunPreFlightRefusalWritesNothing(t *testing.T) {
 }
 
 // TestRunUnsafePreFlightRefusesWithFindings pins the exit-1 leg end to
-// end: the drafted bullet pushes the item's last distinctive token
-// (zorphuser, DF 7 at base) across the GenericDF bar (8), the pre-flight
-// answers UNSAFE, and --apply writes nothing.
+// end: the report item's only living-present distinctive token is
+// zorphuser at DF 7 (the struck row + 6 filler lines); the drafted
+// bullet pushes it to DF 8 — the GenericDF bar — and the pre-flight
+// answers UNSAFE while --apply writes nothing.
+//
+//nolint:paralleltest // process-global capture, serialized on purpose
 func TestRunUnsafePreFlightRefusesWithFindings(t *testing.T) {
 	root := writeFixtures(t)
 
@@ -200,8 +216,12 @@ func TestRunUnsafePreFlightRefusesWithFindings(t *testing.T) {
 
 	filler.WriteString(fixtureChangelog)
 
-	for range 7 {
-		filler.WriteString("- the zorphuser archive keeps filler1 filler2 evidence alive\n")
+	for range 8 {
+		filler.WriteString("- audit ledger rows land weekly\n")
+	}
+
+	for range 6 {
+		filler.WriteString("- the zorphuser archive keeps its evidence alive\n")
 	}
 
 	if err := os.WriteFile(filepath.Join(root, "CHANGELOG.md"), []byte(filler.String()), 0o644); err != nil {
@@ -213,16 +233,14 @@ func TestRunUnsafePreFlightRefusesWithFindings(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	report := "# R\n\n## f) Next\n\n1. audit the zorphuser filler1 filler2 ledger monthly\n"
+	report := "# R\n\n## f) Next\n\n1. audit the zorphuser ledger weekly\n"
 	if err := os.WriteFile(filepath.Join(reportDir, "2026-01-01_00-00_r.md"), []byte(report), 0o644); err != nil {
 		t.Fatal(err)
 	}
 
 	beforeTodo, _ := readFixtures(t, root)
 
-	var out gatecli.CapturedOutput
-
-	out = gatecli.CaptureOutput(func() int { return Run([]string{root, "--apply"}) })
+	out := gatecli.CaptureOutput(func() int { return Run([]string{root, "--apply"}) })
 
 	if out.Code != gatecli.ExitFindings {
 		t.Fatalf("Run over a flip-bound entry = %d, want %d; stdout:\n%s\nstderr:\n%s",
@@ -242,18 +260,22 @@ func TestRunUnsafePreFlightRefusesWithFindings(t *testing.T) {
 // TestRunMissingChangelogAnchorsIsUsageError pins the anchor refusal:
 // a CHANGELOG without [Unreleased]/### Changed refuses with exit 2 and
 // leaves the TODO file intact.
+//
+//nolint:paralleltest // process-global capture, serialized on purpose
 func TestRunMissingChangelogAnchorsIsUsageError(t *testing.T) {
 	root := writeFixtures(t)
 
-	if err := os.WriteFile(filepath.Join(root, "CHANGELOG.md"), []byte("# CHANGELOG\n\n## [v0.1.0]\n\n### Changed\n\n- x\n"), 0o644); err != nil {
+	if err := os.WriteFile(
+		filepath.Join(root, "CHANGELOG.md"),
+		[]byte("# CHANGELOG\n\n## [v0.1.0]\n\n### Changed\n\n- x\n"),
+		0o644,
+	); err != nil {
 		t.Fatal(err)
 	}
 
 	beforeTodo, _ := readFixtures(t, root)
 
-	var out gatecli.CapturedOutput
-
-	out = gatecli.CaptureOutput(func() int { return Run([]string{root, "--apply"}) })
+	out := gatecli.CaptureOutput(func() int { return Run([]string{root, "--apply"}) })
 
 	if out.Code != gatecli.ExitUsage {
 		t.Fatalf("Run without anchors = %d, want %d; stderr: %s", out.Code, gatecli.ExitUsage, out.Stderr)
