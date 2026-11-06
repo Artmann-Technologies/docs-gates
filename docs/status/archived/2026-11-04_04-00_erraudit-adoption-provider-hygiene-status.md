@@ -1,3 +1,9 @@
+> **Live remainder:** archived 2026-11-06 by the cadence ritual (the corpus sat
+> AT max_unarchived=15 and the board's purge pass freed the slot). All open rows
+> were verified harvested/routed at archive time (battery 5/5 PASS: freshness +
+> audit-all + annotate + routing + cadence green over the corpus); owning
+> sections live in TODO_LIST §3-§4, ROADMAP.md and CHANGELOG.md.
+
 # Status Report — erraudit Adoption & Provider Hygiene Session
 
 **Report:** 2026-11-04 04:00 CET · **Repo:** docs-gates @ `381093d` (main, clean tree) · **Session window:** ~03:30–04:00 CET
