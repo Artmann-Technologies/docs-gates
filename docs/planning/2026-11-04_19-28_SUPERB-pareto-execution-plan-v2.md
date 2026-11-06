@@ -284,6 +284,13 @@ T12 → T16 (≈ 7 h, zero permission needed).
   shrinks accordingly — re-read the SystemNix lock before floating.
 - The owner questions were asked at 16:45 §g and 19:25 §g and remain
   unanswered; T1/T2/T3/T8/T11/T14/T15/T21 all wait on them.
+- **Execution annotations (2026-11-06):** T4, T5, T7, T9 and T10 are
+  DONE — executed by the 16:45/19:01 sessions (T4 shipped
+  CHANGELOG-first and its docs train landed; T5's attributions ride the
+  audit-all leg; T7's re-run is recorded in the 02-15 report appendix;
+  T9's gitignore-trap arm is a battery test; T10's parity goldens pin
+  rewrite-mode). T3 stays owner-gated (the evo-x2 deploy window; §3 of
+  the TODO board carries it).
 
 _Point-in-time snapshot; annotate, never rewrite. Verschlimmbesserung
 guard: every task is verified-open work or an explicitly-marked owner

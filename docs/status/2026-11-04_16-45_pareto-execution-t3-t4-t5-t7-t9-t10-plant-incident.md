@@ -112,7 +112,9 @@ culprit attribution). D1/D2 remain owner decisions.
 2. AGENTS.md: blind-revert-under-daemon lesson + erraudit-on-PATH fact.
 3. `nix fmt`, `nix flake check --all-systems --no-build`, `nix build
    .#docs-gates` after the T7 flake edit.
-4. Plan-file errata: mark T3/T4/T5/T7/T9/T10 done (annotate, not rewrite).
+4. ~~Plan-file errata: mark T3/T4/T5/T7/T9/T10 done (annotate, not rewrite)~~ done
+   (the plan-v2 errata section now carries the 2026-11-06 execution annotations:
+   T4/T5/T7/T9/T10 marked done with evidence, T3 explicitly owner-gated).
 5. T6 erraudit-lint flake check (reuse nolint-audit plumbing; F23-F27).
 6. T8 erraudit input rev tripwire (go-codec precedent; F32-F35).
 7. T17 nolint-audit hygiene: GOFLAGS isolation probe, erraudit.inputs
@@ -126,7 +128,9 @@ culprit attribution). D1/D2 remain owner decisions.
 14. T20 docsannotate: shrink the Run body to prologue+dispatch (the settings-projection seam).
 15. T21 docsrouting: single report lookup, unified path construction.
 16. T21 export shared token predicates (tokenIn/livingLineCount/…).
-17. T21 squash-corpus consistency: unify or document.
+17. ~~T21 squash-corpus consistency: unify or document~~ done (documented:
+    the CHANGELOG squash-convergence entry + the AGENTS report-vocabulary
+    fact pin Tokens/Squash/GenericDF as the one shared definition).
 18. T21 docsstrike parse.go survey → CutStringFlag or documented decline.
 19. T21 art-dupl `-t 1` re-run (expect 0 shown groups).
 20. T22 nixpkgs_2: reconcile the flake.lock disagreement or record deliberate.
