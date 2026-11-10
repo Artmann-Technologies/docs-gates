@@ -31,7 +31,8 @@ package provider
 
 import (
 	"context"
-	"encoding/json"
+	"encoding/json/jsontext"
+	"encoding/json/v2"
 	"fmt"
 	"os/exec"
 	"strconv"
@@ -81,10 +82,9 @@ type gateRow struct {
 func decodeReport(stdout string) (batteryReport, error) {
 	var report batteryReport
 
-	dec := json.NewDecoder(strings.NewReader(stdout))
-	dec.DisallowUnknownFields()
+	dec := jsontext.NewDecoder(strings.NewReader(stdout))
 
-	if err := dec.Decode(&report); err != nil {
+	if err := json.UnmarshalDecode(dec, &report, json.RejectUnknownMembers(true)); err != nil {
 		return batteryReport{}, err
 	}
 
