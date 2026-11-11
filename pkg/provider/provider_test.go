@@ -195,6 +195,18 @@ func TestDetectRedRowsBecomeFindings(t *testing.T) {
 	if !strings.Contains(findings[1].Message, "TIMED OUT") || !strings.Contains(findings[1].Message, "300000ms") {
 		t.Fatalf("the timeout row's message must name the cap burn, got %q", findings[1].Message)
 	}
+
+	if !strings.Contains(findings[0].Message, "run `docs-gates cadence ") {
+		t.Fatalf("a verb-named gate must replay its verb, got %q", findings[0].Message)
+	}
+
+	if !strings.Contains(findings[1].Message, "run `docs-gates freshness ") ||
+		strings.Contains(findings[1].Message, "docs-gates audit-all") {
+		t.Fatalf(
+			"audit-all is a matrix name, not a verb: the hint must replay freshness --audit-all, got %q",
+			findings[1].Message,
+		)
+	}
 }
 
 // Detect trusts the ROWS, not the pass summary: an inconsistent document

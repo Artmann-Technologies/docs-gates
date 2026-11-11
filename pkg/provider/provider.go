@@ -115,6 +115,18 @@ func workingDir(ctx context.Context) string {
 	return "."
 }
 
+// rerunHint turns a battery gate name into the exact CLI line that
+// replays that one gate. The matrix names are not all verbs: audit-all
+// is the freshness gate's --audit-all replay mode, so the naive
+// `docs-gates <name> <dir>` shape would advise a command the
+// dispatcher rejects as an unknown verb.
+func rerunHint(name, dir string) string {
+	if name == "audit-all" {
+		return "docs-gates freshness " + dir + " --audit-all"
+	}
+	return "docs-gates " + name + " " + dir
+}
+
 // runBattery execs the docs-gates binary's battery verb (the --json
 // machine face) over dir and returns its exit code plus both output
 // streams. The binary name is a package constant (gosec G204), and the
@@ -223,11 +235,11 @@ var Provider = toolsdk.Register(toolsdk.Spec{
 			findings := make([]finding.Finding, 0, len(failed))
 			for _, gate := range failed {
 				message := "docs gate " + gate.Name + " is red over " + dir +
-					" — run `docs-gates " + gate.Name + " " + dir + "` for the full output"
+					" — run `" + rerunHint(gate.Name, dir) + "` for the full output"
 				if gate.TimedOut {
 					message = "docs gate " + gate.Name + " TIMED OUT over " + dir + " (" +
 						strconv.FormatInt(gate.DurationMS, 10) + "ms)" +
-						" — run `docs-gates " + gate.Name + " " + dir + "` for the full output"
+						" — run `" + rerunHint(gate.Name, dir) + "` for the full output"
 				}
 
 				findings = append(findings, finding.NewFinding(
