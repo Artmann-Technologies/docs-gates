@@ -129,7 +129,8 @@ echo "- the new TODO row text" | docs-gates freshness . --pre-flight
 
 ## Releases
 
-v0.1.1 is current (see [CHANGELOG.md](CHANGELOG.md)).
+v0.2.0 is current (see [CHANGELOG.md](CHANGELOG.md)); the BuildFlow
+provider module is versioned separately as `pkg/provider/v0.2.0`.
 
 ## License
 
