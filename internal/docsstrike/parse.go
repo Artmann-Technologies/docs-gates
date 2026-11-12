@@ -10,19 +10,20 @@ import (
 
 // Options carries the parsed CLI contract of Run.
 type Options struct {
-	Root     string
-	File     string
-	Row      string
-	Verdict  string
-	Evidence string
-	Status   string
-	Apply    bool
+	Root                string
+	File                string
+	Row                 string
+	Verdict             string
+	Evidence            string
+	Status              string
+	Apply               bool
+	CheckVerdictOutside bool
 }
 
 // isValueFlag reports whether the flag consumes the next argument as its
-// value; --apply is the lone boolean. gatecli.Parse is boolean-only, so
-// this parser keeps its value-carrying semantics local and hands only
-// the root resolution back to gatecli.
+// value; --apply and --check-verdict-outside are the booleans. gatecli.Parse
+// is boolean-only, so this parser keeps its value-carrying semantics local
+// and hands only the root resolution back to gatecli.
 func isValueFlag(arg string) bool {
 	switch arg {
 	case "--row", "--verdict", "--evidence", "--status", "--file":
@@ -58,8 +59,11 @@ func consumeValueFlag(argv []string, i int, arg string, opts *Options) (int, *st
 }
 
 // ParseArgs splits argv into the strike options: value flags
-// (--row/--verdict/--evidence/--status/--file), the --apply boolean, and
-// an optional positional repo root (resolved by gatecli.ResolveRoot).
+// (--row/--verdict/--evidence/--status/--file), the --apply and
+// --check-verdict-outside booleans, and an optional positional repo root
+// (resolved by gatecli.ResolveRoot). In CHECK MODE (--check-verdict-outside)
+// neither --row nor --verdict is required — the mode scans the annotate
+// corpus and takes no strike inputs at all.
 func ParseArgs(argv []string) (Options, error) {
 	opts := Options{Status: DefaultStatus}
 
@@ -71,6 +75,8 @@ func ParseArgs(argv []string) (Options, error) {
 		switch {
 		case arg == "--apply":
 			opts.Apply = true
+		case arg == "--check-verdict-outside":
+			opts.CheckVerdictOutside = true
 		case isValueFlag(arg):
 			last, err := consumeValueFlag(argv, i, arg, &opts)
 			if err != nil {
@@ -88,25 +94,30 @@ func ParseArgs(argv []string) (Options, error) {
 		}
 	}
 
-	if opts.Row == "" {
-		return opts, errors.New( //nolint:err113 // user-facing CLI refusal; no errors.Is consumers by design
-			"--row <selector> is required (a substring of the row to strike)",
-		)
-	}
+	// The strike inputs are required only for a STRIKE: check mode
+	// (--check-verdict-outside) scans the annotate corpus and passes none
+	// of them.
+	if !opts.CheckVerdictOutside {
+		if opts.Row == "" {
+			return opts, errors.New( //nolint:err113 // user-facing CLI refusal; no errors.Is consumers by design
+				"--row <selector> is required (a substring of the row to strike)",
+			)
+		}
 
-	if opts.Verdict == "" {
-		return opts, errors.New( //nolint:err113 // user-facing CLI refusal; no errors.Is consumers by design
-			"--verdict <text> is required (the done (…) evidence payload)",
-		)
-	}
+		if opts.Verdict == "" {
+			return opts, errors.New( //nolint:err113 // user-facing CLI refusal; no errors.Is consumers by design
+				"--verdict <text> is required (the done (…) evidence payload)",
+			)
+		}
 
-	if opener, prefixed := prefixedVerdictOpener(opts.Verdict); prefixed {
-		return opts, fmt.Errorf( //nolint:err113 // user-facing CLI refusal; no errors.Is consumers by design
-			"the --verdict already starts with the verdict word %q — the tool prepends "+
-				"the done (…) wrap itself, so pass the evidence WITHOUT a leading verdict "+
-				"marker (a prefixed verdict double-wraps into done (done (…)))",
-			opener,
-		)
+		if opener, prefixed := prefixedVerdictOpener(opts.Verdict); prefixed {
+			return opts, fmt.Errorf( //nolint:err113 // user-facing CLI refusal; no errors.Is consumers by design
+				"the --verdict already starts with the verdict word %q — the tool prepends "+
+					"the done (…) wrap itself, so pass the evidence WITHOUT a leading verdict "+
+					"marker (a prefixed verdict double-wraps into done (done (…)))",
+				opener,
+			)
+		}
 	}
 
 	root, err := gatecli.ResolveRoot(positional)
