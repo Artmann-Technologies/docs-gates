@@ -6,6 +6,18 @@ match the annotated git tags; anything after the newest tag sits under
 
 ## [Unreleased]
 
+### Changed
+
+- Internal error handling: the config loader, the purge draft's anchor
+  refusals, and the strike input validator now return typed refusal
+  carriers instead of raw fmt.Errorf/errors.New values (unexported
+  struct + newXxxError constructor + Unwrap, error return kept — a
+  concrete *T return is the typed-nil landmine): loadError names its
+  read/parse/validate step, missingAnchorError its anchor scope,
+  strikeInputsError its refusal kind. Refusal messages are
+  byte-identical, so the FATAL-line contract holds; erraudit's strict
+  --max audit (generic_return enforced) is now clean over both modules.
+
 ## [v0.2.0] - 2026-11-12
 
 ### Added

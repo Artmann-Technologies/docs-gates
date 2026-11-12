@@ -117,7 +117,17 @@ paths — the re-pin ritual does not apply to them.
   `[runner/nolint_filter] Found unknown linters in //nolint directives:
   erraudit` — expected cross-tool artifact (erraudit is a standalone
   binary, not a golangci linter; the fleet runs it standalone, no plugin),
-  warning-only with 0 issues and rc=0. Live directive count: 16
+  warning-only with 0 issues and rc=0. **The strict `erraudit lint
+  ./... --max` audit (`generic_return` enforced) is green over both
+  modules since 2026-11-12**: the three flagged generic-error returns
+  (config.Load, docspurge.insertBullets, docsstrike.validateStrikeInputs)
+  carry typed refusal carriers — unexported struct + `newXxxError`
+  constructor + `Unwrap` where a cause exists (the config
+  loadError/invalidError pattern), refusal messages byte-identical, and
+  the idiomatic `error` return KEPT (a concrete `*T` return is the
+  typed-nil landmine; constructor-shaped names like ParseArgs ride
+  erraudit's name exemptions). Keep the pattern for any new refusal.
+  Live directive count: 16
   non-test directives, 0 stale (nolint-audit counts NON-TEST files;
   2026-11-12, at erraudit rev 5c841cf2) — never cite a count from
   memory, run `erraudit nolint-audit .` when a doc or report needs the
@@ -258,7 +268,9 @@ paths — the re-pin ritual does not apply to them.
   skip; prove it locally before trusting it. erraudit's finding domain is
   the LEGACYERRORS migration (errors.As → AsType; sentinel errors.Is
   against known sentinels is deliberately exempt — an unchecked Close is
-  errcheck's job, not erraudit's); discrimination probes must plant
+  errcheck's job, not erraudit's), plus the `generic_return` check under
+  `--max` (typed refusal carriers per the Critical-constraints erraudit
+  bullet); discrimination probes must plant
   `errors.As(err, &target)`. Flake-source probes must STAGE the plant
   (`git add -N`): flake checks read the git tree, untracked files are
   invisible to them.

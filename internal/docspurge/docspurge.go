@@ -299,11 +299,7 @@ func insertBullets(changelog string, bullets []string) (string, error) {
 	}
 
 	if unreleased < 0 {
-		return "", fmt.Errorf( //nolint:err113 // user-facing CLI refusal; no errors.Is consumers by design
-			"%s has no %s heading — refusing to guess an insertion point",
-			defaultChangelog,
-			unreleasedHeading,
-		)
+		return "", newMissingAnchorError(anchorUnreleasedHeading, defaultChangelog)
 	}
 
 	for i := unreleased + 1; i < len(lines); i++ {
@@ -319,11 +315,7 @@ func insertBullets(changelog string, bullets []string) (string, error) {
 	}
 
 	if changed < 0 {
-		return "", fmt.Errorf( //nolint:err113 // user-facing CLI refusal; no errors.Is consumers by design
-			"%s has no %s section under [Unreleased] — refusing to guess an insertion point",
-			defaultChangelog,
-			changedHeading,
-		)
+		return "", newMissingAnchorError(anchorChangedSection, defaultChangelog)
 	}
 
 	insert := len(lines)
@@ -344,6 +336,46 @@ func insertBullets(changelog string, bullets []string) (string, error) {
 	updated = append(updated, lines[insert:]...)
 
 	return strings.Join(updated, "\n"), nil
+}
+
+// anchorScope is the CHANGELOG anchor whose absence refuses a purge
+// draft: the [Unreleased] heading anywhere in the file, or the Changed
+// section constrained to the [Unreleased] block. Its String spelling is
+// the refusal message's anchor phrase, so the two refusal shapes stay
+// byte-for-byte with the historical fmt.Errorf texts.
+type anchorScope int
+
+const (
+	anchorUnreleasedHeading anchorScope = iota + 1
+	anchorChangedSection
+)
+
+func (s anchorScope) String() string {
+	switch s {
+	case anchorUnreleasedHeading:
+		return unreleasedHeading + " heading"
+	case anchorChangedSection:
+		return changedHeading + " section under " + strings.TrimPrefix(unreleasedHeading, "## ")
+	default:
+		return fmt.Sprintf("anchorScope(%d)", int(s))
+	}
+}
+
+// missingAnchorError is the package's static refusal type: the changelog
+// lacks an anchor the draft needs, so no insertion point is guessed.
+type missingAnchorError struct {
+	changelog string
+	scope     anchorScope
+}
+
+func (e *missingAnchorError) Error() string {
+	return fmt.Sprintf("%s has no %s — refusing to guess an insertion point", e.changelog, e.scope)
+}
+
+// newMissingAnchorError builds one missingAnchorError with the refusal
+// message.
+func newMissingAnchorError(scope anchorScope, changelog string) *missingAnchorError {
+	return &missingAnchorError{changelog: changelog, scope: scope}
 }
 
 // writePreservingMode writes content with the file's existing permission

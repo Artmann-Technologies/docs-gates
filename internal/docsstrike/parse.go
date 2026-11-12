@@ -1,7 +1,6 @@
 package docsstrike
 
 import (
-	"errors"
 	"fmt"
 	"strings"
 
@@ -119,27 +118,63 @@ func ParseArgs(argv []string) (Options, error) {
 // under the cyclop bar once check mode joined the flag set.
 func validateStrikeInputs(opts Options) error {
 	if opts.Row == "" {
-		return errors.New( //nolint:err113 // user-facing CLI refusal; no errors.Is consumers by design
-			"--row <selector> is required (a substring of the row to strike)",
-		)
+		return newStrikeInputsError(refusalMissingRow, "")
 	}
 
 	if opts.Verdict == "" {
-		return errors.New( //nolint:err113 // user-facing CLI refusal; no errors.Is consumers by design
-			"--verdict <text> is required (the done (…) evidence payload)",
-		)
+		return newStrikeInputsError(refusalMissingVerdict, "")
 	}
 
 	if opener, prefixed := prefixedVerdictOpener(opts.Verdict); prefixed {
-		return fmt.Errorf( //nolint:err113 // user-facing CLI refusal; no errors.Is consumers by design
-			"the --verdict already starts with the verdict word %q — the tool prepends "+
-				"the done (…) wrap itself, so pass the evidence WITHOUT a leading verdict "+
-				"marker (a prefixed verdict double-wraps into done (done (…)))",
-			opener,
-		)
+		return newStrikeInputsError(refusalPrefixedVerdict, opener)
 	}
 
 	return nil
+}
+
+// strikeRefusal is the strike-mode input-contract violation a
+// strikeInputsError classifies: a missing --row, a missing --verdict, or
+// a verdict already opening with a verdict word. Classification only;
+// the message bytes live in Error, not here.
+type strikeRefusal int
+
+const (
+	refusalMissingRow strikeRefusal = iota + 1
+	refusalMissingVerdict
+	refusalPrefixedVerdict
+)
+
+// strikeInputsError is the package's static refusal type: the strike
+// invocation misses its required --row/--verdict pair or carries an
+// already-wrapped verdict.
+type strikeInputsError struct {
+	kind   strikeRefusal
+	opener string
+}
+
+func (e *strikeInputsError) Error() string {
+	switch e.kind {
+	case refusalMissingRow:
+		return "--row <selector> is required (a substring of the row to strike)"
+	case refusalMissingVerdict:
+		return "--verdict <text> is required (the done (…) evidence payload)"
+	case refusalPrefixedVerdict:
+		return fmt.Sprintf(
+			"the --verdict already starts with the verdict word %q — the tool prepends "+
+				"the done (…) wrap itself, so pass the evidence WITHOUT a leading verdict "+
+				"marker (a prefixed verdict double-wraps into done (done (…)))",
+			e.opener,
+		)
+	default:
+		return fmt.Sprintf("strikeRefusal(%d)", int(e.kind))
+	}
+}
+
+// newStrikeInputsError builds one strikeInputsError with the refusal
+// message; opener carries the matched verdict word for
+// refusalPrefixedVerdict and stays empty otherwise.
+func newStrikeInputsError(kind strikeRefusal, opener string) *strikeInputsError {
+	return &strikeInputsError{kind: kind, opener: opener}
 }
 
 // verdictOpeners are the leading words of the docs-health verdict

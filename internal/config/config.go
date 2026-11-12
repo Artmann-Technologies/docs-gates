@@ -141,7 +141,7 @@ func Load(root string) (Config, []string, error) {
 			return cfg, nil, nil
 		}
 
-		return cfg, nil, fmt.Errorf("reading %s: %w", Path(root), err)
+		return cfg, nil, newLoadError(loadRead, Path(root), err)
 	}
 
 	// Unknown-key pass: decode into a key map first so a typo warns
@@ -150,7 +150,7 @@ func Load(root string) (Config, []string, error) {
 	var raw map[string]json.RawMessage
 
 	if err := json.Unmarshal(data, &raw); err != nil {
-		return cfg, nil, fmt.Errorf("parsing %s: %w", Path(root), err)
+		return cfg, nil, newLoadError(loadParse, Path(root), err)
 	}
 
 	known := knownKeys()
@@ -164,14 +164,61 @@ func Load(root string) (Config, []string, error) {
 	}
 
 	if err := json.Unmarshal(data, &cfg); err != nil {
-		return cfg, warnings, fmt.Errorf("parsing %s: %w", Path(root), err)
+		return cfg, warnings, newLoadError(loadParse, Path(root), err)
 	}
 
 	if err := cfg.validate(); err != nil {
-		return cfg, warnings, fmt.Errorf("invalid %s: %w", Path(root), err)
+		return cfg, warnings, newLoadError(loadValidate, Path(root), err)
 	}
 
 	return cfg, warnings, nil
+}
+
+// loadStep is the Load stage whose refusal produced a loadError: reading
+// the file, parsing its JSON, or validating the decoded values. The zero
+// value is no stage — the default String spelling makes an unset step
+// loud instead of silently reading as the first stage.
+type loadStep int
+
+const (
+	loadRead loadStep = iota + 1
+	loadParse
+	loadValidate
+)
+
+func (s loadStep) String() string {
+	switch s {
+	case loadRead:
+		return "reading"
+	case loadParse:
+		return "parsing"
+	case loadValidate:
+		return "invalid"
+	default:
+		return fmt.Sprintf("loadStep(%d)", int(s))
+	}
+}
+
+// loadError is the package's static error type for Load failures: the
+// refusing step, the file it refused on, and the underlying cause. The
+// message is the caller's FATAL line verbatim (historical
+// "reading/parsing/invalid <path>: <cause>" spelling); Unwrap keeps
+// errors.Is/errors.AsType classification of the cause reachable.
+type loadError struct {
+	step  loadStep
+	path  string
+	cause error
+}
+
+func (e *loadError) Error() string {
+	return fmt.Sprintf("%s %s: %v", e.step, e.path, e.cause)
+}
+
+func (e *loadError) Unwrap() error { return e.cause }
+
+// newLoadError builds one loadError with the FATAL-line message.
+func newLoadError(step loadStep, path string, cause error) *loadError {
+	return &loadError{step: step, path: path, cause: cause}
 }
 
 // invalidError is the package's static error type: every validate
