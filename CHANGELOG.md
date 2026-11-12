@@ -8,6 +8,20 @@ match the annotated git tags; anything after the newest tag sits under
 
 ### Added
 
+- Verdict-placement check mode (the pbx-artmann e.4 lane):
+  `docs-strike [repo-root] --check-verdict-outside` gates the annotate
+  corpus for the two repairable placement defects — a verdict word
+  INSIDE a strike span (`P/verdict-inside`: the marker exists but
+  renders deleted) and the list-item number inside the strike
+  (`P/number-inside`: the 2026-09-26 dprint-renumber class, detected on
+  raw column-zero lines because the swallowed anchor IS the hazard —
+  ExtractItems rightly refuses the line as an item). Neither `--row`
+  nor `--verdict` is required in check mode; exit 0/1/2 =
+  clean/findings/usage. Table rows, checkbox rows, prose strikes,
+  indented continuations, inline code, and fenced content are exempt,
+  pinned in placement_test.go (serial like every CaptureOutput test).
+  The five gates' own outputs are unchanged — no parity-golden path
+  moves (the golden set pins no docsstrike arm, no --help bytes).
 - CLI help surface, end to end: `docs-gates help [verb]`, `--help`/`-h`
   (root and per-verb) print the gate packages' exported `Usage` texts —
   intercepted in the dispatcher before the gate parsers, in the same
