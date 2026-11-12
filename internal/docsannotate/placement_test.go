@@ -31,13 +31,13 @@ func placementFixture(t *testing.T, content string) string {
 }
 
 // runPlacement runs the gate over root with stdout/stderr captured.
+// Serial like every CaptureOutput test: the swap is process-global.
 func runPlacement(root string) gatecli.CapturedOutput {
 	return gatecli.CaptureOutput(func() int { return CheckVerdictPlacement(root) })
 }
 
+//nolint:paralleltest // stdout swap is unsafe under t.Parallel()
 func TestCheckVerdictPlacementClean(t *testing.T) {
-	t.Parallel()
-
 	root := placementFixture(t, strings.Join([]string{
 		"# fixture",
 		"",
@@ -58,9 +58,8 @@ func TestCheckVerdictPlacementClean(t *testing.T) {
 	}
 }
 
+//nolint:paralleltest // stdout swap is unsafe under t.Parallel()
 func TestCheckVerdictPlacementVerdictInsideFires(t *testing.T) {
-	t.Parallel()
-
 	root := placementFixture(t, strings.Join([]string{
 		"# fixture",
 		"",
@@ -88,9 +87,8 @@ func TestCheckVerdictPlacementVerdictInsideFires(t *testing.T) {
 	}
 }
 
+//nolint:paralleltest // stdout swap is unsafe under t.Parallel()
 func TestCheckVerdictPlacementNumberInsideFires(t *testing.T) {
-	t.Parallel()
-
 	root := placementFixture(t, strings.Join([]string{
 		"# fixture",
 		"",
@@ -127,9 +125,9 @@ func TestCheckVerdictPlacementNumberInsideFires(t *testing.T) {
 // while its status cell carries the marker; table rows strike number
 // cells legitimately (`~~3~~`); checkbox rows, prose quoting a number,
 // indented continuations, inline code, and fenced content never match.
+//
+//nolint:paralleltest // stdout swap is unsafe under t.Parallel()
 func TestCheckVerdictPlacementExemptionsStayClean(t *testing.T) {
-	t.Parallel()
-
 	root := placementFixture(t, strings.Join([]string{
 		"# fixture",
 		"",
@@ -162,9 +160,9 @@ func TestCheckVerdictPlacementExemptionsStayClean(t *testing.T) {
 }
 
 // A malformed .docs-gates.json must FATAL with exit 2, never a verdict.
+//
+//nolint:paralleltest // stdout swap is unsafe under t.Parallel()
 func TestCheckVerdictPlacementMalformedConfigFATALs(t *testing.T) {
-	t.Parallel()
-
 	root := t.TempDir()
 
 	if err := os.WriteFile(filepath.Join(root, ".docs-gates.json"), []byte("{"), 0o644); err != nil {

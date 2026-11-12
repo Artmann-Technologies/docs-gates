@@ -19,7 +19,7 @@ import (
 // malformed item itself. Table rows (`| …`), checkbox rows (`- [x] …`),
 // and prose quoting a number (`the ~~old 12. claim~~ stays`) cannot
 // match the anchor by construction; inline code is masked before the
-// match (the AGENTS rule text itself carries `` `~~14. …~~ done` ``).
+// match (the AGENTS rule text itself carries “ `~~14. …~~ done` “).
 var numberInsideLineRe = regexp.MustCompile(`^~~\s*\d+[.)]\s`)
 
 // CheckVerdictPlacement is the verdict-PLACEMENT gate over the annotate
