@@ -1,3 +1,8 @@
+> **Live remainder:** archived 2026-11-12 by the cadence ritual (corpus crossed
+> max_unarchived=15). All open rows were verified harvested/routed at archive
+> time (freshness + audit-all + routing + annotate green over the corpus);
+> owning sections live in TODO_LIST.md and ROADMAP.md.
+
 # Status Report — art-dupl Deduplication Pass (threshold 1 → zero actionable groups)
 
 **Session:** 2026-11-04, ~05:00–05:38 CET · **Trigger:** `art-dupl --sort total-tokens -t 1` showed 10 clone groups; user said "deduplicate!" · **Skill:** deduplicate-code (extract / accept / iterate to zero harmful)
