@@ -159,7 +159,15 @@ paths — the re-pin ritual does not apply to them.
   pre-flight, and the `4cf0e50` docs train went out ungated — only the
   afterwards battery run caught both. stdin the candidate lines, rewrite
   only on SAFE, and run the dogfood battery BEFORE the commit, never
-  after.
+  after. The pre-flight's universe is EXACTLY that trio (its
+  loadLivingDocs corpus and its --replace targets both) — an
+  AGENTS.md/FEATURES.md edit has no pre-flight surface at all (a
+  --replace of an AGENTS line fails "--replace target(s) not found";
+  paid 2026-11-12) and gates via the battery + dprint only; and the
+  on-disk refusal is a lowercased SUBSTRING test over the joined
+  corpus blob, so rewrapped reuse of removed lines still collides
+  until the rewrite lands through --replace targets or genuinely new
+  wording.
 - **The root `./...` never sees `pkg/provider`** — it is a nested go
   module. `go test ./...`, `go vet ./...`, the nix checkPhase, and CI
   (which runs all of those from the root) all exclude it. Test the
