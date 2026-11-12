@@ -6,6 +6,8 @@ match the annotated git tags; anything after the newest tag sits under
 
 ## [Unreleased]
 
+## [v0.2.0] - 2026-11-12
+
 ### Added
 
 - Verdict-placement check mode (the pbx-artmann e.4 lane):
@@ -448,44 +450,43 @@ match the annotated git tags; anything after the newest tag sits under
   dogfood + cliff-benchmark jobs, the four new flake checks,
   dependabot, the safe-strike rails, the JSON-speaking provider, and
   the CLI help surface (the `--json` WORTH-CONSIDERING row landed).
-- TODO_LIST purge (26 struck rows → this entry, 2026-11-06): the
-  quality-machinery batch (the safe-strike-test.sh refusal-matrix
-  harness, safe-strike --battery, the CI dogfood job, the
-  golangci-drift + go-floors + shell-lint flake checks, actionlint +
+- TODO_LIST purge (2026-11-06, three passes — 53 struck rows → this
+  entry): the quality-machinery batch (the safe-strike-test.sh
+  refusal-matrix harness, safe-strike --battery, the CI dogfood job,
+  the golangci-drift + go-floors + shell-lint gates, actionlint +
   shellcheck in the devShell, dependabot enrollment, the gofmt CI step
   drop, the README Scripts table, the margins [bar-2, bar) arithmetic
-  fact and the corpus-replace generic_df 2 coupling note), the battery
+  fact, the corpus-replace generic_df 2 coupling note), the battery
   batch (audit-all token+DF memoization, the per-gate heartbeat
   elapsed-time lines with the gate_timeout_sec rc=timeout bound, the
   audit-all short-circuit subsumption, the wedged-process autopsy, the
-  audit-all cost-model fact), and the external/fleet legs (the crm +
-  go-appkit ratchet rerun, the rpi3-dns toplevel eval, the pbx-artmann
-  migration status — pins v0.1.0, the bump rides the v0.2.0 release —
-  the BuildFlow binary rebuild, the 9-unavailable-tools triage, the
-  fleet docs-health skill cross-check, the evo-x2 reboot attribution,
-  and the archive-cadence ritual) — substance lives in the CHANGELOG
-  entries above, AGENTS.md, FEATURES.md, README.md, the scripts, and
-  the reports/commits named in the evidence cells; the board reopens
-  at the surviving open rows.
-- TODO_LIST purge, second pass of 2026-11-06 (24 struck rows → this
-  entry): the bookkeeping strikes for the day's landed trains — the
-  AGENTS/CHANGELOG/FEATURES catch-up rows, the provider shape-pin row
-  (superseded by the strict JSON decoder), the nixpkgs githubId
-  resolution (23587853, now in the §3 E22 row), the CI bench
-  measurement (67.6ms/op, 6x headroom, no retune), the
-  dependabot-grouping diagnosis (v0.3.0 lacks HasUnmodeledGroups;
-  fixed on that repo's master, unreleased), the corrupt-daemon-commit
-  verification (all three reachable ancestors of main — nothing ages
-  out), the daemon-config citation, the pre-flight fact, the timeout-300
-  discipline, the erraudit count reconciliation (14 non-test, 0 stale),
-  the sub-10ms render, the heartbeat watchdog, the usage pins, the
-  runHelp warning, b.Loop, the --json face + provider migration, the
-  archive ritual, and the ROADMAP io-surface data point — every one's
-  substance lives in the CHANGELOG entries above, AGENTS.md,
-  FEATURES.md, ROADMAP.md, the tests, and the named CI run; the board
-  reopens at the owner-gated and external rows.
-
-- TODO_LIST purge, third pass of 2026-11-06 (3 struck rows → this entry): the io-surface probe verdicts — d1 REPRODUCED (init --force destroyed a hand-written claims.cue append on a scratch manifest while the file header promises Tooling never overwrites it), b7 REFUTED for the current build (check --json over an error-class red tree puts the full valid JSON document on stdout, findings array included, rc=1; only the one-line summary rides stderr), and the extractor seam question answered from source (io.Pipe IS watched via stream-copy so the gatecli capture pipes are visible; os.Stdout/os.Stderr method writes are NOT watched seams — a real extraction blind spot); the surviving §8 row now carries all five pilot findings plus these results, blocked on the sibling's dirty tree — substance lives in the 01-36 report §a.16/§b.1 and the pilot report.
+  audit-all cost-model fact), the bookkeeping strikes (the
+  AGENTS/CHANGELOG/FEATURES catch-up rows, the provider shape-pin
+  superseded by the strict JSON decoder, the nixpkgs githubId
+  resolution 23587853, the CI benchmark measurement, the
+  dependabot-grouping diagnosis, the corrupt-daemon-commit
+  verification, the daemon-config citation, the pre-flight fact, the
+  timeout-300 discipline, the erraudit count reconciliation, the
+  sub-10ms render, the heartbeat watchdog, the usage pins, the runHelp
+  warning, b.Loop, the --json face + provider migration, the archive
+  ritual, the ROADMAP io-surface data point), the external/fleet legs
+  (the crm + go-appkit ratchet rerun, the rpi3-dns toplevel eval, the
+  pbx-artmann migration status — pins v0.1.0, the bump rides this
+  release — the BuildFlow binary rebuild, the 9-unavailable-tools
+  triage, the fleet docs-health skill cross-check, the evo-x2 reboot
+  attribution, the archive-cadence ritual), and the io-surface probe
+  verdicts (d1 REPRODUCED — init --force wiped a hand-written
+  claims.cue append on a scratch manifest whose header promises Tooling
+  never overwrites it; b7 REFUTED for the current build — the
+  error-class --json failure face carries the whole verdict payload on
+  stdout with findings included at rc=1, stderr keeps only the summary;
+  the extractor seam answer — the stream-copy seam sees io.Pipe (the
+  gatecli capture pipes reach extraction), os.Stdout/os.Stderr method
+  writes are invisible to it, a real extraction blind spot) — per-row
+  substance: the CHANGELOG entries above, the AGENTS file, FEATURES.md,
+  README.md, ROADMAP.md, the scripts, the tests, the 01-36 report
+  §a.16/§b.1, the pilot report, the named CI runs; the reopen surface
+  is the owner-gated legs and the external rows.
 
 - `docs-gates purge` verb: collects the struck TODO_LIST rows, drafts one dated CHANGELOG bullet per row (verdict tail cut at the table pipe), gates the draft through the docs-freshness pre-flight, and writes only on SAFE — dry-run by default, exit 1 on an UNSAFE gate, exit 2 on the on-disk/anchor refusals; the manual eight-step purge ritual (strike-collect → compose → pre-flight → append → delete → battery, twice in one day on 2026-11-06) becomes one command with rails.
 - Pre-commit `docs-battery` leg (the bank-sync hook pattern, same git-hooks.nix config as nolint-audit): a commit staging TODO_LIST/CHANGELOG/ROADMAP/AGENTS/FEATURES runs the whole dogfood battery BEFORE the commit lands — the 4cf0e50 ungated-train lesson is now mechanical. The safe-strike-test harness grew the --battery legs (a fake docs-gates on PATH proves the stub is invoked; without it the go-run fallback fails loudly, never silently skips), and the audit-all benchmark family gained the go-appkit corpus shape (12×150, the pilot ratchet shape) beside the CV cliff.
