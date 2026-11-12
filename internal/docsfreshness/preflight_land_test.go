@@ -51,6 +51,7 @@ func TestLandParityFailsOnRetypedLanding(t *testing.T) {
 	}
 
 	captured := gatecli.CaptureOutput(func() int { return PreFlightParity(root, settings) })
+
 	rc, out := captured.Code, captured.Stdout+captured.Stderr
 	if rc != gatecli.ExitFindings {
 		t.Fatalf("expected parity FAIL, got rc=%d", rc)

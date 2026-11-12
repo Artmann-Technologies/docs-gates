@@ -202,6 +202,38 @@ func parseReplaceFlags(args []string) ([]string, []string, int) {
 	return replaces, rest, 0
 }
 
+// runMode executes the single exclusive diagnostic mode a flag selects
+// (explain-item / margins / dump-items / pre-flight / land-parity). The
+// bool reports whether a mode fired, so Run can fall through to the
+// corpus checks; the order mirrors the usage text.
+func runMode(
+	root string,
+	positional []string,
+	flags map[string]bool,
+	replaces []string,
+	settings Settings,
+) (int, bool) {
+	switch {
+	case flags["--explain-item"]:
+		// A FRESH corpus prints no --explain-token tables (they ride
+		// UNHARVESTED findings only); this mode answers the margin
+		// question for ANY item — including harvested ones sitting at
+		// DF just below the bar. The needle is the SECOND positional:
+		// `docs-freshness . --explain-item rewrite`.
+		return runExplainItem(root, positional, settings), true
+	case flags["--margins"]:
+		return TokenMargins(root, settings), true
+	case flags["--dump-items"]:
+		return runDumpItems(positional), true
+	case flags["--pre-flight"]:
+		return runPreFlight(root, flags, replaces, settings), true
+	case flags["--land-parity"]:
+		return PreFlightParity(root, settings), true
+	default:
+		return 0, false
+	}
+}
+
 // Run is the CLI entry (repo-root positional + --audit-all flag semantics).
 // The repo's .docs-gates.json (when present) drives the corpus paths, the
 // living-docs list and the distinctive bar; a malformed config is a usage
@@ -243,29 +275,8 @@ func Run(args []string) int {
 		return rc
 	}
 
-	if flags["--explain-item"] {
-		// A FRESH corpus prints no --explain-token tables (they ride
-		// UNHARVESTED findings only); this mode answers the margin
-		// question for ANY item — including harvested ones sitting at
-		// DF just below the bar. The needle is the SECOND positional:
-		// `docs-freshness . --explain-item rewrite`.
-		return runExplainItem(root, positional, settings)
-	}
-
-	if flags["--margins"] {
-		return TokenMargins(root, settings)
-	}
-
-	if flags["--dump-items"] {
-		return runDumpItems(positional)
-	}
-
-	if flags["--pre-flight"] {
-		return runPreFlight(root, flags, replaces, settings)
-	}
-
-	if flags["--land-parity"] {
-		return PreFlightParity(root, settings)
+	if rc, handled := runMode(root, positional, flags, replaces, settings); handled {
+		return rc
 	}
 
 	living := loadLivingDocs(root, settings)

@@ -21,6 +21,10 @@ import (
 
 const stampName = ".docs-gates-preflight.json"
 
+// stampFileMode: the stamp is local editor state, never shared — owner-only
+// reads/writes, and mnd wants the octal named.
+const stampFileMode = 0o600
+
 type preflightStamp struct {
 	Recorded string   `json:"recorded"`
 	Lines    []string `json:"lines"`
@@ -47,8 +51,7 @@ func writePreflightStamp(root string, lines []string) {
 
 	blob = append(blob, '\n')
 
-	//nolint:gosec // 0600: the stamp is local editor state, not shared
-	_ = os.WriteFile(stampPath(root), blob, 0o600)
+	_ = os.WriteFile(stampPath(root), blob, stampFileMode)
 }
 
 // PreFlightParity verifies the last SAFE pre-flight batch landed
