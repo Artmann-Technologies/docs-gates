@@ -124,6 +124,7 @@ func rerunHint(name, dir string) string {
 	if name == "audit-all" {
 		return "docs-gates freshness " + dir + " --audit-all"
 	}
+
 	return "docs-gates " + name + " " + dir
 }
 
