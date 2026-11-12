@@ -30,7 +30,11 @@
 //
 //	[--evidence <text>] [--status <text>] [--file TODO_LIST.md] [--apply]
 //
-// Exit 0 = strike planned/applied, 2 = usage or selector error.
+// or, in check mode: docs-strike [repo-root] --check-verdict-outside
+// (the annotate corpus's verdict-placement gate; see docsannotate).
+//
+// Exit 0 = strike planned/applied or check clean, 1 = check findings,
+// 2 = usage or selector error.
 package docsstrike
 
 import (
@@ -38,6 +42,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/Artmann-Technologies/docs-gates/internal/docsannotate"
 	"github.com/Artmann-Technologies/docs-gates/internal/gatecli"
 )
 
@@ -63,21 +68,29 @@ const Usage = `docs-strike — strike one TODO_LIST row (dry-run by default)
 usage: docs-strike [repo-root] --row <selector> --verdict <text>
                    [--evidence <text>] [--status <text>]
                    [--file TODO_LIST.md] [--apply]
+       docs-strike [repo-root] --check-verdict-outside
 
-  --row       substring matching EXACTLY ONE table row (required)
+  --row       substring matching EXACTLY ONE table row (strike mode, required)
   --verdict   the done (…) evidence payload, WITHOUT a leading verdict
-              word — the tool adds the wrap (required)
+              word — the tool adds the wrap (strike mode, required)
   --evidence  replacement Evidence cell (default: preserved byte-identically)
   --status    replacement Status cell (default: ✅ ` + "`DONE`" + `)
   --file      target file (default: the config's todo_file)
   --apply     write the strike; without it the old→new pair is printed
               and nothing is written
+  --check-verdict-outside  CHECK MODE (no strike): scan the annotate
+              corpus for struck items whose VERDICT WORD or list-item
+              NUMBER sits inside the ~~ spans — inside, the renderer
+              deletes the verdict and dprint renumbers the list tail
 
-Exit codes: 0 strike planned/applied, 2 usage or selector error.
+Exit codes: strike — 0 planned/applied, 2 usage or selector error;
+check mode — 0 clean, 1 findings, 2 usage error.
 `
 
 // Run is the CLI entry: parse, plan, print the old→new pair, and write
-// only under --apply.
+// only under --apply. In check mode (--check-verdict-outside) it never
+// touches a TODO row — it hands off to the annotate package's
+// verdict-placement gate and returns its exit code.
 func Run(argv []string) int {
 	opts, err := ParseArgs(argv)
 	if err != nil {
@@ -89,6 +102,10 @@ func Run(argv []string) int {
 		gatecli.Errf("FATAL: %v\n", err)
 
 		return gatecli.ExitUsage
+	}
+
+	if opts.CheckVerdictOutside {
+		return docsannotate.CheckVerdictPlacement(opts.Root)
 	}
 
 	if opts.File == "" {

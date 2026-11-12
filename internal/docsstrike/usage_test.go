@@ -11,7 +11,10 @@ import (
 func TestUsageDocumentsEveryAcceptedFlag(t *testing.T) {
 	t.Parallel()
 
-	documented := []string{"--row", "--verdict", "--evidence", "--status", "--file", "--apply"}
+	documented := []string{
+		"--row", "--verdict", "--evidence", "--status", "--file", "--apply",
+		"--check-verdict-outside",
+	}
 
 	for _, flag := range documented {
 		if !strings.Contains(Usage, flag) {
@@ -28,8 +31,18 @@ func TestUsageDocumentsEveryAcceptedFlag(t *testing.T) {
 		t.Errorf("ParseArgs rejects the documented flag set: %v", err)
 	}
 
+	// CHECK MODE takes no strike inputs: neither --row nor --verdict is
+	// required when the mode flag rides along.
+	if opts, err := ParseArgs([]string{".", "--check-verdict-outside"}); err != nil || !opts.CheckVerdictOutside {
+		t.Errorf("ParseArgs rejects the documented check mode: opts=%+v err=%v", opts, err)
+	}
+
 	if _, err := ParseArgs([]string{".", "--row", "x", "--verdict", "v", "--bogus"}); err == nil {
 		t.Error("ParseArgs accepts an undocumented flag")
+	}
+
+	if _, err := ParseArgs([]string{".", "--check-verdict-outside", "--bogus"}); err == nil {
+		t.Error("ParseArgs accepts an undocumented flag in check mode")
 	}
 }
 
