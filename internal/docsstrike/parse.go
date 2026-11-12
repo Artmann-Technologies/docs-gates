@@ -98,25 +98,8 @@ func ParseArgs(argv []string) (Options, error) {
 	// (--check-verdict-outside) scans the annotate corpus and passes none
 	// of them.
 	if !opts.CheckVerdictOutside {
-		if opts.Row == "" {
-			return opts, errors.New( //nolint:err113 // user-facing CLI refusal; no errors.Is consumers by design
-				"--row <selector> is required (a substring of the row to strike)",
-			)
-		}
-
-		if opts.Verdict == "" {
-			return opts, errors.New( //nolint:err113 // user-facing CLI refusal; no errors.Is consumers by design
-				"--verdict <text> is required (the done (…) evidence payload)",
-			)
-		}
-
-		if opener, prefixed := prefixedVerdictOpener(opts.Verdict); prefixed {
-			return opts, fmt.Errorf( //nolint:err113 // user-facing CLI refusal; no errors.Is consumers by design
-				"the --verdict already starts with the verdict word %q — the tool prepends "+
-					"the done (…) wrap itself, so pass the evidence WITHOUT a leading verdict "+
-					"marker (a prefixed verdict double-wraps into done (done (…)))",
-				opener,
-			)
+		if err := validateStrikeInputs(opts); err != nil {
+			return opts, err
 		}
 	}
 
@@ -128,6 +111,35 @@ func ParseArgs(argv []string) (Options, error) {
 	opts.Root = root
 
 	return opts, nil
+}
+
+// validateStrikeInputs refuses a strike invocation missing its required
+// --row/--verdict pair or carrying an already-wrapped verdict — the
+// strike-mode contract, split out of ParseArgs to keep its branching
+// under the cyclop bar once check mode joined the flag set.
+func validateStrikeInputs(opts Options) error {
+	if opts.Row == "" {
+		return errors.New( //nolint:err113 // user-facing CLI refusal; no errors.Is consumers by design
+			"--row <selector> is required (a substring of the row to strike)",
+		)
+	}
+
+	if opts.Verdict == "" {
+		return errors.New( //nolint:err113 // user-facing CLI refusal; no errors.Is consumers by design
+			"--verdict <text> is required (the done (…) evidence payload)",
+		)
+	}
+
+	if opener, prefixed := prefixedVerdictOpener(opts.Verdict); prefixed {
+		return fmt.Errorf( //nolint:err113 // user-facing CLI refusal; no errors.Is consumers by design
+			"the --verdict already starts with the verdict word %q — the tool prepends "+
+				"the done (…) wrap itself, so pass the evidence WITHOUT a leading verdict "+
+				"marker (a prefixed verdict double-wraps into done (done (…)))",
+			opener,
+		)
+	}
+
+	return nil
 }
 
 // verdictOpeners are the leading words of the docs-health verdict

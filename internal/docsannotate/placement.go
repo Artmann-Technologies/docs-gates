@@ -4,6 +4,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"slices"
 	"strings"
 
 	"github.com/Artmann-Technologies/docs-gates/internal/gatecli"
@@ -18,8 +19,8 @@ import (
 // item continuation (no renumber hazard), a column-zero one is the
 // malformed item itself. Table rows (`| …`), checkbox rows (`- [x] …`),
 // and prose quoting a number (`the ~~old 12. claim~~ stays`) cannot
-// match the anchor by construction; inline code is masked before the
-// match (the AGENTS rule text itself carries “ `~~14. …~~ done` “).
+// match by construction; inline code is masked before the match (the
+// AGENTS rule text itself quotes the struck-number shape inside code).
 var numberInsideLineRe = regexp.MustCompile(`^~~\s*\d+[.)]\s`)
 
 // CheckVerdictPlacement is the verdict-PLACEMENT gate over the annotate
@@ -129,17 +130,20 @@ func verdictInside(rel string, b block) (Finding, bool) {
 		return Finding{}, false
 	}
 
-	for _, span := range strikeRe.FindAllString(b.text, -1) {
-		if markerRe.MatchString(span) {
-			return Finding{
-				Rule: "P/verdict-inside", Path: rel, Line: b.start,
-				Detail: "verdict word inside the strike - move it OUTSIDE the closing ~~",
-				Text:   gatecli.Truncate(b.text, snippetMax),
-			}, true
-		}
+	spanCarriesMarker := slices.ContainsFunc(
+		strikeRe.FindAllString(b.text, -1),
+		func(span string) bool { return markerRe.MatchString(span) },
+	)
+
+	if !spanCarriesMarker {
+		return Finding{}, false
 	}
 
-	return Finding{}, false
+	return Finding{
+		Rule: "P/verdict-inside", Path: rel, Line: b.start,
+		Detail: "verdict word inside the strike - move it OUTSIDE the closing ~~",
+		Text:   gatecli.Truncate(b.text, snippetMax),
+	}, true
 }
 
 // numbersInside scans raw lines for the P/number-inside shape. The
