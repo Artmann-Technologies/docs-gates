@@ -18,7 +18,7 @@ set -euo pipefail
 
 cd "$(dirname "$0")/.."
 
-expected_rev="3d1f7ed37a1c52a7cc8b9c3e1749a2c8a423256f"
+expected_rev="5c841cf21140bbba3bff6613126720dad8298cbd"
 
 locked_rev=$(jq -r '.nodes.erraudit.locked.rev // empty' flake.lock)
 if [ -z "$locked_rev" ]; then

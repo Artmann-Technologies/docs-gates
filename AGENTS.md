@@ -117,10 +117,11 @@ paths — the re-pin ritual does not apply to them.
   `[runner/nolint_filter] Found unknown linters in //nolint directives:
   erraudit` — expected cross-tool artifact (erraudit is a standalone
   binary, not a golangci linter; the fleet runs it standalone, no plugin),
-  warning-only with 0 issues and rc=0. Live directive count: 14
+  warning-only with 0 issues and rc=0. Live directive count: 16
   non-test directives, 0 stale (nolint-audit counts NON-TEST files;
-  2026-11-06) — never cite a count from memory, run `erraudit
-  nolint-audit .` when a doc or report needs the number.
+  2026-11-12, at erraudit rev 5c841cf2) — never cite a count from
+  memory, run `erraudit nolint-audit .` when a doc or report needs the
+  number.
 
 ## Verdict arithmetic (battery)
 
