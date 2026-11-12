@@ -2,6 +2,11 @@
 
 # (blind revert) diagnosed and repaired; 15 plan tasks remain
 
+> **Live remainder:** the 15 remaining plan tasks (§c) + owner pack live in
+> TODO_LIST §1–§5 and the 07:14 Pareto plan; §f rows carry their TODO §N
+> homes; §g owner questions live with the owner. Archived 2026-11-12
+> (cadence ritual).
+
 **2026-11-04 16:45 CET** · scope: this session only — the execution of the
 07:14 Pareto plan's first six tasks plus the incident they caused. Input
 context: the plan (`docs/planning/2026-11-04_07-14_SUPERB-pareto-execution-plan.md`),

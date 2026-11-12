@@ -1,5 +1,10 @@
 # Status Report — docs-health full audit (all living docs + 5 reports triaged)
 
+> **Live remainder:** every §f row routes to TODO_LIST §1–§5 (the 40-row
+> rebuilt backlog IS the routed backlog); §g owner questions (CHANGELOG
+> header shape, annotation policy) live with the owner — nothing here is
+> unowned. Archived 2026-11-12 (cadence ritual).
+
 **2026-11-04 07:11 CET** · session: single train, "execute the docs-health
 skill superbly over docs-gates" · branch `main`.
 

@@ -1,5 +1,9 @@
 # Pareto Execution — 16 In-Repo Tasks Landed (T6–T27), Owner-Gated Tier Open
 
+> **Live remainder:** owner-gated tier (§c) lives in TODO_LIST §1–§5 +
+> the 07:14 Pareto plan; §f rows carry their TODO §N homes; §g owner
+> questions live with the owner. Archived 2026-11-12 (cadence ritual).
+
 2026-11-04 19:01 — docs-gates, session report. Resumes the 16:45 report
 (`2026-11-04_16-45_pareto-execution-t3-t4-t5-t7-t9-t10-plant-incident.md`);
 that one waited on 3 owner answers (deploy auth, sibling-repo permission,
