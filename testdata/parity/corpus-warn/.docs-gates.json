@@ -14,6 +14,5 @@
     "max_unarchived": 3,
     "oldest_days": 10
   },
-  "generic_df_bar": 1,
-  "skip_gates": []
+  "generic_df_bar": 1, "skip_gates": []
 }

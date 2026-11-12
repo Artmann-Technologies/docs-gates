@@ -22,6 +22,12 @@ match the annotated git tags; anything after the newest tag sits under
   pinned in placement_test.go (serial like every CaptureOutput test).
   The five gates' own outputs are unchanged — no parity-golden path
   moves (the golden set pins no docsstrike arm, no --help bytes).
+- dprint excludes `testdata/parity/**`: the corpus fixtures are a
+  byte-contract feeding the goldens, and a `dprint fmt` pass over them
+  reformatted corpus/NOTES.md (living-doc line count) into a
+  TestParityGolden drift. The collateral formatting was reverted and
+  the exclusion added so the formatter can never re-dirty the fixtures
+  (`.config/metadata.yaml` keeps its legitimate formatting).
 - CLI help surface, end to end: `docs-gates help [verb]`, `--help`/`-h`
   (root and per-verb) print the gate packages' exported `Usage` texts —
   intercepted in the dispatcher before the gate parsers, in the same
