@@ -79,3 +79,6 @@ reports/
 # git-hooks.nix generates .pre-commit-config.yaml as a store symlink on
 # `nix develop`; the nix config is the source of truth, never commit the copy.
 .pre-commit-config.yaml
+
+# land-parity ledger: the last SAFE pre-flight batch (local editor state, never shared)
+.docs-gates-preflight.json

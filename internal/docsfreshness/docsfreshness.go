@@ -69,6 +69,9 @@ usage: docs-freshness [repo-root] [--audit-all] [--audit-max=N] [--explain-token
   --duplicates     (pre-flight) the candidate is a deliberate second copy
   --replace=OLD    (pre-flight rewrite) remove the named living-doc line
                    before the replay, repeatable
+  --land-parity    verify the last SAFE --pre-flight batch landed
+                   byte-exact (the retyped-bullet class); exit 1 names
+                   every recorded line missing from the living docs
 
 Exit codes: 0 fresh, 1 drift, 2 usage error.
 `
@@ -83,6 +86,7 @@ var allowedFlags = []string{
 	"--pre-flight",
 	"--duplicates",
 	"--explain-item",
+	"--land-parity",
 	"--margins",
 	"--dump-items",
 }
@@ -138,7 +142,9 @@ func runDumpItems(positional []string) int {
 }
 
 // runPreFlight reads the candidate lines from stdin and runs the
-// additions-only or rewrite-mode replay.
+// additions-only or rewrite-mode replay. A SAFE verdict records its
+// batch for the land-parity ledger (--land-parity verifies the landed
+// bytes ARE the judged bytes — the retyped-bullet class).
 func runPreFlight(root string, flags map[string]bool, replaces []string, settings Settings) int {
 	candidate, err := readCandidates()
 	if err != nil {
@@ -147,7 +153,12 @@ func runPreFlight(root string, flags map[string]bool, replaces []string, setting
 		return gatecli.ExitUsage
 	}
 
-	return PreFlight(root, candidate, replaces, flags["--explain-token"], flags["--duplicates"], settings)
+	rc := PreFlight(root, candidate, replaces, flags["--explain-token"], flags["--duplicates"], settings)
+	if rc == gatecli.ExitClean {
+		writePreflightStamp(root, candidate)
+	}
+
+	return rc
 }
 
 // parseAuditMax splits --audit-max=N off the argument list: the parsed pin
@@ -251,6 +262,10 @@ func Run(args []string) int {
 
 	if flags["--pre-flight"] {
 		return runPreFlight(root, flags, replaces, settings)
+	}
+
+	if flags["--land-parity"] {
+		return PreFlightParity(root, settings)
 	}
 
 	living := loadLivingDocs(root, settings)

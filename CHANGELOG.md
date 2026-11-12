@@ -6,6 +6,17 @@ match the annotated git tags; anything after the newest tag sits under
 
 ## [Unreleased]
 
+### Added
+
+- `docs-freshness --land-parity` (the nginx-exit plan's L1-23): every
+  SAFE `--pre-flight` verdict now records its candidate batch
+  (`.docs-gates-preflight.json`, gitignored local state), and the new
+  verb verifies the recorded lines landed BYTE-EXACT — a retyped edit
+  that sailed through on a verdict earned by different bytes (the
+  2026-11-11 retyped-bullet flip class) is refused with every missing
+  line named. No stamp = OK (the guard is opt-in state); a malformed
+  stamp = usage with the recovery (delete + re-run pre-flight).
+
 ### Changed
 
 - Internal error handling: the config loader, the purge draft's anchor
