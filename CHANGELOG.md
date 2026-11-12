@@ -4,7 +4,7 @@ All notable changes. Dates are 2026 unless stated. Version sections
 match the annotated git tags; anything after the newest tag sits under
 [Unreleased].
 
-## [Unreleased]
+## [v0.3.0] - 2026-11-12
 
 ### Added
 
