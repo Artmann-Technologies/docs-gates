@@ -118,6 +118,7 @@ func collectDocs(root string, g gitRunner, hasGit bool, extensions []string) ([]
 	}
 
 	walkFindings, docs := docsByWalk(root, extensions)
+
 	return walkFindings, filterSymlinks(docs)
 }
 
@@ -129,8 +130,10 @@ func filterSymlinks(docs []string) []string {
 		if info, err := os.Lstat(path); err == nil && info.Mode()&os.ModeSymlink != 0 {
 			continue
 		}
+
 		kept = append(kept, path)
 	}
+
 	return kept
 }
 
