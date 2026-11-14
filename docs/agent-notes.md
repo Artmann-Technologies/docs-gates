@@ -200,3 +200,26 @@ agents-md-size ratchet); nothing was deleted, only relocated.
   wasm plugins once, cached in ~/.cache/dprint. The remedy if it ever
   bites: `nix build .#dprint-plugins` in the BuildFlow repo +
   `BUILDFLOW_DPRINT_PLUGINS=<store>/share/dprint-plugins`.
+- **The six-layer masked-latent dig (2026-11-14; full narrative in
+  docs/status/2026-11-14_15-52_buildflow-green-recovery-six-masked-layers.md)**:
+  a `buildflow --fix --build-mode=full` failing at exit 69 hid six
+  stacked faults, each invisible because the layer above aborted the run
+  first — (1) the repair phase's `nix-flake-update` had rewritten
+  flake.lock under six inputs (stale-vendorHash erraudit, cmdguard
+  v4→v5 major) and the auto-commit daemon wrapped the damage;
+  (2) a stale buildflow binary masked upstream fixes for hours (the #1
+  silent root cause — `buildflow doctor`, rebuild + reinstall before
+  trusting any red); (3) two of this repo's OWN flake checks
+  (golangci-drift, shell-lint) had been unpassable since 11-04 behind
+  the vendorHash wall — golangci-drift counted pins after `sort -u`,
+  shell-lint ran bare actionlint with no git project; (4) BuildFlow's
+  flake-pin-consistency false-FAILed on the flattened
+  `inputs.<name>.url` declaration form; (5) the nix-fmt/treefmt
+  roundtrip wedge (store-walking treefmt, clean-source refusing
+  untracked files, missing flake.lock coupling verification to upstream
+  state) fell to the git-init'd staged sandbox; (6) plain `go test` had
+  run past three real data races for weeks — only `-race` (now a CI
+  lane) caught them. Lesson stack: a red gate is evidence about ONE
+  layer; fix it, then KEEP DIGGING — and never let a check be unpassable
+  quietly: inside a failing train, an unpassable check is
+  indistinguishable from a green one.
