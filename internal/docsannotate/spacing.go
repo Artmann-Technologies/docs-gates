@@ -106,12 +106,32 @@ func crossCellFindings(rel string, lines []string) []Finding {
 // when this is a checkout, a recursive walk otherwise (plus a finding when
 // the walk itself fails — an empty list must never read as a false clean).
 // The extension list comes from the config (default .md/.sh/.nix).
+// Symlinked entries are dropped: a tracked fan-out link (the
+// skills/<name> -> other-checkout class) makes git ls-files name a path
+// whose CONTENT lives in another repo, so the gate would police prose the
+// owning repo can change or revert at any time (2026-11-14 crush-config
+// incident: a fixed templ-components SKILL.md was overwritten by the
+// owning repo's tooling within the hour).
 func collectDocs(root string, g gitRunner, hasGit bool, extensions []string) ([]Finding, []string) {
 	if hasGit {
-		return nil, docsViaGit(root, g, extensions)
+		return nil, filterSymlinks(docsViaGit(root, g, extensions))
 	}
 
-	return docsByWalk(root, extensions)
+	walkFindings, docs := docsByWalk(root, extensions)
+	return walkFindings, filterSymlinks(docs)
+}
+
+// filterSymlinks drops entries that are themselves symlinks. Lstat, never
+// Stat: the whole point is to look at the LINK, not its target.
+func filterSymlinks(docs []string) []string {
+	kept := make([]string, 0, len(docs))
+	for _, path := range docs {
+		if info, err := os.Lstat(path); err == nil && info.Mode()&os.ModeSymlink != 0 {
+			continue
+		}
+		kept = append(kept, path)
+	}
+	return kept
 }
 
 func docsViaGit(root string, g gitRunner, extensions []string) []string {
