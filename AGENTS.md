@@ -430,6 +430,23 @@ paths — the re-pin ritual does not apply to them.
   report. When reporting verdicts about a repo you do not own, record
   the run's timestamp alongside the matrix, and never treat one run as
   that repo's steady state.
+- **The land-parity stamp rode commits without a gitignore guard (paid
+  for 2026-11-14):** `.docs-gates-preflight.json` (the last SAFE
+  --pre-flight batch) is local editor state by its design comment, but
+  cmdguard's auto-commit daemon swept it into history — only THIS
+  repo's .gitignore carried the entry. `writePreflightStamp` now warns
+  (stderr, best-effort) when `git check-ignore` says not-ignored; a
+  TRACKED stamp still reports not-ignored, which is exactly the worst
+  case, so the plain probe (never `--no-index`) is correct here; probe
+  failure (no git, not a checkout, sandbox) skips silently — the stamp
+  is a guard, never a gate.
+- **Land-parity compares through the corpus lens, not raw bytes (paid
+  for 2026-11-14):** the corpus is lowercased (`LivingDocsLines`) while
+  the stamp keeps typed case, so the first parity run over cmdguard
+  false-DRIFTed a byte-identical mixed-case landing; `PreFlightParity`
+  now lowercases+trims both sides (the --replace matching lens). The
+  original fixtures were all-lowercase — exactly why the tests never
+  caught it.
 
 ## Testing
 
