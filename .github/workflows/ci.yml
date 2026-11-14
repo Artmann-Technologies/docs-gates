@@ -46,6 +46,13 @@ jobs:
       - name: test
         run: go test ./...
 
+      # The fleet race gate (go-structure-linter policy): the buildflow
+      # test-race lane found three real data races on 2026-11-14 that
+      # plain `go test` had run past for weeks — CI keeps the detector
+      # on the payroll.
+      - name: test (race)
+        run: go test -race ./...
+
       # The audit-all cliff tripwire: the memoized replay runs the
       # CV-shaped benchmark (1,600 reports × 2,000 living lines) at
       # ~50ms/op on CI-class hardware, so 100 iterations under an OS
