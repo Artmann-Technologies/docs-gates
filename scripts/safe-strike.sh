@@ -253,7 +253,7 @@ if [ "$batch" -eq 1 ]; then
 		fi
 	fi
 
-	echo "safe-strike: struck $(( $(printf '%s' "$seen_lines" | grep -c .) )) row(s) — review the diff, run the battery, commit"
+	echo "safe-strike: struck $(($(printf '%s' "$seen_lines" | grep -c .))) row(s) — review the diff, run the battery, commit"
 	exit 0
 fi
 

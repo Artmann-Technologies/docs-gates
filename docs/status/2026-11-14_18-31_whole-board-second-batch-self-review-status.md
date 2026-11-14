@@ -75,6 +75,7 @@
 ## f) UP TO 50 THINGS TO GET DONE NEXT (ordered roughly by leverage)
 
 **Owner-window / rulings (unblock clusters):**
+
 1. SystemNix switch + evo-x2 deploy window (rows 28/34) — unblocks the purge, LSP-ghost rows, dprint env, live-PATH docs-gates.
 2. SystemNix sibling-train push ruling (row 35).
 3. Review + mark-ready nixpkgs#588265.

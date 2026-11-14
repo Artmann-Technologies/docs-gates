@@ -117,24 +117,24 @@ GitHub (branch ahead 6, unpushed — per repo rule).
 The board IS the routed backlog (TODO_LIST §1–§8, 40+ open rows); the
 top of it, as of this session's close:
 
-| # | Item | Routes to |
-| - | ---- | --------- |
-| 1 | Owner: push the 6-ahead docs-gates train (restore + audit + close) | this repo, one push |
-| 2 | Owner: v0.3.1 cut ruling (land-parity fix rides it; cmdguard pin follows) | TODO_LIST 4b |
-| 3 | Owner: cross-repo pushes (erraudit f5a40b3a, BuildFlow train) | TODO_LIST 4b |
-| 4 | Watch first CI run of test (race) on 9005c5d-class pushes | TODO_LIST 6 |
-| 5 | SystemNix float/deploy/switch window | TODO_LIST 3 |
-| 6 | pbx-artmann pin bump off v0.1.0 | TODO_LIST 3 |
-| 7 | Purge verdict-tail tool fix (§e.4) | TODO_LIST 5 candidate |
-| 8 | Refusal `--` matcher + near-bar push hints (§e.2-3) | TODO_LIST 5 |
-| 9 | Carrier tests + FATAL UX trio + refusal UX | TODO_LIST 5 |
-| 10 | Land-parity parity golden + --clear-stamp + provider hints | TODO_LIST 5 |
-| 11 | Consumer-facing "adopting docs-gates" README section | TODO_LIST 5 |
-| 12 | Investigate the io-surface regression (+962%); the adoption ruling rides TODO_LIST 4 | TODO_LIST 6 |
-| 13 | Arm local pre-commit hooks (still unexercised) | TODO_LIST 6 |
-| 14 | Tripwire generalization to master-tracking inputs | TODO_LIST 6 |
-| 15 | skill↔repo archive-canon reconciliation (crush-config lesson) | §e.5 above |
-| 16 | AGENTS distill decision for this session's three lessons | TODO_LIST 6 |
+| #  | Item                                                                                 | Routes to             |
+| -- | ------------------------------------------------------------------------------------ | --------------------- |
+| 1  | Owner: push the 6-ahead docs-gates train (restore + audit + close)                   | this repo, one push   |
+| 2  | Owner: v0.3.1 cut ruling (land-parity fix rides it; cmdguard pin follows)            | TODO_LIST 4b          |
+| 3  | Owner: cross-repo pushes (erraudit f5a40b3a, BuildFlow train)                        | TODO_LIST 4b          |
+| 4  | Watch first CI run of test (race) on 9005c5d-class pushes                            | TODO_LIST 6           |
+| 5  | SystemNix float/deploy/switch window                                                 | TODO_LIST 3           |
+| 6  | pbx-artmann pin bump off v0.1.0                                                      | TODO_LIST 3           |
+| 7  | Purge verdict-tail tool fix (§e.4)                                                   | TODO_LIST 5 candidate |
+| 8  | Refusal `--` matcher + near-bar push hints (§e.2-3)                                  | TODO_LIST 5           |
+| 9  | Carrier tests + FATAL UX trio + refusal UX                                           | TODO_LIST 5           |
+| 10 | Land-parity parity golden + --clear-stamp + provider hints                           | TODO_LIST 5           |
+| 11 | Consumer-facing "adopting docs-gates" README section                                 | TODO_LIST 5           |
+| 12 | Investigate the io-surface regression (+962%); the adoption ruling rides TODO_LIST 4 | TODO_LIST 6           |
+| 13 | Arm local pre-commit hooks (still unexercised)                                       | TODO_LIST 6           |
+| 14 | Tripwire generalization to master-tracking inputs                                    | TODO_LIST 6           |
+| 15 | skill↔repo archive-canon reconciliation (crush-config lesson)                        | §e.5 above            |
+| 16 | AGENTS distill decision for this session's three lessons                             | TODO_LIST 6           |
 
 ## g) Questions I can NOT figure out myself
 
