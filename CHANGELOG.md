@@ -4,7 +4,7 @@ All notable changes. Dates are 2026 unless stated. Version sections
 match the annotated git tags; anything after the newest tag sits under
 [Unreleased].
 
-## [Unreleased]
+## [v0.3.1] - 2026-11-14
 
 ### Added
 
@@ -16,9 +16,43 @@ match the annotated git tags; anything after the newest tag sits under
   `git check-ignore` after a SAFE write and notes on stderr when the
   stamp is not ignored (a TRACKED stamp is the reported worst case);
   two-arm git-fixture test, probe failure skips silently.
+- Adopting section in the README: the three-step adoption (battery run,
+  CI dogfood job, stamp gitignore) with cmdguard as the worked example,
+  and pinned install lines (`go install ...@v0.3.1`, the nix ref pinned
+  to the tag) — floating installs can drift from the battery CI judged.
+- `docs-freshness --clear-stamp`: the deliberate-divergence escape
+  hatch the land-parity DRIFT message names, as a flag instead of a
+  hand-delete; a missing stamp is a clean no-op.
+- Provider verb-map guard: `rerunHint`'s gate-name → replay-line table
+  is pinned by tests driven from the real binary's matrix, so a new
+  battery gate cannot silently mis-hint through the naive fallback;
+  the HealthCheck install hint pins the release tag instead of
+  `@latest`.
+- `scripts/safe-strike.sh --batch`: multi-anchor strikes in ONE
+  invocation (ANCHOR=VERDICT positionals; every anchor uniquely
+  verified before any write — one bad anchor refuses the whole batch —
+  one write pass, one gate/battery leg), and every usage refusal now
+  echoes the parsed positionals so a missing `<file>` names itself.
 
 ### Changed
 
+- Refusal UX across the FATAL paths: a malformed config names the
+  decoder's byte offset as line:column, a purge missing-anchor refusal
+  names the nearest same-level heading line, and the strike
+  missing-input refusals print a correct example invocation (retypable
+  — the example verdict carries no leading verdict word).
+- Freshness pre-flight refusals: an on-disk collision echoes the DISK
+  line beside the candidate (the WHERE beside the WHAT), and a
+  `--replace` target that lives outside the corpus (AGENTS.md, …) is
+  named with its file instead of a bare not-found — a rewrite landing
+  outside the corpus moves no corpus DF.
+- Pre-flight treats a repeated structural heading (`### Changed`) as an
+  implicit `--duplicates` — a CHANGELOG landing batch legitimately
+  re-includes the section heading; duplicated CONTENT lines still
+  refuse.
+- Typed refusal carriers carry verified-carrier tests (`errors.AsType`
+  round-trips, byte-exact `Error()` tables, loud out-of-range defaults)
+  in config, docspurge, and docsstrike.
 - TODO_LIST purge (2026-11-14): ANNOTATE sweep over the older unarchived reports (8 unarchived vs threshold 15): resolve carried rows inline, archive the fully-resolved ones — scoped down 2026-11-04 late session: the ledgers hold 28-49 open rows EACH (harvest fuel, correctly routed), no report is fully-resolvable (every one keeps sibling/owner legs), a first sweep attempt corrupted three reports (reverted ef14e11; safe mechanics in AGENTS.md) — redo only at cadence pressure or per-report on demand — done (in the 2026-11-14 docs-health pass — 200+ landed items struck corpus-wide with evidence, the 11-04 trio + planning v1 archived)
 - TODO_LIST purge (2026-11-14): F94: AGENTS.md simplification pass (the non-obvious-facts section keeps accreting; a periodic compression is owed) — owner-gated tier — done (at 39bed4d + b329b15 (the 220-line distill))
 - TODO_LIST purge (2026-11-14): Assess a heading-token exclusion in margins: the golden names `notes` (the `# NOTES` heading token) as near-bar vocabulary — decide whether headings SHOULD claim budget — done (won't do — headings ARE budget (AGENTS carries the reasoning))
@@ -43,6 +77,8 @@ match the annotated git tags; anything after the newest tag sits under
   repair-step bump to a master rev with a stale vendorHash
   (tripwire-caught, second instance — the upstream fix belongs in
   erraudit).
+- safe-strike's batch summary counted rows off a literal `\n` (always
+  "1 row(s)"); the seen-lines ledger carries real newlines again.
 
 ## [v0.3.0] - 2026-11-12
 
