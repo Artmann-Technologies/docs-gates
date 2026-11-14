@@ -156,23 +156,23 @@ Nothing unrecovered. The honest damage list:
 The 30-row TODO_LIST rebuilt this evening IS the routed backlog; top
 items by impact, "§N" cites home. NEW = born this session.
 
-| #  | Task                                                                                                   | Impact | Effort | Category      |
-| -- | ------------------------------------------------------------------------------------------------------ | ------ | ------ | ------------- |
-| ~~1~~  | ~~Cut v0.2.0 (section + annotated tag, go-release ritual) — settles granularity, versions the flags (§4)~~ done at `83073d9` | ~~High~~ | ~~M~~ | ~~Release~~ |
-| 2  | SystemNix float to the hardened flake (§3, P1)                                                         | High   | S      | Integration   |
-| 3  | evo-x2 deploy + live-PATH six-binary smoke (§3, P1, owner-gated window)                                | High   | S      | Deploy        |
-| ~~4~~  | ~~Wire harvestAttributions into the auditAll renderer + battery arm (§1)~~ done at `d92f7f8` | ~~High~~ | ~~S~~ | ~~Quality~~ |
-| ~~5~~  | ~~CI-visible silent-skip assertion for the provider e2e leg (§1)~~ done at `2508f53` | ~~High~~ | ~~S~~ | ~~Quality~~ |
-| ~~6~~  | ~~NEW: parity-corpus fixture arm for the dated-DONE counting (corpus TODOS.md row + golden re-pin)~~ done at `7a16061` | ~~Medium~~ | ~~S~~ | ~~Quality~~ |
-| ~~7~~  | ~~Docs-surface debt: README/DOMAIN_LANGUAGE/FEATURES rows for --margins/--dump-items/--replace (§2)~~ done at `8a6435f` | ~~Medium~~ | ~~S~~ | ~~Documentation~~ |
-| ~~8~~  | ~~Parity arm: golden --replace through the binary (§1)~~ done at `510ff58` | ~~Medium~~ | ~~M~~ | ~~Quality~~ |
-| ~~9~~  | ~~battery_test gitignore-trap regression arm (§1)~~ done at `94350f5` | ~~Medium~~ | ~~S~~ | ~~Quality~~ |
-| ~~10~~ | ~~Re-run fleet ratchet corpora vs converged Corpus semantics (§3)~~ done — CHANGELOG v0.2.0 purge entry — the crm + go-appkit ratchet rerun | ~~Medium~~ | ~~S~~ | ~~Process~~ |
-| 11 | pbx-artmann migration + fleet announcement after the release (§3) **→ migration landed (pbx rides v0.1.0); the pin bump rides TODO_LIST 3** | Medium | M      | Integration   |
-| ~~12~~ | ~~Pre-commit nolint-audit leg (§1)~~ done at `87d34fe` | ~~Medium~~ | ~~S~~ | ~~Quality~~ |
-| 13 | Owner D1 (battery adoption scope) + D2 (go floor) — recommendations prepared (§4) **→ rulings ride TODO_LIST 4 (D1/D2 rows); preps landed d6d1702** | Medium | S      | Decision      |
-| 14 | BuildFlow upstream: #87 + roundtrip walker + hygiene + LSP-ghost filing (§3) **→ hygiene half done (06-39 report); the upstream fixes ride TODO_LIST 3** | Medium | L      | Quality       |
-| ~~15~~ | ~~ANNOTATE sweep over the 8 unarchived reports, archive the fully-resolved (§1)~~ done — in the 2026-11-14 docs-health sweep (this train) — rows struck, oldest batch archived | ~~Low~~ | ~~M~~ | ~~Ritual~~ |
+| #      | Task                                                                                                                                                                           | Impact     | Effort | Category          |
+| ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------- | ------ | ----------------- |
+| ~~1~~  | ~~Cut v0.2.0 (section + annotated tag, go-release ritual) — settles granularity, versions the flags (§4)~~ done at `83073d9`                                                   | ~~High~~   | ~~M~~  | ~~Release~~       |
+| 2      | SystemNix float to the hardened flake (§3, P1)                                                                                                                                 | High       | S      | Integration       |
+| 3      | evo-x2 deploy + live-PATH six-binary smoke (§3, P1, owner-gated window)                                                                                                        | High       | S      | Deploy            |
+| ~~4~~  | ~~Wire harvestAttributions into the auditAll renderer + battery arm (§1)~~ done at `d92f7f8`                                                                                   | ~~High~~   | ~~S~~  | ~~Quality~~       |
+| ~~5~~  | ~~CI-visible silent-skip assertion for the provider e2e leg (§1)~~ done at `2508f53`                                                                                           | ~~High~~   | ~~S~~  | ~~Quality~~       |
+| ~~6~~  | ~~NEW: parity-corpus fixture arm for the dated-DONE counting (corpus TODOS.md row + golden re-pin)~~ done at `7a16061`                                                         | ~~Medium~~ | ~~S~~  | ~~Quality~~       |
+| ~~7~~  | ~~Docs-surface debt: README/DOMAIN_LANGUAGE/FEATURES rows for --margins/--dump-items/--replace (§2)~~ done at `8a6435f`                                                        | ~~Medium~~ | ~~S~~  | ~~Documentation~~ |
+| ~~8~~  | ~~Parity arm: golden --replace through the binary (§1)~~ done at `510ff58`                                                                                                     | ~~Medium~~ | ~~M~~  | ~~Quality~~       |
+| ~~9~~  | ~~battery_test gitignore-trap regression arm (§1)~~ done at `94350f5`                                                                                                          | ~~Medium~~ | ~~S~~  | ~~Quality~~       |
+| ~~10~~ | ~~Re-run fleet ratchet corpora vs converged Corpus semantics (§3)~~ done — CHANGELOG v0.2.0 purge entry — the crm + go-appkit ratchet rerun                                    | ~~Medium~~ | ~~S~~  | ~~Process~~       |
+| 11     | pbx-artmann migration + fleet announcement after the release (§3) **→ migration landed (pbx rides v0.1.0); the pin bump rides TODO_LIST 3**                                    | Medium     | M      | Integration       |
+| ~~12~~ | ~~Pre-commit nolint-audit leg (§1)~~ done at `87d34fe`                                                                                                                         | ~~Medium~~ | ~~S~~  | ~~Quality~~       |
+| 13     | Owner D1 (battery adoption scope) + D2 (go floor) — recommendations prepared (§4) **→ rulings ride TODO_LIST 4 (D1/D2 rows); preps landed d6d1702**                            | Medium     | S      | Decision          |
+| 14     | BuildFlow upstream: #87 + roundtrip walker + hygiene + LSP-ghost filing (§3) **→ hygiene half done (06-39 report); the upstream fixes ride TODO_LIST 3**                       | Medium     | L      | Quality           |
+| ~~15~~ | ~~ANNOTATE sweep over the 8 unarchived reports, archive the fully-resolved (§1)~~ done — in the 2026-11-14 docs-health sweep (this train) — rows struck, oldest batch archived | ~~Low~~    | ~~M~~  | ~~Ritual~~        |
 
 (Honest stop at 15: rows 16-30 live in TODO_LIST §1-§4 with evidence —
 the purge left no struck residue, so there is no hidden remainder.)

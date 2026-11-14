@@ -40,15 +40,15 @@ gets a did-you-mean suggestion.
 `0` clean, `1` findings, `2` usage/environment error — one contract for
 every verb:
 
-| Verb        | `0`                             | `1`                                                  | `2`                                                        |
-| ----------- | ------------------------------- | ---------------------------------------------------- | ---------------------------------------------------------- |
-| `run`       | every gate PASS or SKIP         | ≥ 1 gate FAIL (a gate's own rc=2 becomes a FAIL row) | bad repo root / bad config only                            |
-| `freshness` | FRESH                           | DRIFT — unharvested §f items                         | usage error, malformed config                              |
-| `annotate`  | clean or within the ratchet     | annotation findings past the pin                     | usage error, malformed config                              |
-| `routing`   | no routing gaps                 | open rows no living doc represents                   | usage error, malformed config                              |
-| `cadence`   | purge/archive thresholds met    | a threshold is overdue                               | usage error, malformed config                              |
-| `strike`    | row struck (dry-run is default) | —                                                    | refusal: ambiguous row, double strike, verdict-less target |
-| `purge`     | draft printed (dry-run) or purged | unsafe draft (the gate refuses)                  | usage error, missing [Unreleased]/Changed anchors |
+| Verb        | `0`                               | `1`                                                  | `2`                                                        |
+| ----------- | --------------------------------- | ---------------------------------------------------- | ---------------------------------------------------------- |
+| `run`       | every gate PASS or SKIP           | ≥ 1 gate FAIL (a gate's own rc=2 becomes a FAIL row) | bad repo root / bad config only                            |
+| `freshness` | FRESH                             | DRIFT — unharvested §f items                         | usage error, malformed config                              |
+| `annotate`  | clean or within the ratchet       | annotation findings past the pin                     | usage error, malformed config                              |
+| `routing`   | no routing gaps                   | open rows no living doc represents                   | usage error, malformed config                              |
+| `cadence`   | purge/archive thresholds met      | a threshold is overdue                               | usage error, malformed config                              |
+| `strike`    | row struck (dry-run is default)   | —                                                    | refusal: ambiguous row, double strike, verdict-less target |
+| `purge`     | draft printed (dry-run) or purged | unsafe draft (the gate refuses)                      | usage error, missing [Unreleased]/Changed anchors          |
 
 ## BuildFlow consumers
 

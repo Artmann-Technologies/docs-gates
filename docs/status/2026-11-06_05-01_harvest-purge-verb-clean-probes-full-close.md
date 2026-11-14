@@ -249,58 +249,58 @@ board/ROADMAP inventory this session verified current — each already
 lives in TODO_LIST/ROADMAP with evidence; listed here so the next
 session's HARVEST has the full picture without re-reading the board.)
 
-| #  | Task                                                                                       | Impact   | Effort | Category      |
-| -- | ------------------------------------------------------------------------------------------ | -------- | ------ | ------------- |
-| ~~1~~  | ~~Cut v0.2.0 (section cut collapses the purge entries; go-release ritual; fleet announce)~~ done at `83073d9` | ~~Critical~~ | ~~M~~ | ~~Release~~ |
-| ~~2~~  | ~~Merge dependabot PR #1 (drift-verified; the merge is a push)~~ done at `0bbced2` | ~~High~~ | ~~S~~ | ~~Release~~ |
-| ~~3~~  | ~~Push the session's deliberate trains (owner ruling — see §g Q3)~~ done — verified — c7c0a4d is on origin/main | ~~High~~ | ~~S~~ | ~~Release~~ |
-| 4  | File the io-surface findings when its tree quiets (clean-build data: b7 headline, d1 moot) | High     | S      | External      |
-| 5  | Post-release: bump pbx-artmann's pin (§3 row)                                              | Medium   | S      | External      |
-| 6  | SystemNix owner window: float + evo-x2 deploy + wrapper switch (one window)                | High     | M      | External      |
-| 7  | nixpkgs lib.maintainers.LarsArtmann PR (owner-gated)                                       | Low      | S      | External      |
-| 8  | crm harvest authority ruling; then the ratchet drain                                       | Medium   | M      | External      |
-| 9  | D1 ruling: host battery adoption vs PATH-only (matrix exists)                              | Medium   | S      | Decision      |
-| 10 | D2 ruling: root go.mod floor unification (recommendation written)                          | Low      | S      | Decision      |
-| 11 | io-surface adoption ruling (§4; ROADMAP data point current)                                | Medium   | S      | Decision      |
-| 12 | Arm the local pre-commit hooks (unset core.hooksPath) so docs-battery guards local work    | Medium   | S      | Quality       |
-| 13 | `scripts/dogfood-commit.sh`: battery-then-commit, failing closed (§e.3)                    | Medium   | S      | Quality       |
-| 14 | `docs-gates purge --group` mode or canonicalize one-bullet-per-row (§e.1)                  | Low      | S      | Feature       |
-| 15 | Probe-protocol lesson → crush-config references/lessons.md (§e.2, needs a commit there)    | Medium   | S      | Documentation |
-| ~~16~~ | ~~F94: AGENTS non-obvious-facts compression pass (owner tier)~~ done at `39bed4d` | ~~Low~~ | ~~M~~ | ~~Documentation~~ |
-| 17 | JSON face: `schema_version` field BEFORE any shape change (ROADMAP doctrine)               | Medium   | S      | Feature       |
-| 18 | JSON face: `watchdog` gate-row field (contract change → re-pin golden + provider)          | Low      | M      | Feature       |
-| 19 | Provider: per-gate captured findings into finding.Message                                  | Low      | M      | Feature       |
-| 20 | JSON row message: render `rc=N` (human-face parity)                                        | Low      | S      | Polish        |
-| 21 | battery-json golden: `skip_gates` parity arm                                               | Low      | S      | Quality       |
-| 22 | Audit-all size-series benchmark (100/400/1600) — cliff SHAPE                               | Medium   | M      | Quality       |
-| 23 | Provider handshake: mechanical version check (Spec version vs `--version` probe)           | Medium   | M      | Feature       |
-| 24 | go-appkit/crm: tighten ratchets as owning sessions land items (standing doctrine)          | Medium   | M      | Ritual        |
-| 25 | Post-switch: LSP-ghost protocol becomes "restart suffices" (§2c.1)                         | Low      | S      | Documentation |
-| 26 | Post-switch: cold-cache experiment IF ghosts survive (§2c.2)                               | Low      | M      | Quality       |
-| 27 | dependabot-auto-configure release carrying HasUnmodeledGroups; then bump BuildFlow's dep   | Low      | S      | External      |
-| 28 | BuildFlow#87 fix upstream; drop the BUILDFLOW_NO_RESULT_CACHE bypass                       | Low      | L      | External      |
-| 29 | BuildFlow roundtrip --tree-root forwarding (coordinate with their sessions)                | Low      | M      | External      |
-| 30 | `docs-gates doctor` verb (PATH, config, flake state in one command)                        | Low      | M      | Feature       |
-| 31 | `--margins --json` for tooling consumption                                                 | Low      | M      | Feature       |
-| 32 | `CutStringFlag` (string sibling; re-needed by every new valued flag)                       | Low      | S      | Feature       |
-| 33 | Split-check verb (verify one item's verdict without a full run)                            | Low      | M      | Feature       |
-| 34 | Findings-gate cache-state summary                                                          | Low      | S      | Feature       |
-| 35 | Pre-flight model growth: block replacements + `--remove` (ROADMAP)                         | Low      | M      | Feature       |
-| 36 | Margins/routing convergence: Gap rows carrying harvest suggestions                         | Low      | M      | Feature       |
-| 37 | False item-boundary detector (§f continuation `\d+[.)]` class)                             | Low      | M      | Feature       |
-| 38 | Generic counts gate design pass (FEATURES claims vs the tree)                              | Low      | L      | Feature       |
-| 39 | Link/reference checker for living docs (design pass)                                       | Low      | L      | Feature       |
-| 40 | Report-freshness age gate distinct from cadence (design pass)                              | Low      | M      | Feature       |
-| 41 | errcheck/gosec fleet-wide nolint staleness tripwires                                       | Low      | M      | Quality       |
-| 42 | tokencorpus extraction IF gates ever version independently                                 | Low      | M      | Cleanup       |
-| 43 | §1 board row: annotate sweep over older unarchived reports — only at cadence pressure      | Low      | M      | Ritual        |
-| ~~44~~ | ~~Estimate-line suppression under a threshold (µs render may have settled it — decide)~~ done — moot — µs render shipped (49d11cd) | ~~Low~~ | ~~S~~ | ~~Polish~~ |
-| 45 | Verify the docs-battery hook cost inside pre-commit-check; prebuild if slow                | Low      | S      | Quality       |
-| 46 | Archive the next report when it lands (standing ritual; corpus at 15/15 again)             | Medium   | S      | Ritual        |
-| 47 | Windows/macOS consumers revisit only on a real consumer (ROADMAP)                          | Low      | -      | Non-goal      |
-| ~~48~~ | ~~Sub-10ms estimate honest-but-useless follow-up: drop if µs render satisfies~~ done — same as 44 — µs render shipped | ~~Low~~ | ~~S~~ | ~~Polish~~ |
-| 49 | Keep the §8 filing row's clean-build evidence fresh if the sibling lands more work         | Low      | S      | External      |
-| 50 | Retire the ROADMAP provider-contract bullet the day the handshake decision lands           | Low      | S      | Documentation |
+| #      | Task                                                                                                                               | Impact       | Effort | Category          |
+| ------ | ---------------------------------------------------------------------------------------------------------------------------------- | ------------ | ------ | ----------------- |
+| ~~1~~  | ~~Cut v0.2.0 (section cut collapses the purge entries; go-release ritual; fleet announce)~~ done at `83073d9`                      | ~~Critical~~ | ~~M~~  | ~~Release~~       |
+| ~~2~~  | ~~Merge dependabot PR #1 (drift-verified; the merge is a push)~~ done at `0bbced2`                                                 | ~~High~~     | ~~S~~  | ~~Release~~       |
+| ~~3~~  | ~~Push the session's deliberate trains (owner ruling — see §g Q3)~~ done — verified — c7c0a4d is on origin/main                    | ~~High~~     | ~~S~~  | ~~Release~~       |
+| 4      | File the io-surface findings when its tree quiets (clean-build data: b7 headline, d1 moot)                                         | High         | S      | External          |
+| 5      | Post-release: bump pbx-artmann's pin (§3 row)                                                                                      | Medium       | S      | External          |
+| 6      | SystemNix owner window: float + evo-x2 deploy + wrapper switch (one window)                                                        | High         | M      | External          |
+| 7      | nixpkgs lib.maintainers.LarsArtmann PR (owner-gated)                                                                               | Low          | S      | External          |
+| 8      | crm harvest authority ruling; then the ratchet drain                                                                               | Medium       | M      | External          |
+| 9      | D1 ruling: host battery adoption vs PATH-only (matrix exists)                                                                      | Medium       | S      | Decision          |
+| 10     | D2 ruling: root go.mod floor unification (recommendation written)                                                                  | Low          | S      | Decision          |
+| 11     | io-surface adoption ruling (§4; ROADMAP data point current)                                                                        | Medium       | S      | Decision          |
+| 12     | Arm the local pre-commit hooks (unset core.hooksPath) so docs-battery guards local work                                            | Medium       | S      | Quality           |
+| 13     | `scripts/dogfood-commit.sh`: battery-then-commit, failing closed (§e.3)                                                            | Medium       | S      | Quality           |
+| 14     | `docs-gates purge --group` mode or canonicalize one-bullet-per-row (§e.1)                                                          | Low          | S      | Feature           |
+| 15     | Probe-protocol lesson → crush-config references/lessons.md (§e.2, needs a commit there)                                            | Medium       | S      | Documentation     |
+| ~~16~~ | ~~F94: AGENTS non-obvious-facts compression pass (owner tier)~~ done at `39bed4d`                                                  | ~~Low~~      | ~~M~~  | ~~Documentation~~ |
+| 17     | JSON face: `schema_version` field BEFORE any shape change (ROADMAP doctrine)                                                       | Medium       | S      | Feature           |
+| 18     | JSON face: `watchdog` gate-row field (contract change → re-pin golden + provider)                                                  | Low          | M      | Feature           |
+| 19     | Provider: per-gate captured findings into finding.Message                                                                          | Low          | M      | Feature           |
+| 20     | JSON row message: render `rc=N` (human-face parity)                                                                                | Low          | S      | Polish            |
+| 21     | battery-json golden: `skip_gates` parity arm                                                                                       | Low          | S      | Quality           |
+| 22     | Audit-all size-series benchmark (100/400/1600) — cliff SHAPE                                                                       | Medium       | M      | Quality           |
+| 23     | Provider handshake: mechanical version check (Spec version vs `--version` probe)                                                   | Medium       | M      | Feature           |
+| 24     | go-appkit/crm: tighten ratchets as owning sessions land items (standing doctrine)                                                  | Medium       | M      | Ritual            |
+| 25     | Post-switch: LSP-ghost protocol becomes "restart suffices" (§2c.1)                                                                 | Low          | S      | Documentation     |
+| 26     | Post-switch: cold-cache experiment IF ghosts survive (§2c.2)                                                                       | Low          | M      | Quality           |
+| 27     | dependabot-auto-configure release carrying HasUnmodeledGroups; then bump BuildFlow's dep                                           | Low          | S      | External          |
+| 28     | BuildFlow#87 fix upstream; drop the BUILDFLOW_NO_RESULT_CACHE bypass                                                               | Low          | L      | External          |
+| 29     | BuildFlow roundtrip --tree-root forwarding (coordinate with their sessions)                                                        | Low          | M      | External          |
+| 30     | `docs-gates doctor` verb (PATH, config, flake state in one command)                                                                | Low          | M      | Feature           |
+| 31     | `--margins --json` for tooling consumption                                                                                         | Low          | M      | Feature           |
+| 32     | `CutStringFlag` (string sibling; re-needed by every new valued flag)                                                               | Low          | S      | Feature           |
+| 33     | Split-check verb (verify one item's verdict without a full run)                                                                    | Low          | M      | Feature           |
+| 34     | Findings-gate cache-state summary                                                                                                  | Low          | S      | Feature           |
+| 35     | Pre-flight model growth: block replacements + `--remove` (ROADMAP)                                                                 | Low          | M      | Feature           |
+| 36     | Margins/routing convergence: Gap rows carrying harvest suggestions                                                                 | Low          | M      | Feature           |
+| 37     | False item-boundary detector (§f continuation `\d+[.)]` class)                                                                     | Low          | M      | Feature           |
+| 38     | Generic counts gate design pass (FEATURES claims vs the tree)                                                                      | Low          | L      | Feature           |
+| 39     | Link/reference checker for living docs (design pass)                                                                               | Low          | L      | Feature           |
+| 40     | Report-freshness age gate distinct from cadence (design pass)                                                                      | Low          | M      | Feature           |
+| 41     | errcheck/gosec fleet-wide nolint staleness tripwires                                                                               | Low          | M      | Quality           |
+| 42     | tokencorpus extraction IF gates ever version independently                                                                         | Low          | M      | Cleanup           |
+| 43     | §1 board row: annotate sweep over older unarchived reports — only at cadence pressure                                              | Low          | M      | Ritual            |
+| ~~44~~ | ~~Estimate-line suppression under a threshold (µs render may have settled it — decide)~~ done — moot — µs render shipped (49d11cd) | ~~Low~~      | ~~S~~  | ~~Polish~~        |
+| 45     | Verify the docs-battery hook cost inside pre-commit-check; prebuild if slow                                                        | Low          | S      | Quality           |
+| 46     | Archive the next report when it lands (standing ritual; corpus at 15/15 again)                                                     | Medium       | S      | Ritual            |
+| 47     | Windows/macOS consumers revisit only on a real consumer (ROADMAP)                                                                  | Low          | -      | Non-goal          |
+| ~~48~~ | ~~Sub-10ms estimate honest-but-useless follow-up: drop if µs render satisfies~~ done — same as 44 — µs render shipped              | ~~Low~~      | ~~S~~  | ~~Polish~~        |
+| 49     | Keep the §8 filing row's clean-build evidence fresh if the sibling lands more work                                                 | Low          | S      | External          |
+| 50     | Retire the ROADMAP provider-contract bullet the day the handshake decision lands                                                   | Low          | S      | Documentation     |
 
 ## g) Three questions I can NOT figure out myself
 

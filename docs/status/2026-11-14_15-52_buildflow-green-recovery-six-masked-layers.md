@@ -84,16 +84,16 @@ because the layer above it aborted the run first.
 14. **Three REAL data races fixed** (found by test-race running for the
     first time in months once the nix steps stopped blocking it):
     a. `TestLandParityFailsOnRetypedLanding` combined `t.Parallel()` with
-       `gatecli.CaptureOutput` — the documented "capture tests stay
-       serial" invariant had a holdout racing every parallel printer.
+    `gatecli.CaptureOutput` — the documented "capture tests stay
+    serial" invariant had a holdout racing every parallel printer.
     b. The half-budget watchdog goroutine fired mid-capture and read the
-       swapped `os.Stderr` via `Errf`. gatecli gained `liveErr` (stderr
-       twin of `liveOut`) + `LiveErrf`; the JSON face hands the watchdog
-       the snapshot writer.
+    swapped `os.Stderr` via `Errf`. gatecli gained `liveErr` (stderr
+    twin of `liveOut`) + `LiveErrf`; the JSON face hands the watchdog
+    the snapshot writer.
     c. `CaptureOutputWithTimeout`'s timeout path and the abandoned gate
-       goroutine BOTH ran `pipes.restore()` — a straggler's late global
-       reassignment raced the next capture. Restore is single-shot
-       (`sync.Once`).
+    goroutine BOTH ran `pipes.restore()` — a straggler's late global
+    reassignment raced the next capture. Restore is single-shot
+    (`sync.Once`).
     `go test -race ./...` green across root + provider; parity goldens
     byte-identical.
 15. **TestReplaySpeedGuard made race-aware** — the absolute 1s budget
@@ -259,73 +259,73 @@ because the layer above it aborted the run first.
 
 P0 — unblocks the fleet / immediate:
 
-| #  | Task                                                                                                                                                                                                                       |
-| -- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 1  | Push erraudit `f5a40b3a` (vendorHash fix) — consumers' `nix flake update erraudit` still resolves broken master until then.                                                                                                  |
-| 2  | Push the BuildFlow fix train (flake-pin-consistency + roundtrip sandbox) — the fleet's nix-fmt/treefmt stays red everywhere else until then.                                                                                |
-| ~~3~~  | ~~docs-health HARVEST: route this report's §f items into TODO_LIST (actionable) and ROADMAP (fuel).~~ done — in the 2026-11-14 docs-health pass (TODO_LIST 5/6 + 4b rows) |
-| 4  | Strike the TODO_LIST/report rows this session landed (safe-strike.sh) — the flake-check repairs, race fixes, and splits deserve landed verdicts with hashes.                                                                |
-| 5  | Watch the first GitHub CI run on `9005c5d`: the `test (race)` step runs on CI hardware for the first time (6s speed-guard budget under race + CI slowness is the risk point). **→ routed TODO_LIST 6 (race-watch row)** |
+| #     | Task                                                                                                                                                                                                                    |
+| ----- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1     | Push erraudit `f5a40b3a` (vendorHash fix) — consumers' `nix flake update erraudit` still resolves broken master until then.                                                                                             |
+| 2     | Push the BuildFlow fix train (flake-pin-consistency + roundtrip sandbox) — the fleet's nix-fmt/treefmt stays red everywhere else until then.                                                                            |
+| ~~3~~ | ~~docs-health HARVEST: route this report's §f items into TODO_LIST (actionable) and ROADMAP (fuel).~~ done — in the 2026-11-14 docs-health pass (TODO_LIST 5/6 + 4b rows)                                               |
+| 4     | Strike the TODO_LIST/report rows this session landed (safe-strike.sh) — the flake-check repairs, race fixes, and splits deserve landed verdicts with hashes.                                                            |
+| 5     | Watch the first GitHub CI run on `9005c5d`: the `test (race)` step runs on CI hardware for the first time (6s speed-guard budget under race + CI slowness is the risk point). **→ routed TODO_LIST 6 (race-watch row)** |
 
 P1 — close this session's open threads:
 
-| #  | Task                                                                                                                                                                                                                       |
-| -- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 6  | Write the erraudit-repo AGENTS.md note: its daemon's go.mod sweep broke the flake hash; nix-hash-fix is the fix; its own "vendor hash drift gate" check should have caught it — why didn't it?                                |
-| 7  | File/track the treefmt "Cowardly refusing to install hooks with core.hooksPath set" noise inside BuildFlow roundtrip sandboxes (side effect of the git-init fix; cosmetic but noisy in every nix run).                       |
-| 8  | Check BuildFlow#87 status (file-size-check constant cache key): still open? Re-verify the bypass is still needed. **→ duplicate — TODO_LIST 3 carries the BuildFlow#87 row** |
-| 9  | Investigate the io-surface regression (+962%) from BuildFlow's own pre-commit run output.                                                                                                                                   |
-| 10 | `git config --unset core.hooksPath` locally + run `pre-commit run docs-battery --all-files` once — the devShell leg has never been exercised end to end.                                                                     |
-| 11 | Re-baseline `buildflow timings --regressions` on a quiet machine; confirm the +800%/+133%/+97% regressions were load noise, not real.                                                                                       |
-| 12 | Adjudicate the daemon-carried `.golangci.yml` `run.go: 1.27` change (root floor stays 1.26): intended fleet policy or repair side effect? Document or revert. **→ routed TODO_LIST 4b (golangci posture ruling)** |
-| 13 | Adjudicate go-structure-linter's `go-version` warning (go.mod 1.26 vs available 1.27): document the floor as deliberate, or bump root floor in ONE train with the flake pin (the check's own remedy text). **→ routed TODO_LIST 4b (golangci posture ruling, folds D2)** |
-| 14 | Rebuild/reinstall buildflow if binary-freshness warns again (HEAD moved past `1d474a0` via daemon commits). **→ standing rule — AGENTS stale-binary lesson carries it** |
+| #      | Task                                                                                                                                                                                                                                                                      |
+| ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 6      | Write the erraudit-repo AGENTS.md note: its daemon's go.mod sweep broke the flake hash; nix-hash-fix is the fix; its own "vendor hash drift gate" check should have caught it — why didn't it?                                                                            |
+| 7      | File/track the treefmt "Cowardly refusing to install hooks with core.hooksPath set" noise inside BuildFlow roundtrip sandboxes (side effect of the git-init fix; cosmetic but noisy in every nix run).                                                                    |
+| 8      | Check BuildFlow#87 status (file-size-check constant cache key): still open? Re-verify the bypass is still needed. **→ duplicate — TODO_LIST 3 carries the BuildFlow#87 row**                                                                                              |
+| 9      | Investigate the io-surface regression (+962%) from BuildFlow's own pre-commit run output.                                                                                                                                                                                 |
+| 10     | `git config --unset core.hooksPath` locally + run `pre-commit run docs-battery --all-files` once — the devShell leg has never been exercised end to end.                                                                                                                  |
+| 11     | Re-baseline `buildflow timings --regressions` on a quiet machine; confirm the +800%/+133%/+97% regressions were load noise, not real.                                                                                                                                     |
+| 12     | Adjudicate the daemon-carried `.golangci.yml` `run.go: 1.27` change (root floor stays 1.26): intended fleet policy or repair side effect? Document or revert. **→ routed TODO_LIST 4b (golangci posture ruling)**                                                         |
+| 13     | Adjudicate go-structure-linter's `go-version` warning (go.mod 1.26 vs available 1.27): document the floor as deliberate, or bump root floor in ONE train with the flake pin (the check's own remedy text). **→ routed TODO_LIST 4b (golangci posture ruling, folds D2)**  |
+| 14     | Rebuild/reinstall buildflow if binary-freshness warns again (HEAD moved past `1d474a0` via daemon commits). **→ standing rule — AGENTS stale-binary lesson carries it**                                                                                                   |
 | ~~15~~ | ~~Review the BuildFlow-generated SECURITY.md (v0.3.0 currency claim), CONTRIBUTING.md, .editorconfig, .gitattributes landed by daemon commits today.~~ done — reviewed 2026-11-14 — SECURITY.md/CONTRIBUTING.md/.editorconfig/.gitattributes accurate (v0.3.0 is current) |
 
 P2 — hygiene / robustness:
 
-| #  | Task                                                                                                                                                                                                                       |
-| -- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 16 | Sandbox-safe battery variant: env-gated annotate hash-rule skip so the sandboxed pre-commit-check regains full-battery coverage. **→ routed ROADMAP (sandbox-safe battery bullet)** |
-| 17 | Scope BuildFlow's roundtrip `git add -A .` to the lane's copied file set (perf on large staged-only lanes).                                                                                                                  |
-| 18 | Promote the `raceDetector` build-tag const pattern to a fleet snippet (go-finding/toolsdk candidate) — every repo with timing guards needs it.                                                                              |
-| 19 | Watch CI duration after the race step; if the go job doubles, move race to its own job or per-package scope. **→ routed TODO_LIST 6 (race-watch row)** |
-| 20 | Add `-race` coverage to the provider CI job (currently plain `go test`).                                                                                                                                                    |
-| 21 | Link `docs/agent-notes.md` from README/docs index so HARVEST/VERIFY know it exists.                                                                                                                                          |
-| 22 | Reset/prune buildflow's nix-fmt (31/32) and treefmt (36/38) failure-history counters — the 95%-failure alerts are now stale noise post-fix.                                                                                 |
-| 23 | After BuildFlow pushes: `nix flake update` nothing, but re-run a full buildflow on a second machine to confirm the roundtrip fix travels.                                                                                    |
-| 24 | AGENTS.md regrowth trigger: alert when >200 lines (the 220 ratchet holds today at 219).                                                                                                                                      |
-| 25 | Extend the erraudit-rev tripwire pattern to the other master-tracking lock inputs (go-filewatcher, gogenfilter, go-nix-helpers) — same silent-bump class.                                                                    |
-| 26 | Adjudicate the reverted cmdguard v4→v5 major bump: is the fleet still meant to stay on v4.x here, or was v5 the intended next step that needs a deliberate update + validation?                                               |
-| 27 | Deliberately update the master-pinned inputs one at a time (gogenfilter, go-nix-helpers, go-filewatcher) with checks per step, instead of waiting for the repair phase to bulk-bump them again.                              |
-| 28 | Set up the local dprint plugin bundle (`nix build .#dprint-plugins` in BuildFlow + `BUILDFLOW_DPRINT_PLUGINS`) to kill the cold-fetch warning.                                                                              |
-| 29 | One deliberate `--json` timeout run to eyeball that the watchdog's stderr line routes to real stderr (post-LiveErrf) and the JSON stdout stays pure end to end.                                                              |
-| 30 | Consider a visible note when annotate skips hash verification (synthetic git repos look real; currently silent skip is only for NO git).                                                                                     |
-| 31 | Dogfood: record the "flake checks were red for 10 days, masked by a cascade" incident as a full narrative in docs/agent-notes.md (cautionary tale for check-layer audits).                                                   |
-| 32 | `buildflow doctor` re-run once BuildFlow HEAD settles — confirm binary-freshness + fingerprint verdicts settle too. **→ standing rule — AGENTS stale-binary lesson carries it** |
+| #      | Task                                                                                                                                                                                                                                                   |
+| ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 16     | Sandbox-safe battery variant: env-gated annotate hash-rule skip so the sandboxed pre-commit-check regains full-battery coverage. **→ routed ROADMAP (sandbox-safe battery bullet)**                                                                    |
+| 17     | Scope BuildFlow's roundtrip `git add -A .` to the lane's copied file set (perf on large staged-only lanes).                                                                                                                                            |
+| 18     | Promote the `raceDetector` build-tag const pattern to a fleet snippet (go-finding/toolsdk candidate) — every repo with timing guards needs it.                                                                                                         |
+| 19     | Watch CI duration after the race step; if the go job doubles, move race to its own job or per-package scope. **→ routed TODO_LIST 6 (race-watch row)**                                                                                                 |
+| 20     | Add `-race` coverage to the provider CI job (currently plain `go test`).                                                                                                                                                                               |
+| 21     | Link `docs/agent-notes.md` from README/docs index so HARVEST/VERIFY know it exists.                                                                                                                                                                    |
+| 22     | Reset/prune buildflow's nix-fmt (31/32) and treefmt (36/38) failure-history counters — the 95%-failure alerts are now stale noise post-fix.                                                                                                            |
+| 23     | After BuildFlow pushes: `nix flake update` nothing, but re-run a full buildflow on a second machine to confirm the roundtrip fix travels.                                                                                                              |
+| 24     | AGENTS.md regrowth trigger: alert when >200 lines (the 220 ratchet holds today at 219).                                                                                                                                                                |
+| 25     | Extend the erraudit-rev tripwire pattern to the other master-tracking lock inputs (go-filewatcher, gogenfilter, go-nix-helpers) — same silent-bump class.                                                                                              |
+| 26     | Adjudicate the reverted cmdguard v4→v5 major bump: is the fleet still meant to stay on v4.x here, or was v5 the intended next step that needs a deliberate update + validation?                                                                        |
+| 27     | Deliberately update the master-pinned inputs one at a time (gogenfilter, go-nix-helpers, go-filewatcher) with checks per step, instead of waiting for the repair phase to bulk-bump them again.                                                        |
+| 28     | Set up the local dprint plugin bundle (`nix build .#dprint-plugins` in BuildFlow + `BUILDFLOW_DPRINT_PLUGINS`) to kill the cold-fetch warning.                                                                                                         |
+| 29     | One deliberate `--json` timeout run to eyeball that the watchdog's stderr line routes to real stderr (post-LiveErrf) and the JSON stdout stays pure end to end.                                                                                        |
+| 30     | Consider a visible note when annotate skips hash verification (synthetic git repos look real; currently silent skip is only for NO git).                                                                                                               |
+| 31     | Dogfood: record the "flake checks were red for 10 days, masked by a cascade" incident as a full narrative in docs/agent-notes.md (cautionary tale for check-layer audits).                                                                             |
+| 32     | `buildflow doctor` re-run once BuildFlow HEAD settles — confirm binary-freshness + fingerprint verdicts settle too. **→ standing rule — AGENTS stale-binary lesson carries it**                                                                        |
 | ~~33~~ | ~~Coordinate with the concurrent session (cmdguard adoption + land-parity report `89d7dc6`) before harvesting TODO_LIST, to avoid clobbering its in-flight rows.~~ done — resolved — the docs-health pass coordinated on fresh HEAD; no rows clobbered |
-| 34 | Verify the io-history-ratchet warning stays gone on the next two runs; if it returns, do the `--profile-io` dig that was skipped.                                                                                            |
+| 34     | Verify the io-history-ratchet warning stays gone on the next two runs; if it returns, do the `--profile-io` dig that was skipped.                                                                                                                      |
 
 P3 — ROADMAP fuel:
 
-| #  | Task                                                                                                                                                                                                                       |
-| -- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 35 | ROADMAP: revisit Darwin absence only on a real consumer (unchanged). **→ duplicate — ROADMAP Darwin bullet carries it** |
-| 36 | ROADMAP: provider jsonv1tov2 reconsideration trigger — when the provider floor moves past the v1 pin, re-run the migration probe. **→ routed ROADMAP (jsonv1tov2 trigger)** |
-| 37 | ROADMAP: the sandbox-safe full battery (env-gated) as a feature, not a policy split. **→ routed ROADMAP (sandbox-safe battery bullet)** |
-| 38 | BuildFlow: record roundtrip sandbox state (git-init'd, files staged, lock present) in the formatter RunRecord for debuggability. **→ foreign-repo fuel — belongs in BuildFlow tracking** |
-| 39 | BuildFlow: failure-loop detector could auto-quarantine a step after N consecutive identical failures instead of warning forever. **→ foreign-repo fuel — belongs in BuildFlow tracking** |
-| 40 | BuildFlow: auto-rebaseline the formatter fingerprint after a successful `buildflow format` (the drift warning re-fired even after format until the next doctor). **→ foreign-repo fuel — belongs in BuildFlow tracking** |
-| ~~41~~ | ~~docs-health ANNOTATE pass over the 13 unarchived status reports (oldest 10d, threshold 21d — comfortable, but they will hit it).~~ done — in the 2026-11-14 docs-health pass — 200+ items struck corpus-wide, oldest batch archived |
-| 42 | gatecli_test.go at 339 lines — one test away from the ceiling; keep an eye or pre-split.                                                                                                                                     |
-| 43 | Make scripts/safe-strike.sh discoverable from the docs-battery failure output (it is the tool the ritual names).                                                                                                             |
-| 44 | erraudit: re-run the strict `--max` audit after the next deliberate input bump (today's refactors added no new generic-return sites — verified). **→ standing rule — AGENTS erraudit bullet (never cite counts from memory)** |
-| 45 | Fleet audit: which other covered repos use the flattened `inputs.<name>.url` flake form (they were all false-FAILing pin-consistency until the upstream fix lands for them).                                                 |
-| 46 | Share the "repair-phase lock bump + daemon wrap" recovery runbook to the fleet lessons file (crush-config `references/lessons.md`, by commit).                                                                               |
-| 47 | BuildFlow: expose failure-history retention/reset so step alert fatigue can be managed per repo. **→ foreign-repo fuel — belongs in BuildFlow tracking** |
-| 48 | docs-gates: benchmark the CI race step's wall time on GitHub hardware; if it dominates the go job, split it out. **→ routed TODO_LIST 6 (race-watch row)** |
+| #      | Task                                                                                                                                                                                                                                                                                                                              |
+| ------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 35     | ROADMAP: revisit Darwin absence only on a real consumer (unchanged). **→ duplicate — ROADMAP Darwin bullet carries it**                                                                                                                                                                                                           |
+| 36     | ROADMAP: provider jsonv1tov2 reconsideration trigger — when the provider floor moves past the v1 pin, re-run the migration probe. **→ routed ROADMAP (jsonv1tov2 trigger)**                                                                                                                                                       |
+| 37     | ROADMAP: the sandbox-safe full battery (env-gated) as a feature, not a policy split. **→ routed ROADMAP (sandbox-safe battery bullet)**                                                                                                                                                                                           |
+| 38     | BuildFlow: record roundtrip sandbox state (git-init'd, files staged, lock present) in the formatter RunRecord for debuggability. **→ foreign-repo fuel — belongs in BuildFlow tracking**                                                                                                                                          |
+| 39     | BuildFlow: failure-loop detector could auto-quarantine a step after N consecutive identical failures instead of warning forever. **→ foreign-repo fuel — belongs in BuildFlow tracking**                                                                                                                                          |
+| 40     | BuildFlow: auto-rebaseline the formatter fingerprint after a successful `buildflow format` (the drift warning re-fired even after format until the next doctor). **→ foreign-repo fuel — belongs in BuildFlow tracking**                                                                                                          |
+| ~~41~~ | ~~docs-health ANNOTATE pass over the 13 unarchived status reports (oldest 10d, threshold 21d — comfortable, but they will hit it).~~ done — in the 2026-11-14 docs-health pass — 200+ items struck corpus-wide, oldest batch archived                                                                                             |
+| 42     | gatecli_test.go at 339 lines — one test away from the ceiling; keep an eye or pre-split.                                                                                                                                                                                                                                          |
+| 43     | Make scripts/safe-strike.sh discoverable from the docs-battery failure output (it is the tool the ritual names).                                                                                                                                                                                                                  |
+| 44     | erraudit: re-run the strict `--max` audit after the next deliberate input bump (today's refactors added no new generic-return sites — verified). **→ standing rule — AGENTS erraudit bullet (never cite counts from memory)**                                                                                                     |
+| 45     | Fleet audit: which other covered repos use the flattened `inputs.<name>.url` flake form (they were all false-FAILing pin-consistency until the upstream fix lands for them).                                                                                                                                                      |
+| 46     | Share the "repair-phase lock bump + daemon wrap" recovery runbook to the fleet lessons file (crush-config `references/lessons.md`, by commit).                                                                                                                                                                                    |
+| 47     | BuildFlow: expose failure-history retention/reset so step alert fatigue can be managed per repo. **→ foreign-repo fuel — belongs in BuildFlow tracking**                                                                                                                                                                          |
+| 48     | docs-gates: benchmark the CI race step's wall time on GitHub hardware; if it dominates the go job, split it out. **→ routed TODO_LIST 6 (race-watch row)**                                                                                                                                                                        |
 | ~~49~~ | ~~Consider annotating (not rewriting) the 2026-11-04/06 entries that claimed flake-check green — they were true for the checks that existed then, but the suite has grown since; a verify stamp would prevent inherited-claim drift.~~ done — the 2026-11-14 pass struck the landed rows in the 11-04/05/06 reports with evidence |
-| 50 | ROADMAP: explore making the battery's watchdog line structured (JSON event) so machine consumers can surface it without scraping stderr. **→ duplicate — ROADMAP watchdog-field bullet carries it** |
+| 50     | ROADMAP: explore making the battery's watchdog line structured (JSON event) so machine consumers can surface it without scraping stderr. **→ duplicate — ROADMAP watchdog-field bullet carries it**                                                                                                                               |
 
 ## g) QUESTIONS I CANNOT FIGURE OUT MYSELF
 
