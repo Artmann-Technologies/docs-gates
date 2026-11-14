@@ -199,7 +199,7 @@ if [ "$batch" -eq 1 ]; then
 			exit 1
 		fi
 
-		seen_lines="${seen_lines}${line_no}\n"
+		seen_lines="${seen_lines}${line_no}"$'\n'
 		echo "safe-strike: target [$file:$line_no]"
 		echo "  before: $line_content"
 		entries="${entries}${line_no}$(printf '\t%s\t%s' "$(printf '%s' "$line_content" | base64 -w0)" "$(printf '%s' "$verdict" | base64 -w0)")"$'\n'
