@@ -311,6 +311,16 @@ func Errln(args ...any) {
 //nolint:gochecknoglobals // process-global by nature: the stream swap itself is process-global
 var liveOut atomic.Pointer[os.File]
 
+// liveErr is the process's REAL stderr while a capture swap is active
+// (nil otherwise): the stderr twin of liveOut, for the JSON face's
+// mid-gate warnings. The watchdog goroutine fires while the swap is
+// live, and reading the swapped global from another goroutine races the
+// swap (the 2026-11-14 race-detector finding): snapshot, never the
+// global.
+//
+//nolint:gochecknoglobals // process-global by nature: the stream swap itself is process-global
+var liveErr atomic.Pointer[os.File]
+
 // Livef writes a formatted progress line to the REAL stdout even while
 // CaptureOutput/CaptureOutputWithTimeout have the process streams
 // swapped: the half-budget early warning fires while a wedged gate
@@ -327,6 +337,22 @@ func Livef(format string, args ...any) {
 	}
 
 	Outf(format, args...)
+}
+
+// LiveErrf is Livef's stderr twin: a formatted line to the REAL stderr
+// even while the capture swap is active. Outside a capture it is plain
+// Errf.
+func LiveErrf(format string, args ...any) {
+	if f := liveErr.Load(); f != nil {
+		_, _ = fmt.Fprintf(
+			f,
+			format,
+			args...) //nolint:erraudit // policy above
+
+		return
+	}
+
+	Errf(format, args...)
 }
 
 // CapturedOutput is what a Run-shaped function emitted plus its exit code.
@@ -381,11 +407,19 @@ func newCapturedPipes() capturedPipes {
 	os.Stdout, os.Stderr = outW, errW
 
 	liveOut.Store(origOut)
+	liveErr.Store(origErr)
 
 	var (
 		wg       sync.WaitGroup
 		outBytes []byte
 		errBytes []byte
+
+		// restoreOnce makes the restore single-shot: CaptureOutputWithTimeout's
+		// timeout path restores immediately, and the abandoned gate goroutine
+		// calls restore AGAIN whenever the straggler finally returns — a late
+		// second assignment of the process globals would race whatever
+		// capture started in between (the 2026-11-14 race-detector finding).
+		restoreOnce sync.Once
 	)
 
 	const pipeCount = 2
@@ -406,9 +440,12 @@ func newCapturedPipes() capturedPipes {
 
 	return capturedPipes{
 		restore: func() {
-			liveOut.Store(nil)
+			restoreOnce.Do(func() {
+				liveOut.Store(nil)
+				liveErr.Store(nil)
 
-			os.Stdout, os.Stderr = origOut, origErr
+				os.Stdout, os.Stderr = origOut, origErr
+			})
 		},
 		closeWrites: func() { _ = outW.Close(); _ = errW.Close() },
 		wait: func() (string, string) {

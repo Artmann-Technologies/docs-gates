@@ -163,7 +163,11 @@ func runGates(list []gate, skipGates []string, timeout time.Duration, jsonMode b
 
 		progress, warnLive := gatecli.Outf, gatecli.Livef
 		if jsonMode {
-			progress, warnLive = gatecli.Errf, gatecli.Errf
+			// The watchdog goroutine fires MID-CAPTURE; its writes must go
+			// through the real-stream snapshots (LiveErrf), never the
+			// swapped globals — reading those from the goroutine races the
+			// swap and would park the warning inside the gate's own buffer.
+			progress, warnLive = gatecli.Errf, gatecli.LiveErrf
 		}
 
 		progress("docs-gates: gate %s ...\n", g.name)
@@ -218,8 +222,10 @@ const halfBudgetDivisor = 2
 // LIVE — on the REAL stdout via gatecli.Livef (human face), because
 // during a capture the swapped streams would park the warning inside
 // the gate's own buffer, killing exactly the early-warning value it
-// exists for. The JSON face hands in gatecli.Errf instead: its stdout
-// is contractually the machine document alone. The CV wedge sat
+// exists for. The JSON face hands in gatecli.LiveErrf: its stdout is
+// contractually the machine document alone, and the real-stream
+// snapshot is what keeps the goroutine's write from racing the swap
+// (the 2026-11-14 race-detector finding). The CV wedge sat
 // invisible in band for hours; a watcher names the budget it burns.
 // timeout <= 0 (the config opt-out) arms nothing; the returned func is
 // always safe to call.
