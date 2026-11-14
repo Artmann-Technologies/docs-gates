@@ -64,6 +64,9 @@ Long-term direction and raw ideas. Refined ideas graduate to TODO_LIST.
   `docs-gates version` verb alongside `--version` (scriptability), and a
   findings-gate cache-state summary (say WHAT the result cache did to
   this run) — small mechanics that keep surfacing across sessions.
+- **Battery fail-fast hatch** — a first-failure-abort escape flag for
+  local loops, without editing skip_gates (default stays no-abort; the
+  verdict matrix exists so one red never masks later gates).
 - **Status-report ledger shape** — the 11-12/11-14 ledgers use a `## f)`
   heading the §f extractor does not match, so brainstorms stay invisible
   to freshness (green over-claims). Pick ONE definition: normalize the
