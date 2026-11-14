@@ -184,7 +184,12 @@ func Run(argv []string) int {
 
 	g, hasGit := isCheckout(root)
 	if !hasGit {
-		gatecli.Errln("docs-annotate: no git checkout here - hash/tag rules skipped")
+		// STDOUT on purpose: the skip marker must ride the gate's own
+		// verdict output, where every consumer face (standalone, the
+		// battery's pass path, the --json row's stdout) carries it — a
+		// stderr note is swallowed by the battery on PASS, and the skip
+		// was invisible exactly where it happened (15-52 report §f.30).
+		gatecli.Outln("docs-annotate: no git checkout here - hash/tag rules skipped")
 	}
 
 	var (

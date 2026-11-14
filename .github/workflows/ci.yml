@@ -94,9 +94,12 @@ jobs:
           version: v2.15.0
           working-directory: pkg/provider
 
+      # The provider execs the battery binary and decodes its streams;
+      # the fleet race policy (go-structure-linter, the root go job)
+      # keeps the detector on the payroll here too (15-52 report §f.20).
       - name: test
         working-directory: pkg/provider
-        run: go test ./...
+        run: go test -race ./...
 
   # The battery judges the repo that defines green: every push replays
   # all five gates over this repo's own living docs and status corpus

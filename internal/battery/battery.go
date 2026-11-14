@@ -118,6 +118,11 @@ func Run(args []string) int {
 
 	if renderMatrix(results) {
 		gatecli.Errln("docs-gates: FAIL — the matrix above names the red gates")
+		// The strike ritual's row-safety tool is one directory away in the
+		// docs-gates repo but undiscoverable from a red battery (15-52
+		// report §f.43): row-number strikes corrupted a ledger once, and
+		// the safe path never advertised itself at the moment of need.
+		gatecli.Errln("docs-gates: striking rows to green a gate? scripts/safe-strike.sh in the docs-gates repo is the safe path (unique text anchors, cell-bounded rewrites)")
 
 		return gatecli.ExitFindings
 	}

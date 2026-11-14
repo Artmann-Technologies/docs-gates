@@ -29,8 +29,8 @@
       "skipped": false,
       "timed_out": false,
       "duration_ms": D,
-      "stdout": "docs-annotate: 1 file(s), 1 struck item(s), 0 finding(s)\ndocs-annotate: CLEAN\n",
-      "stderr": "docs-annotate: no git checkout here - hash/tag rules skipped\n"
+      "stdout": "docs-annotate: no git checkout here - hash/tag rules skipped\ndocs-annotate: 1 file(s), 1 struck item(s), 0 finding(s)\ndocs-annotate: CLEAN\n",
+      "stderr": ""
     },
     {
       "name": "routing",
