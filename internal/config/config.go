@@ -208,12 +208,19 @@ func withSyntaxLocation(data []byte, err error) error {
 	return &syntaxError{cause: syn, line: line, column: column}
 }
 
-// byteLineColumn converts a decoder byte offset into 1-based line and
-// column numbers over the raw file bytes (a tab is one column; columns
-// count bytes since the last newline, the JSON decoder's own convention).
+// byteLineColumn names the position of a decode error over the raw
+// file bytes: Go's SyntaxError.Offset counts the bytes READ, so the
+// offending byte is the one before it — a newline there means the
+// failing literal ended at the previous line's last column. Columns
+// count bytes since the last newline (a tab is one column, the JSON
+// decoder's own convention).
 func byteLineColumn(data []byte, offset int64) (line, column int) {
 	if offset > int64(len(data)) {
 		offset = int64(len(data))
+	}
+
+	if offset > 0 {
+		offset--
 	}
 
 	line, column = 1, 1
