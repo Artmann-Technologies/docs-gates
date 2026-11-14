@@ -153,7 +153,7 @@ func applyPurge(opts Options, todoPath, todoData string, rows []struckRow, bulle
 		return gatecli.ExitUsage
 	}
 
-	updatedChangelog, err := insertBullets(string(changelogData), bullets)
+	updatedChangelog, err := insertBullets(opts.Changelog, string(changelogData), bullets)
 	if err != nil {
 		gatecli.Errf("FATAL: %v\n", err)
 
@@ -213,47 +213,19 @@ func removeRows(content string, rows []struckRow) string {
 
 // insertBullets appends the bullets to the tail of the [Unreleased]
 // Changed section, right before its next heading. Missing anchors are a
-// refusal, not a guess.
-func insertBullets(changelog string, bullets []string) (string, error) {
+// refusal, not a guess — the message names changelogName (the actual
+// target, honoring --changelog) and the nearest same-level heading.
+func insertBullets(changelogName, changelog string, bullets []string) (string, error) {
 	lines := strings.Split(changelog, "\n")
 
-	unreleased := -1
-	changed := -1
-	nearestH2 := 0
-	nearestH3 := 0
-
-	for i, line := range lines {
-		if strings.HasPrefix(line, "## ") {
-			nearestH2 = i + 1
-		}
-
-		if strings.HasPrefix(line, "### ") {
-			nearestH3 = i + 1
-		}
-
-		if strings.TrimSpace(line) == unreleasedHeading {
-			unreleased = i
-		}
-	}
-
+	unreleased, nearestH2, nearestH3 := locateAnchors(lines)
 	if unreleased < 0 {
-		return "", newMissingAnchorError(anchorUnreleasedHeading, defaultChangelog, nearestH2)
+		return "", newMissingAnchorError(anchorUnreleasedHeading, changelogName, nearestH2)
 	}
 
-	for i := unreleased + 1; i < len(lines); i++ {
-		if strings.HasPrefix(lines[i], "## ") {
-			break
-		}
-
-		if strings.TrimSpace(lines[i]) == changedHeading {
-			changed = i
-
-			break
-		}
-	}
-
+	changed := locateChanged(lines, unreleased)
 	if changed < 0 {
-		return "", newMissingAnchorError(anchorChangedSection, defaultChangelog, nearestH3)
+		return "", newMissingAnchorError(anchorChangedSection, changelogName, nearestH3)
 	}
 
 	insert := len(lines)
@@ -274,4 +246,44 @@ func insertBullets(changelog string, bullets []string) (string, error) {
 	updated = append(updated, lines[insert:]...)
 
 	return strings.Join(updated, "\n"), nil
+}
+
+// locateAnchors scans the whole file for the [Unreleased] heading and
+// the nearest ## / ### heading lines (1-based; 0 when a class is
+// absent) — the material for the missing-anchor hints.
+func locateAnchors(lines []string) (int, int, int) {
+	unreleased, nearestH2, nearestH3 := -1, 0, 0
+
+	for i, line := range lines {
+		if strings.HasPrefix(line, "## ") {
+			nearestH2 = i + 1
+		}
+
+		if strings.HasPrefix(line, "### ") {
+			nearestH3 = i + 1
+		}
+
+		if strings.TrimSpace(line) == unreleasedHeading {
+			unreleased = i
+		}
+	}
+
+	return unreleased, nearestH2, nearestH3
+}
+
+// locateChanged finds the ### Changed heading constrained to the
+// [Unreleased] block (before the block's next ## heading); -1 when the
+// section is absent.
+func locateChanged(lines []string, unreleased int) int {
+	for i := unreleased + 1; i < len(lines); i++ {
+		if strings.HasPrefix(lines[i], "## ") {
+			break
+		}
+
+		if strings.TrimSpace(lines[i]) == changedHeading {
+			return i
+		}
+	}
+
+	return -1
 }

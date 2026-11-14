@@ -90,7 +90,7 @@ func TestInsertBulletsRefusalNamesNearestHeading(t *testing.T) {
 		},
 		"no heading at all, no hint": {
 			changelog:     "# Changelog\n\nsome prose\n",
-			wantInMessage: "refusing to guess an insertion point\n",
+			wantInMessage: "refusing to guess an insertion point",
 		},
 	}
 
@@ -98,7 +98,7 @@ func TestInsertBulletsRefusalNamesNearestHeading(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			_, err := insertBullets(tc.changelog, []string{"- bullet"})
+			_, err := insertBullets("CHANGELOG.md", tc.changelog, []string{"- bullet"})
 			if err == nil {
 				t.Fatal("insertBullets succeeded, want a missing-anchor refusal")
 			}

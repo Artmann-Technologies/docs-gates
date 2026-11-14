@@ -214,7 +214,7 @@ func withSyntaxLocation(data []byte, err error) error {
 // failing literal ended at the previous line's last column. Columns
 // count bytes since the last newline (a tab is one column, the JSON
 // decoder's own convention).
-func byteLineColumn(data []byte, offset int64) (line, column int) {
+func byteLineColumn(data []byte, offset int64) (int, int) {
 	if offset > int64(len(data)) {
 		offset = int64(len(data))
 	}
@@ -223,10 +223,10 @@ func byteLineColumn(data []byte, offset int64) (line, column int) {
 		offset--
 	}
 
-	line, column = 1, 1
+	line, column := 1, 1
 
-	for i := int64(0); i < offset; i++ {
-		if data[i] == '\n' {
+	for _, b := range data[:offset] {
+		if b == '\n' {
 			line++
 			column = 1
 		} else {

@@ -122,7 +122,9 @@ func Run(args []string) int {
 		// docs-gates repo but undiscoverable from a red battery (15-52
 		// report §f.43): row-number strikes corrupted a ledger once, and
 		// the safe path never advertised itself at the moment of need.
-		gatecli.Errln("docs-gates: striking rows to green a gate? scripts/safe-strike.sh in the docs-gates repo is the safe path (unique text anchors, cell-bounded rewrites)")
+		gatecli.Errln(
+			"docs-gates: striking rows to green a gate? scripts/safe-strike.sh in the docs-gates repo is the safe path (unique text anchors, cell-bounded rewrites)",
+		)
 
 		return gatecli.ExitFindings
 	}
