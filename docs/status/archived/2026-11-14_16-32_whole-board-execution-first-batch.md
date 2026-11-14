@@ -1,3 +1,10 @@
+> **Live remainder:** archived 2026-11-14 by the cadence ritual (corpus crossed
+> max_unarchived=15 a second time today). The §f board-mapped items are ROUTED
+> by construction (each names its TODO_LIST/board row; freshness 0 unharvested,
+> audit-all 0, routing strict 0). Execution state as of archive: the §5 UX/test
+> batch, host rows, external legs, and the v0.3.1 release all landed in the
+> 18-31 self-review report; owner-gated rows stay in TODO_LIST §3/§4/§4b.
+
 # 2026-11-14 16:32 — Whole-Board Execution, First Batch: Ten Rows Landed, Report Ordered Mid-Run
 
 Scope line: owner directive was "GET SHIT DONE! The WHOLE TODO LIST!" —
