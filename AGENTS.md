@@ -37,52 +37,49 @@ keep bare `FATAL: %v`.
   (`scripts/stack-drift-check.sh` fails CI on drift); keeps the nix
   build hermetic. Third-party deps live in a separate go module with a
   STACK.md row.
-- **JSON, not YAML, for config** (2026-11-03): stdlib contract; JSON is
-  jq-able; tagliatelle pins snake_case json tags.
+- **JSON, not YAML, for config** (2026-11-03): stdlib contract, jq-able;
+  tagliatelle pins snake_case json tags.
 - **Exit codes: 0 clean / 1 findings / 2 usage-environment** — everything
   funnels through gatecli constants; new failure classes map onto these.
 - **Zero-value Settings never reach gate logic** — per-package Settings
   projections fall back to the historical constants: strings
   `cmp.Or(override, config.Defaults().X)`, lists `config.OrSlice(...)`,
   int `> 0` forms. A config-less repo behaves byte-for-byte like
-  pre-extraction — never change a default without re-proving parity.
-- **The five legacy names are API**: flake wrappers exec
+  pre-extraction — never change a default without re-proving parity.- **The five legacy names are API**: flake wrappers exec
   `docs-gates <verb>`; each answers `--version` under its legacy name.
   Never remove a wrapper without a migration plan.
 - **Parity is enforced**: `TestParityGolden` pins byte output of
   fifteen invocations (the five gates + battery + battery-json + the
   margins/dump-items/preflight arms, incl. intended non-clean exits)
-  over `testdata/parity/corpus`. INTENTIONAL change re-pins
-  via `PARITY_UPDATE=1 go test ./internal/battery/ -run
-  TestParityGolden`, then diff by hand — a golden bump is a contract
-  change.
+  over `testdata/parity/corpus`. INTENTIONAL change re-pins via
+  `PARITY_UPDATE=1 go test ./internal/battery/ -run TestParityGolden`,
+  then hand-diff — a golden bump is a contract change.
 - **Auto-commit daemon** (~2-3 min cadence, NEVER pushes — PUSH YOUR OWN
   TRAINS): format/lint at write time, commit trains with the HEREDOC
   attribution form, expect heuristic `chore: auto-commit` entries. Never
   restore/checkout files you did not author; NEVER `git revert HEAD`
-  blind — explicit SHA only (paid 2026-11-04); pin your baseline
-  (`git rev-parse HEAD`) before before/after diffs — HEAD moves
-  mid-session.
+  blind — explicit SHA only (paid 2026-11-04); pin your baseline (`git
+  rev-parse HEAD`) before before/after diffs — HEAD moves mid-session.
 - **Lint: fleet golangci config at 0 findings.** `//nolint:erraudit`
   directives are LIVE, guarded by the `nolint-audit` (staleness) and
   `erraudit-lint` (new migratable site) flake checks; golangci's runner
   warning about the unknown nolint linter is expected. `erraudit lint
   ./... --max` green since 2026-11-12: generic-error returns carry typed
-  refusal carriers (unexported struct + `newXxxError` + `Unwrap`;
+  refusal carriers (unexported struct + `newXxxError` + `Unwrap`; the
   idiomatic `error` return KEPT — concrete `*T` is the typed-nil
   landmine). Never cite a directive COUNT from memory — run
   `erraudit nolint-audit .`
 
 ## Verdict arithmetic (battery)
 
-- Exits 1 iff at least one gate row is FAIL; SKIP rows exit-clean; every
-  gate always runs (one foreign red never masks later gates). A gate
-  exiting 2 INSIDE the battery is a FAIL row with `(rc=2)`; only the
-  battery's own failures exit 2; findings live in the gate's output.
-- `--json`: one JSON document on stdout (snake_case, `duration_ms` ints,
-  gate stdout/stderr verbatim), humans on stderr. Byte-pinned by the
-  battery-json golden; provider's strict decoder turns row-shape drift
-  into findings. Add a knob = re-pin golden AND provider.
+- Exits 1 iff ≥1 gate row FAILs; SKIP rows exit-clean; every gate always
+  runs (one foreign red never masks later gates). A gate exiting 2
+  INSIDE the battery is a FAIL row `(rc=2)`; only the battery's own
+  failures exit 2; findings live in the gate's output.
+- `--json`: one snake_case JSON document on stdout (`duration_ms` ints,
+  gate streams verbatim), humans on stderr; byte-pinned by the
+  battery-json golden, the provider's strict decoder turns row-shape
+  drift into findings — a knob means re-pin golden AND provider.
 - Half the `gate_timeout_sec` budget triggers the watchdog line via
   `gatecli.Livef` (JSON face: stderr only) — informational.
 
@@ -104,8 +101,8 @@ keep bare `FATAL: %v`.
 - **docsstrike's target file comes from config** (`todo_file`); vars named `s` fail
   varnamelen when scope grows — plumbing reads `settings`, receivers stay `s`.
 - **Report vocabulary is shared, never re-copied**: docsfreshness exports
-  `LivingDocsLines`/`SectionFRe`/`HeadingRe`/`Tokens`/`Squash`/
-  `GenericDF` — one definition keeps harvest and triage aligned on §f.
+  `LivingDocsLines`/`SectionFRe`/`HeadingRe`/`Tokens`/`Squash`/`GenericDF`
+  — one definition keeps harvest and triage aligned on §f.
 - **ExtractItems treats any line-start `\d+[.)]` as an item boundary** —
   keep report continuation wraps away from a leading number+paren.
 - **The five `//art-dupl:accept` directives are the dedup baseline**
@@ -113,8 +110,8 @@ keep bare `FATAL: %v`.
   domain-specific Settings; a generic helper would couple gates.
 - **`gatecli.Truncate` stays hand-rolled** (non-fix): the canonical
   candidate breaks the stdlib-only contract; goldens pin its semantics.
-- **`nix fmt` needs the tracked treefmt.toml.** **Darwin is deliberately
-  absent** from flake systems (revisit on a real consumer).- **erraudit rides the flake as a PRIVATE git+ssh input** tracking
+- **`nix fmt` needs the tracked treefmt.toml.** **Darwin is deliberately absent** from flake systems (revisit on a real consumer).
+- **erraudit rides the flake as a PRIVATE git+ssh input** tracking
   master (rev pinned in flake.lock; its OWN hermetic package). Probes
   may SILENTLY SKIP where the binary is absent (CI) — prove locally;
   flake-source probes must STAGE plants (`git add -N`).
@@ -124,25 +121,23 @@ keep bare `FATAL: %v`.
   bump silently and rules ARE behavior — check on the new rev, THEN
   bump one input at a time.
 - **Buildflow's repair phase rewrites lockfiles; the daemon wraps the
-  damage** (paid 11-06 AND 11-14 — six inputs, incl. a stale-vendorHash
-  erraudit and a cmdguard v4→v5). Recovery: forward
+  damage** (paid 11-06 AND 11-14 — six inputs). Recovery: forward
   `git restore --source=<good-sha> -- flake.lock` + OWN commit, tripwire
-  before trusting. Upstream hash fixes happen in erraudit via
-  `buildflow -s nix-hash-fix --fix` (done 11-14, f5a40b3a), never here.
+  before trusting; hash fixes happen in erraudit via
+  `buildflow -s nix-hash-fix --fix` (done 11-14), never here.
 - **Stale buildflow binary is the #1 silent root cause** (11-14: masked
-  upstream fixes for hours) — `buildflow doctor`, rebuild + reinstall.- **The nix-fmt/treefmt roundtrip wedge is FIXED upstream** (2026-11-14;
-  live-probed causes: sandbox not a git repo → tree-root refusal or
-  whole-filesystem walk; nix refuses UNTRACKED files; missing flake.lock
-  coupled formatting to upstream state. Now: git-init, staged, lock
-  rides along).
+  upstream fixes for hours) — `buildflow doctor`, rebuild + reinstall.
+- **The nix-fmt/treefmt roundtrip wedge is FIXED upstream** (2026-11-14;
+  sandbox git-inits, staged files, lock rides along).
 - **docs-gates flake checks repaired 2026-11-14** (unpassable since
   11-04, vendorHash-masked): golangci-drift counted pins after sort -u;
   shell-lint ran bare actionlint (explicit paths now); BuildFlow's
   `inputs.<name>.url` false-FAIL fixed upstream — don't dodge it by
-  reformatting flake.nix.- **The docs-battery pre-commit leg rides REAL COMMITS ONLY** (devShell;
+  reformatting flake.nix.
+- **The docs-battery pre-commit leg rides REAL COMMITS ONLY** (devShell;
   c1b364d): git-hooks' sandbox git-inits a synthetic one-commit repo, so
-  annotate's verdict-hash evidence is red by construction there; CI's
-  dogfood job is the push-time leg.
+  verdict-hash evidence is red by construction there; CI's dogfood job
+  is the push-time leg.
 - **Buildflow's managed `.gitignore` block swallows ANY `reports/` dir**
   (fixtures unstaged → CI golden-drift-only failures). After adding
   testdata: `git check-ignore -v` (`--no-index` for TRACKED files);
@@ -155,7 +150,8 @@ keep bare `FATAL: %v`.
   call** (`f("a", "b", slice...)`): build the argv with `append`.
 - **LSP ghost diagnostics are a CACHE artifact** (host wrapper's pinned
   analysis cache; survives lsp_restart): prove with real gates, then
-  clear the wrapper caches and restart; do not file upstream.- **Striking ledger rows by ROW NUMBER is a corruption machine**: use
+  clear the wrapper caches and restart; do not file upstream.
+- **Striking ledger rows by ROW NUMBER is a corruption machine**: use
   `scripts/safe-strike.sh` (unique ≥4-letter anchors, `[^|]*`-bounded
   rewrites, dry-run default, `--gate`/`--battery` per batch, `--batch`
   for multi-anchor sweeps); only landed rows.
@@ -182,8 +178,7 @@ keep bare `FATAL: %v`.
 - **Size a foreign corpus BEFORE launching the battery** (`ls docs/status
   | wc -l`). Memoized replays cost one scan per DISTINCT token (hours →
   49s); audit-all prints its estimate; the cap is a circuit breaker.
-- **Gate verdicts are point-in-time under foreign daemons** — timestamp
-  the run; one run is not steady state.
+- **Gate verdicts are point-in-time under foreign daemons** — timestamp the run; one run is not steady state.
 
 - **Testing**: stdlib `testing` only; gates are exercised through their
   real `Run` functions with `gatecli.CaptureOutput`, never mocked
@@ -209,7 +204,7 @@ go run ./cmd/docs-gates purge <repo-root>          # the board purge as one gate
 bash scripts/check-erraudit-rev.sh                # erraudit-rev tripwire (also a flake check): run after bumping the erraudit input
 nix fmt                                           # nixfmt-tree over *.nix (via treefmt.toml)
 nix flake check --all-systems --no-build          # both-arch eval (checks: nolint-audit, erraudit-lint, provider-suite, golangci-drift, go-floors, shell-lint + the skills guards)
-timeout 300 go run ./cmd/docs-gates run <repo-root>  # the battery over any repo (run it over THIS repo after doc edits)
+timeout 300 go run ./cmd/docs-gates run <repo-root>  # battery over any repo (run over THIS repo after doc edits)
 go run ./cmd/docs-gates run <repo-root> --json    # the machine face: one JSON verdict document on stdout, humans on stderr
 timeout 300 go run ./cmd/docs-gates <verb> <repo-root>  # a standalone gate (standalone runs have NO cap of their own)
 PARITY_UPDATE=1 go test ./internal/battery/ -run TestParityGolden   # re-pin goldens after an INTENTIONAL output change
