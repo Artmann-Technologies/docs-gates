@@ -38,7 +38,7 @@
       git-hooks,
     }:
     let
-      lib = nixpkgs.lib;
+      inherit (nixpkgs) lib;
 
       # Linux only, fleet precedent (the pbx flake): current nixos-unstable
       # no longer evaluates x86_64-darwin, and no consumer rides macOS.
@@ -177,14 +177,14 @@
           ) legacyWrappers;
         in
         {
-          docs-gates = docs-gates;
+          inherit docs-gates;
 
           default = pkgs.symlinkJoin {
             name = "docs-gates-${version}";
 
             paths = [ docs-gates ] ++ wrappers;
 
-            meta = docs-gates.meta;
+            inherit (docs-gates) meta;
           };
         }
       );
