@@ -137,6 +137,8 @@ func TestLandParityIgnoresTrailingWhitespace(t *testing.T) {
 // swept the stamp into history because only THIS repo's .gitignore knew
 // the name). git fixtures prove both arms: no .gitignore → the note
 // fires; the .gitignore entry → silent.
+//
+//nolint:paralleltest // process-global capture, serialized on purpose
 func TestStampWriteWarnsWhenStampNotIgnored(t *testing.T) {
 	root := t.TempDir()
 	gitInit(t, root)

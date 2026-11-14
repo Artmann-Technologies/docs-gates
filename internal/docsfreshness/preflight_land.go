@@ -68,8 +68,18 @@ func writePreflightStamp(root string, lines []string) {
 // not-ignored — exactly the worst case, so the plain probe is the right
 // one. Any probe failure (no git binary, not a checkout, sandbox) skips
 // the note silently: the stamp is a guard, never a gate.
+//
+//nolint:gosec // git -C this repo; the subcommand and name are literals
 func warnIfStampShared(root string) {
-	probe := exec.CommandContext(context.Background(), "git", "-C", root, "check-ignore", "-q", stampName) //nolint:gosec // git -C this repo; the subcommand and name are literals
+	probe := exec.CommandContext(
+		context.Background(),
+		"git",
+		"-C",
+		root,
+		"check-ignore",
+		"-q",
+		stampName,
+	)
 
 	err := probe.Run()
 	if err == nil {
@@ -81,7 +91,10 @@ func warnIfStampShared(root string) {
 		return
 	}
 
-	gatecli.Errf("docs-freshness: note: %s is not git-ignored — it is the land-parity ledger (local editor state, never shared); add it to .gitignore\n", stampName)
+	gatecli.Errf(
+		"docs-freshness: note: %s is not git-ignored — it is the land-parity ledger (local editor state, never shared); add it to .gitignore\n",
+		stampName,
+	)
 }
 
 // PreFlightParity verifies the last SAFE pre-flight batch landed
