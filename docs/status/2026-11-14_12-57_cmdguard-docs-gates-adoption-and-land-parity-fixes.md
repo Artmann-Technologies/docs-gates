@@ -165,8 +165,8 @@ but see §d for the honest accounting.
 | 1  | Land SU22: the 2026-11-08_02-29 archive batch (~65 table verdicts), return `max_unarchived` 23→20             | cmdguard     | Already TODO SU22; the 45-day cadence breach fires ~11-18    |
 | 2  | Cut docs-gates v0.3.1 (CHANGELOG + annotated tag + push), carrying the land-parity + stamp fixes              | docs-gates   | Unblocks the consumer pin bump                               |
 | 3  | Bump cmdguard's CI pin `@v0.3.0` → `@v0.3.1` after the release                                                | cmdguard     | One-line ci.yml change + battery                             |
-| 4  | Re-run `nix flake check` + `scripts/check-erraudit-rev.sh` after `4572726`                                    | docs-gates   | The AGENTS.md rule after any flake-touching commit           |
-| 5  | Run `pkg/provider` suite (`cd pkg/provider && go test ./...`) as its own verification step                    | docs-gates   | Not re-run this session                                      |
+| ~~4~~  | ~~Re-run `nix flake check` + `scripts/check-erraudit-rev.sh` after `4572726`~~ done — verified 2026-11-14 — nix flake check --all-systems --no-build all checks passed + erraudit-rev tripwire PASS (after 2aa134b lock restore) | ~~docs-gates~~ | ~~The AGENTS.md rule after any flake-touching commit~~ |
+| ~~5~~  | ~~Run `pkg/provider` suite (`cd pkg/provider && go test ./...`) as its own verification step~~ done — verified 2026-11-14 — pkg/provider suite ok (0.18s), flake provider check green | ~~docs-gates~~ | ~~Not re-run this session~~ |
 | 6  | Watch the dogfood job's first real GitHub run (push cmdguard, check module-download latency + green)          | cmdguard     | Never executed on a real runner                              |
 | 7  | Trim cmdguard's pre-commit BuildFlow lane to its budget (1m42s vs 60s)                                        | cmdguard     | skip_steps with rationale, or accept-and-record              |
 | 8  | Add the `uses:` reusable-job shape to the cue-policy schema (kills 2 pre-existing cue-vet error findings)     | cue-policy   | Owned upstream; cmdguard's hook is advisory meanwhile        |
@@ -194,7 +194,7 @@ but see §d for the honest accounting.
 | 30 | Add a skip-if-no-git guard to the stamp-warning test for git-less sandboxes                                   | docs-gates   | CI has git; robustness only                                  |
 | 31 | Fix pingen-spike's docs-gates red (TODO SU9)                                                                  | pingen-spike | Third repo where adoption is pending                         |
 | 32 | Evaluate the docs-gates BuildFlow provider on a host WITHOUT the binary (install-hint path)                   | docs-gates   | Untested failure mode                                        |
-| 33 | Verify TODO_LIST §77 preflight-bind-check is struck (referenced by test comments)                             | docs-gates   | Verify-only                                                  |
+| ~~33~~ | ~~Verify TODO_LIST §77 preflight-bind-check is struck (referenced by test comments)~~ done — verified — the 77 row purged in the 2026-11-06 purges; bind tests live at internal/docsfreshness/preflight_bind_test.go | ~~docs-gates~~ | ~~Verify-only~~ |
 | 34 | Verify `nix run .#check-all` still passes across all 8 modules post-v5.1.0                                    | cmdguard     | Verify-only                                                  |
 | 35 | Refine ROADMAP "Stale-doc-ref CI guard" row — partially covered by the battery now                            | cmdguard     | Possibly strike or narrow                                    |
 | 36 | Add "run the battery after formatter sweeps" to the post-rewrite ritual bullet                                | cmdguard     | The dprint table reformat was an instance                    |

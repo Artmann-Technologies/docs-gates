@@ -239,10 +239,10 @@ these are ROADMAP fuel, not promises.
 7. HARVEST THIS report's §f into TODO_LIST (docs-health HARVEST).
 8. Normalize the status-report §f header shape so ledgers become
    freshness-visible (extractor vs template — pick ONE definition).
-9. Answer §g-1 of 07:33: release-ownership/claim protocol after the
-   two-session v0.2.0 tag collision (OWNER).
-10. Answer §g-2 of 07:33: v0.2.1 fast-follow for the tag's stale README
-    line vs ride to next MINOR (OWNER).
+9. ~~Answer §g-1 of 07:33: release-ownership/claim protocol after the~~ done — answered — v0.2.0 and v0.3.0 cut; the claim-protocol ruling rides TODO_LIST 4b
+   ~~two-session v0.2.0 tag collision (OWNER).~~
+10. ~~Answer §g-2 of 07:33: v0.2.1 fast-follow for the tag's stale README~~ done — resolved — v0.3.0 (eb2fa6b) republished clean docs
+    ~~line vs ride to next MINOR (OWNER).~~
 11. Answer §g-3 of 07:33 + g-3 here: which SURFACED ruling first
     (OWNER).
 12. Ruling: dependabot PR #1 (owner-gated).

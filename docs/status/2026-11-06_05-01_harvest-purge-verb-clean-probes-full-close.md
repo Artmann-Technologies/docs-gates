@@ -251,9 +251,9 @@ session's HARVEST has the full picture without re-reading the board.)
 
 | #  | Task                                                                                       | Impact   | Effort | Category      |
 | -- | ------------------------------------------------------------------------------------------ | -------- | ------ | ------------- |
-| 1  | Cut v0.2.0 (section cut collapses the purge entries; go-release ritual; fleet announce)    | Critical | M      | Release       |
-| 2  | Merge dependabot PR #1 (drift-verified; the merge is a push)                               | High     | S      | Release       |
-| 3  | Push the session's deliberate trains (owner ruling — see §g Q3)                            | High     | S      | Release       |
+| ~~1~~  | ~~Cut v0.2.0 (section cut collapses the purge entries; go-release ritual; fleet announce)~~ done at `83073d9` | ~~Critical~~ | ~~M~~ | ~~Release~~ |
+| ~~2~~  | ~~Merge dependabot PR #1 (drift-verified; the merge is a push)~~ done at `0bbced2` | ~~High~~ | ~~S~~ | ~~Release~~ |
+| ~~3~~  | ~~Push the session's deliberate trains (owner ruling — see §g Q3)~~ done — verified — c7c0a4d is on origin/main | ~~High~~ | ~~S~~ | ~~Release~~ |
 | 4  | File the io-surface findings when its tree quiets (clean-build data: b7 headline, d1 moot) | High     | S      | External      |
 | 5  | Post-release: bump pbx-artmann's pin (§3 row)                                              | Medium   | S      | External      |
 | 6  | SystemNix owner window: float + evo-x2 deploy + wrapper switch (one window)                | High     | M      | External      |
@@ -266,7 +266,7 @@ session's HARVEST has the full picture without re-reading the board.)
 | 13 | `scripts/dogfood-commit.sh`: battery-then-commit, failing closed (§e.3)                    | Medium   | S      | Quality       |
 | 14 | `docs-gates purge --group` mode or canonicalize one-bullet-per-row (§e.1)                  | Low      | S      | Feature       |
 | 15 | Probe-protocol lesson → crush-config references/lessons.md (§e.2, needs a commit there)    | Medium   | S      | Documentation |
-| 16 | F94: AGENTS non-obvious-facts compression pass (owner tier)                                | Low      | M      | Documentation |
+| ~~16~~ | ~~F94: AGENTS non-obvious-facts compression pass (owner tier)~~ done at `39bed4d` | ~~Low~~ | ~~M~~ | ~~Documentation~~ |
 | 17 | JSON face: `schema_version` field BEFORE any shape change (ROADMAP doctrine)               | Medium   | S      | Feature       |
 | 18 | JSON face: `watchdog` gate-row field (contract change → re-pin golden + provider)          | Low      | M      | Feature       |
 | 19 | Provider: per-gate captured findings into finding.Message                                  | Low      | M      | Feature       |
@@ -294,11 +294,11 @@ session's HARVEST has the full picture without re-reading the board.)
 | 41 | errcheck/gosec fleet-wide nolint staleness tripwires                                       | Low      | M      | Quality       |
 | 42 | tokencorpus extraction IF gates ever version independently                                 | Low      | M      | Cleanup       |
 | 43 | §1 board row: annotate sweep over older unarchived reports — only at cadence pressure      | Low      | M      | Ritual        |
-| 44 | Estimate-line suppression under a threshold (µs render may have settled it — decide)       | Low      | S      | Polish        |
+| ~~44~~ | ~~Estimate-line suppression under a threshold (µs render may have settled it — decide)~~ done — moot — µs render shipped (49d11cd) | ~~Low~~ | ~~S~~ | ~~Polish~~ |
 | 45 | Verify the docs-battery hook cost inside pre-commit-check; prebuild if slow                | Low      | S      | Quality       |
 | 46 | Archive the next report when it lands (standing ritual; corpus at 15/15 again)             | Medium   | S      | Ritual        |
 | 47 | Windows/macOS consumers revisit only on a real consumer (ROADMAP)                          | Low      | -      | Non-goal      |
-| 48 | Sub-10ms estimate honest-but-useless follow-up: drop if µs render satisfies                | Low      | S      | Polish        |
+| ~~48~~ | ~~Sub-10ms estimate honest-but-useless follow-up: drop if µs render satisfies~~ done — same as 44 — µs render shipped | ~~Low~~ | ~~S~~ | ~~Polish~~ |
 | 49 | Keep the §8 filing row's clean-build evidence fresh if the sibling lands more work         | Low      | S      | External      |
 | 50 | Retire the ROADMAP provider-contract bullet the day the handshake decision lands           | Low      | S      | Documentation |
 

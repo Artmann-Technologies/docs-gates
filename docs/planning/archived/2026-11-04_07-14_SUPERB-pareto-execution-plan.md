@@ -1,5 +1,10 @@
 # SUPERB Pareto Execution Plan — docs-gates backlog (41 rows → 27 tasks → 139 micro-tasks)
 
+> **Superseded:** v2 (2026-11-04_19-28) replaced this plan; the in-repo tier
+> T3-T27 was executed by the 16:45/19:01 sessions (16 tasks, CI green); the
+> remaining owner/sibling rows (T1 float/deploy, T13 pbx bump, T15 upstream,
+> T22 nixpkgs, D1/D2) ride TODO_LIST 3/4. Archived 2026-11-14.
+
 **2026-11-04 07:14 CET** · input: `TODO_LIST.md` (41 open rows, rebuilt by
 the 07:11 docs-health audit — every row verified open against code this
 session; see `docs/status/2026-11-04_07-11_docs-health-full-audit.md`) ·

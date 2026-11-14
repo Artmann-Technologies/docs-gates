@@ -96,8 +96,8 @@ around by running lint/fmt/test steps directly.
 
 ## c) NOT STARTED (all session-scoped observations)
 
-- `--json` machine face for the verdict matrix (ROADMAP'd for a while; this
-  session added the provider-frees-from-text-parsing rationale).
+- ~~`--json` machine face for the verdict matrix (ROADMAP'd for a while; this
+  session added the provider-frees-from-text-parsing rationale).~~ done at `49d11cd` + `df5b42b` (provider migrated off text parsing)
 - `docs-gates doctor` verb (ROADMAP'd).
 - `--version` at argv[0] with trailing args still reads `unknown verb
   "--version"` (pre-existing; noted, deliberately skipped).
@@ -150,23 +150,23 @@ to celebrate.
 
 ## f) Next (harvested where actionable; tags: [todo] now in TODO_LIST, [roadmap] already in ROADMAP, [skip] brainstorm-only)
 
-1. [todo] `--json` verdict-matrix output face + provider migration off
-   human-text parsing (the io-surface findings-as-data direction).
+1. ~~[todo] `--json` verdict-matrix output face + provider migration off~~ done at `49d11cd`
+   ~~human-text parsing (the io-surface findings-as-data direction).~~
 2. [done] ~~Wrap-or-strike the 18 bare-DONE TODO_LIST rows~~ done (2026-11-06:
    all 19 bare-DONE rows wrapped through docs-strike with unique anchors;
    the annotate gate CLEAN over the struck corpus; landed with the day's
    purge passes).
-3. [todo] Pin strike Usage's default-status text to the `DefaultStatus` const.
-4. [todo] Replace the flagless-usage `\n  --` heuristic with an explicit
-   no-flags assertion.
+3. ~~[todo] Pin strike Usage's default-status text to the `DefaultStatus` const.~~ done — internal/docsstrike/usage_test.go — Usage pinned to DefaultStatus
+4. ~~[todo] Replace the flagless-usage `\n  --` heuristic with an explicit~~ done — usage_test.go pins the flagless contract explicitly (docscadence + battery)
+   ~~no-flags assertion.~~
 5. [done] ~~Reconcile the AGENTS.md erraudit directive count~~ done (2026-11-06:
    live count 14 non-test directives, 0 stale via nolint-audit; AGENTS now
    records the count WITH the never-cite-from-memory rule).
-6. [todo] runHelp: warn when extra args after `help <verb>` are ignored.
-7. [todo] bench_test.go: adopt `b.Loop()` (gopls modernization).
-8. [todo] Archive-cadence stays tight: this session archived exactly one
-   report; the corpus sits AT the 15 threshold again — the next report owes
-   the next archive.
+6. ~~[todo] runHelp: warn when extra args after `help <verb>` are ignored.~~ done — cmd/docs-gates runHelp — ignoring extra argument(s) warning
+7. ~~[todo] bench_test.go: adopt `b.Loop()` (gopls modernization).~~ done — internal/docsfreshness/bench_test.go rides b.Loop
+8. ~~[todo] Archive-cadence stays tight: this session archived exactly one~~ done — standing ritual green — corpus healthy, 2026-11-12 archives ran
+   ~~report; the corpus sits AT the 15 threshold again — the next report owes~~
+   ~~the next archive.~~
 9. [roadmap] `docs-gates doctor` verb (PATH, config, flake state; provider
    HealthCheck hint is the seed).
 10. [roadmap] Generic counts gate, link/reference checker, report-age gate,

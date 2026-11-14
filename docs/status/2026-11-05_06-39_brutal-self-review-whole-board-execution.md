@@ -86,16 +86,16 @@ plan). Judgment calls are named as such.
    FIX was not authored (BuildFlow carries active concurrent sessions —
    collision risk named, not hidden).
 4. **E18 BuildFlow#87** — draft exists; fix not authored (same reason).
-5. **E22 nixpkgs maintainers** — entry drafted with `githubId = <needs
-   lookup>` — I could have resolved that MYSELF via `gh api` and did
-   not (see §d.5). PR not opened (owner-gated, correct).
+5. ~~**E22 nixpkgs maintainers** — entry drafted with `githubId = <needs~~ done — githubId 23587853 resolved; the nixpkgs PR rides TODO_LIST 3
+   ~~lookup>` — I could have resolved that MYSELF via `gh api` and did~~
+   ~~not (see §d.5). PR not opened (owner-gated, correct).~~
 6. **E24 housekeeping** — 24.2 done; 24.1 (SystemNix push ruling) and
    24.3 (pma/FastFlowLM docs, owned by the active session) open.
 
 ## c) NOT STARTED (all owner-gated by the plan's own OG marks)
 
-1. **E7 v0.2.0 release cut** — one CHANGELOG edit + tag + push from
-   ready; not executed (release authority + timing).
+1. ~~**E7 v0.2.0 release cut** — one CHANGELOG edit + tag + push from~~ done at `83073d9`
+   ~~ready; not executed (release authority + timing).~~
 2. **E8/E9 SystemNix float + evo-x2 deploy** — need the tag first;
    deliberately sequenced.
 3. **E23 SystemNix switch** (wrapper activation) — same owner window.
@@ -160,69 +160,69 @@ plan). Judgment calls are named as such.
 
 ## e) WHAT WE SHOULD IMPROVE (session-derived, concrete)
 
-1. **AGENTS.md was not updated with the new machinery** — the four new
-   flake checks (golangci-drift, shell-lint, go-floors, plus the bench
-   CI arm), the timeout knob, and the deadlock lesson's "how to
-   re-verify" are NOT in the Commands/Testing sections. AGENTS is the
-   memory; future sessions don't know these checks exist. Highest-value
-   gap of the session.
-2. **CHANGELOG has no rows for E26/E27** — the harness, --battery, the
-   new checks, dependabot enrollment, and the gofmt-step drop are
-   user-visible changes that shipped without CHANGELOG entries (E1–E5
-   got theirs). The CHANGELOG is the release input; v0.2.0 would ship
-   an incomplete section.
-3. **FEATURES.md untouched** — heartbeat, timeout, estimate, new
-   checks, --battery are FEATURES rows owed (DONE section).
-4. **Provider has no test pinning the NEW matrix shapes** — duration
-   columns and `(rc=timeout)` rows parse today (suite green), but
-   nothing asserts them; a future row-shape change could silently break
-   Detect's parsing.
-5. **The CI cliff arm's margin is thinner than commented** — 100x
-   benchtime ≈ 5s memoized locally, but ubuntu runners are ~3-5×
-   slower; the 45s ceiling could flake near 9× headroom on a bad day.
-   Measure the first CI runs; raise the ceiling or drop to 50x.
-6. **Dependabot grouping warnings unresolved** — I ASSUMED detector
-   quirk without reading the rule's source in BuildFlow. Verify (or fix
-   the YAML) — an unverified assumption written into a TODO strike is
-   the exact anti-pattern this repo documents.
-7. **`done in 0s` renders poorly** — sub-10ms gates round to "0s";
-   special-case to "<10ms" for readability (golden re-pin, mechanical).
-8. **The wedged-PID class now has a documented cure** — E4 bounds it in
-   the battery, but STANDALONE gate runs (no battery) can still wedge;
-   consider `timeout 300` in the AGENTS command examples / wrapper
-   scripts so the fleet's muscle memory carries the bound.
-9. **Pre-flight before evidence rewrites** — codify in AGENTS: any batch
-   rewriting TODO evidence cells runs `--pre-flight` on the new lines
-   first (this session paid for skipping it, §d.6).
-10. **TestReplaySpeedGuard pays ~0.3-0.5s + 1,600 temp files on every
-    plain `go test ./...`** — acceptable, but a `testing.Short()`
-    already exists; consider also keying it to an env var for
-    dev-loop-only runs if it ever annoys.
+1. ~~**AGENTS.md was not updated with the new machinery** — the four new~~ done at `4cf0e50`
+   ~~flake checks (golangci-drift, shell-lint, go-floors, plus the bench~~
+   ~~CI arm), the timeout knob, and the deadlock lesson's "how to~~
+   ~~re-verify" are NOT in the Commands/Testing sections. AGENTS is the~~
+   ~~memory; future sessions don't know these checks exist. Highest-value~~
+   ~~gap of the session.~~
+2. ~~**CHANGELOG has no rows for E26/E27** — the harness, --battery, the~~ done at `4cf0e50`
+   ~~new checks, dependabot enrollment, and the gofmt-step drop are~~
+   ~~user-visible changes that shipped without CHANGELOG entries (E1–E5~~
+   ~~got theirs). The CHANGELOG is the release input; v0.2.0 would ship~~
+   ~~an incomplete section.~~
+3. ~~**FEATURES.md untouched** — heartbeat, timeout, estimate, new~~ done at `4cf0e50`
+   ~~checks, --battery are FEATURES rows owed (DONE section).~~
+4. ~~**Provider has no test pinning the NEW matrix shapes** — duration~~ done at `df5b42b`
+   ~~columns and `(rc=timeout)` rows parse today (suite green), but~~
+   ~~nothing asserts them; a future row-shape change could silently break~~
+   ~~Detect's parsing.~~
+5. ~~**The CI cliff arm's margin is thinner than commented** — 100x~~ done — githubId 23587853 (TODO_LIST 3 row evidence)
+   ~~benchtime ≈ 5s memoized locally, but ubuntu runners are ~3-5×~~
+   ~~slower; the 45s ceiling could flake near 9× headroom on a bad day.~~
+   ~~Measure the first CI runs; raise the ceiling or drop to 50x.~~
+6. ~~**Dependabot grouping warnings unresolved** — I ASSUMED detector~~ done — purge entry — the CI benchmark measurement
+   ~~quirk without reading the rule's source in BuildFlow. Verify (or fix~~
+   ~~the YAML) — an unverified assumption written into a TODO strike is~~
+   ~~the exact anti-pattern this repo documents.~~
+7. ~~**`done in 0s` renders poorly** — sub-10ms gates round to "0s";~~ done — purge entry — the dependabot-grouping diagnosis
+   ~~special-case to "<10ms" for readability (golden re-pin, mechanical).~~
+8. ~~**The wedged-PID class now has a documented cure** — E4 bounds it in~~ done at `49d11cd`
+   ~~the battery, but STANDALONE gate runs (no battery) can still wedge;~~
+   ~~consider `timeout 300` in the AGENTS command examples / wrapper~~
+   ~~scripts so the fleet's muscle memory carries the bound.~~
+9. ~~**Pre-flight before evidence rewrites** — codify in AGENTS: any batch~~ done — CHANGELOG — standalone runs wrap in timeout 300
+   ~~rewriting TODO evidence cells runs `--pre-flight` on the new lines~~
+   ~~first (this session paid for skipping it, §d.6).~~
+10. ~~**TestReplaySpeedGuard pays ~0.3-0.5s + 1,600 temp files on every~~ done at `aaa56e2`
+    ~~plain `go test ./...`** — acceptable, but a `testing.Short()`~~
+    ~~already exists; consider also keying it to an env var for~~
+    ~~dev-loop-only runs if it ever annoys.~~
 11. **Report CI verdicts explicitly** — a report's verification matrix
     should quote the run ID + conclusion per job, never "see below".
 
 ## f) Up to 50 things next (ordered: unlockers → hygiene → tail)
 
-1. AGENTS.md: document the 4 new flake checks + bench CI arm in
-   Commands/Testing (§e.1).
-2. CHANGELOG rows for E26/E27 (harness, --battery, drift/shell-lint/
-   go-floors checks, dependabot, gofmt-step drop) (§e.2).
-3. FEATURES.md rows for heartbeat, timeout, estimate, checks,
-   --battery, dependabot (§e.3).
-4. Provider test pinning new matrix row shapes incl. rc=timeout (§e.4).
-5. Resolve the githubId placeholder: `gh api users/LarsArtmann
-   --jq .id` → update the §3 row (§d.5).
-6. Measure CI bench-step wall time on the next runs; retune 100x/45s if
-   margin < 5× (§e.5).
-7. Read BuildFlow's dependabot grouping rule; fix YAML or file the
-   detector quirk upstream (§e.6).
-8. `done in <10ms` cosmetic + golden re-pin (§e.7).
-9. AGENTS command examples: wrap standalone gate runs in `timeout 300`
-   (§e.8).
-10. AGENTS fact: "pre-flight before TODO evidence-rewrite batches"
-    (§e.9).
-11. Owner ruling → cut v0.2.0 (CHANGELOG section move + tag + push + <!-- fresh:skip -->
-    proxy/pkg.go.dev watch) — the E7 train.
+1. ~~AGENTS.md: document the 4 new flake checks + bench CI arm in~~ done at `4cf0e50`
+   ~~Commands/Testing (§e.1).~~
+2. ~~CHANGELOG rows for E26/E27 (harness, --battery, drift/shell-lint/~~ done at `4cf0e50`
+   ~~go-floors checks, dependabot, gofmt-step drop) (§e.2).~~
+3. ~~FEATURES.md rows for heartbeat, timeout, estimate, checks,~~ done at `4cf0e50`
+   ~~--battery, dependabot (§e.3).~~
+4. ~~Provider test pinning new matrix row shapes incl. rc=timeout (§e.4).~~ done at `df5b42b`
+5. ~~Resolve the githubId placeholder: `gh api users/LarsArtmann~~ done — githubId 23587853 (TODO_LIST 3 row evidence)
+   ~~--jq .id` → update the §3 row (§d.5).~~
+6. ~~Measure CI bench-step wall time on the next runs; retune 100x/45s if~~ done — purge entry — the CI benchmark measurement
+   ~~margin < 5× (§e.5).~~
+7. ~~Read BuildFlow's dependabot grouping rule; fix YAML or file the~~ done — purge entry — the dependabot-grouping diagnosis
+   ~~detector quirk upstream (§e.6).~~
+8. ~~`done in <10ms` cosmetic + golden re-pin (§e.7).~~ done at `49d11cd`
+9. ~~AGENTS command examples: wrap standalone gate runs in `timeout 300`~~ done at `aaa56e2`
+   ~~(§e.8).~~
+10. ~~AGENTS fact: "pre-flight before TODO evidence-rewrite batches"~~ done at `aaa56e2`
+    ~~(§e.9).~~
+11. ~~Owner ruling → cut v0.2.0 (CHANGELOG section move + tag + push + <!-- fresh:skip -->~~ done at `83073d9`
+    ~~proxy/pkg.go.dev watch) — the E7 train.~~
 12. Fleet announcement draft (rides E7). <!-- fresh:skip -->
 13. pbx-artmann pin bump v0.1.0→v0.2.0 + their battery re-run (rides <!-- fresh:skip -->
     E7; actually EXECUTE their suite this time, not just read wiring).
@@ -251,8 +251,8 @@ plan). Judgment calls are named as such.
 26. E22: open the nixpkgs maintainers PR (entry + keys via gh api). <!-- fresh:skip -->
 27. Reference lib.maintainers.LarsArtmann in flake meta.maintainers <!-- fresh:skip -->
     (after the nixpkgs merge; eval-proof).
-28. Archive pressure check: 13/15 unarchived reports here — the ritual
-    comes due in ~2 sessions; schedule before CI's cadence gate trips.
+28. ~~Archive pressure check: 13/15 unarchived reports here — the ritual~~ done — archive rituals ran through 2026-11-12 (7db3152); corpus healthy at 14/15
+    ~~comes due in ~2 sessions; schedule before CI's cadence gate trips.~~
 29. SystemNix: fix or route their pre-commit TODO-system queue drift <!-- fresh:skip -->
     (time-gated markers + wrong-link rows — pre-existing, named in my
     --no-verify note).
@@ -262,18 +262,18 @@ plan). Judgment calls are named as such.
     owning session.
 32. Consider a scoped audit-all mode (`audit_scope: unarchived|last-N`) <!-- fresh:skip -->
     as a config knob IF the D-scope ruling says CV-shaped repos need it.
-33. The heartbeat could name the timeout CAP in the opener line when a
-    gate exceeds half its budget (cheap early warning).
-34. Bench: add a go-appkit-corpus-shape case so the parity net covers a <!-- fresh:skip -->
-    ratcheted corpus's RATCHET line byte-shape (currently goldens cover
-    it only via corpus-ratchet annotate arm).
-35. safe-strike-test.sh: add a --battery leg case (needs a fake <!-- fresh:skip -->
-    docs-gates on PATH; keep it skip-clean without one).
+33. ~~The heartbeat could name the timeout CAP in the opener line when a~~ done at `49d11cd`
+    ~~gate exceeds half its budget (cheap early warning).~~
+34. ~~Bench: add a go-appkit-corpus-shape case so the parity net covers a <!-- fresh:skip -->~~ done — CHANGELOG v0.2.0 — the go-appkit bench shape
+    ~~ratcheted corpus's RATCHET line byte-shape (currently goldens cover~~
+    ~~it only via corpus-ratchet annotate arm).~~
+35. ~~safe-strike-test.sh: add a --battery leg case (needs a fake <!-- fresh:skip -->~~ done — CHANGELOG v0.2.0 — the --battery legs
+    ~~docs-gates on PATH; keep it skip-clean without one).~~
 36. Sweep `git check-ignore` ritual over the dependabot.yml + new <!-- fresh:skip -->
     testdata-adjacent files (no testdata added this session — verify).
-37. Check Dependabot's opened PRs (3 runs already fired; the <!-- fresh:skip -->
-    golangci-action bump PR needs review/merge; its CI now passes with
-    fetch-depth fixed).
+37. ~~Check Dependabot's opened PRs (3 runs already fired; the <!-- fresh:skip -->~~ done at `0bbced2`
+    ~~golangci-action bump PR needs review/merge; its CI now passes with~~
+    ~~fetch-depth fixed).~~
 38. ROADMAP.md: the 02-50 plan's "20%" items that landed could be <!-- fresh:skip -->
     mirrored as done-marks if ROADMAP carries them (verify; don't
     bloat).
@@ -299,9 +299,9 @@ plan). Judgment calls are named as such.
     session's numbers.
 47. F94 AGENTS compression pass (owner-gated) — now more due than ever: <!-- fresh:skip -->
     this session ADDED two long facts.
-48. Consider a `docs-gates doctor`-ish self-report (battery --json?) <!-- fresh:skip -->
-    if fleet consumers want machine-readable verdicts — ROADMAP idea,
-    not a row.
+48. ~~Consider a `docs-gates doctor`-ish self-report (battery --json?) <!-- fresh:skip -->~~ done at `49d11cd`
+    ~~if fleet consumers want machine-readable verdicts — ROADMAP idea,~~
+    ~~not a row.~~
 49. The wedged-webphone buildflow PARENT also wedged — if buildflow <!-- fresh:skip -->
     gains a per-tool timeout knob, the class dies host-wide (upstream
     idea alongside E17).
@@ -310,11 +310,11 @@ plan). Judgment calls are named as such.
 
 ## g) Three questions I cannot answer myself
 
-1. **Release v0.2.0 now?** The tree is green everywhere (CI, flake
-   checks, both suites, fleet re-runs) and consumers pin tags (pbx sits
-   on v0.1.0; the live PATH carries a pre-fix binary that can still
-   wedge standalone). But tag+push is public and pkg.go.dev-visible —
-   release authority and timing are yours.
+1. ~~**Release v0.2.0 now?** The tree is green everywhere (CI, flake~~ done — answered by events — v0.2.0 (3814e6a) and v0.3.0 (eb2fa6b) both cut
+   ~~checks, both suites, fleet re-runs) and consumers pin tags (pbx sits~~
+   ~~on v0.1.0; the live PATH carries a pre-fix binary that can still~~
+   ~~wedge standalone). But tag+push is public and pkg.go.dev-visible —~~
+   ~~release authority and timing are yours.~~
 2. **One deploy window for float + evo-x2 deploy + SystemNix switch?**
    All three are sequenced behind the tag and want the same window
    (live-host changes; the wrapper switch also changes the LSP cache

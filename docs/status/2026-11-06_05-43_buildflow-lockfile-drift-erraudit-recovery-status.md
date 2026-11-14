@@ -196,12 +196,12 @@ impact/effort within each band.)_
 
 **This session's direct trail (highest impact, mostly S effort):**
 
-1. Push erraudit `5c841cf2` to origin (owner action; unblocks 2–4).
-2. Update docs-gates' erraudit input to the fixed rev, run
-   erraudit-lint + nolint-audit on it, bump `expected_rev` in
-   scripts/check-erraudit-rev.sh, commit the deliberate bump train.
-3. Verify the dogfood battery + flake check after (2) — the eval must
-   build erraudit `5c841cf` from the lock.
+1. ~~Push erraudit `5c841cf2` to origin (owner action; unblocks 2–4).~~ done — verified — origin/master carried 5c841cf2 (07-33 report b.5)
+2. ~~Update docs-gates' erraudit input to the fixed rev, run~~ done at `5a6b506`
+   ~~erraudit-lint + nolint-audit on it, bump `expected_rev` in~~
+   ~~scripts/check-erraudit-rev.sh, commit the deliberate bump train.~~
+3. ~~Verify the dogfood battery + flake check after (2) — the eval must~~ done — 07-33 report — re-pin rituals green, pushed
+   ~~build erraudit `5c841cf` from the lock.~~
 4. Add the vendorHash-staleness incident to erraudit's AGENTS.md
    (cause: daemon sweep without re-pin; detection gap: eval-time
    drift gate; cure: nix-hash-fix) — in the owning repo.
@@ -209,9 +209,9 @@ impact/effort within each band.)_
    `nix build` in the BuildFlow checkout) so embedded analyzers run
    go1.27.1; re-run erraudit's samber-linter/test-compile lanes to
    confirm the skew class clears.
-6. Re-run erraudit's full buildflow on a QUIET machine and re-derive
-   its honest per-step verdict (strip this session's load pollution
-   from §d1).
+6. ~~Re-run erraudit's full buildflow on a QUIET machine and re-derive~~ done — recurring class — restored again 2026-11-14 (e1b8ca3, 2aa134b)
+   ~~its honest per-step verdict (strip this session's load pollution~~
+   ~~from §d1).~~
 7. Decide the fate of erraudit's eval-time vendor-drift gate: replace
    with a real go-modules build probe or delete (false confidence is
    worse than absence).
@@ -319,9 +319,9 @@ tag the run summary so downstream readers don't misread polluted
 steps as real failures (this session's §d1 exactly).
 
 **Hygiene / smaller polish:**
-42. docs-gates CHANGELOG: the lockfile-restore + docs train deserve a
-line when the next CHANGELOG pass happens (no code change; ritual
-timing only).
+42. ~~docs-gates CHANGELOG: the lockfile-restore + docs train deserve a~~ done — this CHANGELOG [Unreleased] section carries it
+~~line when the next CHANGELOG pass happens (no code change; ritual~~
+~~timing only).~~
 43. Re-check `git status --ignored` hygiene per the AGENTS.md
 .gitignore gotcha if any new testdata/corpus files ever land (none
 did this session — reminder only).
@@ -332,13 +332,13 @@ content-changed (logging honesty).
 45. erraudit: consider its own equivalent of docs-gates' rev tripwire
 pattern for ITS critical inputs (the fleet pattern proved its
 worth here; erraudit tracks inputs too).
-46. docs-gates AGENTS.md: the erraudit-rev bullet could name the
-recovery commit SHA class (`git restore --source` + own commit) —
-it already does; verify wording survives the next compression pass
-(F94) intact.
-47. Sweep this session's temp artifacts (`/tmp/todo-row-candidate.txt`)
-— trivial, but the candidate-line file is the only session residue
-outside git.
+46. ~~docs-gates AGENTS.md: the erraudit-rev bullet could name the~~ done at `39bed4d`
+~~recovery commit SHA class (`git restore --source` + own commit) —~~
+~~it already does; verify wording survives the next compression pass~~
+~~(F94) intact.~~
+47. ~~Sweep this session's temp artifacts (`/tmp/todo-row-candidate.txt`)~~ done — /tmp artifacts gone
+~~— trivial, but the candidate-line file is the only session residue~~
+~~outside git.~~
 48. When the erraudit bump lands, update the consumer-proof command in
 AGENTS.md's triage vocabulary if the fleet adopts
 `git+file://...?rev=` proofs as the standard consumer check.

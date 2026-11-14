@@ -1,5 +1,10 @@
 # Session status — plan v2 execution: 11 tasks landed, 1 corruption caught and reverted, CI green
 
+> **Live remainder:** the sibling/owner tail (float/deploy/switch, pbx pin
+> bump, BuildFlow upstream, nixpkgs PR, crm authority, D1/D2) rides TODO_LIST
+> 3/4; long-game fuel lives in ROADMAP. Archived 2026-11-14 (docs-health
+> sweep: 28 landed items struck with evidence; all five gates green).
+
 **2026-11-04 23:06 CET** · baseline `d6d1702` (pushed, CI run 41920240341
 success) · scope: this session only — the plan-v2 zero-permission
 execution + this report.

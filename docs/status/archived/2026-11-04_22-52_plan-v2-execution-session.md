@@ -1,5 +1,10 @@
 # Plan v2 execution — 14 tasks landed, one gate-surface train, one corruption caught
 
+> **Live remainder:** the owner tail (sibling permission, D1/D2, the deploy
+> window) rides TODO_LIST 3/4 and the 04-50 g.5 consolidation. Archived
+> 2026-11-14 (docs-health sweep: landed f/g items struck with evidence; all
+> five gates green pre-move).
+
 **2026-11-04 22:52 CET** · baseline `4cc99af` (sweep-restored tree; battery
 5/5 PASS, annotate CLEAN) · input: `docs/planning/2026-11-04_19-28_…-v2.md`
 (24 tasks / 94 micro-tasks ≈ 22.75 h). This session took the

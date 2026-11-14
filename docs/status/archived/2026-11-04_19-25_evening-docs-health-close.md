@@ -1,5 +1,10 @@
 # Status Report — evening docs-health close: cadence gate bug, purge, harvest
 
+> **Live remainder:** the float/deploy/switch owner window rides TODO_LIST 3;
+> D1/D2 + release rulings ride 4/4b; the ANNOTATE-sweep row closed with the
+> 2026-11-14 pass. Archived 2026-11-14 (docs-health sweep: 22 items struck
+> with evidence; freshness/audit-all/annotate/routing/cadence green pre-move).
+
 **2026-11-04 19:25 CET** · session: continuation of the 07:11 docs-health
 audit thread (user: "keep going until everything works") · branch `main`,
 HEAD `73f5eac` (pushed, CI green).

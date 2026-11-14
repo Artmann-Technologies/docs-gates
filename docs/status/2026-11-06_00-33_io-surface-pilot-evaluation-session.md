@@ -87,15 +87,15 @@ printed PASS matrix is the actual evidence).
 
 ## c) NOT STARTED
 
-1. **Adoption into docs-gates** — owner-gated (public-repo surface; and the
+1. **Adoption into docs-gates** — owner-gated (public-repo surface; and the **→ rides TODO_LIST 4 (adoption row) + the 4b adoption-path question**
    InboxClean lesson b4 applies: an ungated manifest rots from minute one).
 2. **Claims for the other 17 sites** (the git-runner rationale, the
    `io.ReadAll` drainers = the 2026-11-05 wedge-fix story as data).
 3. **Feedback filing into io-surface's own tracking** (blocked on its hygiene
    wave + owner routing; that repo may be picked up by another arc).
-4. **ROADMAP linkage**: io-surface is a live data point for open owner
-   question #3 (next slice: `--json` face vs new gate family) — not recorded
-   in ROADMAP yet.
+4. ~~**ROADMAP linkage**: io-surface is a live data point for open owner~~ done — ROADMAP carries the io-surface data-point bullet
+   ~~question #3 (next slice: `--json` face vs new gate family) — not recorded~~
+   ~~in ROADMAP yet.~~
 
 ## d) TOTALLY FUCKED UP
 
@@ -149,25 +149,25 @@ printed PASS matrix is the actual evidence).
 2. File the four io-surface pilot findings into its repo's tracking (dirs
    persistence, render flag parity, extraction-blind message, default-dirs
    blind spot for nested modules) — TODO_LIST §8.
-3. Demonstrate the d1 init-force claim-destruction on a scratch manifest as
-   fix-priority evidence for io-surface — TODO_LIST §8.
-4. Probe the io-surface --json failure path over a red tree (its b7) —
-   TODO_LIST §8.
-5. Verify the remaining fifteen extracted sites against source, or record
-   context-trust explicitly — TODO_LIST §8.
+3. ~~Demonstrate the d1 init-force claim-destruction on a scratch manifest as~~ done at `b222ef9`
+   ~~fix-priority evidence for io-surface — TODO_LIST §8.~~
+4. ~~Probe the io-surface --json failure path over a red tree (its b7) —~~ done — TODO_LIST 8 row 1 carries the revised b7 verdict
+   ~~TODO_LIST §8.~~
+5. ~~Verify the remaining fifteen extracted sites against source, or record~~ done — purge entry — clean-build re-extraction, all 26 sites verified
+   ~~context-trust explicitly — TODO_LIST §8.~~
 6. If adopted: author claims for the remaining sites (git runner rationale,
    drainers-as-wedge-fix story) and wire check into CI with dirs pinned —
    TODO_LIST §8, blocked on f.1.
-7. io-surface extractor questions: os.Pipe watched? stdout/stderr family or
-   documented exclusion — TODO_LIST §8.
-8. Record the io-surface data point in ROADMAP next to the gate-family row
-   (open owner question #3) — TODO_LIST §8.
-9. The prior §7 backlog stands unchanged (--json verdict face, the 18
-   bare-DONE rows, usage-text pins, erraudit count reconcile, runHelp
-   overflow warning, b.Loop adoption) — see TODO_LIST §7.
-10. This session executed the archive ritual owed by §7 row 8 (corpus was AT
-    15; this report is +1; the 03-34 flake-superb report is now archived) —
-    §7 row 8 marked DONE.
+7. ~~io-surface extractor questions: os.Pipe watched? stdout/stderr family or~~ done — purge entry — the extractor seam answer
+   ~~documented exclusion — TODO_LIST §8.~~
+8. ~~Record the io-surface data point in ROADMAP next to the gate-family row~~ done — ROADMAP io-surface data-point bullet
+   ~~(open owner question #3) — TODO_LIST §8.~~
+9. ~~The prior §7 backlog stands unchanged (--json verdict face, the 18~~ done — TODO_LIST 7 rows landed and purged (the --json face et al.)
+   ~~bare-DONE rows, usage-text pins, erraudit count reconcile, runHelp~~
+   ~~overflow warning, b.Loop adoption) — see TODO_LIST §7.~~
+10. ~~This session executed the archive ritual owed by §7 row 8 (corpus was AT~~ done at `8e55e12`
+    ~~15; this report is +1; the 03-34 flake-superb report is now archived) —~~
+    ~~§7 row 8 marked DONE.~~
 
 ## g) Questions I cannot answer myself
 
