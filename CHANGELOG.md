@@ -4,6 +4,36 @@ All notable changes. Dates are 2026 unless stated. Version sections
 match the annotated git tags; anything after the newest tag sits under
 [Unreleased].
 
+## [Unreleased]
+
+### Added
+
+- Repo meta: CONTRIBUTING.md, SECURITY.md, .editorconfig, .gitattributes
+  (community + tooling baselines), and docs/agent-notes.md — the full
+  paid-for incident narratives relocated when AGENTS.md was distilled to
+  its 220-line budget (nothing deleted, only moved).
+- Pre-flight stamp hygiene: `writePreflightStamp` probes
+  `git check-ignore` after a SAFE write and notes on stderr when the
+  stamp is not ignored (a TRACKED stamp is the reported worst case);
+  two-arm git-fixture test, probe failure skips silently.
+
+### Fixed
+
+- `--land-parity` case bug: the living-docs corpus lens lowercases
+  while the stamp keeps typed case, so every mixed-case landing
+  false-DRIFTed since 2026-11-11; parity now compares through the same
+  trim+lower lens as `--replace` matching (regression tests: case lens,
+  trailing whitespace, retyped/no-stamp/malformed set).
+- golangci-drift counted pins after `sort -u` (two identical job pins
+  demanded 2 but counted 1) and shell-lint referenced a missing file —
+  both checks pass again.
+- The pre-commit docs-gate batch no longer fires on the auto-commit
+  daemon's heuristic commits (real commits only).
+- flake.lock restored to the verified erraudit rev 5c841cf2 after a
+  repair-step bump to a master rev with a stale vendorHash
+  (tripwire-caught, second instance — the upstream fix belongs in
+  erraudit).
+
 ## [v0.3.0] - 2026-11-12
 
 ### Added
