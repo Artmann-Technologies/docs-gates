@@ -328,6 +328,14 @@
 
             meta = {
               description = "docs-gates provider module test suite check";
+              homepage = "https://github.com/Artmann-Technologies/docs-gates";
+              license = lib.licenses.mit;
+              maintainers = [
+                {
+                  name = "Lars Artmann";
+                  github = "LarsArtmann";
+                }
+              ];
               platforms = lib.platforms.linux;
             };
           };
