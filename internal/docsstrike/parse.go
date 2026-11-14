@@ -155,9 +155,11 @@ type strikeInputsError struct {
 func (e *strikeInputsError) Error() string {
 	switch e.kind {
 	case refusalMissingRow:
-		return "--row <selector> is required (a substring of the row to strike)"
+		return "--row <selector> is required (a substring of the row to strike) — e.g. " +
+			`docs-strike . --row "<unique task text>" --verdict "<evidence>"`
 	case refusalMissingVerdict:
-		return "--verdict <text> is required (the done (…) evidence payload)"
+		return "--verdict <text> is required (the done (…) evidence payload) — e.g. " +
+			`docs-strike . --row "<selector>" --verdict "landed in <sha>"`
 	case refusalPrefixedVerdict:
 		return fmt.Sprintf(
 			"the --verdict already starts with the verdict word %q — the tool prepends "+

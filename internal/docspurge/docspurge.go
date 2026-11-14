@@ -219,15 +219,25 @@ func insertBullets(changelog string, bullets []string) (string, error) {
 
 	unreleased := -1
 	changed := -1
+	nearestH2 := 0
+	nearestH3 := 0
 
 	for i, line := range lines {
+		if strings.HasPrefix(line, "## ") {
+			nearestH2 = i + 1
+		}
+
+		if strings.HasPrefix(line, "### ") {
+			nearestH3 = i + 1
+		}
+
 		if strings.TrimSpace(line) == unreleasedHeading {
 			unreleased = i
 		}
 	}
 
 	if unreleased < 0 {
-		return "", newMissingAnchorError(anchorUnreleasedHeading, defaultChangelog)
+		return "", newMissingAnchorError(anchorUnreleasedHeading, defaultChangelog, nearestH2)
 	}
 
 	for i := unreleased + 1; i < len(lines); i++ {
@@ -243,7 +253,7 @@ func insertBullets(changelog string, bullets []string) (string, error) {
 	}
 
 	if changed < 0 {
-		return "", newMissingAnchorError(anchorChangedSection, defaultChangelog)
+		return "", newMissingAnchorError(anchorChangedSection, defaultChangelog, nearestH3)
 	}
 
 	insert := len(lines)

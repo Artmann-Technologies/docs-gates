@@ -16,6 +16,7 @@ package config
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -111,7 +112,7 @@ func Load(root string) (Config, []string, error) {
 	var raw map[string]json.RawMessage
 
 	if err := json.Unmarshal(data, &raw); err != nil {
-		return cfg, nil, newLoadError(loadParse, Path(root), err)
+		return cfg, nil, newLoadError(loadParse, Path(root), withSyntaxLocation(data, err))
 	}
 
 	known := knownKeys()
@@ -125,7 +126,7 @@ func Load(root string) (Config, []string, error) {
 	}
 
 	if err := json.Unmarshal(data, &cfg); err != nil {
-		return cfg, warnings, newLoadError(loadParse, Path(root), err)
+		return cfg, warnings, newLoadError(loadParse, Path(root), withSyntaxLocation(data, err))
 	}
 
 	if err := cfg.validate(); err != nil {
@@ -176,6 +177,58 @@ func (e *loadError) Error() string {
 }
 
 func (e *loadError) Unwrap() error { return e.cause }
+
+// syntaxError decorates a malformed-JSON refusal with the 1-based line
+// and column the decoder's byte Offset names — a raw offset is useless
+// to a human editing the file. Unwrap keeps the underlying
+// *json.SyntaxError reachable for classification.
+type syntaxError struct {
+	cause  *json.SyntaxError
+	line   int
+	column int
+}
+
+func (e *syntaxError) Error() string {
+	return fmt.Sprintf("%v (line %d, column %d)", e.cause, e.line, e.column)
+}
+
+func (e *syntaxError) Unwrap() error { return e.cause }
+
+// withSyntaxLocation passes a decode error through unchanged, unless it
+// is a *json.SyntaxError — the one decode failure carrying a byte
+// offset a human can act on — decorated with its line/column.
+func withSyntaxLocation(data []byte, err error) error {
+	syn, ok := errors.AsType[*json.SyntaxError](err)
+	if !ok {
+		return err
+	}
+
+	line, column := byteLineColumn(data, syn.Offset)
+
+	return &syntaxError{cause: syn, line: line, column: column}
+}
+
+// byteLineColumn converts a decoder byte offset into 1-based line and
+// column numbers over the raw file bytes (a tab is one column; columns
+// count bytes since the last newline, the JSON decoder's own convention).
+func byteLineColumn(data []byte, offset int64) (line, column int) {
+	if offset > int64(len(data)) {
+		offset = int64(len(data))
+	}
+
+	line, column = 1, 1
+
+	for i := int64(0); i < offset; i++ {
+		if data[i] == '\n' {
+			line++
+			column = 1
+		} else {
+			column++
+		}
+	}
+
+	return line, column
+}
 
 // newLoadError builds one loadError with the FATAL-line message.
 func newLoadError(step loadStep, path string, cause error) *loadError {

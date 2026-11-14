@@ -100,21 +100,42 @@ func (s anchorScope) String() string {
 	}
 }
 
+// level returns the heading marker of the anchor's own level — the
+// class a "nearest heading" hint searches (## for the [Unreleased]
+// anchor, ### for the Changed section).
+func (s anchorScope) level() string {
+	if s == anchorChangedSection {
+		return "###"
+	}
+
+	return "##"
+}
+
 // missingAnchorError is the package's static refusal type: the changelog
 // lacks an anchor the draft needs, so no insertion point is guessed.
+// nearestLine names the file's nearest heading of the anchor's own
+// level (1-based; 0 = the file has none) — the fix is editing near a
+// heading the reader can actually find, not at a byte offset.
 type missingAnchorError struct {
-	changelog string
-	scope     anchorScope
+	changelog   string
+	scope       anchorScope
+	nearestLine int
 }
 
 func (e *missingAnchorError) Error() string {
-	return fmt.Sprintf("%s has no %s — refusing to guess an insertion point", e.changelog, e.scope)
+	msg := fmt.Sprintf("%s has no %s — refusing to guess an insertion point", e.changelog, e.scope)
+	if e.nearestLine > 0 {
+		msg += fmt.Sprintf(" (nearest %s heading at line %d)", e.scope.level(), e.nearestLine)
+	}
+
+	return msg
 }
 
 // newMissingAnchorError builds one missingAnchorError with the refusal
-// message.
-func newMissingAnchorError(scope anchorScope, changelog string) *missingAnchorError {
-	return &missingAnchorError{changelog: changelog, scope: scope}
+// message; nearestLine is the file's nearest same-level heading line
+// (0 when the file has none).
+func newMissingAnchorError(scope anchorScope, changelog string, nearestLine int) *missingAnchorError {
+	return &missingAnchorError{changelog: changelog, scope: scope, nearestLine: nearestLine}
 }
 
 // writePreservingMode writes content with the file's existing permission
