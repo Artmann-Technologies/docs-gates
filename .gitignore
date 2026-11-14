@@ -82,3 +82,7 @@ reports/
 
 # land-parity ledger: the last SAFE pre-flight batch (local editor state, never shared)
 .docs-gates-preflight.json
+
+# the parity corpus stamps are fixtures, not local state — same rule as the
+# reports/ negations above (the corpus-drift arm reads one deliberately).
+!testdata/parity/*/.docs-gates-preflight.json

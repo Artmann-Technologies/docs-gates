@@ -49,9 +49,19 @@ const toolName = "docs-gates"
 // SKIP rows are exit-clean by the battery's contract).
 const verdictFail = "FAIL"
 
+// gateAuditAll is the battery's replay-mode matrix row — a gate NAME
+// that is not a verb (rerunHint special-cases it).
+const gateAuditAll = "audit-all"
+
 // installHint is the failure text HealthCheck reports when the binary is
-// not on PATH.
-const installHint = "docs-gates binary not on PATH — install via `nix run github:Artmann-Technologies/docs-gates` or `go install github.com/Artmann-Technologies/docs-gates/cmd/docs-gates@latest`"
+// not on PATH. The install lines pin the RELEASE TAG, not a floating
+// ref: a hint that installs @latest (or nix's default branch) can pull
+// a different battery than the one that produced a verdict — the
+// version skew class the strict decoder exists for. Bump the pin WITH
+// the release ritual (the CHANGELOG cut owns the tag).
+const installHint = "docs-gates binary not on PATH — install via " +
+	"`nix run github:Artmann-Technologies/docs-gates/v0.3.1` or " +
+	"`go install github.com/Artmann-Technologies/docs-gates/cmd/docs-gates@v0.3.1`"
 
 // batteryReport is the provider-side mirror of the battery's --json
 // document (pkg/provider cannot import internal/battery, so the shape is
@@ -119,9 +129,12 @@ func workingDir(ctx context.Context) string {
 // replays that one gate. The matrix names are not all verbs: audit-all
 // is the freshness gate's --audit-all replay mode, so the naive
 // `docs-gates <name> <dir>` shape would advise a command the
-// dispatcher rejects as an unknown verb.
+// dispatcher rejects as an unknown verb. rerunHintTableTest pins the
+// known vocabulary, so a NEW battery gate name arriving in the matrix
+// without an audit-all-style special case here is a review decision,
+// not a silent mis-hint.
 func rerunHint(name, dir string) string {
-	if name == "audit-all" {
+	if name == gateAuditAll {
 		return "docs-gates freshness " + dir + " --audit-all"
 	}
 
