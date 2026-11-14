@@ -416,7 +416,12 @@
                 # --severity warning: SC2016 info fires on the harness's
                 # deliberately literal backtick verdict strings
                 shellcheck --severity warning scripts/*.sh
-                actionlint
+                # Explicit workflow paths: bare actionlint discovers the
+                # workflows dir and then requires a GIT PROJECT above it —
+                # the store source has no .git, so discovery dies with
+                # "no project was found in any parent directories" before
+                # linting anything.
+                actionlint .github/workflows/*.yml
                 touch $out
               '';
 
