@@ -75,8 +75,16 @@
       # plumbing, because the hooks must run green BOTH in
       # `nix flake check` (read-only, no network, no HOME) and in the
       # devShell.
+      #
+      # The docs-battery hook runs ONLY in the devShell (sandboxed =
+      # false): git-hooks' flake-check sandbox git-inits a synthetic
+      # ONE-COMMIT repo over the store source, so the annotate gate's
+      # verdict-hash evidence ("done at <sha>" must resolve) is red by
+      # construction in there — every historical hash is legitimately
+      # absent. The battery over the real repo keeps its dedicated legs:
+      # CI's dogfood job and the devShell commit-time hook.
       preCommitCheckFor =
-        system:
+        system: sandboxed:
         let
           pkgs = nixpkgs.legacyPackages.${system};
         in
@@ -91,7 +99,7 @@
             entry = "${pkgs.bash}/bin/bash -c 'PATH=${pkgs.${goPkgAttr}}/bin:$PATH GOTOOLCHAIN=local GOWORK=off GOPROXY=off GOCACHE=/tmp/dg-hooks-gocache GOPATH=/tmp/dg-hooks-gopath exec ${(errauditPkg system)}/bin/erraudit nolint-audit .'";
           };
           hooks.docs-battery = {
-            enable = true;
+            enable = !sandboxed;
             name = "docs-battery";
             files = "^(TODO_LIST\\.md|CHANGELOG\\.md|ROADMAP\\.md|AGENTS\\.md|FEATURES\\.md)$";
             pass_filenames = false;
@@ -428,7 +436,10 @@
           # The commit-time leg of the directive-honesty gate: pre-commit
           # runs the same `erraudit nolint-audit .` staleness check on
           # every commit touching Go files (see preCommitCheckFor).
-          pre-commit-check = preCommitCheckFor system;
+          # Sandboxed (true): the docs-battery leg is excluded — the
+          # synthetic one-commit repo cannot resolve verdict hashes
+          # (annotate red by construction).
+          pre-commit-check = preCommitCheckFor system true;
         }
       );
 
@@ -439,7 +450,9 @@
 
           # The pre-commit machinery: shellHook installs the git hooks and
           # enabledPackages carries the `pre-commit` binary itself.
-          inherit (preCommitCheckFor system) shellHook enabledPackages;
+          # Not sandboxed (false): the docs-battery leg rides real commits,
+          # where the repo's full history makes verdict hashes resolvable.
+          inherit (preCommitCheckFor system false) shellHook enabledPackages;
         in
         {
           # No C compiler anywhere in this repo: the package builds
