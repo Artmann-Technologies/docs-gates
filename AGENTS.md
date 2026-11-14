@@ -16,14 +16,14 @@ narratives: `docs/agent-notes.md`.
 One binary, seven verbs; `cmd/docs-gates` dispatches, everything else is
 a library:
 
-| Package                                                    | Role                                                                                                                                                                                                          |
-| ---------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `cmd/docs-gates`                                           | verb dispatch (`run`, `freshness`, `annotate`, `routing`, `cadence`, `strike`, `purge`), verb-to-legacy-name map, help surface (`--help`/`-h`/`help [verb]`, did-you-mean), `--version` (ldflags-stamped, `"dev"` bare) |
+| Package                                                    | Role                                                                                                                                                                                                                                |
+| ---------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `cmd/docs-gates`                                           | verb dispatch (`run`, `freshness`, `annotate`, `routing`, `cadence`, `strike`, `purge`), verb-to-legacy-name map, help surface (`--help`/`-h`/`help [verb]`, did-you-mean), `--version` (ldflags-stamped, `"dev"` bare)             |
 | `internal/gatecli`                                         | exit-code constants, boolean/valued `--flag` parsing (`CutIntFlag`), the config prologue (`LoadConfig`), repo-root resolution, `Outf`/`Errf` + kin (the ONE home for unchecked `fmt.Fprint*`), `Truncate`, `CaptureOutput`, `Livef` |
-| `internal/battery`                                         | the `run` verb: ordered gates from config, run INDEPENDENTLY with captured output, PASS/FAIL/SKIP matrix — no first-failure abort                                                                              |
-| `internal/config`                                          | `.docs-gates.json` loader: decode over `Defaults()`, unknown keys WARN, malformed/invalid exit 2                                                                                                              |
-| `internal/docs{freshness,annotate,routing,cadence,strike}` | the five gates: each a `Run([]string) int` whose argv matches the historical standalone binaries, each with a `Settings` projection (zero values → historical constants) + docs-purge                          |
-| `pkg/provider`                                             | BuildFlow toolsdk provider — a SEPARATE go module that EXECS the binary from PATH, parses `run --json` into findings (strict decode), registers via `toolsdk.Register`                                        |
+| `internal/battery`                                         | the `run` verb: ordered gates from config, run INDEPENDENTLY with captured output, PASS/FAIL/SKIP matrix — no first-failure abort                                                                                                   |
+| `internal/config`                                          | `.docs-gates.json` loader: decode over `Defaults()`, unknown keys WARN, malformed/invalid exit 2                                                                                                                                    |
+| `internal/docs{freshness,annotate,routing,cadence,strike}` | the five gates: each a `Run([]string) int` whose argv matches the historical standalone binaries, each with a `Settings` projection (zero values → historical constants) + docs-purge                                               |
+| `pkg/provider`                                             | BuildFlow toolsdk provider — a SEPARATE go module that EXECS the binary from PATH, parses `run --json` into findings (strict decode), registers via `toolsdk.Register`                                                              |
 
 Control flow: `main.go` → verb's `Run(rest)` → `gatecli.Parse` →
 `Settings` → gate logic → verdict lines → exit code. `--version`/`--help`
@@ -70,6 +70,7 @@ keep bare `FATAL: %v`.
   `newXxxError` constructor + `Unwrap`; idiomatic `error` return KEPT —
   concrete `*T` returns are the typed-nil landmine); keep the pattern.
   Never cite a directive COUNT from memory — run `erraudit nolint-audit .`
+
 ## Verdict arithmetic (battery)
 
 - Exits 1 iff at least one gate row is FAIL; SKIP rows exit-clean; every

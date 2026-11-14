@@ -200,4 +200,3 @@ agents-md-size ratchet); nothing was deleted, only relocated.
   wasm plugins once, cached in ~/.cache/dprint. The remedy if it ever
   bites: `nix build .#dprint-plugins` in the BuildFlow repo +
   `BUILDFLOW_DPRINT_PLUGINS=<store>/share/dprint-plugins`.
-
