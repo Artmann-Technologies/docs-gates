@@ -94,8 +94,7 @@ keep bare `FATAL: %v`.
   directory. Floors: root go 1.26, provider 1.27; the flake pins ONE
   toolchain (go_1_27 + GOTOOLCHAIN=local, one `goPkgAttr` binding —
   never fork; `go-floors` asserts).
-- **gatecli.CaptureOutput is a process-global stdout swap** — its tests
-  must never be t.Parallel (deliberate suppressions).
+- **gatecli.CaptureOutput is a process-global stdout swap** — its tests must never be t.Parallel (deliberate suppressions).
 - **Freshness = newest report only (strict); audit-all = whole corpus
   under the audit_max pin.** Ratchets are pins, not floors (`audit_max`/
   `annotate_max` pass only when >= 0; tolerated findings print RATCHET).
@@ -166,9 +165,8 @@ keep bare `FATAL: %v`.
   (encoding/json v1 ON PURPOSE — `DisallowUnknownFields` is the row-shape
   contract, byte-pinned); the six cross-file-wrapper warnings ARE the
   accepted settings-projection pair.
-- **The --margins near-bar window is `[bar-2, bar)`**, counts LIVING-DOC
-  LINES ONLY; the corpus-replace fixture's `generic_df: 2` is
-  load-bearing twice; heading tokens are deliberately NOT excluded.
+- **The --margins near-bar window is `[bar-2, bar)`**, counts LIVING-DOC LINES ONLY; the
+  corpus-replace fixture's `generic_df: 2` is load-bearing twice; headings are NOT excluded.
 - **The wedge class was the capture-pipe deadlock** (output past ~64KB
   parked on the full capture pipe; fixed by concurrent drainers;
   `gate_timeout_sec` is the bound — a new wedge = suspect a NEW park).
