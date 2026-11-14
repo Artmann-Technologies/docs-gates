@@ -355,14 +355,19 @@
               ''
                 cd ${self}
                 want="${pkgs.golangci-lint.version}"
-                got_all="$(grep -h '^          version: ' .github/workflows/ci.yml | awk '{print $2}' | sort -u)"
+                got_all="$(grep -h '^          version: ' .github/workflows/ci.yml | awk '{print $2}')"
                 count="$(printf '%s\n' "$got_all" | grep -c .)"
                 if [ "$count" -ne 2 ]; then
                   echo "FATAL: expected exactly 2 pinned golangci action versions (go + provider jobs), found $count:" >&2
                   printf '%s\n' "$got_all" >&2
                   exit 1
                 fi
-                if [ "$got_all" != "v$want" ]; then
+                # The two job pins must AGREE and match the flake's engine;
+                # sort -u collapses identical values to one line for the
+                # comparison (counting them pre-collapse made the check
+                # unpassable whenever both jobs pinned the same version).
+                got_uniq="$(printf '%s\n' "$got_all" | sort -u)"
+                if [ "$got_uniq" != "v$want" ]; then
                   echo "FATAL: golangci drift — CI action pins $got_all but the flake's locked nixpkgs builds v$want." >&2
                   echo "Remedy: align .github/workflows/ci.yml's action version with the flake pin (or bump the nixpkgs input deliberately), in ONE commit." >&2
                   exit 1
