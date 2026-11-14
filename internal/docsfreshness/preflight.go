@@ -46,32 +46,7 @@ func PreFlight(
 	// already failing before is not blamed on it.
 	remaining, missing := applyReplacements(base.lines, replaces)
 	if len(missing) > 0 {
-		named := replaceTargetsOutsideCorpus(root, missing, settings)
-
-		if len(named) > 0 {
-			gatecli.Errln("docs-freshness --pre-flight: --replace target(s) found OUTSIDE the living-docs corpus:")
-
-			for _, h := range named {
-				gatecli.Errf("    %s\n", gatecli.Truncate(h.line, reasonMax))
-				gatecli.Errf(
-					"      → lives in %s, which the corpus (%s) does not cover — a rewrite landing there moves "+
-						"no corpus DF; drop --replace for it (skip pre-flight entirely when the whole batch targets %s)\n",
-					h.file,
-					strings.Join(settings.livingDocs(), ", "),
-					h.file,
-				)
-			}
-
-			missing = missingOutside(missing, named)
-		}
-
-		if len(missing) > 0 {
-			gatecli.Errln("docs-freshness --pre-flight: --replace target(s) not found in the living docs:")
-
-			for _, m := range missing {
-				gatecli.Errf("    %s\n", gatecli.Truncate(m, reasonMax))
-			}
-		}
+		refuseMissingReplaces(root, missing, settings)
 
 		return gatecli.ExitUsage
 	}
@@ -294,14 +269,67 @@ type outsideHit struct {
 	file string
 }
 
+// refuseMissingReplaces reports the missing --replace targets on both
+// classes: targets found OUTSIDE the corpus are named with their file
+// (the honest WHERE — a rewrite landing there moves no corpus DF), the
+// genuinely-not-anywhere remainder keeps the bare not-found list.
+func refuseMissingReplaces(root string, missing []string, settings Settings) {
+	named := replaceTargetsOutsideCorpus(root, missing, settings)
+
+	if len(named) > 0 {
+		gatecli.Errln("docs-freshness --pre-flight: --replace target(s) found OUTSIDE the living-docs corpus:")
+
+		for _, h := range named {
+			gatecli.Errf("    %s\n", gatecli.Truncate(h.line, reasonMax))
+			gatecli.Errf(
+				"      → lives in %s, which the corpus (%s) does not cover — a rewrite landing there moves "+
+					"no corpus DF; drop --replace for it (skip pre-flight entirely when the whole batch targets %s)\n",
+				h.file,
+				strings.Join(settings.livingDocs(), ", "),
+				h.file,
+			)
+		}
+	}
+
+	rest := missingOutside(missing, named)
+	if len(rest) == 0 {
+		return
+	}
+
+	gatecli.Errln("docs-freshness --pre-flight: --replace target(s) not found in the living docs:")
+
+	for _, m := range rest {
+		gatecli.Errf("    %s\n", gatecli.Truncate(m, reasonMax))
+	}
+}
+
 // replaceTargetsOutsideCorpus locates missing replace targets in
 // root-level markdown files outside the corpus — the honest refusal
 // names WHERE the line lives instead of a bare not-found. Bounded to
 // the repo root's own *.md files: the corpus is root-level by contract.
 func replaceTargetsOutsideCorpus(root string, missing []string, settings Settings) []outsideHit {
-	entries, err := os.ReadDir(root)
+	outside, err := outsideMarkdownFiles(root, settings)
 	if err != nil {
 		return nil
+	}
+
+	var hits []outsideHit
+
+	for _, target := range missing {
+		if file := findTargetInFiles(root, outside, target); file != "" {
+			hits = append(hits, outsideHit{line: target, file: file})
+		}
+	}
+
+	return hits
+}
+
+// outsideMarkdownFiles lists the root-level *.md files the corpus does
+// not cover (the candidates an out-of-universe edit targets).
+func outsideMarkdownFiles(root string, settings Settings) ([]string, error) {
+	entries, err := os.ReadDir(root)
+	if err != nil {
+		return nil, err
 	}
 
 	corpus := make(map[string]bool, len(settings.livingDocs()))
@@ -320,38 +348,28 @@ func replaceTargetsOutsideCorpus(root string, missing []string, settings Setting
 		outside = append(outside, name)
 	}
 
-	var hits []outsideHit
+	return outside, nil
+}
 
-	for _, target := range missing {
-		trimmed := strings.ToLower(strings.TrimSpace(target))
+// findTargetInFiles returns the first file whose content contains the
+// target line (lowercased substring match); "" when none does.
+func findTargetInFiles(root string, files []string, target string) string {
+	trimmed := strings.ToLower(strings.TrimSpace(target))
 
-		found := ""
-
-		for _, name := range outside {
-			data, readErr := os.ReadFile(filepath.Join(root, name))
-			if readErr != nil {
-				continue
-			}
-
-			for _, line := range strings.Split(string(data), "\n") {
-				if strings.Contains(strings.ToLower(line), trimmed) {
-					found = name
-
-					break
-				}
-			}
-
-			if found != "" {
-				break
-			}
+	for _, name := range files {
+		data, err := os.ReadFile(filepath.Join(root, name))
+		if err != nil {
+			continue
 		}
 
-		if found != "" {
-			hits = append(hits, outsideHit{line: target, file: found})
+		for line := range strings.SplitSeq(string(data), "\n") {
+			if strings.Contains(strings.ToLower(line), trimmed) {
+				return name
+			}
 		}
 	}
 
-	return hits
+	return ""
 }
 
 // missingOutside keeps the missing targets the outside scan did NOT
