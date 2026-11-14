@@ -22,9 +22,9 @@ repo is the one tool any repo can adopt: drop a binary, optionally seed a
 ## Quick start
 
 ```console
-nix run github:Artmann-Technologies/docs-gates -- run .
+nix run github:Artmann-Technologies/docs-gates/v0.3.1 -- run .
 # or
-go install github.com/Artmann-Technologies/docs-gates/cmd/docs-gates@latest
+go install github.com/Artmann-Technologies/docs-gates/cmd/docs-gates@v0.3.1
 docs-gates run .
 ```
 
@@ -49,6 +49,52 @@ every verb:
 | `cadence`   | purge/archive thresholds met      | a threshold is overdue                               | usage error, malformed config                              |
 | `strike`    | row struck (dry-run is default)   | —                                                    | refusal: ambiguous row, double strike, verdict-less target |
 | `purge`     | draft printed (dry-run) or purged | unsafe draft (the gate refuses)                      | usage error, missing [Unreleased]/Changed anchors          |
+
+## Adopting docs-gates
+
+A repo adopts in three steps; [cmdguard](https://github.com/Artmann-Technologies/cmdguard)
+is the worked example — its adoption is exactly this section, verbatim.
+
+**1. Run the battery once.** No config needed: the defaults are the
+fleet-proven constants and a missing `.docs-gates.json` is not a finding.
+Pin the release — a floating install can drift from the battery your CI
+judged:
+
+```console
+go run github.com/Artmann-Technologies/docs-gates/cmd/docs-gates@v0.3.1 run .
+```
+
+**2. Wire CI (the dogfood job).** Full history is load-bearing: the
+annotate gate resolves `done at <hash>` verdicts against the real commit
+graph, and a depth-1 checkout makes every non-HEAD hash unresolvable
+(false failures):
+
+```yaml
+dogfood:
+  runs-on: ubuntu-latest
+  steps:
+    - uses: actions/checkout@v7 # with: { fetch-depth: 0 }
+    - uses: actions/setup-go@v7 # with: { go-version: "1.27" }
+    - run: go run github.com/Artmann-Technologies/docs-gates/cmd/docs-gates@v0.3.1 run .
+```
+
+Bump the pin manually when a docs-gates release lands (dependabot does
+not see `go run` pins).
+
+**3. Ignore the land-parity stamp.** A SAFE `--pre-flight` records its
+batch in `.docs-gates-preflight.json` (local editor state, never
+shared). One `.gitignore` line keeps an auto-commit daemon from sweeping
+it into history:
+
+```gitignore
+.docs-gates-preflight.json
+```
+
+Then adopt the rituals the gates enforce: strike landed TODO rows
+(`docs-gates strike`, or `scripts/safe-strike.sh` copied from this repo
+for the guarded mechanics), archive resolved reports, purge struck rows
+into CHANGELOG (`docs-gates purge`). A red gate is the docs ritual
+due — fix the docs, never loosen the gate.
 
 ## BuildFlow consumers
 

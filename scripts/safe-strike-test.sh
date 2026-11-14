@@ -4,6 +4,11 @@
 # guess). Thirteen cases on a scratch git repo + board fixture:
 #
 #   1. anchor matching ZERO lines        -> refuse, exit 1, file intact
+#   1b. batch: one bad anchor refuses the WHOLE batch, file intact
+#   1c. batch dry-run: exit 0, file unchanged
+#   1d. batch apply: BOTH rows struck in one write, one battery leg
+#   1e. batch entry without =VERDICT      -> usage, exit 2
+#   1f. missing <file> positional NAMES ITSELF in the refusal
 #   2. anchor matching TWO lines         -> refuse, exit 1, full inventory, file intact
 #   3. ordinal-only anchor (<4 letters)  -> refuse, exit 1, file intact
 #   4. missing file                      -> usage, exit 2
@@ -158,6 +163,70 @@ if [ "$got" -eq 0 ]; then
 else
 	echo "ok   [battery without docs-gates] failed loudly (exit $got)"
 fi
+
+# 14: batch — one bad anchor refuses the whole batch, file intact.
+cat >>TODOS.md <<'EOF'
+| 7 | refresh the echo pagination cache | TODO |
+EOF
+git add TODOS.md
+git -c user.name=test -c user.email=test@test commit -qm "batch fixture"
+
+expect_rc 1 "batch bad anchor refuses all" --batch TODOS.md \
+	'echo pagination cache=done at `cafe123`' 'nonexistent-zephyr-anchor=done at `cafe123`'
+expect_untouched "batch bad anchor refuses all"
+
+# 15: batch dry-run leaves the file untouched.
+expect_rc 0 "batch dry-run" --batch TODOS.md \
+	'echo pagination cache=done at `cafe123`' 'gamma battery verifier=done at `cafe123`'
+expect_untouched "batch dry-run"
+
+# 16: batch apply strikes BOTH rows in one write; the gate leg runs once.
+old_log="${DOCSGATES_STUB_LOG:-}"
+PATH="$scratch/bin:$PATH"
+export DOCSGATES_STUB_LOG="$scratch/batch-battery.log"
+expect_rc 0 "batch apply both rows" --apply --battery --allow-dirty --batch TODOS.md \
+	'echo pagination cache=done at `cafe123`' 'gamma battery verifier=done at `cafe123`'
+strikes="$(grep -c 'done at `cafe123`' TODOS.md)"
+if [ "$strikes" -ne 2 ]; then
+	echo "FAIL [batch apply both rows]: $strikes row(s) struck, want 2:" >&2
+	cat TODOS.md >&2
+	fail=1
+else
+	echo "ok   [batch apply both rows] two rows struck"
+fi
+if [ "$(grep -c 'battery ran with: run .' "$DOCSGATES_STUB_LOG")" -ne 1 ]; then
+	echo "FAIL [batch apply both rows]: the battery leg must run ONCE per batch" >&2
+	fail=1
+else
+	echo "ok   [batch apply both rows] one battery leg"
+fi
+PATH="$old_path"
+if [ -n "$old_log" ]; then export DOCSGATES_STUB_LOG="$old_log"; else unset DOCSGATES_STUB_LOG || true; fi
+
+# 17: a batch entry without =VERDICT is a usage refusal.
+expect_rc 2 "batch entry without verdict" --batch TODOS.md 'no equals sign here'
+
+# 18: a missing <file> positional NAMES ITSELF in the refusal.
+got=0
+msg="$("$strike" --batch >/dev/null 2>"$scratch/stderr" || true; cat "$scratch/stderr")"
+printf '%s' "$msg" | grep -q "missing <file>" || {
+	echo "FAIL [missing file names itself]: refusal lacks the <file> name:" >&2
+	printf '%s\n' "$msg" >&2
+	fail=1
+}
+got=0
+msg="$("$strike" >/dev/null 2>"$scratch/stderr" || true; cat "$scratch/stderr")"
+printf '%s' "$msg" | grep -q "missing <file>" || {
+	echo "FAIL [missing file names itself, single mode]: refusal lacks the <file> name:" >&2
+	printf '%s\n' "$msg" >&2
+	fail=1
+}
+printf '%s' "$msg" | grep -q "missing <anchor-regex>" || {
+	echo "FAIL [missing anchor names itself]: refusal lacks the <anchor-regex> name:" >&2
+	printf '%s\n' "$msg" >&2
+	fail=1
+}
+echo "ok   [missing positionals name themselves]"
 
 if [ "$fail" -eq 0 ]; then
 	echo "safe-strike-test: ALL cases behaved"
