@@ -245,10 +245,10 @@ these are ROADMAP fuel, not promises.
     ~~line vs ride to next MINOR (OWNER).~~
 11. Answer §g-3 of 07:33 + g-3 here: which SURFACED ruling first
     (OWNER).
-12. Ruling: dependabot PR #1 (owner-gated).
-13. Ruling: D1 (owner-gated).
-14. Ruling: D2 (owner-gated).
-15. Ruling: io-surface adoption (owner-gated).
+12. ~~Ruling: dependabot PR #1 (owner-gated).~~ done at `0bbced2`
+13. Ruling: D1 (owner-gated). **→ routed TODO_LIST 4 (D1 row)**
+14. Ruling: D2 (owner-gated). **→ routed TODO_LIST 4 (D2 row)**
+15. Ruling: io-surface adoption (owner-gated). **→ routed TODO_LIST 4 (io-surface adoption row)**
 16. Push erraudit `5c841cf2` upstream, then bump this repo's flake input +
     re-pin `scripts/check-erraudit-rev.sh` expected_rev (run the erraudit
     checks on the new rev first) — TODO_LIST line 54 (blocked on

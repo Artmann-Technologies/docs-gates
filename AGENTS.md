@@ -49,8 +49,10 @@ keep bare `FATAL: %v`.
 - **The five legacy names are API**: flake wrappers exec
   `docs-gates <verb>`; each answers `--version` under its legacy name.
   Never remove a wrapper without a migration plan.
-- **Parity is enforced**: `TestParityGolden` pins byte output of six
-  invocations over `testdata/parity/corpus`. INTENTIONAL change re-pins
+- **Parity is enforced**: `TestParityGolden` pins byte output of
+  fifteen invocations (the five gates + battery + battery-json + the
+  margins/dump-items/preflight arms, incl. intended non-clean exits)
+  over `testdata/parity/corpus`. INTENTIONAL change re-pins
   via `PARITY_UPDATE=1 go test ./internal/battery/ -run
   TestParityGolden`, then diff by hand — a golden bump is a contract
   change.

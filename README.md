@@ -28,8 +28,8 @@ go install github.com/Artmann-Technologies/docs-gates/cmd/docs-gates@latest
 docs-gates run .
 ```
 
-Verbs: `run | freshness | annotate | routing | cadence | strike`. Each gate
-verb keeps its historical standalone name (`docs-freshness`,
+Verbs: `run | freshness | annotate | routing | cadence | strike | purge`. Each
+gate verb keeps its historical standalone name (`docs-freshness`,
 `docs-annotate`, `docs-routing`, `docs-cadence`, `docs-strike`) as a flake
 wrapper, and answers `--version` under that name. `docs-gates help`
 (or `<verb> --help`) explains every verb and its flags; a typo'd verb
@@ -48,6 +48,7 @@ every verb:
 | `routing`   | no routing gaps                 | open rows no living doc represents                   | usage error, malformed config                              |
 | `cadence`   | purge/archive thresholds met    | a threshold is overdue                               | usage error, malformed config                              |
 | `strike`    | row struck (dry-run is default) | —                                                    | refusal: ambiguous row, double strike, verdict-less target |
+| `purge`     | draft printed (dry-run) or purged | unsafe draft (the gate refuses)                  | usage error, missing [Unreleased]/Changed anchors |
 
 ## BuildFlow consumers
 
@@ -126,11 +127,20 @@ echo "- the new TODO row text" | docs-gates freshness . --pre-flight
   they are removed before the replay so the rewrite is judged by its new
   words only. `--duplicates` models a deliberate second copy instead of
   refusing one; `--explain-token` adds per-token tables.
+- `--land-parity` — after a SAFE pre-flight batch, verify the landed
+  bytes: the recorded stamp (`.docs-gates-preflight.json`, gitignored)
+  is compared against the living docs, and a retyped edit that sailed
+  through on a verdict earned by different bytes is refused with every
+  missing line named. No stamp means OK (opt-in state); a malformed
+  stamp is a usage error with the recovery.
 
 ## Releases
 
-v0.2.0 is current (see [CHANGELOG.md](CHANGELOG.md)); the BuildFlow
+v0.3.0 is current (see [CHANGELOG.md](CHANGELOG.md)); the BuildFlow
 provider module is versioned separately as `pkg/provider/v0.2.0`.
+Contributing: [CONTRIBUTING.md](CONTRIBUTING.md); security reporting:
+[SECURITY.md](SECURITY.md); the paid-for incident narratives behind
+AGENTS.md live in [docs/agent-notes.md](docs/agent-notes.md).
 
 ## License
 

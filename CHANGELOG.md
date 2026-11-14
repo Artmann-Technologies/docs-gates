@@ -17,6 +17,16 @@ match the annotated git tags; anything after the newest tag sits under
   stamp is not ignored (a TRACKED stamp is the reported worst case);
   two-arm git-fixture test, probe failure skips silently.
 
+### Changed
+
+- TODO_LIST purge (2026-11-14): ANNOTATE sweep over the older unarchived reports (8 unarchived vs threshold 15): resolve carried rows inline, archive the fully-resolved ones — scoped down 2026-11-04 late session: the ledgers hold 28-49 open rows EACH (harvest fuel, correctly routed), no report is fully-resolvable (every one keeps sibling/owner legs), a first sweep attempt corrupted three reports (reverted ef14e11; safe mechanics in AGENTS.md) — redo only at cadence pressure or per-report on demand — done (in the 2026-11-14 docs-health pass — 200+ landed items struck corpus-wide with evidence, the 11-04 trio + planning v1 archived)
+- TODO_LIST purge (2026-11-14): F94: AGENTS.md simplification pass (the non-obvious-facts section keeps accreting; a periodic compression is owed) — owner-gated tier — done (at 39bed4d + b329b15 (the 220-line distill))
+- TODO_LIST purge (2026-11-14): Assess a heading-token exclusion in margins: the golden names `notes` (the `# NOTES` heading token) as near-bar vocabulary — decide whether headings SHOULD claim budget — done (won't do — headings ARE budget (AGENTS carries the reasoning))
+- TODO_LIST purge (2026-11-14): safe-strike bulk mode: promote the annotate `--gate` leg to strike-batch (`status-items`) so bulk sweeps get the same rails — done (won't do — bulk sweeps are false-strike factories (AGENTS strike-sweep lesson))
+- TODO_LIST purge (2026-11-14): Push erraudit 5c841cf2 upstream (the nix-hash-fix rev), then update this repo's erraudit input + re-pin the tripwire deliberately
+- TODO_LIST purge (2026-11-14): Cut v0.2.0 (CHANGELOG section cut + annotated tag, go-release ritual; collapse the same-day 2026-11-06 purge entries)
+- TODO_LIST purge (2026-11-14): Merge dependabot PR #1 (golangci-lint action SHA bump only — `version: v2.15.0` untouched, the golangci-drift contract holds, CI green on the PR; merging is a push, owner-gated) — done (at 0bbced2 (merged 2026-11-12))
+
 ### Fixed
 
 - `--land-parity` case bug: the living-docs corpus lens lowercases

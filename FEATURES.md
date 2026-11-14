@@ -11,7 +11,11 @@ built.
   `--explain-item` / `--explain-token` diagnostics, `--pre-flight`
   candidate replay (additions + rewrite-mode `--replace`, the
   `--duplicates` modeling leg, split-heading warning), `--margins`
-  token-budget report, `--dump-items` extraction dump. Ported from the
+  token-budget report, `--dump-items` extraction dump, and
+  `--land-parity` (every SAFE pre-flight batch records its lines to a
+  gitignored stamp; the verb verifies the landed bytes byte-exact — a
+  retyped edit that sailed through on a verdict earned by different
+  bytes is refused). Ported from the
   source fleet with identical output semantics; config-plumbed (report
   dir, living docs, distinctive-token bar).
 - **audit-all cost model** — the prepared Corpus memoizes token presence
@@ -34,7 +38,14 @@ built.
   report dir.
 - **docs-strike tool** — TODO_LIST row-strike helper (dry-run default,
   ambiguity refusals, double-strike refusals, verdict-opener refusals),
-  target file from config unless `--file` overrides.
+  target file from config unless `--file` overrides; plus
+  `--check-verdict-outside`, the verdict-placement scan (verdict word or
+  item number INSIDE a ~~ span — the shapes a renderer deletes or a
+  formatter renumbers).
+- **docs-gates purge** — the board purge as one gated command: collects
+  struck TODO rows, drafts one dated CHANGELOG bullet per row, gates the
+  draft through the pre-flight, writes only on SAFE (dry-run default;
+  missing `[Unreleased]`/`### Changed` anchors are usage refusals).
 - **Battery runner** (`docs-gates run`) — five gates as one independent
   matrix (PASS/FAIL/SKIP per gate, no first-failure abort), exit 0/1,
   `skip_gates` + `audit_max` from repo config. Every gate runs under
@@ -56,8 +67,8 @@ built.
   contract (Repair nil). Released as `pkg/provider/v0.1.1`; HealthCheck
   covered by its own test; the module's suite rides a flake `provider`
   check and its e2e leg runs the REAL binary.
-- **Parity goldens** — TestParityGolden pins fourteen invocations (five
-  gates + battery + battery-json + the margins/dump-items/preflight
+- **Parity goldens** — TestParityGolden pins fifteen invocations (the
+  five gates + battery + battery-json + the margins/dump-items/preflight
   arms, including their intended non-clean exits) byte-for-byte over
   the fixture corpora testdata/parity/* (custom config, `{{DATE}}`
   date-token substitution so ages stay stable); goldens under
@@ -65,15 +76,19 @@ built.
   test fails the suite the moment a corpus fixture is untracked.
 - **Config schema** — `.docs-gates.json` loader: defaults for everything,
   unknown-key warnings, malformed/invalid = exit 2.
-- **Multi-verb binary** — six verbs, per-verb `--version` under the
+- **Multi-verb binary** — seven verbs (the six gates/battery verbs plus
+  `purge`), per-verb `--version` under the
   legacy standalone names; `docs-gates help [verb]`, `--help`/`-h`
   (root and per-verb) print the gate packages' Usage texts with
   did-you-mean suggestions for unknown verbs (prefix + edit distance),
   and `help <verb> extra` names the ignored arguments.
-- **CI workflow** — build / vet / stack-drift / test plus the audit-all
-  cliff benchmark (CV-shaped bench at 100 iterations under an OS
-  `timeout 45s` — the ~10x-regression kill switch) and the fleet
-  golangci-lint (v2.15.0, matching the flake pin) on push + PR; a
+- **CI workflow** — build / vet / stack-drift / test plus the race lane
+  (`go test -race ./...`, added 2026-11-14 after it surfaced three real
+  data races the moment the nix steps stopped masking it) and the
+  audit-all cliff benchmark (CV-shaped bench at 100 iterations under an
+  OS `timeout 45s` — the ~10x-regression kill switch) and the fleet
+  golangci-lint (v2.15.0, matching the flake pin) on push + PR;
+  `permissions: contents: read` per the fleet cue policy; a
   `provider` job runs the nested module (build / vet / lint / test); a
   `dogfood` job runs the battery over THIS repo every push (full
   history checkout so annotate's hash claims resolve). No standalone
@@ -100,8 +115,11 @@ built.
 - **Dependabot** — weekly grouped updates for the workflow action SHAs
   and both go modules (`.github/dependabot.yml`), so the checkout /
   setup-go / golangci pins never age without a renewal PR.
-- **Releases** — v0.1.0 (the extraction train) and v0.1.1 (annotate_max
-  ratchet + provider module) tagged; `go install …@latest` resolves.
+- **Releases** — v0.1.0 (the extraction train), v0.1.1 (annotate_max
+  ratchet + provider module), v0.2.0 (CLI help surface, purge verb,
+  `--json` face, erraudit adoption, parity corpus), and v0.3.0
+  (`--land-parity`, typed refusal carriers) tagged; provider module at
+  `pkg/provider/v0.2.0`; `go install …@latest` resolves.
 - **Pilot rollout evidence** — crm + go-appkit seeded (2026-11-03) and
   green under adoption ratchets (audit_max, annotate_max, cadence bars at
   the measured debt); the ratchets drain as the rituals run.
