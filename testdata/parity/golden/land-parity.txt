@@ -1,0 +1,1 @@
+land-parity: OK — 1 recorded line(s) from the 2026-01-01T00:00:00Z SAFE batch all landed verbatim

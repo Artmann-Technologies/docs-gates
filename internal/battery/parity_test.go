@@ -118,6 +118,25 @@ func parityGates() []parityGate {
 			argsAfterRoot: []string{"<corpus>/TODOS.md"},
 			wantCode:      gatecli.ExitUsage,
 		},
+		{
+			// The land-parity ledger face: the corpus stamp records a line
+			// that IS on disk, and the OK message prints the stamp's fixed
+			// recorded timestamp verbatim (byte-stable by fixture). These
+			// arms run BEFORE the pre-flight arms: a SAFE pre-flight
+			// overwrites the stamp (the newest SAFE batch owns it), so
+			// reading the fixture stamp after them would drift.
+			name:     "land-parity",
+			args:     []string{"freshness", "--land-parity"},
+			wantCode: gatecli.ExitClean,
+		},
+		{
+			// The DRIFT face: a recorded line that never landed names
+			// itself — the retyped-bullet class, pinned byte-exact.
+			name:     "land-parity-drift",
+			args:     []string{"freshness", "--land-parity"},
+			corpus:   "corpus-drift",
+			wantCode: gatecli.ExitFindings,
+		},
 		{name: "preflight-safe", args: []string{"freshness", "--pre-flight"}, stdin: preflightSafeCandidate},
 		{
 			name:     "preflight-replace",

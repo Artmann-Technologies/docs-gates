@@ -1,0 +1,5 @@
+land-parity: DRIFT — the landed edit diverged from the pre-flighted SAFE batch:
+    missing verbatim: the zeppelin hull rivet audit never landed
+  the pre-flight verdict was earned by DIFFERENT bytes than the ones on disk
+  (the retyped-bullet class): re-run --pre-flight with the ACTUAL lines, or
+  clear the ledger with --clear-stamp if the divergence is deliberate.
