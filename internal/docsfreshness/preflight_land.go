@@ -1,9 +1,13 @@
 package docsfreshness
 
 import (
+	"context"
 	"encoding/json"
+	"errors"
 	"os"
+	"os/exec"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/Artmann-Technologies/docs-gates/internal/gatecli"
@@ -52,13 +56,43 @@ func writePreflightStamp(root string, lines []string) {
 	blob = append(blob, '\n')
 
 	_ = os.WriteFile(stampPath(root), blob, stampFileMode)
+	warnIfStampShared(root)
+}
+
+// warnIfStampShared notes (stderr, best-effort) when the freshly written
+// stamp is not git-ignored: it is local editor state, never shared, but
+// a consumer repo without the .gitignore entry lets an auto-commit
+// daemon sweep it into history (paid for in cmdguard 2026-11-14 — the
+// entry existed in THIS repo's .gitignore and nowhere else). git
+// check-ignore is the ground truth, and a TRACKED stamp still reports
+// not-ignored — exactly the worst case, so the plain probe is the right
+// one. Any probe failure (no git binary, not a checkout, sandbox) skips
+// the note silently: the stamp is a guard, never a gate.
+func warnIfStampShared(root string) {
+	probe := exec.CommandContext(context.Background(), "git", "-C", root, "check-ignore", "-q", stampName) //nolint:gosec // git -C this repo; the subcommand and name are literals
+
+	err := probe.Run()
+	if err == nil {
+		return
+	}
+
+	ee, ok := errors.AsType[*exec.ExitError](err)
+	if !ok || ee.ExitCode() != 1 {
+		return
+	}
+
+	gatecli.Errf("docs-freshness: note: %s is not git-ignored — it is the land-parity ledger (local editor state, never shared); add it to .gitignore\n", stampName)
 }
 
 // PreFlightParity verifies the last SAFE pre-flight batch landed
-// verbatim: every recorded line must exist byte-exact in the living
-// docs. Exit 0 = parity (or no recorded batch — the guard is opt-in
-// state); 1 = divergence, naming the lines that never landed as
-// pre-flighted.
+// verbatim: every recorded line must exist in the living docs through
+// the SAME lens the verdict judged them — the corpus is lowercased
+// (corpus.go), so the comparison lowercases and trims both sides. A
+// raw byte-exact match would false-DRIFT every line carrying an
+// uppercase letter (paid for 2026-11-14: cmdguard's first land-parity
+// run refused a byte-identical landing). Exit 0 = parity (or no
+// recorded batch — the guard is opt-in state); 1 = divergence, naming
+// the lines that never landed as pre-flighted.
 func PreFlightParity(root string, settings Settings) int {
 	raw, err := os.ReadFile(stampPath(root))
 	if err != nil {
@@ -81,16 +115,16 @@ func PreFlightParity(root string, settings Settings) int {
 	}
 
 	living := loadLivingDocs(root, settings)
-	onDisk := make(map[string]bool)
+	onDisk := make(map[string]bool, len(living.lines))
 
 	for _, line := range living.lines {
-		onDisk[line] = true
+		onDisk[strings.TrimSpace(line)] = true
 	}
 
 	var diverged []string
 
 	for _, line := range stamp.Lines {
-		if !onDisk[line] {
+		if !onDisk[strings.ToLower(strings.TrimSpace(line))] {
 			diverged = append(diverged, line)
 		}
 	}
