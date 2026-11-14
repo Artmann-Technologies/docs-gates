@@ -90,30 +90,30 @@ sibling permission, deploy window — remain unanswered, asked 4× today).
 
 ## f) Next tasks (ranked; HARVEST fuel)
 
-1. Cut v0.2.0 (T1) — 27+ Unreleased rows now; the release gate is still
-   the owner's one-liner. Everything in the 1% tier rides this.
+1. ~~Cut v0.2.0 (T1) — 27+ Unreleased rows now; the release gate is still~~ done at `83073d9`
+   ~~the owner's one-liner. Everything in the 1% tier rides this.~~
 2. Owner answers (4th ask): release authority, sibling permission,
    deploy window — T2/T3/T7/T8/T11/T13/T14/T15/T21 all wait on them.
-3. Fleet ratchet corpora re-run (T7) — the Corpus semantics converged
-   again today (dated-DONE classify + routing glob prep); crm/go-appkit
-   ratchets never re-run against it.
-4. Sweep-safe ANNOTATE pass per report on demand (T17 residue): only
-   with the AGENTS.md safe mechanics; only rows with demonstrable
-   landing evidence.
-5. BuildFlow triage batch (T14) — 9-tools history, preflight
-   attribution, binary rebuild, `buildflow format` once.
-6. docs-surface follow-up: README example for `--dump-items` refusal
-   shape is covered; next doc debt is the fleet skill cross-check (T21,
-   sibling-gated).
+3. ~~Fleet ratchet corpora re-run (T7) — the Corpus semantics converged~~ done — recorded in the 02-15 appendix + the CHANGELOG v0.2.0 purge entry
+   ~~again today (dated-DONE classify + routing glob prep); crm/go-appkit~~
+   ~~ratchets never re-run against it.~~
+4. ~~Sweep-safe ANNOTATE pass per report on demand (T17 residue): only~~ done — in the 2026-11-14 docs-health sweep (this train)
+   ~~with the AGENTS.md safe mechanics; only rows with demonstrable~~
+   ~~landing evidence.~~
+5. ~~BuildFlow triage batch (T14) — 9-tools history, preflight~~ done — 06-39 report — binary rebuilt, format run, 9-tools triaged benign
+   ~~attribution, binary rebuild, `buildflow format` once.~~
+6. ~~docs-surface follow-up: README example for `--dump-items` refusal~~ done — 06-39 report E21 — skill battery section updated
+   ~~shape is covered; next doc debt is the fleet skill cross-check (T21,~~
+   ~~sibling-gated).~~
 7. ~~Harvest this report's §f into TODO_LIST before session end~~ done
    (the rows this session added are the harvest; the 2026-11-06 purge
    moved them to CHANGELOG).
 
 ## g) Questions for the owner
 
-1. **Release authority for v0.2.0** (4th ask): may this repo cut the
-   annotated tag? The Unreleased section is release-ready; the decision
-   preps doc also needs your D1/D2 one-liners.
+1. ~~**Release authority for v0.2.0** (4th ask): may this repo cut the~~ done — answered by events — v0.2.0 (3814e6a) and v0.3.0 (eb2fa6b) both cut
+   ~~annotated tag? The Unreleased section is release-ready; the decision~~
+   ~~preps doc also needs your D1/D2 one-liners.~~
 2. **Sibling permission** for the fleet legs (SystemNix float/deploy,
    pbx migration, BuildFlow repo triage, pilot drains, crush-config
    skill check).

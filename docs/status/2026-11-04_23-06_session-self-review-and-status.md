@@ -107,38 +107,38 @@ contents beyond the success badge; ROADMAP items (untouched by design).
 2. **T24 D2 floor decision** — F93 (recommendation note) done; F94 (the
    AGENTS one-floor-sentence simplification) is owner-gated on the
    decision itself. Effort: S once decided.
-3. **TODO_LIST harvest of THIS report's §f** — the 22:52 report's items
-   routed to existing rows; the NEW candidates surfaced by tonight's
-   self-review (see §f items marked [NEW]) are being harvested now, at
-   the end of this report. Effort: S.
-4. **Daemon push health** — 22 commits accumulated unpushed; I pushed
-   manually once. The push itself works; WHY the daemon lagged is
-   undiagnosed (not attempted — out of session scope). Effort: S to
-   diagnose, in crush-config territory.
+3. ~~**TODO_LIST harvest of THIS report's §f** — the 22:52 report's items~~ done — TODO 2b created; purged in the 2026-11-06 passes
+   ~~routed to existing rows; the NEW candidates surfaced by tonight's~~
+   ~~self-review (see §f items marked [NEW]) are being harvested now, at~~
+   ~~the end of this report. Effort: S.~~
+4. ~~**Daemon push health** — 22 commits accumulated unpushed; I pushed~~ done at `b9b41a7`
+   ~~manually once. The push itself works; WHY the daemon lagged is~~
+   ~~undiagnosed (not attempted — out of session scope). Effort: S to~~
+   ~~diagnose, in crush-config territory.~~
 
 ## c) NOT STARTED (all owner-gated or sibling-scoped; priority per plan v2)
 
-1. **T1 v0.2.0 release cut** — waits on release authority (asked 4×).
-   Still wanted: yes, it versions 27+ Unreleased rows and the three new
-   flags.
+1. ~~**T1 v0.2.0 release cut** — waits on release authority (asked 4×).~~ done at `83073d9`
+   ~~Still wanted: yes, it versions 27+ Unreleased rows and the three new~~
+   ~~flags.~~
 2. **T2 SystemNix float** — sibling permission; mechanical once granted.
 3. **T3 evo-x2 deploy + live smoke** — owner quiescent window.
-4. **T7 fleet ratchet corpora re-run** — sibling; MORE urgent now (the
-   Corpus semantics converged again today: dated-DONE classify, margins
-   scoping, routing glob prep).
+4. ~~**T7 fleet ratchet corpora re-run** — sibling; MORE urgent now (the~~ done — CHANGELOG v0.2.0 purge entry (crm + go-appkit rerun)
+   ~~Corpus semantics converged again today: dated-DONE classify, margins~~
+   ~~scoping, routing glob prep).~~
 5. **T8 pbx-artmann migration** — sibling; rides T1's tag.
 6. **T11 pilot ratchet drain** — sibling.
 7. **T13 SystemNix eval legs** — sibling; rides T2.
-8. **T14 BuildFlow triage batch** (9-tools history, preflight
-   attribution, binary rebuild, `buildflow format` once) — sibling.
+8. ~~**T14 BuildFlow triage batch** (9-tools history, preflight~~ done — 06-39 report — rebuild + format-once + 9-tools benign
+   ~~attribution, binary rebuild, `buildflow format` once) — sibling.~~
 9. **T15 BuildFlow upstream** (#87 + roundtrip walker, then drop the
    AGENTS bypasses) — sibling.
-10. **T21 skill cross-check in crush-config** — sibling; now ALSO the
-    place where the LSP-wrapper cache fix would land (see §f).
-11. **T22 nixpkgs maintainers PR** — owner-gated external PR.
-12. **F94 AGENTS toolchain paragraph simplification** — rides the D2
-    decision.
-13. **ROADMAP fuel items** (doctor verb, margins threshold knob,
+10. ~~**T21 skill cross-check in crush-config** — sibling; now ALSO the~~ done — 06-39 report E21
+    ~~place where the LSP-wrapper cache fix would land (see §f).~~
+11. ~~**T22 nixpkgs maintainers PR** — owner-gated external PR.~~ done — githubId 23587853 resolved; the PR rides TODO_LIST 3
+12. ~~**F94 AGENTS toolchain paragraph simplification** — rides the D2~~ done at `39bed4d`
+    ~~decision.~~
+13. **ROADMAP fuel items** (doctor verb, margins threshold knob, **→ ROADMAP.md carries the fuel (doctor, split-check, CutStringFlag bullets)**
     split-check verb, continuation-digit gate, CutStringFlag,
     result-cache identity, findings-gate cache-state summary) — not
     started by intent; they are ideas, not commitments.
@@ -205,12 +205,12 @@ contents beyond the success badge; ROADMAP items (untouched by design).
    pipes lie; capture the test's exit explicitly.
 7. **Time-box judgment sweeps at the inventory step** — when the real
    size is 6× the estimate, scope down before writing any transformation.
-8. **Encode the safe strike mechanics in a script** (`scripts/`), so the
-   next sweep cannot repeat the sed mistakes even by accident (candidate
-   row, §f).
-9. **The e2e sentinel's sandbox arm deserves a log-visible proof** — the
-   nix check passing does not show WHICH arm fired; assert the skip line
-   in the check's log output.
+8. ~~**Encode the safe strike mechanics in a script** (`scripts/`), so the~~ done at `4e87b4a`
+   ~~next sweep cannot repeat the sed mistakes even by accident (candidate~~
+   ~~row, §f).~~
+9. ~~**The e2e sentinel's sandbox arm deserves a log-visible proof** — the~~ done at `2508f53`
+   ~~nix check passing does not show WHICH arm fired; assert the skip line~~
+   ~~in the check's log output.~~
 
 ## f) 50 things to get done next
 
@@ -218,8 +218,8 @@ Brainstorm, not commitment (HARVEST must apply routing rigor; [T] =
 already tracked in TODO_LIST, [NEW] = surfaced tonight, [SIBLING] /
 [OWNER] = gates, [ROADMAP] = fuel, not commitments).
 
-1. [T][OWNER] Cut v0.2.0: fold Unreleased (27+ rows), annotated tag,
-   go-release pre-verify, push, proxy/pkg.go.dev confirmation.
+1. ~~[T][OWNER] Cut v0.2.0: fold Unreleased (27+ rows), annotated tag,~~ done at `83073d9`
+   ~~go-release pre-verify, push, proxy/pkg.go.dev confirmation.~~
 2. [T][OWNER] Answer D1: battery adoption PATH-only-for-a-quarter vs
    timer lane (matrix ready in the decision doc).
 3. [T][OWNER] Answer D2: root go floor 1.27 with v0.2.0 (tradeoffs in
@@ -228,48 +228,48 @@ already tracked in TODO_LIST, [NEW] = surfaced tonight, [SIBLING] /
    expected-locks + toplevel proof.
 5. [T][SIBLING][OWNER] evo-x2 deploy + six-binary live smoke + SystemNix
    TODO row for the deployed switch state.
-6. [T][SIBLING] Fleet ratchet corpora re-run (crm, go-appkit) — Corpus
-   semantics converged AGAIN tonight (dated-DONE, margins scoping).
+6. ~~[T][SIBLING] Fleet ratchet corpora re-run (crm, go-appkit) — Corpus~~ done — CHANGELOG v0.2.0 purge entry (crm + go-appkit rerun)
+   ~~semantics converged AGAIN tonight (dated-DONE, margins scoping).~~
 7. [T][SIBLING] pbx-artmann migration onto this binary (rides T1's tag)
    - fleet announcement.
-8. [T][SIBLING] BuildFlow triage batch: 9-tools `history --last-error`,
-   preflight FAIL attribution, binary rebuild + reinstall,
-   `buildflow format` once.
+8. ~~[T][SIBLING] BuildFlow triage batch: 9-tools `history --last-error`,~~ done — 06-39 report triage batch
+   ~~preflight FAIL attribution, binary rebuild + reinstall,~~
+   ~~`buildflow format` once.~~
 9. [T][SIBLING] BuildFlow upstream: #87 fix + roundtrip walker fix, then
    drop both AGENTS bypasses.
 10. [T][SIBLING] Pilot ratchet drain in crm + go-appkit (bars tighten as
     debt drains).
 11. [T][SIBLING] SystemNix eval legs: rpi3-dns toplevel + standalone
     all-systems check.
-12. [T][SIBLING] Cross-check the fleet docs-health skill text vs the new
-    flags (crush-config repo).
+12. ~~[T][SIBLING] Cross-check the fleet docs-health skill text vs the new~~ done — 06-39 report E21 + purge entry
+    ~~flags (crush-config repo).~~
 13. [T][OWNER] nixpkgs maintainers PR + flake meta.maintainers reference.
-14. [T][OWNER] After D2: collapse the AGENTS toolchain paragraph to one
-    floor sentence (F94).
+14. ~~[T][OWNER] After D2: collapse the AGENTS toolchain paragraph to one~~ done at `39bed4d`
+    ~~floor sentence (F94).~~
 15. [T] T17 residue: per-report verdict strikes with the AGENTS safe
     mechanics (unique-text anchors, cell-bounded, gate per batch) — only
     rows with demonstrable landing evidence; archive when a report
     resolves fully.
-16. [NEW] Pin the margins exclusion in the parity net: a `margins` gate
-    over `corpus-replace` (all its near-bar vocabulary is item-claimed →
-    pins the exclusion byte-for-byte).
-17. [NEW] CI lint jobs: golangci-lint (root + provider) currently run
-    locally only; CI runs vet/gofmt — a lint job would close the gap the
-    provider job left.
-18. [NEW] Encode the safe strike mechanics as `scripts/safe-strike.sh`
-    (anchor-on-unique-text, cell-bounded, gate-per-batch) so the next
-    sweep cannot repeat §d by accident.
-19. [NEW] e2e sentinel sandbox-arm proof: assert the "E2E LEG: skipped"
-    line inside the nix provider check's log (the check passes today
-    without proving which arm fired).
+16. ~~[NEW] Pin the margins exclusion in the parity net: a `margins` gate~~ done at `9fa4a3a`
+    ~~over `corpus-replace` (all its near-bar vocabulary is item-claimed →~~
+    ~~pins the exclusion byte-for-byte).~~
+17. ~~[NEW] CI lint jobs: golangci-lint (root + provider) currently run~~ done at `e3226d7`
+    ~~locally only; CI runs vet/gofmt — a lint job would close the gap the~~
+    ~~provider job left.~~
+18. ~~[NEW] Encode the safe strike mechanics as `scripts/safe-strike.sh`~~ done at `4e87b4a`
+    ~~(anchor-on-unique-text, cell-bounded, gate-per-batch) so the next~~
+    ~~sweep cannot repeat §d by accident.~~
+19. ~~[NEW] e2e sentinel sandbox-arm proof: assert the "E2E LEG: skipped"~~ done at `2508f53`
+    ~~line inside the nix provider check's log (the check passes today~~
+    ~~without proving which arm fired).~~
 20. [SIBLING] Fix the `golangci-lint-lsp-wrapper` analysis cache in
     crush-config (bust or version-key `GOLANGCI_LINT_ANALYSIS_CACHE`) —
     the verified root cause of the ghost-diagnostics class.
 21. [OWNER/local] Unset `core.hooksPath` locally to arm pre-commit
     auto-install (currently explicitly set to its own default; pre-commit
     refuses to install over it).
-22. [T] Diagnose the daemon push lag (22 commits accumulated) — push
-    works, the daemon's push cadence did not.
+22. ~~[T] Diagnose the daemon push lag (22 commits accumulated) — push~~ done at `b9b41a7`
+    ~~works, the daemon's push cadence did not.~~
 23. [ROADMAP] Margins threshold knob (`marginNearBar` as a config key) —
     this repo's own report lists 57 near-bar tokens; a knob would let
     repos tune signal vs noise.
@@ -292,25 +292,25 @@ already tracked in TODO_LIST, [NEW] = surfaced tonight, [SIBLING] /
     BuildFlow board's actual state.
 33. [T] Fleet-wide search for >350-line Go files proactively (crm,
     go-appkit, bank-sync) instead of waiting for their next run.
-34. [ROADMAP] `--json` verdict output for CI annotations (FEATURES
-    WORTH CONSIDERING).
+34. ~~[ROADMAP] `--json` verdict output for CI annotations (FEATURES~~ done at `49d11cd`
+    ~~WORTH CONSIDERING).~~
 35. [ROADMAP] Generic counts gate (numbers-style) — needs a design pass.
-36. [T] After T1: bump README "Releases" line + `go install @v0.2.0`
-    mention (F5).
-37. [T] After T1: CHANGELOG `[v0.2.0]` section date + release link (F2).
-38. [T] Provider module: re-run its suite + lint after the next
-    toolsdk bump (only checked locally tonight).
+36. ~~[T] After T1: bump README "Releases" line + `go install @v0.2.0`~~ done at `b2f1f7f`
+    ~~mention (F5).~~
+37. ~~[T] After T1: CHANGELOG `[v0.2.0]` section date + release link (F2).~~ done at `83073d9`
+38. ~~[T] Provider module: re-run its suite + lint after the next~~ done at `e3226d7`
+    ~~toolsdk bump (only checked locally tonight).~~
 39. [ROADMAP] Config: consider warning when `living_docs` names a file
     that does not exist (currently silently empty corpus?).
-40. [ROADMAP] Strike verb: `--batch` mode reading a verdict table from
-    stdin (would make safe sweeps scriptable).
+40. ~~[ROADMAP] Strike verb: `--batch` mode reading a verdict table from~~ **Won't implement — TODO 2c WONT-DO ruling — bulk sweeps are false-strike factories.**
+    ~~stdin (would make safe sweeps scriptable).~~
 41. [ROADMAP] annotate: rule for struck rows whose verdict cites a
     DELETED path (currently path-claims must exist; deleted-since is
     legitimate but unverifiable).
 42. [ROADMAP] freshness: `--dump-items` shorthand accepting repo root
     (dump the newest report implicitly).
-43. [ROADMAP] Battery: print per-gate durations (the matrix names
-    verdicts, not cost).
+43. ~~[ROADMAP] Battery: print per-gate durations (the matrix names~~ done at `1ce2d7c`
+    ~~verdicts, not cost).~~
 44. [ROADMAP] Corpus: a corpus-corrupt fixture (malformed config) as a
     golden to pin the exit-2 path end-to-end.
 45. [T] Re-run `buildflow --build-mode dev` once after the daemon-heavy
@@ -324,15 +324,15 @@ already tracked in TODO_LIST, [NEW] = surfaced tonight, [SIBLING] /
     (default stays no-abort).
 49. [T] Annotate the 22-52 report's §b/§d claims when T14/T15 land (the
     binary-rebuild + format items resolve observations made tonight).
-50. [T] Keep the owner-question cadence: 5th ask for release authority +
-    sibling permission rides the next natural contact point (T1 blocks
-    the 1% tier).
+50. ~~[T] Keep the owner-question cadence: 5th ask for release authority +~~ done — release authority answered (v0.2.0+v0.3.0 cut); sibling asks ride 04-50 g.5
+    ~~sibling permission rides the next natural contact point (T1 blocks~~
+    ~~the 1% tier).~~
 
 ## g) Questions for the owner
 
-1. **Release authority (5th ask):** may I cut v0.2.0 now — fold
-   Unreleased, annotated tag, push, fleet announcement? Everything in
-   the 1% tier (and the D2 floor recommendation) rides this one yes.
+1. ~~**Release authority (5th ask):** may I cut v0.2.0 now — fold~~ done — answered by events — v0.2.0 (3814e6a) and v0.3.0 (eb2fa6b) both cut
+   ~~Unreleased, annotated tag, push, fleet announcement? Everything in~~
+   ~~the 1% tier (and the D2 floor recommendation) rides this one yes.~~
 2. **Sibling permission, blanket or per-repo:** SystemNix (float +
    deploy), BuildFlow (triage + upstream #87/walker), crm/go-appkit
    (ratchet re-runs + drains), crush-config (skill cross-check + the

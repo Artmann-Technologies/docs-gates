@@ -61,7 +61,7 @@ these printed findings); nothing in either target repo was modified.
 - Harvesting the go-health/CV reds into those repos' TODO_LISTs or
   running their archive rituals (their sessions' work; sibling
   permission is a standing owner gate).
-- Any audit-all performance fix in this repo (diagnosed, not designed).
+- ~~Any audit-all performance fix in this repo (diagnosed, not designed).~~ done — CHANGELOG v0.2.0 audit-all memoization (2753ms→47ms, 59×)
 - Disposal of the wedged foreign processes (not mine to kill).
 - CV's two HTML status reports outside the .md scan (gate WARN; their
   obligations unrouted).
@@ -110,14 +110,14 @@ these printed findings); nothing in either target repo was modified.
 
 ## f) Next things (this repo's rows harvested to TODO_LIST §2d; sibling rows stay here, scoped to their own repos)
 
-1. audit-all perf: hoist the living-docs DF/line-match index to once-per-run — it is recomputed per report today — and benchmark over the go-health corpus before/after.
-2. audit-all short-circuit: a report with zero open items skips token matching entirely.
-3. Battery heartbeat: per-gate elapsed-time progress line so a wedged or crawling gate is visible in-band.
-4. Battery per-gate wall-clock timeout mapping onto the FAIL row (rc=timeout) instead of hanging the whole battery forever.
-5. audit-all preflight cost warning when reports × living-doc lines crosses a threshold (print an estimate before the replay starts).
-6. Perf regression net: a benchmark pinning audit-all runtime vs corpus size, plus a CI arm over a synthesized ~1.6k-report corpus so the cliff stays visible.
-7. Wedged-process diagnosis: strace one 0%-CPU docs-gates straggler before asserting the pipe-block class (Go's stdout SIGPIPE behavior may not be the mechanism).
-8. AGENTS.md non-obvious fact: the audit-all cost model with the CV numbers (1,643 reports × ~2,000 living lines ≈ hours; go-health's 66 × ~500 ≈ 2 min).
+1. ~~audit-all perf: hoist the living-docs DF/line-match index to once-per-run — it is recomputed per report today — and benchmark over the go-health corpus before/after.~~ done — CHANGELOG v0.2.0 — the memoized Corpus (59x)
+2. ~~audit-all short-circuit: a report with zero open items skips token matching entirely.~~ done — purge entry — subsumed by the memoization win
+3. ~~Battery heartbeat: per-gate elapsed-time progress line so a wedged or crawling gate is visible in-band.~~ done at `1ce2d7c`
+4. ~~Battery per-gate wall-clock timeout mapping onto the FAIL row (rc=timeout) instead of hanging the whole battery forever.~~ done at `da5dfcc`
+5. ~~audit-all preflight cost warning when reports × living-doc lines crosses a threshold (print an estimate before the replay starts).~~ done at `5237401`
+6. ~~Perf regression net: a benchmark pinning audit-all runtime vs corpus size, plus a CI arm over a synthesized ~1.6k-report corpus so the cliff stays visible.~~ done at `eb086ba`
+7. ~~Wedged-process diagnosis: strace one 0%-CPU docs-gates straggler before asserting the pipe-block class (Go's stdout SIGPIPE behavior may not be the mechanism).~~ done at `e74c6b6`
+8. ~~AGENTS.md non-obvious fact: the audit-all cost model with the CV numbers (1,643 reports × ~2,000 living lines ≈ hours; go-health's 66 × ~500 ≈ 2 min).~~ done — AGENTS audit-all cost-model fact
 9. go-health archive ritual: 36 unarchived reports vs threshold 15, oldest 27 days (sibling repo) <!-- fresh:skip -->
 10. go-health harvest: the 32 unharvested audit-all items into its TODO_LIST; the sqlite restart-durability and architecture-gate.yml obligations each appear in TWO reports (sibling repo) <!-- fresh:skip -->
 11. go-health routing: 4 unrouted rows — check-art-dupl.sh exec bit, T09 version-skew script, T22 shutdown decision record, Issue #6 annotation (sibling repo) <!-- fresh:skip -->
@@ -127,16 +127,16 @@ these printed findings); nothing in either target repo was modified.
 15. CV routing: 1 unrouted row in the chromedp-takeover fleet-audit report (sibling repo) <!-- fresh:skip -->
 16. CV annotate: 717 findings, F/spacing dominated including scripts shell files — one formatter pass likely clears most (sibling repo) <!-- fresh:skip -->
 17. CV: route the obligations carried by the 2 HTML status reports outside the .md scan (sibling repo) <!-- fresh:skip -->
-18. CV: one complete audit-all replay (post perf-fix or overnight) for the full-corpus verdict this session never got (sibling repo) <!-- fresh:skip -->
+18. ~~CV: one complete audit-all replay (post perf-fix or overnight) for the full-corpus verdict this session never got (sibling repo) <!-- fresh:skip -->~~ done — 04-50 a — CV audit-all ran 49.3s, 8788 findings, honest rc=1
 19. go-health and CV: consider `.docs-gates.json` ratchets (audit_max, annotate_max) so their reds show tolerated progress instead of monolithic FAIL (sibling repos) <!-- fresh:skip -->
 20. Ops: dispose of the wedged docs-gates processes — owner call, see §g Q1 (owner action) <!-- fresh:skip -->
 
 ## g) Questions I cannot answer myself
 
-1. **Kill the wedged processes?** Three 0%-CPU docs-gates stragglers
-   (CV 7 h, webphone 2 h, BuildFlow 1.5 h) predate this session and are
-   not mine; the fourth (webphone, 2% CPU) looks alive. Kill the three,
-   or leave for their owning sessions?
+1. ~~**Kill the wedged processes?** Three 0%-CPU docs-gates stragglers~~ done — resolved — the 19:05 kernel hard reset cleared the stragglers (06-39 a.16); the wedge class itself fixed 7c45b6e
+   ~~(CV 7 h, webphone 2 h, BuildFlow 1.5 h) predate this session and are~~
+   ~~not mine; the fourth (webphone, 2% CPU) looks alive. Kill the three,~~
+   ~~or leave for their owning sessions?~~
 2. **audit-all semantics:** is replaying the FULL corpus (CV: 1,271
    archived included) still the intended contract for repos this size,
    or is a scoped mode (unarchived + last N archived) an acceptable

@@ -65,43 +65,43 @@ back):**
 
 ## a) FULLY DONE
 
-1. **CI loop closed on both trains** — the morning audit train (pushed
-   at last pass) and the evening fix train both green on GitHub.
-2. **docs-cadence purge-counter bug found, fixed, tested** — dated DONE
-   status cells (`✅ DONE 2026-11-04`) now count as struck rows (any
-   cell starting with a DONE marker; prose DONE still never occupies a
-   whole cell); `TestDatedDoneCellsAreStruckRows` pins the dated and
-   dashed shapes; CHANGELOG Fixed row written.
-3. **Purge ritual executed** — 25 landed rows deleted from TODO_LIST
-   after verifying per-task CHANGELOG coverage; cadence now reads a
-   truthful 0 struck rows under threshold 20.
-4. **The 19:01 execution report harvested in full** — its 50 §f items
-   routed: 11 quality-machinery rows + 3 docs-surface rows new in
-   TODO §1-§2; fleet legs confirmed/extended in §3 (fleet-ratchet-corpus
-   re-run added as its own row); v0.2.0 release cut into §4; curated
-   long-game ideas into ROADMAP (pre-flight removals/ranges, margins
-   --json + routing convergence, doctor verb, fleet-wide nolint
-   tripwires); noise declined with reasons in the report's own routing.
-5. **The untracked 19:01 report committed** (daemon blind spot — it sat
-   untracked 14+ minutes until this session's deliberate commit).
-6. **AGENTS Commands** gained the erraudit-rev tripwire line (the script
-   existed; the command list didn't name it).
-7. **Deliberate train committed and pushed** (`73f5eac`): gate fix +
-   test + purge + harvest + ROADMAP + CHANGELOG + report, one detailed
-   message, CI green.
+1. ~~**CI loop closed on both trains** — the morning audit train (pushed~~ done at `73f5eac`
+   ~~at last pass) and the evening fix train both green on GitHub.~~
+2. ~~**docs-cadence purge-counter bug found, fixed, tested** — dated DONE~~ done at `73f5eac`
+   ~~status cells (`✅ DONE 2026-11-04`) now count as struck rows (any~~
+   ~~cell starting with a DONE marker; prose DONE still never occupies a~~
+   ~~whole cell); `TestDatedDoneCellsAreStruckRows` pins the dated and~~
+   ~~dashed shapes; CHANGELOG Fixed row written.~~
+3. ~~**Purge ritual executed** — 25 landed rows deleted from TODO_LIST~~ done at `73f5eac`
+   ~~after verifying per-task CHANGELOG coverage; cadence now reads a~~
+   ~~truthful 0 struck rows under threshold 20.~~
+4. ~~**The 19:01 execution report harvested in full** — its 50 §f items~~ done — harvested — the 2b rows purged in the 2026-11-06 purge passes
+   ~~routed: 11 quality-machinery rows + 3 docs-surface rows new in~~
+   ~~TODO §1-§2; fleet legs confirmed/extended in §3 (fleet-ratchet-corpus~~
+   ~~re-run added as its own row); v0.2.0 release cut into §4; curated~~
+   ~~long-game ideas into ROADMAP (pre-flight removals/ranges, margins~~
+   ~~--json + routing convergence, doctor verb, fleet-wide nolint~~
+   ~~tripwires); noise declined with reasons in the report's own routing.~~
+5. ~~**The untracked 19:01 report committed** (daemon blind spot — it sat~~ done — committed (report rides the corpus today)
+   ~~untracked 14+ minutes until this session's deliberate commit).~~
+6. ~~**AGENTS Commands** gained the erraudit-rev tripwire line (the script~~ done — scripts/check-erraudit-rev.sh exists and gates as a flake check
+   ~~existed; the command list didn't name it).~~
+7. ~~**Deliberate train committed and pushed** (`73f5eac`): gate fix +~~ done at `73f5eac`
+   ~~test + purge + harvest + ROADMAP + CHANGELOG + report, one detailed~~
+   ~~message, CI green.~~
 
 ## b) PARTIALLY DONE
 
-1. **The classify fix has unit coverage but no golden arm** — the parity
-   corpus's TODOS.md carries no dated-DONE rows, so the byte-parity net
-   does not exercise the new counting (only the unit test does). One
-   fixture arm closes it; routed to §f below.
-2. **The stale LSP `gci` ghost warning** on items.go/classify.go
-   persisted across the day's tool diagnostics while real lint was
-   clean — the harness issue row is tracked; no repro attempted here.
-3. **CHANGELOG granularity** — settled de facto (per-task rows), but the
-   owner question from 16:45 is technically still open until the v0.2.0
-   cut (§4 row) lands.
+1. ~~**The classify fix has unit coverage but no golden arm** — the parity~~ done at `7a16061`
+   ~~corpus's TODOS.md carries no dated-DONE rows, so the byte-parity net~~
+   ~~does not exercise the new counting (only the unit test does). One~~
+   ~~fixture arm closes it; routed to §f below.~~
+2. ~~**The stale LSP `gci` ghost warning** on items.go/classify.go~~ done — root-caused — the SystemNix wrapper fix landed; activation rides TODO_LIST 3
+   ~~persisted across the day's tool diagnostics while real lint was~~
+   ~~clean — the harness issue row is tracked; no repro attempted here.~~
+3. ~~**CHANGELOG granularity** — settled de facto (per-task rows), but the~~ done at `83073d9`
+   ~~owner question from 16:45 is technically still open until the v0.2.0~~
+   ~~cut (§4 row) lands.~~
 
 ## c) NOT STARTED
 
@@ -137,10 +137,10 @@ Nothing unrecovered. The honest damage list:
 3. **Write-protocol under daemon ticks** — fresh view immediately before
    every edit of a file the daemon/formatter also touches (paid twice
    this session; the 19:01 report's §e already prescribed it).
-4. **Gate-behavior fixes deserve golden arms** — the unit test pins the
-   counter, but the parity net exists to pin gate OUTPUT; a dated-DONE
-   fixture row in the corpus TODOS.md would have the byte-parity net
-   carry this fix too (routed below).
+4. ~~**Gate-behavior fixes deserve golden arms** — the unit test pins the~~ done at `7a16061`
+   ~~counter, but the parity net exists to pin gate OUTPUT; a dated-DONE~~
+   ~~fixture row in the corpus TODOS.md would have the byte-parity net~~
+   ~~carry this fix too (routed below).~~
 5. **The trophy-case class is now mechanically caught** — today's bug
    was "ritual says purge, gate says healthy"; with the counter fixed,
    the disagreement direction to watch flips (gate OVERDUE with rows
@@ -153,32 +153,32 @@ items by impact, "§N" cites home. NEW = born this session.
 
 | #  | Task                                                                                                   | Impact | Effort | Category      |
 | -- | ------------------------------------------------------------------------------------------------------ | ------ | ------ | ------------- |
-| 1  | Cut v0.2.0 (section + annotated tag, go-release ritual) — settles granularity, versions the flags (§4) | High   | M      | Release       |
+| ~~1~~  | ~~Cut v0.2.0 (section + annotated tag, go-release ritual) — settles granularity, versions the flags (§4)~~ done at `83073d9` | ~~High~~ | ~~M~~ | ~~Release~~ |
 | 2  | SystemNix float to the hardened flake (§3, P1)                                                         | High   | S      | Integration   |
 | 3  | evo-x2 deploy + live-PATH six-binary smoke (§3, P1, owner-gated window)                                | High   | S      | Deploy        |
-| 4  | Wire harvestAttributions into the auditAll renderer + battery arm (§1)                                 | High   | S      | Quality       |
-| 5  | CI-visible silent-skip assertion for the provider e2e leg (§1)                                         | High   | S      | Quality       |
-| 6  | NEW: parity-corpus fixture arm for the dated-DONE counting (corpus TODOS.md row + golden re-pin)       | Medium | S      | Quality       |
-| 7  | Docs-surface debt: README/DOMAIN_LANGUAGE/FEATURES rows for --margins/--dump-items/--replace (§2)      | Medium | S      | Documentation |
-| 8  | Parity arm: golden --replace through the binary (§1)                                                   | Medium | M      | Quality       |
-| 9  | battery_test gitignore-trap regression arm (§1)                                                        | Medium | S      | Quality       |
-| 10 | Re-run fleet ratchet corpora vs converged Corpus semantics (§3)                                        | Medium | S      | Process       |
-| 11 | pbx-artmann migration + fleet announcement after the release (§3)                                      | Medium | M      | Integration   |
-| 12 | Pre-commit nolint-audit leg (§1)                                                                       | Medium | S      | Quality       |
-| 13 | Owner D1 (battery adoption scope) + D2 (go floor) — recommendations prepared (§4)                      | Medium | S      | Decision      |
-| 14 | BuildFlow upstream: #87 + roundtrip walker + hygiene + LSP-ghost filing (§3)                           | Medium | L      | Quality       |
-| 15 | ANNOTATE sweep over the 8 unarchived reports, archive the fully-resolved (§1)                          | Low    | M      | Ritual        |
+| ~~4~~  | ~~Wire harvestAttributions into the auditAll renderer + battery arm (§1)~~ done at `d92f7f8` | ~~High~~ | ~~S~~ | ~~Quality~~ |
+| ~~5~~  | ~~CI-visible silent-skip assertion for the provider e2e leg (§1)~~ done at `2508f53` | ~~High~~ | ~~S~~ | ~~Quality~~ |
+| ~~6~~  | ~~NEW: parity-corpus fixture arm for the dated-DONE counting (corpus TODOS.md row + golden re-pin)~~ done at `7a16061` | ~~Medium~~ | ~~S~~ | ~~Quality~~ |
+| ~~7~~  | ~~Docs-surface debt: README/DOMAIN_LANGUAGE/FEATURES rows for --margins/--dump-items/--replace (§2)~~ done at `8a6435f` | ~~Medium~~ | ~~S~~ | ~~Documentation~~ |
+| ~~8~~  | ~~Parity arm: golden --replace through the binary (§1)~~ done at `510ff58` | ~~Medium~~ | ~~M~~ | ~~Quality~~ |
+| ~~9~~  | ~~battery_test gitignore-trap regression arm (§1)~~ done at `94350f5` | ~~Medium~~ | ~~S~~ | ~~Quality~~ |
+| ~~10~~ | ~~Re-run fleet ratchet corpora vs converged Corpus semantics (§3)~~ done — CHANGELOG v0.2.0 purge entry — the crm + go-appkit ratchet rerun | ~~Medium~~ | ~~S~~ | ~~Process~~ |
+| 11 | pbx-artmann migration + fleet announcement after the release (§3) **→ migration landed (pbx rides v0.1.0); the pin bump rides TODO_LIST 3** | Medium | M      | Integration   |
+| ~~12~~ | ~~Pre-commit nolint-audit leg (§1)~~ done at `87d34fe` | ~~Medium~~ | ~~S~~ | ~~Quality~~ |
+| 13 | Owner D1 (battery adoption scope) + D2 (go floor) — recommendations prepared (§4) **→ rulings ride TODO_LIST 4 (D1/D2 rows); preps landed d6d1702** | Medium | S      | Decision      |
+| 14 | BuildFlow upstream: #87 + roundtrip walker + hygiene + LSP-ghost filing (§3) **→ hygiene half done (06-39 report); the upstream fixes ride TODO_LIST 3** | Medium | L      | Quality       |
+| ~~15~~ | ~~ANNOTATE sweep over the 8 unarchived reports, archive the fully-resolved (§1)~~ done — in the 2026-11-14 docs-health sweep (this train) — rows struck, oldest batch archived | ~~Low~~ | ~~M~~ | ~~Ritual~~ |
 
 (Honest stop at 15: rows 16-30 live in TODO_LIST §1-§4 with evidence —
 the purge left no struck residue, so there is no hidden remainder.)
 
 ## g) Questions I can NOT figure out myself
 
-1. **Release authority (blocks §4 P1):** cut v0.2.0 now — CHANGELOG
-   section cut + annotated tag + push, versioning today's flags and the
-   cadence fix — or accumulate quietly first? My recommendation: cut it;
-   the Unreleased section is 27 rows deep and the granularity question
-   resolves itself in the cutting.
+1. ~~**Release authority (blocks §4 P1):** cut v0.2.0 now — CHANGELOG~~ done — answered by events — v0.2.0 (3814e6a) and v0.3.0 (eb2fa6b) both cut and pushed
+   ~~section cut + annotated tag + push, versioning today's flags and the~~
+   ~~cadence fix — or accumulate quietly first? My recommendation: cut it;~~
+   ~~the Unreleased section is 27 rows deep and the granularity question~~
+   ~~resolves itself in the cutting.~~
 2. **Sibling-repo permission (blocks the §3 P1 tier):** blanket go-ahead
    for SystemNix float/deploy + pbx-artmann + crm/go-appkit + BuildFlow
    upstream, or repo-by-repo gating? The whole external tier has been

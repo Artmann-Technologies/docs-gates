@@ -117,7 +117,7 @@ prepped with a one-line ask.
 
 ## f) Next (small, ordered)
 
-1. E7 v0.2.0 release cut (CHANGELOG section is one edit away) — OG.
+1. ~~E7 v0.2.0 release cut (CHANGELOG section is one edit away) — OG.~~ done at `83073d9`
 2. E8+E9 SystemNix float + evo-x2 deploy of v0.2.0 — OG (float needs
    the tag pushed first).
 3. E15 remainder: pbx-artmann pin bump v0.1.0 → v0.2.0 (one line) —
@@ -130,15 +130,15 @@ prepped with a one-line ask.
 
 ## g) Owner questions (consolidated)
 
-1. **Release v0.2.0?** (E7) — everything green; tag + push + CHANGELOG
-   cut ready. Consumers pin tags (pbx at v0.1.0).
+1. ~~**Release v0.2.0?** (E7) — everything green; tag + push + CHANGELOG~~ done — answered by events — v0.2.0 (3814e6a) and v0.3.0 (eb2fa6b) both cut
+   ~~cut ready. Consumers pin tags (pbx at v0.1.0).~~
 2. **Deploy?** (E8/E9) — SystemNix float + evo-x2 switch puts the fast
    binary on the live PATH; the wrapper fix (59bb7cc35) rides the same
    window (E23).
 3. **Cross-repo harvest authority** — crm's 11-past-pin Nov-3/4
    obligations + 179 total: harvest into crm's TODO (docs-health
    HARVEST mode) or leave to crm's sessions?
-4. **Kill PID 248337?** (webphone wedge under a live buildflow parent —
-   now PROVEN to be the capture-pipe deadlock; killing is safe for the
-   data, but the parent buildflow run is another session's.)
+4. ~~**Kill PID 248337?** (webphone wedge under a live buildflow parent —~~ done — resolved — the 19:05 kernel hard reset cleared the wedge (06-39 a.16)
+   ~~now PROVEN to be the capture-pipe deadlock; killing is safe for the~~
+   ~~data, but the parent buildflow run is another session's.)~~
 5. **D1 battery scope / D2 go floor** (§4 preps) — rulings pending.

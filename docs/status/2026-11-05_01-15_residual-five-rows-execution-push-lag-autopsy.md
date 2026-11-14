@@ -96,18 +96,18 @@ yields 6 binaries stamped `b9b41a7`.
    made per-process. If ghosts survive the switch, the general
    `GOLANGCI_LINT_CACHE` is the next suspect and needs its own
    experiment.
-3. The CI lint legs are green but carry a DRIFT VECTOR: when the flake
-   bumps golangci (v2.15.0 → next), the workflow's `version:` input must
-   move in the same train or CI and the fleet lint silently diverge.
-   Nothing enforces that today.
-4. safe-strike.sh's refusal matrix lives only in this session's
-   transcript — no in-repo test harness pins it; a future edit to the
-   script has no regression net.
+3. ~~The CI lint legs are green but carry a DRIFT VECTOR: when the flake~~ done — CHANGELOG v0.2.0 — the golangci-drift check (repair 4572726)
+   ~~bumps golangci (v2.15.0 → next), the workflow's `version:` input must~~
+   ~~move in the same train or CI and the fleet lint silently diverge.~~
+   ~~Nothing enforces that today.~~
+4. ~~safe-strike.sh's refusal matrix lives only in this session's~~ done — scripts/safe-strike-test.sh refusal-matrix harness (CHANGELOG v0.2.0)
+   ~~transcript — no in-repo test harness pins it; a future edit to the~~
+   ~~script has no regression net.~~
 5. The live `docs-gates` on PATH rides `6ed909f`, pre-dating the
    hardening and today's five gates' worth of fixes — live consumers
    run stale gates until the T2 float + deploy.
-6. Workflow YAML validation was ad hoc (python yaml in the devshell);
-   no actionlint anywhere in the toolchain.
+6. ~~Workflow YAML validation was ad hoc (python yaml in the devshell);~~ done — CHANGELOG v0.2.0 — the shell-lint check
+   ~~no actionlint anywhere in the toolchain.~~
 
 ## c) NOT STARTED
 
@@ -118,10 +118,10 @@ yields 6 binaries stamped `b9b41a7`.
    issue, T15 BuildFlow#87, T21 skill-text check, T22 nixpkgs
    maintainers PR, F94 AGENTS simplification. Asked five times in the
    previous session, never answered; untouched tonight by design.
-2. The docs-health skill cross-check against the new flags (19:01
-   report §f.45, lives in crush-config): adjacent to tonight's
-   crush-config leg and tempting while I was in sibling territory, but
-   it was NOT among the five sanctioned rows — deliberately skipped.
+2. ~~The docs-health skill cross-check against the new flags (19:01~~ done — purge entry — the fleet docs-health skill cross-check
+   ~~report §f.45, lives in crush-config): adjacent to tonight's~~
+   ~~crush-config leg and tempting while I was in sibling territory, but~~
+   ~~it was NOT among the five sanctioned rows — deliberately skipped.~~
 3. Upstream BuildFlow work (roundtrip walker bug, the file-size cache
    key): documented non-fixes here; upstream actions remain open.
 4. ROADMAP fuel (margins threshold knob, doctor verb, split-check,
@@ -247,67 +247,67 @@ yields 6 binaries stamped `b9b41a7`.
 4. SystemNix: publish master (4 ahead, 0 behind — carries the wrapper
    fix plus another session's three daemon commits; needs an owner
    ruling, see §g).
-5. Attribute the 19:05 host reboot: confirm from deploy logs whether
-   it was the evo-x2 deploy window (which would make the stale
-   `6ed909f` on PATH the deploy's content, not an accident).
+5. ~~Attribute the 19:05 host reboot: confirm from deploy logs whether~~ done — 06-39 a.16 — kernel hard reset, not a deploy window
+   ~~it was the evo-x2 deploy window (which would make the stale~~
+   ~~`6ed909f` on PATH the deploy's content, not an accident).~~
 6. T2: float SystemNix to the hardened docs-gates flake — the live
    PATH binaries still ride pre-hardening `6ed909f` (live-verified
    tonight: `docs-gates --version` on `/run/current-system/sw/bin`).
 7. T3: post-float smoke — the six binaries on live PATH answering
    `--version` with the hardened rev (headline goal already materially
    true at a stale rev).
-8. Encode safe-strike's nine-case refusal matrix as an in-repo bash
-   harness (`scripts/safe-strike-test.sh`) so the script's next edit
-   has a regression net.
-9. Add a `--battery` flag to safe-strike.sh: gate per batch should be
-   able to run the whole battery, not only the annotate verb.
-10. CI dogfood job: run the battery over THIS repo in CI
-    (`go run ./cmd/docs-gates run .`) — the gates that define green
-    currently judge themselves only on dev machines.
-11. Golangci version-drift guard: assert the flake's golangci pin and
-    ci.yml's action `version:` input move together (a tiny flake check
-    or CI script).
-12. actionlint + shellcheck into the devshell (workflow YAML and bash
-    scripts have no standing validator; tonight's YAML check was a
-    one-off python parse).
-13. Record the margins DF arithmetic in AGENTS.md as a non-obvious
-    fact (window `[bar-2, bar)`; DF counts living-doc lines; the
-    corpus-replace bar-2 rationale) — the memory-maintenance miss of
-    §d.6.
+8. ~~Encode safe-strike's nine-case refusal matrix as an in-repo bash~~ done — CHANGELOG v0.2.0 — safe-strike-test harness
+   ~~harness (`scripts/safe-strike-test.sh`) so the script's next edit~~
+   ~~has a regression net.~~
+9. ~~Add a `--battery` flag to safe-strike.sh: gate per batch should be~~ done — CHANGELOG v0.2.0 — the --battery flag
+   ~~able to run the whole battery, not only the annotate verb.~~
+10. ~~CI dogfood job: run the battery over THIS repo in CI~~ done at `eb086ba`
+    ~~(`go run ./cmd/docs-gates run .`) — the gates that define green~~
+    ~~currently judge themselves only on dev machines.~~
+11. ~~Golangci version-drift guard: assert the flake's golangci pin and~~ done — CHANGELOG v0.2.0 — the golangci-drift check
+    ~~ci.yml's action `version:` input move together (a tiny flake check~~
+    ~~or CI script).~~
+12. ~~actionlint + shellcheck into the devshell (workflow YAML and bash~~ done — CHANGELOG v0.2.0 — shell-lint (actionlint + shellcheck)
+    ~~scripts have no standing validator; tonight's YAML check was a~~
+    ~~one-off python parse).~~
+13. ~~Record the margins DF arithmetic in AGENTS.md as a non-obvious~~ done — AGENTS margins-fact entry
+    ~~fact (window `[bar-2, bar)`; DF counts living-doc lines; the~~
+    ~~corpus-replace bar-2 rationale) — the memory-maintenance miss of~~
+    ~~§d.6.~~
 14. Fleet AGENTS audit for "pushes too"-class daemon beliefs: docs-gates
     carried one for five months; siblings that copy its AGENTS
     phrasing likely carry the same falsehood.
 15. Hand the 18:00–19:04 queue-full storm + FastFlowLM timeout window
     to SystemNix monitoring docs (host-level; observed in the pma
     journal, out of this repo's scope).
-16. T1: v0.2.0 release cut (owner-gated; the Unreleased section keeps
-    growing — five more rows tonight).
-17. T7: fleet ratchet corpora re-runs (crm, go-appkit).
-18. T8: pbx-artmann migration onto this repo, then fleet announce.
+16. ~~T1: v0.2.0 release cut (owner-gated; the Unreleased section keeps~~ done at `83073d9`
+    ~~growing — five more rows tonight).~~
+17. ~~T7: fleet ratchet corpora re-runs (crm, go-appkit).~~ done — CHANGELOG purge entry (crm + go-appkit rerun)
+18. ~~T8: pbx-artmann migration onto this repo, then fleet announce.~~ done — purge entry — pbx rides v0.1.0; the bump rides TODO_LIST 3
 19. T11: pilot ratchet drains in crm + go-appkit.
-20. T13: rpi3-dns toplevel eval after the lars-packages change.
+20. ~~T13: rpi3-dns toplevel eval after the lars-packages change.~~ done — purge entry — the rpi3-dns toplevel eval
 21. T14: file/fix the BuildFlow nix-fmt/treefmt roundtrip walker bug
     upstream (it failed again in tonight's 23:25 buildflow run).
 22. T15: BuildFlow#87 upstream fix, then drop the
     BUILDFLOW_NO_RESULT_CACHE bypass from the verification ritual.
-23. T21: cross-check the fleet docs-health skill text against the new
-    flags (crush-config sibling; still pending, deliberately untouched
-    tonight).
+23. ~~T21: cross-check the fleet docs-health skill text against the new~~ done — purge entry — the skill cross-check
+    ~~flags (crush-config sibling; still pending, deliberately untouched~~
+    ~~tonight).~~
 24. T22: submit `lib.maintainers.LarsArtmann` upstream to nixpkgs.
-25. F94: AGENTS.md simplification pass (this file keeps accreting
-    non-obvious facts; a periodic compression is owed).
-26. Triage buildflow's "9 tools unavailable" via
-    `buildflow history --step ... --last-error` (existing backlog row,
-    never diagnosed).
-27. Rebuild/reinstall the BuildFlow binary (freshness advisory 74a9212
-    vs 4211653) and run `buildflow format` once for the fingerprint
-    drift.
+25. ~~F94: AGENTS.md simplification pass (this file keeps accreting~~ done at `39bed4d`
+    ~~non-obvious facts; a periodic compression is owed).~~
+26. ~~Triage buildflow's "9 tools unavailable" via~~ done — purge entry — the 9-unavailable-tools triage
+    ~~`buildflow history --step ... --last-error` (existing backlog row,~~
+    ~~never diagnosed).~~
+27. ~~Rebuild/reinstall the BuildFlow binary (freshness advisory 74a9212~~ done — purge entry — the BuildFlow binary rebuild
+    ~~vs 4211653) and run `buildflow format` once for the fingerprint~~
+    ~~drift.~~
 28. Diagnose the vendor/flake-pin-consistency preflight FAIL
     attribution (resurfaced tonight at 23:25; still observed-never-
     diagnosed).
-29. Docs-health skill cross-check against --replace/--margins
-    (duplicate pointer of T21 — kept because the battery's routing
-    treats it as a distinct routed row).
+29. ~~Docs-health skill cross-check against --replace/--margins~~ done — same as item 23
+    ~~(duplicate pointer of T21 — kept because the battery's routing~~
+    ~~treats it as a distinct routed row).~~
 30. Margins threshold knob: expose `marginNearBar` as config (the
     bar-2 window insight tonight is the concrete argument).
 31. `docs-gates doctor` verb (PATH, config, flake state in one probe —
@@ -317,63 +317,63 @@ yields 6 binaries stamped `b9b41a7`.
     burned the 2026-11-04 session remains open on ROADMAP.
 33. `--margins --json` for tooling (ROADMAP convergence row).
 34. Split-check verb (ROADMAP fuel).
-35. CutStringFlag extraction (ROADMAP fuel; CutIntFlag exists, its
-    string sibling keeps being re-needed).
+35. ~~CutStringFlag extraction (ROADMAP fuel; CutIntFlag exists, its~~ **Won't implement — TODO 2c WONT-DO ruling — bulk sweeps are false-strike factories.**
+    ~~string sibling keeps being re-needed).~~
 36. BuildFlow result-cache identity fix (ROADMAP fuel — the empty
     FileContract cache key class).
 37. Findings-gate cache-state summary (ROADMAP fuel).
-38. Dependabot enrollment for the action SHA pins (BuildFlow
-    `-s dependabot-auto-configure`) — the two new action pins age
-    without a renewal mechanism.
-39. README "Scripts" section: safe-strike.sh, stack-drift-check.sh and
-    check-erraudit-rev.sh are discoverable only through AGENTS.md.
-40. Purge ritual: struck-row count reached 17 tonight against the
-    20-row cadence threshold — schedule the docs-health purge pass
-    before the gate turns it from warning to finding.
-41. Verify whether the morning session's corrupt daemon commits
-    (`b285980`, `b5ddb5b`, `61be3f3`) are unreachable from every ref
-    and can be allowed to age out of local history (housekeeping, no
-    urgency).
-42. Re-verify the AGENTS "commits ~every 3 min" claim against the
-    effective config (min_commit_interval 120s + debounce 60s — the
-    claim is roughly right but uncited; cite the config or restate).
+38. ~~Dependabot enrollment for the action SHA pins (BuildFlow~~ done — CHANGELOG v0.2.0 — dependabot enrollment
+    ~~`-s dependabot-auto-configure`) — the two new action pins age~~
+    ~~without a renewal mechanism.~~
+39. ~~README "Scripts" section: safe-strike.sh, stack-drift-check.sh and~~ done — README Scripts table
+    ~~check-erraudit-rev.sh are discoverable only through AGENTS.md.~~
+40. ~~Purge ritual: struck-row count reached 17 tonight against the~~ done at `32e5b04`
+    ~~20-row cadence threshold — schedule the docs-health purge pass~~
+    ~~before the gate turns it from warning to finding.~~
+41. ~~Verify whether the morning session's corrupt daemon commits~~ done — purge entry — the corrupt-daemon-commit verification
+    ~~(`b285980`, `b5ddb5b`, `61be3f3`) are unreachable from every ref~~
+    ~~and can be allowed to age out of local history (housekeeping, no~~
+    ~~urgency).~~
+42. ~~Re-verify the AGENTS "commits ~every 3 min" claim against the~~ done — purge entry — the daemon-config citation
+    ~~effective config (min_commit_interval 120s + debounce 60s — the~~
+    ~~claim is roughly right but uncited; cite the config or restate).~~
 43. Consider a `skip_gates` entry or quieter output for the
     erraudit-unknown-linter warning noise in CI logs (cosmetic; the
     warning is expected and documented).
-44. The R1 golden names `notes` (the `# NOTES` heading token) as
-    near-bar vocabulary — a heading-token exclusion in margins (like
-    the one dump-items/item parsing applies) is a candidate behavior
-    refinement; assess whether headings SHOULD claim budget.
-45. corpus-replace now serves two masters (rewrite-mode and margins);
-    document the coupling in the fixture (a fixture README or the
-    parity comment) so the next editor knows bar-2 is load-bearing for
-    BOTH arms.
+44. ~~The R1 golden names `notes` (the `# NOTES` heading token) as~~ **Won't implement — TODO 2c WONT-DO ruling — headings ARE budget.**
+    ~~near-bar vocabulary — a heading-token exclusion in margins (like~~
+    ~~the one dump-items/item parsing applies) is a candidate behavior~~
+    ~~refinement; assess whether headings SHOULD claim budget.~~
+45. ~~corpus-replace now serves two masters (rewrite-mode and margins);~~ done — purge entry — the corpus-replace coupling note
+    ~~document the coupling in the fixture (a fixture README or the~~
+    ~~parity comment) so the next editor knows bar-2 is load-bearing for~~
+    ~~BOTH arms.~~
 46. Keep report-ledger continuation lines away from leading digits in
     THIS report too (the proseRe trap is alive; this §f wraps dozens of
     lines — the battery just validated them, keep it that way on any
     future edit).
-47. Consider promoting the annotate `--gate` invocation inside
-    safe-strike to also strike-batch mode (`status-items`) so bulk
-    sweeps get the same rails (today only single-row strikes are
-    scripted).
-48. The provider module's `go 1.27` floor vs the root's 1.26: the
-    dual-floor story is documented, but a check that FAILS eval when
-    the floors drift apart past the pinned toolchain would make the
-    invariant mechanical (flake already pins go_1_27 over both; assert
-    the relationship).
-49. CI: the go job's gofmt step and the new golangci step overlap in
-    formatting concerns (gofumpt inside golangci) — assess dropping
-    the standalone gofmt step for latency now that lint gates format.
+47. ~~Consider promoting the annotate `--gate` invocation inside~~ **Won't implement — TODO 2c WONT-DO ruling — bulk sweeps are false-strike factories.**
+    ~~safe-strike to also strike-batch mode (`status-items`) so bulk~~
+    ~~sweeps get the same rails (today only single-row strikes are~~
+    ~~scripted).~~
+48. ~~The provider module's `go 1.27` floor vs the root's 1.26: the~~ done — CHANGELOG v0.2.0 — the go-floors check
+    ~~dual-floor story is documented, but a check that FAILS eval when~~
+    ~~the floors drift apart past the pinned toolchain would make the~~
+    ~~invariant mechanical (flake already pins go_1_27 over both; assert~~
+    ~~the relationship).~~
+49. ~~CI: the go job's gofmt step and the new golangci step overlap in~~ done — purge entry — the gofmt CI step drop
+    ~~formatting concerns (gofumpt inside golangci) — assess dropping~~
+    ~~the standalone gofmt step for latency now that lint gates format.~~
 50. This report's §f rows must stay harvested after future rituals —
     when rows land, strike them through safe-strike with the battery
     gate, keeping the newest-report unharvested count at zero.
 
 ## g) Questions for the owner (cannot self-answer)
 
-1. Release authority: is the T1 v0.2.0 cut authorized NOW (fold the
-   Unreleased section — 30+ rows across five gates of user-visible
-   work — into `[v0.2.0]`, annotated tag, push)? Asked five times
-   yesterday without an answer; the section has only grown since.
+1. ~~Release authority: is the T1 v0.2.0 cut authorized NOW (fold the~~ done — answered by events — v0.2.0 (3814e6a) and v0.3.0 (eb2fa6b) both cut
+   ~~Unreleased section — 30+ rows across five gates of user-visible~~
+   ~~work — into `[v0.2.0]`, annotated tag, push)? Asked five times~~
+   ~~yesterday without an answer; the section has only grown since.~~
 2. Is `autoPush = false` DELIBERATE host policy (privacy, atomicity,
    review-before-push), or an accident of the 2026-06-01 module
    default that five months of phantom-push beliefs grew around? If
