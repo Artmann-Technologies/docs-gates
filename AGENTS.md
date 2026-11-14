@@ -99,9 +99,8 @@ keep bare `FATAL: %v`.
 - **Freshness = newest report only (strict); audit-all = whole corpus
   under the audit_max pin.** Ratchets are pins, not floors (`audit_max`/
   `annotate_max` pass only when >= 0; tolerated findings print RATCHET).
-- **docsstrike's target file comes from config** (`todo_file`); vars
-  named `s` fail varnamelen when scope grows — plumbing reads
-  `settings`, receivers stay `s`.
+- **docsstrike's target file comes from config** (`todo_file`); vars named `s` fail
+  varnamelen when scope grows — plumbing reads `settings`, receivers stay `s`.
 - **Report vocabulary is shared, never re-copied**: docsfreshness exports
   `LivingDocsLines`/`SectionFRe`/`HeadingRe`/`Tokens`/`Squash`/
   `GenericDF` — one definition keeps harvest and triage aligned on §f.
