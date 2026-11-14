@@ -66,12 +66,12 @@ keep bare `FATAL: %v`.
 - **Lint: fleet golangci config at 0 findings.** `//nolint:erraudit`
   directives are LIVE, guarded by the `nolint-audit` (staleness) and
   `erraudit-lint` (new migratable site) flake checks; golangci's runner
-  warning about `erraudit` being an unknown nolint linter is expected.
-  `erraudit lint ./... --max` green since 2026-11-12: generic-error
-  returns carry typed refusal carriers (unexported struct +
-  `newXxxError` constructor + `Unwrap`; idiomatic `error` return KEPT —
-  concrete `*T` returns are the typed-nil landmine); keep the pattern.
-  Never cite a directive COUNT from memory — run `erraudit nolint-audit .`
+  warning about the unknown nolint linter is expected. `erraudit lint
+  ./... --max` green since 2026-11-12: generic-error returns carry typed
+  refusal carriers (unexported struct + `newXxxError` + `Unwrap`;
+  idiomatic `error` return KEPT — concrete `*T` is the typed-nil
+  landmine). Never cite a directive COUNT from memory — run
+  `erraudit nolint-audit .`
 
 ## Verdict arithmetic (battery)
 
@@ -99,8 +99,8 @@ keep bare `FATAL: %v`.
   never fork; `go-floors` asserts).
 - **gatecli.CaptureOutput is a process-global stdout swap** — its tests must never be t.Parallel (deliberate suppressions).
 - **Freshness = newest report only (strict); audit-all = whole corpus
-  under the audit_max pin.** Ratchets are pins, not floors (`audit_max`/
-  `annotate_max` pass only when >= 0; tolerated findings print RATCHET).
+  under the audit_max pin.** Ratchets are pins, not floors (pass only
+  when >= 0; tolerated findings print RATCHET).
 - **docsstrike's target file comes from config** (`todo_file`); vars named `s` fail
   varnamelen when scope grows — plumbing reads `settings`, receivers stay `s`.
 - **Report vocabulary is shared, never re-copied**: docsfreshness exports
@@ -114,14 +114,15 @@ keep bare `FATAL: %v`.
 - **`gatecli.Truncate` stays hand-rolled** (non-fix): the canonical
   candidate breaks the stdlib-only contract; goldens pin its semantics.
 - **`nix fmt` needs the tracked treefmt.toml.** **Darwin is deliberately
-  absent** from flake systems (revisit on a real consumer).
-- **erraudit rides the flake as a PRIVATE git+ssh input** tracking
+  absent** from flake systems (revisit on a real consumer).- **erraudit rides the flake as a PRIVATE git+ssh input** tracking
   master (rev pinned in flake.lock; its OWN hermetic package). Probes
   may SILENTLY SKIP where the binary is absent (CI) — prove locally;
   flake-source probes must STAGE plants (`git add -N`).
-- **The erraudit-rev tripwire** (`scripts/check-erraudit-rev.sh`): lock
-  rev must equal `expected_rev`; updates bump silently and erraudit's
-  rules ARE behavior — run the checks on the new rev, THEN bump.
+- **The erraudit-rev tripwire** (`scripts/check-erraudit-rev.sh`): a
+  per-input pin table (erraudit, go-filewatcher, go-nix-helpers,
+  gogenfilter) — every lock rev must equal its expected rev; updates
+  bump silently and rules ARE behavior — check on the new rev, THEN
+  bump one input at a time.
 - **Buildflow's repair phase rewrites lockfiles; the daemon wraps the
   damage** (paid 11-06 AND 11-14 — six inputs, incl. a stale-vendorHash
   erraudit and a cmdguard v4→v5). Recovery: forward
@@ -129,18 +130,16 @@ keep bare `FATAL: %v`.
   before trusting. Upstream hash fixes happen in erraudit via
   `buildflow -s nix-hash-fix --fix` (done 11-14, f5a40b3a), never here.
 - **Stale buildflow binary is the #1 silent root cause** (11-14: masked
-  upstream fixes for hours) — `buildflow doctor`, rebuild + reinstall.
-- **The nix-fmt/treefmt roundtrip wedge is FIXED upstream** (2026-11-14;
+  upstream fixes for hours) — `buildflow doctor`, rebuild + reinstall.- **The nix-fmt/treefmt roundtrip wedge is FIXED upstream** (2026-11-14;
   live-probed causes: sandbox not a git repo → tree-root refusal or
   whole-filesystem walk; nix refuses UNTRACKED files; missing flake.lock
   coupled formatting to upstream state. Now: git-init, staged, lock
   rides along).
 - **docs-gates flake checks repaired 2026-11-14** (unpassable since
   11-04, vendorHash-masked): golangci-drift counted pins after sort -u;
-  shell-lint ran bare actionlint (needs a git project; explicit paths
-  now); BuildFlow's `inputs.<name>.url` false-FAIL fixed upstream — do
-  not reformat flake.nix to dodge it.
-- **The docs-battery pre-commit leg rides REAL COMMITS ONLY** (devShell;
+  shell-lint ran bare actionlint (explicit paths now); BuildFlow's
+  `inputs.<name>.url` false-FAIL fixed upstream — don't dodge it by
+  reformatting flake.nix.- **The docs-battery pre-commit leg rides REAL COMMITS ONLY** (devShell;
   c1b364d): git-hooks' sandbox git-inits a synthetic one-commit repo, so
   annotate's verdict-hash evidence is red by construction there; CI's
   dogfood job is the push-time leg.
@@ -149,19 +148,27 @@ keep bare `FATAL: %v`.
   testdata: `git check-ignore -v` (`--no-index` for TRACKED files);
   `git ls-files` is cwd-relative.
 - **Pre-commit legs** (`preCommitCheckFor`): nolint-audit everywhere,
-  docs-battery devShell-only. Local blocker: `core.hooksPath` is set —
-  unset to arm auto-install; `.pre-commit-config.yaml` is a generated
+  docs-battery devShell-only. Auto-install needs the (dead-global)
+  `core.hooksPath` unset; `.pre-commit-config.yaml` is a generated
   store symlink — never commit.
 - **go1.26+ rejects mixing literals with a slice spread in one variadic
   call** (`f("a", "b", slice...)`): build the argv with `append`.
 - **LSP ghost diagnostics are a CACHE artifact** (host wrapper's pinned
   analysis cache; survives lsp_restart): prove with real gates, then
-  clear the wrapper caches and restart; do not file upstream.
-- **Striking ledger rows by ROW NUMBER is a corruption machine**: use
+  clear the wrapper caches and restart; do not file upstream.- **Striking ledger rows by ROW NUMBER is a corruption machine**: use
   `scripts/safe-strike.sh` (unique ≥4-letter anchors, `[^|]*`-bounded
-  rewrites, dry-run default, `--gate` per batch); only landed rows.
-- **Buildflow file-size-check has a CONSTANT cache key** (BuildFlow#87):
-  bypass with `BUILDFLOW_NO_RESULT_CACHE=1` until fixed upstream.
+  rewrites, dry-run default, `--gate`/`--battery` per batch, `--batch`
+  for multi-anchor sweeps); only landed rows.
+- **BuildFlow#87 (file-size-check constant cache key) is FIXED upstream**
+  (live-proven 2026-11-14: tree change → cache miss) — no
+  `BUILDFLOW_NO_RESULT_CACHE=1` bypass; io-history-ratchet quiet; dprint
+  bundle rides `nix build .#dprint-plugins -o
+  ~/.local/state/buildflow/dprint-plugins` + BUILDFLOW_DPRINT_PLUGINS
+  (SystemNix home-base.nix).
+- **dprint-managed tables × pre-flight: judge the FORMATTED bytes against
+  the PRE-edit tree** — the formatter re-aligns cells AFTER the verdict,
+  so the landed bytes never match a typed draft's verdict (paid
+  2026-11-14); post-landing re-pre-flight hits the on-disk refusal.
 - **go-auto-upgrade warnings are deliberate non-fixes**: samber/lo
   withheld (stdlib-only root; thin provider shim); jsonv1tov2 declined
   (encoding/json v1 ON PURPOSE — `DisallowUnknownFields` is the row-shape
@@ -173,13 +180,10 @@ keep bare `FATAL: %v`.
   parked on the full capture pipe; fixed by concurrent drainers;
   `gate_timeout_sec` is the bound — a new wedge = suspect a NEW park).
 - **Size a foreign corpus BEFORE launching the battery** (`ls docs/status
-  | wc -l`). Memoization replays cost one scan per DISTINCT token (hours
-  → 49s); audit-all prints its estimate first; the cap is a circuit
-  breaker.
+  | wc -l`). Memoized replays cost one scan per DISTINCT token (hours →
+  49s); audit-all prints its estimate; the cap is a circuit breaker.
 - **Gate verdicts are point-in-time under foreign daemons** — timestamp
   the run; one run is not steady state.
-- **dprint-remote-plugins is an accepted warning** (one-time cached fetch;
-  remedy: local bundle via `BUILDFLOW_DPRINT_PLUGINS`).
 
 - **Testing**: stdlib `testing` only; gates are exercised through their
   real `Run` functions with `gatecli.CaptureOutput`, never mocked
