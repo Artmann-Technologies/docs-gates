@@ -72,6 +72,8 @@ usage: docs-freshness [repo-root] [--audit-all] [--audit-max=N] [--explain-token
   --land-parity    verify the last SAFE --pre-flight batch landed
                    byte-exact (the retyped-bullet class); exit 1 names
                    every recorded line missing from the living docs
+  --clear-stamp    delete the land-parity stamp (the recorded SAFE
+                   batch) — deliberate-divergence escape hatch
 
 Exit codes: 0 fresh, 1 drift, 2 usage error.
 `
@@ -87,6 +89,7 @@ var allowedFlags = []string{
 	"--duplicates",
 	"--explain-item",
 	"--land-parity",
+	"--clear-stamp",
 	"--margins",
 	"--dump-items",
 }
@@ -229,6 +232,8 @@ func runMode(
 		return runPreFlight(root, flags, replaces, settings), true
 	case flags["--land-parity"]:
 		return PreFlightParity(root, settings), true
+	case flags["--clear-stamp"]:
+		return clearPreflightStamp(root), true
 	default:
 		return 0, false
 	}

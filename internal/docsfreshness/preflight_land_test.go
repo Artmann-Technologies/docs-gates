@@ -1,6 +1,7 @@
 package docsfreshness
 
 import (
+	"errors"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -176,7 +177,51 @@ func gitInit(t *testing.T, dir string) {
 
 	cmd := exec.CommandContext(t.Context(), "git", "init", "-q", dir)
 
-	if out, err := cmd.CombinedOutput(); err != nil {
+	out, err := cmd.CombinedOutput()
+	if err != nil {
+		// The probe may SILENTLY SKIP where the binary is absent (the CI
+		// class from AGENTS.md): this fixture proves the WARNING arms, not
+		// anything about git itself.
+		if errors.Is(err, exec.ErrNotFound) {
+			t.Skipf("git binary unavailable, skipping the stamp-warning fixture: %v", err)
+		}
+
 		t.Fatalf("git init %s: %v: %s", dir, err, out)
+	}
+}
+
+// --clear-stamp is the deliberate-divergence escape hatch the DRIFT
+// message names: the ledger deletes, exit stays clean, and clearing a
+// missing stamp is a harmless no-op.
+func TestClearStampRemovesTheLedger(t *testing.T) {
+	t.Parallel()
+
+	root := t.TempDir()
+	writePreflightStamp(root, []string{"- [ ] a recorded line"})
+
+	if rc := Run([]string{root, "--clear-stamp"}); rc != gatecli.ExitClean {
+		t.Fatalf("clear-stamp on an existing stamp must exit clean, got rc=%d", rc)
+	}
+
+	if _, err := os.Stat(stampPath(root)); !os.IsNotExist(err) {
+		t.Fatalf("the stamp must be gone after --clear-stamp, stat err: %v", err)
+	}
+}
+
+func TestClearStampWithoutAStampIsCleanNoop(t *testing.T) {
+	t.Parallel()
+
+	root := t.TempDir()
+
+	if rc := Run([]string{root, "--clear-stamp"}); rc != gatecli.ExitClean {
+		t.Fatalf("clear-stamp without a stamp must stay clean, got rc=%d", rc)
+	}
+}
+
+func TestDriftMessageNamesClearStamp(t *testing.T) {
+	t.Parallel()
+
+	if !strings.Contains(Usage, "--clear-stamp") {
+		t.Fatal("Usage must document --clear-stamp (usage_test pins the flag vocabulary)")
 	}
 }

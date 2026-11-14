@@ -51,17 +51,7 @@ func PreFlight(
 		return gatecli.ExitUsage
 	}
 
-	if allowDuplicates {
-		// The operator-side dedup workaround (grep -Fxvf) silently DROPS the
-		// +1 DF push of a line arriving as a second copy — exactly the push a
-		// tail-ledger block makes. --duplicates is the explicit assertion "I
-		// know this line is on disk; another copy is about to land", so the
-		// delta models the copy instead of refusing the question.
-		for _, m := range onDiskMatches(candidate, remaining) {
-			gatecli.Outf("  second copy: %-52s stays modeled — every token on it gains +1 DF\n",
-				gatecli.Truncate(m.candidate, reasonMax))
-		}
-	} else if refuseAlreadyOnDisk(candidate, remaining) {
+	if handleCollisions(candidate, remaining, allowDuplicates) {
 		return gatecli.ExitUsage
 	}
 
@@ -233,33 +223,66 @@ func onDiskMatches(candidate, baseLines []string) []onDiskMatch {
 	return matches
 }
 
-// refuseAlreadyOnDisk reports (and explains) candidate lines already
-// present verbatim in the living-docs corpus, each with the disk line
-// it collided with — the WHERE beside the WHAT. The additions-only
-// delta model needs the PRE-edit tree, and a post-write run (the
-// 2026-10-10 burn) replays its own additions against a baseline that
-// already contains them — a would-be flip then hides as SAFE, so the
-// question is refused instead of answered. Rewrite-mode candidates that
-// REPLACE an on-disk line are exempt: the model removes that line first.
-func refuseAlreadyOnDisk(candidate, remaining []string) bool {
-	matches := onDiskMatches(candidate, remaining)
-
-	if len(matches) == 0 {
+// handleCollisions classifies the on-disk collisions and answers the
+// invocation: a repeated structural heading models as a second copy
+// (the implicit --duplicates — a CHANGELOG landing batch legitimately
+// re-includes `### Changed`, and refusing it would block every
+// heading-led batch), a duplicated CONTENT line still refuses (the
+// additions-only model needs the PRE-edit tree), and an explicit
+// --duplicates models everything. Returns true when refused.
+func handleCollisions(candidate, remaining []string, allowDuplicates bool) bool {
+	collisions := onDiskMatches(candidate, remaining)
+	if len(collisions) == 0 {
 		return false
 	}
 
+	var content []onDiskMatch
+
+	for _, m := range collisions {
+		if allowDuplicates || structuralRepeat(m) {
+			// The operator-side dedup workaround (grep -Fxvf) silently DROPS
+			// the +1 DF push of a line arriving as a second copy — exactly the
+			// push a tail-ledger block makes. --duplicates (explicit or
+			// structural) asserts "another copy is about to land", so the
+			// delta models the copy instead of refusing the question.
+			gatecli.Outf("  second copy: %-52s stays modeled — every token on it gains +1 DF\n",
+				gatecli.Truncate(m.candidate, reasonMax))
+
+			continue
+		}
+
+		content = append(content, m)
+	}
+
+	if len(content) == 0 {
+		return false
+	}
+
+	printAlreadyOnDisk(content)
+
+	return true
+}
+
+// structuralRepeat reports whether an on-disk collision is a repeated
+// structural heading (`### Changed`, `## [Unreleased]`, …) rather than
+// a duplicated content line: sections repeat across landings, content
+// must not.
+func structuralRepeat(m onDiskMatch) bool {
+	return headingLineRe.MatchString(m.candidate)
+}
+
+// printAlreadyOnDisk explains the content-line refusal.
+func printAlreadyOnDisk(content []onDiskMatch) {
 	gatecli.Errln("docs-freshness --pre-flight: candidate line(s) ALREADY on disk — the additions-only model")
 	gatecli.Errln("  needs the PRE-edit tree; once landed, baseline and modified corpus coincide and a would-be")
 	gatecli.Errln("  flip hides as SAFE. Run pre-flight BEFORE writing (or against a stashed/HEAD tree).")
 	gatecli.Errln("  If the line is about to land as a deliberate SECOND copy (a tail-ledger block), rerun with")
 	gatecli.Errln("  --duplicates to model its +1 DF push instead of refusing. Collisions (candidate ← disk):")
 
-	for _, m := range matches {
+	for _, m := range content {
 		gatecli.Errf("    %s\n", gatecli.Truncate(m.candidate, reasonMax))
 		gatecli.Errf("      ← %s\n", gatecli.Truncate(m.diskLine, reasonMax))
 	}
-
-	return true
 }
 
 // outsideHit is a missing --replace target located in a repo file the

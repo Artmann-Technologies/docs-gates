@@ -112,3 +112,32 @@ func TestPreFlightMixedReplaceTargets(t *testing.T) {
 		t.Fatalf("the nowhere target must stay in the not-found list, stderr:\n%s", captured.Stderr)
 	}
 }
+
+// TestPreFlightStructuralHeadingIsImplicitDuplicate pins the heading-led
+// batch: a candidate `### Changed` already on disk models as a second
+// copy (implicit --duplicates) instead of refusing, while a duplicated
+// CONTENT line in the same run would still refuse.
+//
+//nolint:paralleltest // stdout swap is unsafe under t.Parallel()
+func TestPreFlightStructuralHeadingIsImplicitDuplicate(t *testing.T) {
+	root := preFlightRoot(t)
+
+	changelog := "# Changelog\n\n## [Unreleased]\n\n### Changed\n\n- an older change row\n"
+	if err := os.WriteFile(filepath.Join(root, "CHANGELOG.md"), []byte(changelog), 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	captured := gatecli.CaptureOutput(func() int {
+		return PreFlight(root, []string{"### Changed", "- the qubix ledger gains a retention column"},
+			nil, false, false, DefaultSettings())
+	})
+
+	if captured.Code == gatecli.ExitUsage {
+		t.Fatalf("a structural heading must not refuse the batch, stderr:\n%s", captured.Stderr)
+	}
+
+	if !strings.Contains(captured.Stdout, "second copy") ||
+		!strings.Contains(captured.Stdout, "### Changed") {
+		t.Fatalf("the repeated heading must be modeled as a second copy, stdout:\n%s", captured.Stdout)
+	}
+}

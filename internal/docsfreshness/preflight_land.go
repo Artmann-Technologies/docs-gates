@@ -151,7 +151,7 @@ func PreFlightParity(root string, settings Settings) int {
 
 		gatecli.Errln("  the pre-flight verdict was earned by DIFFERENT bytes than the ones on disk")
 		gatecli.Errln("  (the retyped-bullet class): re-run --pre-flight with the ACTUAL lines, or")
-		gatecli.Errln("  strike the stamp file if the divergence is deliberate.")
+		gatecli.Errln("  clear the ledger with --clear-stamp if the divergence is deliberate.")
 
 		return gatecli.ExitFindings
 	}
@@ -160,6 +160,27 @@ func PreFlightParity(root string, settings Settings) int {
 		"land-parity: OK — %d recorded line(s) from the %s SAFE batch all landed verbatim\n",
 		len(stamp.Lines), stamp.Recorded,
 	)
+
+	return gatecli.ExitClean
+}
+
+// clearPreflightStamp deletes the land-parity ledger (the --clear-stamp
+// mode): the deliberate-divergence escape hatch the DRIFT message names.
+// A missing stamp is a clean no-op — clearing twice is harmless.
+func clearPreflightStamp(root string) int {
+	if err := os.Remove(stampPath(root)); err != nil {
+		if os.IsNotExist(err) {
+			gatecli.Outf("land-parity: no stamp to clear (%s absent) — nothing to do\n", stampName)
+
+			return gatecli.ExitClean
+		}
+
+		gatecli.Errf("FATAL: removing %s: %v\n", stampName, err)
+
+		return gatecli.ExitUsage
+	}
+
+	gatecli.Outf("land-parity: stamp cleared (%s) — the next SAFE --pre-flight records a fresh batch\n", stampName)
 
 	return gatecli.ExitClean
 }
