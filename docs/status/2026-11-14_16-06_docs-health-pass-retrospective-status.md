@@ -130,7 +130,7 @@ top of it, as of this session's close:
 | 9 | Carrier tests + FATAL UX trio + refusal UX | TODO_LIST 5 |
 | 10 | Land-parity parity golden + --clear-stamp + provider hints | TODO_LIST 5 |
 | 11 | Consumer-facing "adopting docs-gates" README section | TODO_LIST 5 |
-| 12 | The io-surface regression (+962%) investigation + the adoption ruling | TODO_LIST 6 + 4 |
+| 12 | Investigate the io-surface regression (+962%); the adoption ruling rides TODO_LIST 4 | TODO_LIST 6 |
 | 13 | Arm local pre-commit hooks (still unexercised) | TODO_LIST 6 |
 | 14 | Tripwire generalization to master-tracking inputs | TODO_LIST 6 |
 | 15 | skill↔repo archive-canon reconciliation (crush-config lesson) | §e.5 above |
