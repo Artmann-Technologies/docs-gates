@@ -94,12 +94,21 @@ func TestSynthBenchCorpusProducesWork(t *testing.T) {
 // loop (probe-proven: a 3s sleeping benchmark passes a 1s deadline),
 // so the contract has to be an asserted measurement, not a harness
 // ceiling. Skipped under -short: it is a performance contract, not a
-// correctness one.
+// correctness one. Under -race the budget scales to 6s: instrumentation
+// alone slows this loop ~18x (50ms -> 0.92s measured), and the absolute
+// constant would fire on any loaded machine (paid 2026-11-14: the
+// buildflow test-race lane failed this guard during a parallel nix
+// build).
 func TestReplaySpeedGuard(t *testing.T) {
 	t.Parallel()
 
 	if testing.Short() {
 		t.Skip("performance contract; skipped in -short mode")
+	}
+
+	budget, budgetNote := time.Second, "1s"
+	if raceDetector {
+		budget, budgetNote = 6*time.Second, "6s (x6 under the race detector)"
 	}
 
 	reports, living := synthBenchCorpus(t, 1600, 6, 2000, 600)
@@ -112,9 +121,9 @@ func TestReplaySpeedGuard(t *testing.T) {
 		CheckReport(report, corpus, settings)
 	}
 
-	if elapsed := time.Since(start); elapsed > time.Second {
-		t.Fatalf("full CV-shaped replay took %v (>1s): the corpus token "+
-			"memoization regressed (the pre-memo rescan cost was ~2.75s)", elapsed)
+	if elapsed := time.Since(start); elapsed > budget {
+		t.Fatalf("full CV-shaped replay took %v (>%s): the corpus token "+
+			"memoization regressed (the pre-memo rescan cost was ~2.75s)", elapsed, budgetNote)
 	}
 }
 

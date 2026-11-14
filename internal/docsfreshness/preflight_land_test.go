@@ -33,9 +33,8 @@ func TestLandParityPassesWhenBatchLanded(t *testing.T) {
 	}
 }
 
+//nolint:paralleltest // stdout swap is unsafe under t.Parallel()
 func TestLandParityFailsOnRetypedLanding(t *testing.T) {
-	t.Parallel()
-
 	root := t.TempDir()
 	writePreflightStamp(root, []string{"- [ ] some-new-row: the pre-flighted wording (coin: x)"})
 
