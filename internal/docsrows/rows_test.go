@@ -99,10 +99,10 @@ func TestCompletenessModes(t *testing.T) {
 			want: []string{"ledger.md: table at line 3 LEDGER-EXEMPT (check-rows:ledger marker)"},
 		},
 		{
-			name: "bare rows",
-			argv: []string{"testdata/bare.md", "--bare"},
-			code: gatecli.ExitFindings,
-			want: []string{"bare.md:5: BARE row:"},
+			name:    "bare rows",
+			argv:    []string{"testdata/bare.md", "--bare"},
+			code:    gatecli.ExitFindings,
+			want:    []string{"bare.md:5: BARE row:"},
 			errWant: []string{"rows --bare: 1/1 file(s) incomplete"},
 		},
 	}

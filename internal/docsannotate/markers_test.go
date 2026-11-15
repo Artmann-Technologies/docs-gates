@@ -17,7 +17,6 @@ import (
 // Every string below is byte-for-byte what markerFor renders for that
 // kind; changing one here without changing the writer (or the reverse) is
 // exactly the drift this test exists to catch.
-//
 var markerFixture = []struct {
 	kind   string
 	marker string
