@@ -41,11 +41,10 @@ keep bare `FATAL: %v`.
   tagliatelle pins snake_case json tags.
 - **Exit codes: 0 clean / 1 findings / 2 usage-environment** — everything
   funnels through gatecli constants; new failure classes map onto these.
-- **Zero-value Settings never reach gate logic** — per-package Settings
-  projections fall back to the historical constants: strings
-  `cmp.Or(override, config.Defaults().X)`, lists `config.OrSlice(...)`,
-  int `> 0` forms. A config-less repo behaves byte-for-byte like
-  pre-extraction — never change a default without re-proving parity.- **The five legacy names are API**: flake wrappers exec
+- **Zero-value Settings never reach gate logic** — projections fall back to
+  the historical constants (`cmp.Or`, `OrSlice`, `> 0`); config-less repos
+  behave byte-for-byte like pre-extraction. A default change re-proves parity.
+- **The five legacy names are API**: flake wrappers exec
   `docs-gates <verb>`; each answers `--version` under its legacy name.
   Never remove a wrapper without a migration plan.
 - **Parity is enforced**: `TestParityGolden` pins byte output of
