@@ -104,6 +104,11 @@ keep bare `FATAL: %v`.
   — one definition keeps harvest and triage aligned on §f.
 - **ExtractItems treats any line-start `\d+[.)]` as an item boundary** —
   keep report continuation wraps away from a leading number+paren.
+- **Known split brains** (2026-11-15): the marker grammar (writer renders
+  `markerFor`, judge matches `markerRe`, bound by `internal/docsannotate/
+  markers_test.go`) and the docs-health binary (deleted; callers `go run`).
+  See `docs/adr/0001-marker-grammar-ownership.md` and the split plan in
+  `docs/planning/2026-11-15_marker-grammar-and-tooling-split.md`.
 - **The five `//art-dupl:accept` directives are the dedup baseline**
   (`-t 1`: 0 groups). The settings-projection pair is ACCEPTED —
   domain-specific Settings; a generic helper would couple gates.
@@ -130,9 +135,8 @@ keep bare `FATAL: %v`.
   sandbox git-inits, staged files, lock rides along).
 - **docs-gates flake checks repaired 2026-11-14** (unpassable since
   11-04, vendorHash-masked): golangci-drift counted pins after sort -u;
-  shell-lint ran bare actionlint (explicit paths now); BuildFlow's
-  `inputs.<name>.url` false-FAIL fixed upstream — don't dodge it by
-  reformatting flake.nix.
+  shell-lint ran bare actionlint; BuildFlow's `inputs.<name>.url`
+  false-FAIL fixed upstream — do not reformat flake.nix to dodge it.
 - **The docs-battery pre-commit leg rides REAL COMMITS ONLY** (devShell;
   c1b364d): git-hooks' sandbox git-inits a synthetic one-commit repo, so
   verdict-hash evidence is red by construction there; CI's dogfood job
@@ -151,15 +155,11 @@ keep bare `FATAL: %v`.
   analysis cache; survives lsp_restart): prove with real gates, then
   clear the wrapper caches and restart; do not file upstream.
 - **Striking ledger rows by ROW NUMBER is a corruption machine**: use
-  `scripts/safe-strike.sh` (unique ≥4-letter anchors, `[^|]*`-bounded
-  rewrites, dry-run default, `--gate`/`--battery` per batch, `--batch`
-  for multi-anchor sweeps); only landed rows.
-- **BuildFlow#87 (file-size-check constant cache key) is FIXED upstream**
-  (live-proven 2026-11-14: tree change → cache miss) — no
-  `BUILDFLOW_NO_RESULT_CACHE=1` bypass; io-history-ratchet quiet; dprint
-  bundle rides `nix build .#dprint-plugins -o
-  ~/.local/state/buildflow/dprint-plugins` + BUILDFLOW_DPRINT_PLUGINS
-  (SystemNix home-base.nix).
+  `scripts/safe-strike.sh` (unique ≥4-letter anchors, dry-run default,
+  `--gate`/`--battery` per batch, `--batch` for multi-anchor sweeps).
+- **BuildFlow#87 is FIXED upstream** (live-proven 2026-11-14) — no
+  result-cache bypass; dprint bundle rides `nix build .#dprint-plugins` +
+  BUILDFLOW_DPRINT_PLUGINS (SystemNix home-base.nix).
 - **dprint-managed tables × pre-flight: judge the FORMATTED bytes against
   the PRE-edit tree** — the formatter re-aligns cells AFTER the verdict,
   so the landed bytes never match a typed draft's verdict (paid
@@ -171,9 +171,8 @@ keep bare `FATAL: %v`.
   accepted settings-projection pair.
 - **The --margins near-bar window is `[bar-2, bar)`**, counts LIVING-DOC LINES ONLY; the
   corpus-replace fixture's `generic_df: 2` is load-bearing twice; headings are NOT excluded.
-- **The wedge class was the capture-pipe deadlock** (output past ~64KB
-  parked on the full capture pipe; fixed by concurrent drainers;
-  `gate_timeout_sec` is the bound — a new wedge = suspect a NEW park).
+- **The wedge class was the capture-pipe deadlock** (fixed by concurrent
+  drainers; `gate_timeout_sec` bounds it; a new wedge = suspect a NEW park).
 - **Size a foreign corpus BEFORE launching the battery** (`ls docs/status
   | wc -l`). Memoized replays cost one scan per DISTINCT token (hours →
   49s); audit-all prints its estimate; the cap is a circuit breaker.
