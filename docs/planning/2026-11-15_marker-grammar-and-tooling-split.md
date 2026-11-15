@@ -68,9 +68,30 @@ conversion; prose references in status reports are historical.
 
 <!-- coverage-survey:start -->
 
-Filled by the 2026-11-15 install/pin survey (T20). Until then: this repo runs
-the battery over itself; crm, CV, go-appkit, pbx-artmann and webphone are the
-known ritual consumers (see the caller table).
+Surveyed 2026-11-15 across every checkout in `/home/lars/projects` that
+shows execution evidence (script, CI job, flake check, or `.docs-gates.json`).
+
+| Provided by                      | Count       | Representative repos                                                                                                                                       |
+| -------------------------------- | ----------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| PINNED (tag/rev/input)           | 13          | cmdguard, crm, go-aichat, go-atomic-write, graph-features-language, io-surface, mr-sync, pbx-artmann, pim-sync, typespec-go, webphone                      |
+| PATH / wrapper                   | 9           | cqrs-htmx, go-taskqueue, GoReleaser-Wizard, monitor365-ui-sdk, nixos-modules, ratsgedaechtnis, storbi, timesheets, touchbase                               |
+| ABSENT (annotate.go only)        | 2 checkouts | cv/CV, go-appkit                                                                                                                                           |
+| UNKNOWN (config only, no runner) | 11          | go-cqrs-lite, go-filewatcher, go-finding, go-health-dashboard, InboxClean, journal, media-atlas, pbx-lens, SKILLS, nix-international-telephony, quotaboard |
+
+Notes:
+
+- `quotaboard/scripts` hardcodes `/home/lars/.local/bin/docs-gates`, which does
+  not exist on this host (the fleet binary is
+  `/run/current-system/sw/bin/docs-gates`); its workflow would fail before
+  reaching any gate.
+- No repo ships a prebuilt `annotate`; every consumer runs the source.
+  `webphone/scripts/cadence-candidates.sh` builds the source into `/tmp`.
+- The two ABSENT repos are the archive/annotation tools half, not full-battery
+  consumers; they cannot adopt `docs-gates rows` until they call the binary.
+
+Conclusion: the read-only half is safe to move — every full-battery consumer
+has the binary pinned or on PATH. The write half still needs the ABSENT rows
+converted plus the mutator design.
 
 <!-- coverage-survey:end -->
 
