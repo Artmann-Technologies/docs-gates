@@ -22,13 +22,13 @@ repo is the one tool any repo can adopt: drop a binary, optionally seed a
 ## Quick start
 
 ```console
-nix run github:Artmann-Technologies/docs-gates/v0.3.1 -- run .
+nix run github:Artmann-Technologies/docs-gates/v0.4.0 -- run .
 # or
-go install github.com/Artmann-Technologies/docs-gates/cmd/docs-gates@v0.3.1
+go install github.com/Artmann-Technologies/docs-gates/cmd/docs-gates@v0.4.0
 docs-gates run .
 ```
 
-Verbs: `run | freshness | annotate | routing | cadence | strike | purge`. Each
+Verbs: `run | freshness | annotate | rows | routing | cadence | strike | purge`. Each
 gate verb keeps its historical standalone name (`docs-freshness`,
 `docs-annotate`, `docs-routing`, `docs-cadence`, `docs-strike`) as a flake
 wrapper, and answers `--version` under that name. `docs-gates help`
@@ -40,15 +40,22 @@ gets a did-you-mean suggestion.
 `0` clean, `1` findings, `2` usage/environment error — one contract for
 every verb:
 
-| Verb        | `0`                               | `1`                                                  | `2`                                                        |
-| ----------- | --------------------------------- | ---------------------------------------------------- | ---------------------------------------------------------- |
-| `run`       | every gate PASS or SKIP           | ≥ 1 gate FAIL (a gate's own rc=2 becomes a FAIL row) | bad repo root / bad config only                            |
-| `freshness` | FRESH                             | DRIFT — unharvested §f items                         | usage error, malformed config                              |
-| `annotate`  | clean or within the ratchet       | annotation findings past the pin                     | usage error, malformed config                              |
-| `routing`   | no routing gaps                   | open rows no living doc represents                   | usage error, malformed config                              |
-| `cadence`   | purge/archive thresholds met      | a threshold is overdue                               | usage error, malformed config                              |
-| `strike`    | row struck (dry-run is default)   | —                                                    | refusal: ambiguous row, double strike, verdict-less target |
-| `purge`     | draft printed (dry-run) or purged | unsafe draft (the gate refuses)                      | usage error, missing [Unreleased]/Changed anchors          |
+| Verb        | `0`                                 | `1`                                                  | `2`                                                        |
+| ----------- | ----------------------------------- | ---------------------------------------------------- | ---------------------------------------------------------- |
+| `run`       | every gate PASS or SKIP             | ≥ 1 gate FAIL (a gate's own rc=2 becomes a FAIL row) | bad repo root / bad config only                            |
+| `freshness` | FRESH                               | DRIFT — unharvested §f items                         | usage error, malformed config                              |
+| `annotate`  | clean or within the ratchet         | annotation findings past the pin                     | usage error, malformed config                              |
+| `rows`      | every table complete / no bare rows | PARTIAL or mixed rows (`--bare`: bare rows)          | usage error, unreadable file                               |
+| `routing`   | no routing gaps                     | open rows no living doc represents                   | usage error, malformed config                              |
+| `cadence`   | purge/archive thresholds met        | a threshold is overdue                               | usage error, malformed config                              |
+| `strike`    | row struck (dry-run is default)     | —                                                    | refusal: ambiguous row, double strike, verdict-less target |
+| `purge`     | draft printed (dry-run) or purged   | unsafe draft (the gate refuses)                      | usage error, missing [Unreleased]/Changed anchors          |
+
+**Judge vs writer.** `docs-gates` reads and judges a corpus; it never
+rewrites one. Annotation (striking, repairing, marking verdicts) belongs to
+the docs-health skill's `annotate.go`, which shares this binary's marker
+grammar. The boundary, the executable grammar test, and the migration plan
+live in [ADR 0001](docs/adr/0001-marker-grammar-ownership.md).
 
 ## Adopting docs-gates
 
@@ -61,7 +68,7 @@ Pin the release — a floating install can drift from the battery your CI
 judged:
 
 ```console
-go run github.com/Artmann-Technologies/docs-gates/cmd/docs-gates@v0.3.1 run .
+go run github.com/Artmann-Technologies/docs-gates/cmd/docs-gates@v0.4.0 run .
 ```
 
 **2. Wire CI (the dogfood job).** Full history is load-bearing: the
@@ -75,7 +82,7 @@ dogfood:
   steps:
     - uses: actions/checkout@v7 # with: { fetch-depth: 0 }
     - uses: actions/setup-go@v7 # with: { go-version: "1.27" }
-    - run: go run github.com/Artmann-Technologies/docs-gates/cmd/docs-gates@v0.3.1 run .
+    - run: go run github.com/Artmann-Technologies/docs-gates/cmd/docs-gates@v0.4.0 run .
 ```
 
 Bump the pin manually when a docs-gates release lands (dependabot does

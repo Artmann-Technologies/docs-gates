@@ -117,12 +117,36 @@ built.
   setup-go / golangci pins never age without a renewal PR.
 - **Releases** — v0.1.0 (the extraction train), v0.1.1 (annotate_max
   ratchet + provider module), v0.2.0 (CLI help surface, purge verb,
-  `--json` face, erraudit adoption, parity corpus), and v0.3.0
-  (`--land-parity`, typed refusal carriers) tagged; provider module at
+  `--json` face, erraudit adoption, parity corpus), v0.3.0
+  (`--land-parity`, typed refusal carriers), and v0.3.1 (meta docs,
+  pre-flight stamp hygiene, batch safe-strike) tagged; v0.4.0 adds the
+  read-only `rows` verb + the executable marker grammar. Provider module at
   `pkg/provider/v0.2.0`; `go install …@latest` resolves.
+- **`docs-gates rows` (read-only split, 2026-11-15)** — table-row
+  completeness (`--strict` UNTOUCHED arm) and the `--bare` row scan extracted
+  from the docs-health writer, with its own exit contract; byte-parity with
+  the writer's `check-rows`/`bare-rows` is pinned by
+  `internal/docsrows/parity_test.go` against the local writer source.
+  The marker grammar itself is pinned by
+  `internal/docsannotate/markers_test.go` + [ADR 0001](docs/adr/0001-marker-grammar-ownership.md).
 - **Pilot rollout evidence** — crm + go-appkit seeded (2026-11-03) and
   green under adoption ratchets (audit_max, annotate_max, cadence bars at
   the measured debt); the ratchets drain as the rituals run.
+
+## Verb matrix
+
+Every verb, once, with its exit contract.
+
+| Verb        | Kind    | `0`                            | `1`                            | `2`                            |
+| ----------- | ------- | ------------------------------ | ------------------------------ | ------------------------------ |
+| `run`       | battery | every gate PASS or SKIP        | ≥ 1 gate FAIL                  | bad root / bad config          |
+| `freshness` | gate    | FRESH                          | DRIFT (unharvested §f items)   | usage error / malformed config |
+| `annotate`  | gate    | clean or within the ratchet    | findings past the pin          | usage error / malformed config |
+| `rows`      | gate    | tables complete / no bare rows | PARTIAL, mixed, or bare rows   | usage error / unreadable file  |
+| `routing`   | gate    | no routing gaps                | open rows no living doc covers | usage error / malformed config |
+| `cadence`   | gate    | thresholds met                 | a threshold is overdue         | usage error / malformed config |
+| `strike`    | writer  | row struck (dry-run default)   | —                              | refusal (ambiguous/double)     |
+| `purge`     | writer  | draft printed or purged        | unsafe draft                   | usage error / missing anchors  |
 
 ## WORTH CONSIDERING
 

@@ -4,6 +4,44 @@ All notable changes. Dates are 2026 unless stated. Version sections
 match the annotated git tags; anything after the newest tag sits under
 [Unreleased].
 
+## [v0.4.0] - 2026-11-15
+
+### Added
+
+- **`rows` verb (the read-only half of the docs-health writer).**
+  `docs-gates rows [--strict] <file>...` is the table-row completeness gate
+  (the writer's `check-rows`): PARTIAL rows and mixed struck tables fail;
+  `--strict` adds the UNTOUCHED arm for the archive decision.
+  `docs-gates rows --bare <file>...` lists every bare data row outside
+  ledger-marked tables. Explicit file paths, its own exit contract (0 clean,
+  1 findings, 2 usage/environment), and no write path at all.
+- **Marker-grammar contract test.** One fixture line per rendered kind
+  (`h/v/p/w/n/r/s`), a round-trip run over every strike verdict, a sabotage
+  case that fails on a renamed phrase, and a negative case pinning the
+  routed kind as intentionally unstruck.
+- **Writer-oracle parity test** for `rows`: the same fixtures run through
+  this verb and the skill's `annotate.go`, requiring identical finding lines
+  and exit codes (skips where the local skill fan-out is absent).
+- **ADR 0001 (marker grammar ownership) and ADR 0002 (destructive
+  authority)**, plus the split and mutator-migration planning documents.
+
+### Changed
+
+- The read-only row gates are the supported surface; `annotate.go
+  check-rows` / `bare-rows` remain aliases for callers pinned to the writer.
+- AGENTS.md compressed to the 220-line gate with no facts dropped.
+
+### Fixed
+
+- A formatter pass had rewritten whole-row strikes in an archived report and
+  lost tasks 6-11; the text is restored from history and encoded in per-cell
+  strikes, and the repo's own annotate gate is green again.
+- The erraudit rev tripwire worked for the first time: its associative-array
+  keys contained spaces, so every lookup died under `set -u` instead of
+  naming drift. The verified lock pins were restored after a repair-step
+  rewrite.
+- `result` points at the package build rather than a drift-check derivation.
+
 ## [v0.3.1] - 2026-11-14
 
 ### Added
