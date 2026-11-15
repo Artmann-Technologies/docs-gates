@@ -26,6 +26,7 @@ import (
 	"github.com/Artmann-Technologies/docs-gates/internal/docsfreshness"
 	"github.com/Artmann-Technologies/docs-gates/internal/docspurge"
 	"github.com/Artmann-Technologies/docs-gates/internal/docsrouting"
+	"github.com/Artmann-Technologies/docs-gates/internal/docsrows"
 	"github.com/Artmann-Technologies/docs-gates/internal/docsstrike"
 	"github.com/Artmann-Technologies/docs-gates/internal/gatecli"
 )
@@ -41,6 +42,7 @@ const (
 	verbRun       = "run"
 	verbFreshness = "freshness"
 	verbAnnotate  = "annotate"
+	verbRows      = "rows"
 	verbRouting   = "routing"
 	verbCadence   = "cadence"
 	verbStrike    = "strike"
@@ -62,6 +64,7 @@ var displayName = map[string]string{
 	verbRun:       "docs-gates",
 	verbFreshness: "docs-freshness",
 	verbAnnotate:  "docs-annotate",
+	verbRows:      "docs-gates",
 	verbRouting:   "docs-routing",
 	verbCadence:   "docs-cadence",
 	verbStrike:    "docs-strike",
@@ -76,6 +79,7 @@ var verbHandlers = map[string]func([]string) int{
 	verbRun:       battery.Run,
 	verbFreshness: docsfreshness.Run,
 	verbAnnotate:  docsannotate.Run,
+	verbRows:      docsrows.Run,
 	verbRouting:   docsrouting.Run,
 	verbCadence:   docscadence.Run,
 	verbStrike:    docsstrike.Run,
@@ -85,7 +89,7 @@ var verbHandlers = map[string]func([]string) int{
 // verbOrder is the display order of the verbs in the root usage.
 //
 //nolint:gochecknoglobals // the fixed display order, same class as the contract tables
-var verbOrder = []string{verbRun, verbFreshness, verbAnnotate, verbRouting, verbCadence, verbStrike, verbPurge}
+var verbOrder = []string{verbRun, verbFreshness, verbAnnotate, verbRows, verbRouting, verbCadence, verbStrike, verbPurge}
 
 // verbOverview is each verb's one-line purpose for the root usage; the
 // detailed flag help lives in the gate packages' Usage.
@@ -95,6 +99,7 @@ var verbOverview = map[string]string{
 	verbRun:       "all five gates as one ordered verdict matrix (the battery)",
 	verbFreshness: "the newest report's §f items must be harvested into the living docs",
 	verbAnnotate:  "struck items must carry honest, verifiable verdicts",
+	verbRows:      "table-row completeness and bare-row gates over explicit files",
 	verbRouting:   "open actionable rows outside §f must be routed to a living doc",
 	verbCadence:   "TODO_LIST purge and report archive thresholds",
 	verbStrike:    "strike one TODO_LIST row (dry-run by default)",
@@ -110,6 +115,7 @@ var verbUsage = map[string]string{
 	verbRun:       battery.Usage,
 	verbFreshness: docsfreshness.Usage,
 	verbAnnotate:  docsannotate.Usage,
+	verbRows:      docsrows.Usage,
 	verbRouting:   docsrouting.Usage,
 	verbCadence:   docscadence.Usage,
 	verbStrike:    docsstrike.Usage,

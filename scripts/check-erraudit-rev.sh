@@ -22,9 +22,9 @@ cd "$(dirname "$0")/.."
 
 # input-name=expected locked rev (the deliberate-bump pins)
 declare -A expected=(
-	[erraudit]="5c841cf21140bbba3bff6613126720dad8298cbd"
-	[go - filewatcher]="a965e6b8be500594e117eb52e4269fefa90cfcfb"
-	[go - nix - helpers]="2c5d1d75aeacaaf6ddf558fd7d7bd5a4f4f7687a"
+	[erraudit]="85bc703f8556655b1b427bb427c709faee592431"
+	[go-filewatcher]="a965e6b8be500594e117eb52e4269fefa90cfcfb"
+	[go-nix-helpers]="2c5d1d75aeacaaf6ddf558fd7d7bd5a4f4f7687a"
 	[gogenfilter]="ebdac855fea9ed24ed20e4e0590ab80fd24d826d"
 )
 
