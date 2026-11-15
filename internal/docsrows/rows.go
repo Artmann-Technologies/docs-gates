@@ -144,7 +144,7 @@ func scanReport(path string, tables []table, opts options) fileReport {
 
 	return fileReport{
 		name:     name,
-		notes:    ledgerNotes(name, tables),
+		notes:    ledgerNotes(tables),
 		findings: completenessFindings(name, tables, opts.strict),
 	}
 }

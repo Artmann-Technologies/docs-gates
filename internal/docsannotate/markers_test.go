@@ -18,7 +18,6 @@ import (
 // kind; changing one here without changing the writer (or the reverse) is
 // exactly the drift this test exists to catch.
 //
-//nolint:gochecknoglobals // immutable fixture, same class as the contract tables
 var markerFixture = []struct {
 	kind   string
 	marker string
@@ -66,6 +65,7 @@ func TestStruckItemWithEveryStrikeVerdictIsClean(t *testing.T) {
 	b.WriteString("# Report\n\n## f) Next\n\n")
 
 	n := 0
+
 	for _, f := range markerFixture {
 		if !f.strike {
 			continue
@@ -77,6 +77,7 @@ func TestStruckItemWithEveryStrikeVerdictIsClean(t *testing.T) {
 
 	root := t.TempDir()
 	path := filepath.Join(root, "report.md")
+
 	if err := os.WriteFile(path, []byte(b.String()), 0o644); err != nil {
 		t.Fatal(err)
 	}
@@ -107,7 +108,8 @@ func TestSabotageRenamedMarkerIsFlagged(t *testing.T) {
 	root := t.TempDir()
 	path := filepath.Join(root, "report.md")
 
-	body := "# Report\n\n## f) Next\n\n" + itemLine(1, "an open claim", "**Discarded — replaced by the battery.**") + "\n"
+	body := "# Report\n\n## f) Next\n\n" +
+		itemLine(1, "an open claim", "**Discarded — replaced by the battery.**") + "\n"
 	if err := os.WriteFile(path, []byte(body), 0o644); err != nil {
 		t.Fatal(err)
 	}

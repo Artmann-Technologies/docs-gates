@@ -89,7 +89,10 @@ var verbHandlers = map[string]func([]string) int{
 // verbOrder is the display order of the verbs in the root usage.
 //
 //nolint:gochecknoglobals // the fixed display order, same class as the contract tables
-var verbOrder = []string{verbRun, verbFreshness, verbAnnotate, verbRows, verbRouting, verbCadence, verbStrike, verbPurge}
+var verbOrder = []string{
+	verbRun, verbFreshness, verbAnnotate, verbRows,
+	verbRouting, verbCadence, verbStrike, verbPurge,
+}
 
 // verbOverview is each verb's one-line purpose for the root usage; the
 // detailed flag help lives in the gate packages' Usage.

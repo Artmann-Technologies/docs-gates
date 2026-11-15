@@ -12,6 +12,11 @@ import (
 // line cancels it.
 const ledgerMarker = "<!-- check-rows:ledger -->"
 
+// minTableRows is the smallest run of pipe lines that is a real table: a
+// header plus at least one data row. Separator rows are dropped before the
+// count, so a header+separator+row table arrives here as two rows.
+const minTableRows = 2
+
 // rowState is a data row's annotation state. The four values are the writer
 // tool's vocabulary, kept byte-identical so a parity diff needs no mapping.
 type rowState string
@@ -39,7 +44,6 @@ type table struct {
 	rows       []row
 }
 
-//nolint:gochecknoglobals // compiled-once static patterns, immutable data tables
 var (
 	reTableSepCell     = regexp.MustCompile(`^:?-+:?$`)
 	reDoubledSpanCheck = regexp.MustCompile("``[^`]+``")
@@ -98,25 +102,21 @@ func isRouted(line string) bool {
 // resolved; a routed verdict also resolves it; no strike anywhere leaves it
 // CLEAN; anything between is PARTIAL (the formatter-damage shape).
 func classifyRow(line string) rowState {
-	states := make([]bool, 0, 4)
+	cells := splitCells(line)
+	struckCells := 0
 
-	for _, c := range splitCells(line) {
-		states = append(states, strings.Contains(outsideCodeSpansCheck(c), "~~"))
-	}
-
-	all, any := true, false
-
-	for _, s := range states {
-		all = all && s
-		any = any || s
+	for _, c := range cells {
+		if strings.Contains(outsideCodeSpansCheck(c), "~~") {
+			struckCells++
+		}
 	}
 
 	switch {
-	case all:
+	case struckCells == len(cells):
 		return stateStruck
 	case isRouted(line):
 		return stateRouted
-	case !any:
+	case struckCells == 0:
 		return stateClean
 	default:
 		return statePartial
@@ -135,68 +135,91 @@ func scanTables(path string) ([]table, error) {
 		return nil, err
 	}
 
-	var (
-		tables        []table
-		pendingLedger bool
-		blockLedger   bool
-		block         []row
-	)
-
-	flush := func() {
-		if len(block) == 0 {
-			return
-		}
-
-		wasLedger := blockLedger
-		blockLedger = false
-
-		data := make([]row, 0, len(block))
-
-		for _, r := range block {
-			if !isSeparator(r.text) {
-				data = append(data, r)
-			}
-		}
-
-		block = nil
-
-		if len(data) < 2 {
-			return
-		}
-
-		t := table{headerLine: data[0].no, ledger: wasLedger}
-
-		for _, r := range data[1:] {
-			r.state = classifyRow(r.text)
-			t.rows = append(t.rows, r)
-		}
-
-		tables = append(tables, t)
-	}
+	s := &tableScanner{}
 
 	for i, line := range lines {
-		if strings.HasPrefix(strings.TrimLeft(line, " \t"), "|") {
-			if len(block) == 0 && pendingLedger {
-				blockLedger = true
-				pendingLedger = false
-			}
+		s.consume(line, i+1)
+	}
 
-			block = append(block, row{no: i + 1, text: strings.TrimRight(line, "\r")})
+	s.flush()
 
-			continue
+	return s.tables, nil
+}
+
+// tableScanner carries the block/ledger state machine across lines. It
+// exists so scanTables stays a loop and the boundary rules stay testable.
+type tableScanner struct {
+	tables        []table
+	pendingLedger bool
+	blockLedger   bool
+	block         []row
+}
+
+// consume feeds one source line: a pipe line joins the open block, anything
+// else closes the block and may arm the ledger marker.
+func (s *tableScanner) consume(line string, no int) {
+	if isTableLine(line) {
+		if len(s.block) == 0 && s.pendingLedger {
+			s.blockLedger = true
+			s.pendingLedger = false
 		}
 
-		flush()
+		s.block = append(s.block, row{no: no, text: strings.TrimRight(line, "\r")})
 
-		switch t := strings.TrimSpace(line); {
-		case t == ledgerMarker:
-			pendingLedger = true
-		case t != "":
-			pendingLedger = false
+		return
+	}
+
+	s.flush()
+	s.marker(strings.TrimSpace(line))
+}
+
+// marker arms or cancels the NEXT table's ledger exemption.
+func (s *tableScanner) marker(text string) {
+	switch text {
+	case ledgerMarker:
+		s.pendingLedger = true
+	case "":
+		// A blank line between the marker and its table does not cancel it.
+	default:
+		s.pendingLedger = false
+	}
+}
+
+// flush closes the open block into a table when it has a header and at
+// least one data row after separator rows are dropped.
+func (s *tableScanner) flush() {
+	if len(s.block) == 0 {
+		return
+	}
+
+	wasLedger := s.blockLedger
+	s.blockLedger = false
+
+	data := make([]row, 0, len(s.block))
+
+	for _, r := range s.block {
+		if !isSeparator(r.text) {
+			data = append(data, r)
 		}
 	}
 
-	flush()
+	s.block = nil
 
-	return tables, nil
+	if len(data) < minTableRows {
+		return
+	}
+
+	t := table{headerLine: data[0].no, ledger: wasLedger}
+
+	for _, r := range data[1:] {
+		r.state = classifyRow(r.text)
+		t.rows = append(t.rows, r)
+	}
+
+	s.tables = append(s.tables, t)
+}
+
+// isTableLine reports whether a line starts a (or continues a) table block.
+func isTableLine(line string) bool {
+	return strings.HasPrefix(strings.TrimLeft(line, " \t"), "|")
 }

@@ -1,6 +1,8 @@
 package docsrows
 
 import (
+	"context"
+	"errors"
 	"os"
 	"os/exec"
 	"strings"
@@ -16,8 +18,6 @@ const writerSource = "/home/lars/.config/crush/skills/docs-health/assets/annotat
 
 // parityFixtures are the shapes whose rendering must stay byte-identical:
 // clean, partial, mixed/untouched, ledger-exempt, and bare rows.
-//
-//nolint:gochecknoglobals // immutable fixture list, same class as the contract tables
 var parityFixtures = []string{
 	"testdata/clean.md",
 	"testdata/partial.md",
@@ -86,12 +86,12 @@ func TestWriterToolParity(t *testing.T) {
 func runWriter(t *testing.T, argv []string) (string, int) {
 	t.Helper()
 
-	cmd := exec.Command("go", append([]string{"run", writerSource}, argv...)...)
+	cmd := exec.CommandContext(context.Background(), "go", append([]string{"run", writerSource}, argv...)...)
 
 	raw, err := cmd.Output()
 	if err != nil {
-		if ee, ok := err.(*exec.ExitError); ok {
-			return normalizeFindings(string(raw)), ee.ExitCode()
+		if exitErr, ok := errors.AsType[*exec.ExitError](err); ok {
+			return normalizeFindings(string(raw)), exitErr.ExitCode()
 		}
 
 		t.Fatalf("running writer oracle: %v", err)
@@ -103,9 +103,9 @@ func runWriter(t *testing.T, argv []string) (string, int) {
 // normalizeFindings keeps the verdict lines and drops each tool's summary
 // line, the only place the two contracts intentionally differ.
 func normalizeFindings(stdout string) string {
-	var kept []string
+	kept := make([]string, 0, strings.Count(stdout, "\n")+1)
 
-	for _, line := range strings.Split(stdout, "\n") {
+	for line := range strings.SplitSeq(stdout, "\n") {
 		switch {
 		case strings.HasPrefix(line, "check-rows:"),
 			strings.HasPrefix(line, "bare-rows:"),

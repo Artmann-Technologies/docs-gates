@@ -111,7 +111,8 @@ func TestCompletenessModes(t *testing.T) {
 		out := gatecli.CaptureOutput(func() int { return Run(tc.argv) })
 
 		if out.Code != tc.code {
-			t.Errorf("%s: code = %d, want %d (stdout %q, stderr %q)", tc.name, out.Code, tc.code, out.Stdout, out.Stderr)
+			t.Errorf("%s: code = %d, want %d (stdout %q, stderr %q)",
+				tc.name, out.Code, tc.code, out.Stdout, out.Stderr)
 		}
 
 		for _, want := range tc.want {
