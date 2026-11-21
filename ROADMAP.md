@@ -7,6 +7,14 @@ Long-term direction and raw ideas. Refined ideas graduate to TODO_LIST.
   the pbx-artmann migration (the extraction's source fleet), then widen
   to the remaining fleet repos. Config friction found along the way
   folds back into the schema.
+- **Quarterly grammar re-read** (next due ~2027-02-15) — the marker
+  grammar's executable contract (ADR 0001 +
+  `internal/docsannotate/markers_test.go`) catches renames, but not
+  semantic drift: a verdict phrase that still parses while meaning
+  something different in the ritual. Once a quarter, re-read ADR 0001
+  against both halves — render every kind through `annotate.go`,
+  confirm the judge vocabulary and `rows` classification still agree
+  with the doctrine the words came from.
 - **Schema versioning** — if the config schema ever breaks shape, add a
   `schema_version` key BEFORE changing any key's meaning; the loader
   refuses newer majors loudly.

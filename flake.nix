@@ -233,6 +233,14 @@
                   fi
                 done
 
+                # The rows verb has no legacy wrapper, but the wrapper
+                # surface is only honest if the multi-call binary behind it
+                # still answers the read-only gate verbs callers pin.
+                if ! docs-gates rows --help >/dev/null 2>&1; then
+                  echo "FAIL: docs-gates rows is not a resolvable verb" >&2
+                  exit 1
+                fi
+
                 touch $out
               '';
 

@@ -1,8 +1,9 @@
 # docs-gates
 
 The docs-health battery gates as one standalone, stdlib-only Go binary.
-Five gates — freshness, annotate, routing, cadence, strike — plus `run`,
-the ordered battery that executes them as one verdict matrix.
+The battery runs five gates — freshness, audit-all, annotate, routing,
+cadence — as one verdict matrix; `rows` is the read-only report-table
+gate, and `strike`/`purge` are guarded mutator verbs outside the battery.
 
 Extracted from the pbx-artmann deployment flake's `pbx-tools` package, where
 the gates were hand-rolled per repo. Every behavioral constant is now
@@ -31,9 +32,16 @@ docs-gates run .
 Verbs: `run | freshness | annotate | rows | routing | cadence | strike | purge`. Each
 gate verb keeps its historical standalone name (`docs-freshness`,
 `docs-annotate`, `docs-routing`, `docs-cadence`, `docs-strike`) as a flake
-wrapper, and answers `--version` under that name. `docs-gates help`
-(or `<verb> --help`) explains every verb and its flags; a typo'd verb
-gets a did-you-mean suggestion.
+wrapper, and answers `--version` under that name. `rows` deliberately has
+no legacy wrapper — it was born inside this binary, not extracted from a
+standalone tool. `docs-gates help` (or `<verb> --help`) explains every
+verb and its flags; a typo'd verb gets a did-you-mean suggestion.
+
+`docs-gates rows <report.md>` judges one report's tables (PARTIAL and
+mixed rows; `--bare` for bare rows, `--strict` to also flag wholly
+unstruck tables) — the check to run before harvesting a report. It is
+read-only end to end; the writer's `--normalize` rewrite stays in
+`annotate.go`.
 
 ### Exit codes
 
@@ -55,7 +63,10 @@ every verb:
 rewrites one. Annotation (striking, repairing, marking verdicts) belongs to
 the docs-health skill's `annotate.go`, which shares this binary's marker
 grammar. The boundary, the executable grammar test, and the migration plan
-live in [ADR 0001](docs/adr/0001-marker-grammar-ownership.md).
+live in [ADR 0001](docs/adr/0001-marker-grammar-ownership.md). Measured
+2026-11-15: the writer as `go run` costs ~1.9 s cold / ~25 ms warm, the
+judge binary answers in ~1.5 ms — pin the binary in CI, keep the writer
+zero-install.
 
 ## Adopting docs-gates
 
@@ -189,8 +200,24 @@ echo "- the new TODO row text" | docs-gates freshness . --pre-flight
 
 ## Releases
 
-v0.3.0 is current (see [CHANGELOG.md](CHANGELOG.md)); the BuildFlow
+v0.4.0 is current (see [CHANGELOG.md](CHANGELOG.md)); the BuildFlow
 provider module is versioned separately as `pkg/provider/v0.2.0`.
+`--version` prints the flake's shortRev, so between tags it names a
+commit, not a release.
+
+Release checklist — push and install are part of the release, not an
+afterthought:
+
+1. Cut the CHANGELOG section; bump the version pins in README and
+   FEATURES.
+2. `buildflow --build-mode full` green, plus the battery on this repo
+   and one adopting repo.
+3. Annotated tag `vX.Y.Z`; push the branch and the tag; GitHub release
+   from the CHANGELOG section.
+4. Install over the previous fleet binary and VERIFY `docs-gates
+   --version` prints the new rev before any caller is switched to new
+   verbs.
+
 Contributing: [CONTRIBUTING.md](CONTRIBUTING.md); security reporting:
 [SECURITY.md](SECURITY.md); the paid-for incident narratives behind
 AGENTS.md live in [docs/agent-notes.md](docs/agent-notes.md).
