@@ -51,46 +51,6 @@
         "url": "ssh://git@github.com/LarsArtmann/erraudit"
       }
     },
-    "erraudit/go-composable-business-types": {
-      "inputs": {
-        "flake-parts": "flake-parts_3",
-        "nixpkgs": "nixpkgs",
-        "treefmt-nix": "treefmt-nix_2"
-      },
-      "locked": {
-        "lastModified": 1795043498,
-        "narHash": "sha256-pXwJuFWg9uwkOxJ+astiGePA8YSlBHAaZGgT3AwIepg=",
-        "ref": "refs/heads/master",
-        "rev": "76dc4bb29ec1f41896b3c60d75c5f03f8031cb6a",
-        "revCount": 400,
-        "type": "git",
-        "url": "ssh://git@github.com/LarsArtmann/go-composable-business-types"
-      },
-      "original": {
-        "type": "git",
-        "url": "ssh://git@github.com/LarsArtmann/go-composable-business-types"
-      }
-    },
-    "erraudit/go-ndjson": {
-      "inputs": {
-        "flake-parts": "flake-parts_4",
-        "nixpkgs": "nixpkgs_2",
-        "treefmt-nix": "treefmt-nix_3"
-      },
-      "locked": {
-        "lastModified": 1794766182,
-        "narHash": "sha256-ypob3k8wen7p8O+eWrKTAvVP/HTMsBOW19BA86E64z8=",
-        "ref": "refs/heads/master",
-        "rev": "c077cd7e3b7e01f7355f15fe3eec0d684ce6b135",
-        "revCount": 48,
-        "type": "git",
-        "url": "ssh://git@github.com/LarsArtmann/go-ndjson"
-      },
-      "original": {
-        "type": "git",
-        "url": "ssh://git@github.com/LarsArtmann/go-ndjson"
-      }
-    },
     "flake-compat": {
       "flake": false,
       "locked": {
@@ -133,48 +93,6 @@
         "nixpkgs-lib": [
           "erraudit",
           "go-nix-helpers",
-          "nixpkgs"
-        ]
-      },
-      "locked": {
-        "lastModified": 1793576659,
-        "narHash": "sha256-V1h85lUaJBQoHFrB2vpXZOE0Ju1MYSnIpsehoVZYlDo=",
-        "owner": "hercules-ci",
-        "repo": "flake-parts",
-        "rev": "ea2630b7470978622c7689a1ff75d2b389175399",
-        "type": "github"
-      },
-      "original": {
-        "owner": "hercules-ci",
-        "repo": "flake-parts",
-        "type": "github"
-      }
-    },
-    "flake-parts_3": {
-      "inputs": {
-        "nixpkgs-lib": [
-          "erraudit/go-composable-business-types",
-          "nixpkgs"
-        ]
-      },
-      "locked": {
-        "lastModified": 1793576659,
-        "narHash": "sha256-V1h85lUaJBQoHFrB2vpXZOE0Ju1MYSnIpsehoVZYlDo=",
-        "owner": "hercules-ci",
-        "repo": "flake-parts",
-        "rev": "ea2630b7470978622c7689a1ff75d2b389175399",
-        "type": "github"
-      },
-      "original": {
-        "owner": "hercules-ci",
-        "repo": "flake-parts",
-        "type": "github"
-      }
-    },
-    "flake-parts_4": {
-      "inputs": {
-        "nixpkgs-lib": [
-          "erraudit/go-ndjson",
           "nixpkgs"
         ]
       },
@@ -250,18 +168,17 @@
     "go-composable-business-types": {
       "flake": false,
       "locked": {
-        "lastModified": 1784831700,
-        "narHash": "sha256-AE3W5wKgfO/u8BHvHbc5qT6Il5ROyiEHqkukCmOxBf0=",
-        "owner": "LarsArtmann",
-        "repo": "go-composable-business-types",
-        "rev": "4248e6b216ba025fada8d490b5c83236818ddec9",
-        "type": "github"
+        "lastModified": 1795043498,
+        "narHash": "sha256-pXwJuFWg9uwkOxJ+astiGePA8YSlBHAaZGgT3AwIepg=",
+        "ref": "refs/heads/master",
+        "rev": "76dc4bb29ec1f41896b3c60d75c5f03f8031cb6a",
+        "revCount": 400,
+        "type": "git",
+        "url": "ssh://git@github.com/LarsArtmann/go-composable-business-types"
       },
       "original": {
-        "owner": "LarsArtmann",
-        "ref": "v0.7.0",
-        "repo": "go-composable-business-types",
-        "type": "github"
+        "type": "git",
+        "url": "ssh://git@github.com/LarsArtmann/go-composable-business-types"
       }
     },
     "go-error-family": {
@@ -318,18 +235,17 @@
     "go-ndjson": {
       "flake": false,
       "locked": {
-        "lastModified": 1784826135,
-        "narHash": "sha256-2dmU1U5pv1/Nu+aaMT/SA3VpS6YD48XnRVQE3yF5aYw=",
-        "owner": "LarsArtmann",
-        "repo": "go-ndjson",
-        "rev": "210f54404028843b8fef1d47b39ef27410a7e7e4",
-        "type": "github"
+        "lastModified": 1794766182,
+        "narHash": "sha256-ypob3k8wen7p8O+eWrKTAvVP/HTMsBOW19BA86E64z8=",
+        "ref": "refs/heads/master",
+        "rev": "c077cd7e3b7e01f7355f15fe3eec0d684ce6b135",
+        "revCount": 48,
+        "type": "git",
+        "url": "ssh://git@github.com/LarsArtmann/go-ndjson"
       },
       "original": {
-        "owner": "LarsArtmann",
-        "ref": "v0.0.1",
-        "repo": "go-ndjson",
-        "type": "github"
+        "type": "git",
+        "url": "ssh://git@github.com/LarsArtmann/go-ndjson"
       }
     },
     "go-nix-helpers": {
@@ -415,38 +331,6 @@
     },
     "nixpkgs": {
       "locked": {
-        "lastModified": 1794537146,
-        "narHash": "sha256-Wpz/7x/YWnDIBu7yj6ixe8j6fIMsidd9Y+o1PqPF3iM=",
-        "owner": "NixOS",
-        "repo": "nixpkgs",
-        "rev": "d5cc6833999746cffdfe0598f7bc801a57b887a9",
-        "type": "github"
-      },
-      "original": {
-        "owner": "NixOS",
-        "ref": "nixos-unstable",
-        "repo": "nixpkgs",
-        "type": "github"
-      }
-    },
-    "nixpkgs_2": {
-      "locked": {
-        "lastModified": 1794537146,
-        "narHash": "sha256-Wpz/7x/YWnDIBu7yj6ixe8j6fIMsidd9Y+o1PqPF3iM=",
-        "owner": "NixOS",
-        "repo": "nixpkgs",
-        "rev": "d5cc6833999746cffdfe0598f7bc801a57b887a9",
-        "type": "github"
-      },
-      "original": {
-        "owner": "NixOS",
-        "ref": "nixos-unstable",
-        "repo": "nixpkgs",
-        "type": "github"
-      }
-    },
-    "nixpkgs_3": {
-      "locked": {
         "lastModified": 1794192123,
         "narHash": "sha256-SvB8u5qaJAOwZZyZciqTVOg/rBoUs2w0sFTU6ED51AQ=",
         "owner": "NixOS",
@@ -481,10 +365,8 @@
     "root": {
       "inputs": {
         "erraudit": "erraudit",
-        "erraudit/go-composable-business-types": "erraudit/go-composable-business-types",
-        "erraudit/go-ndjson": "erraudit/go-ndjson",
         "git-hooks": "git-hooks",
-        "nixpkgs": "nixpkgs_3"
+        "nixpkgs": "nixpkgs"
       }
     },
     "samber-do-auditlog": {
@@ -518,48 +400,6 @@
         "owner": "numtide",
         "repo": "treefmt-nix",
         "rev": "0ba5d67225c3f5c88eb134e1a665a379bfd3bea9",
-        "type": "github"
-      },
-      "original": {
-        "owner": "numtide",
-        "repo": "treefmt-nix",
-        "type": "github"
-      }
-    },
-    "treefmt-nix_2": {
-      "inputs": {
-        "nixpkgs": [
-          "erraudit/go-composable-business-types",
-          "nixpkgs"
-        ]
-      },
-      "locked": {
-        "lastModified": 1791885023,
-        "narHash": "sha256-C3alQ2MEt0zVrUSho5NUDo3jmhbff72++bfwoqT9Omo=",
-        "owner": "numtide",
-        "repo": "treefmt-nix",
-        "rev": "0d6d739a833ba9a9c93034862e4a7b061a062a1c",
-        "type": "github"
-      },
-      "original": {
-        "owner": "numtide",
-        "repo": "treefmt-nix",
-        "type": "github"
-      }
-    },
-    "treefmt-nix_3": {
-      "inputs": {
-        "nixpkgs": [
-          "erraudit/go-ndjson",
-          "nixpkgs"
-        ]
-      },
-      "locked": {
-        "lastModified": 1791885023,
-        "narHash": "sha256-C3alQ2MEt0zVrUSho5NUDo3jmhbff72++bfwoqT9Omo=",
-        "owner": "numtide",
-        "repo": "treefmt-nix",
-        "rev": "0d6d739a833ba9a9c93034862e4a7b061a062a1c",
         "type": "github"
       },
       "original": {

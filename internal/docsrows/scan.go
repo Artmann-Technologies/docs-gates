@@ -148,16 +148,39 @@ func scanTables(path string) ([]table, error) {
 
 // tableScanner carries the block/ledger state machine across lines. It
 // exists so scanTables stays a loop and the boundary rules stay testable.
+// While inside a fenced code block nothing is a table line or a marker:
+// documentation examples show table syntax and marker lines that must not
+// be judged (or exempt anything) as real corpus content.
 type tableScanner struct {
 	tables        []table
 	pendingLedger bool
 	blockLedger   bool
 	block         []row
+	fence         string
 }
 
 // consume feeds one source line: a pipe line joins the open block, anything
-// else closes the block and may arm the ledger marker.
+// else closes the block and may arm the ledger marker. Fence transitions
+// come first: the opening fence line closes any open block (and, like any
+// non-blank line, cancels a pending ledger marker); every line inside the
+// fence, including the closer, is inert.
 func (s *tableScanner) consume(line string, no int) {
+	if s.fence != "" {
+		if isFenceClose(line, s.fence) {
+			s.fence = ""
+		}
+
+		return
+	}
+
+	if open := fenceOpen(line); open != "" {
+		s.flush()
+		s.marker(strings.TrimSpace(line))
+		s.fence = open
+
+		return
+	}
+
 	if isTableLine(line) {
 		if len(s.block) == 0 && s.pendingLedger {
 			s.blockLedger = true
@@ -171,6 +194,31 @@ func (s *tableScanner) consume(line string, no int) {
 
 	s.flush()
 	s.marker(strings.TrimSpace(line))
+}
+
+// fenceOpen reports the fence run a line opens (``` or ~~~), or "" when the
+// line does not open a fence.
+func fenceOpen(line string) string {
+	trimmed := strings.TrimLeft(line, " \t")
+
+	for _, c := range []string{"`", "~"} {
+		run := strings.TrimLeft(trimmed, c)
+		if len(run) < len(trimmed)-2 && strings.TrimSpace(run) == "" {
+			return trimmed[:len(trimmed)-len(run)]
+		}
+	}
+
+		return ""
+}
+
+// isFenceClose reports whether a line closes the given open fence run: at
+// least as many of the same character and nothing else.
+func isFenceClose(line string, open string) bool {
+	trimmed := strings.TrimSpace(line)
+	c := open[:1]
+	run := strings.TrimLeft(trimmed, c)
+
+	return len(trimmed)-len(run) >= len(open) && strings.TrimSpace(run) == ""
 }
 
 // marker arms or cancels the NEXT table's ledger exemption.
