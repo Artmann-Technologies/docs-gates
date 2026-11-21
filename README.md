@@ -1,9 +1,10 @@
 # docs-gates
 
 The docs-health battery gates as one standalone, stdlib-only Go binary.
-The battery runs five gates — freshness, audit-all, annotate, routing,
-cadence — as one verdict matrix; `rows` is the read-only report-table
-gate, and `strike`/`purge` are guarded mutator verbs outside the battery.
+The battery runs eight gates — freshness, audit-all, annotate, routing,
+cadence, stub, citations, stamps — as one verdict matrix; `rows` is the
+read-only report-table gate, and `strike`/`purge` are guarded mutator
+verbs outside the battery.
 
 Extracted from the pbx-artmann deployment flake's `pbx-tools` package, where
 the gates were hand-rolled per repo. Every behavioral constant is now
@@ -29,12 +30,13 @@ go install github.com/Artmann-Technologies/docs-gates/cmd/docs-gates@v0.4.0
 docs-gates run .
 ```
 
-Verbs: `run | freshness | annotate | rows | routing | cadence | strike | purge`. Each
-gate verb keeps its historical standalone name (`docs-freshness`,
-`docs-annotate`, `docs-routing`, `docs-cadence`, `docs-strike`) as a flake
-wrapper, and answers `--version` under that name. `rows` deliberately has
-no legacy wrapper — it was born inside this binary, not extracted from a
-standalone tool. `docs-gates help` (or `<verb> --help`) explains every
+Verbs: `run | freshness | annotate | rows | routing | cadence | stub | citations | stamps | strike | purge`.
+The five original gate verbs keep their historical standalone names
+(`docs-freshness`, `docs-annotate`, `docs-routing`, `docs-cadence`,
+`docs-strike`) as flake wrappers and answer `--version` under those
+names. `rows` and the three content gates (`stub`, `citations`,
+`stamps`) were born inside this binary and deliberately carry no legacy
+wrapper. `docs-gates help` (or `<verb> --help`) explains every
 verb and its flags; a typo'd verb gets a did-you-mean suggestion.
 
 `docs-gates rows <report.md>` judges one report's tables (PARTIAL and

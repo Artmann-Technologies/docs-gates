@@ -13,7 +13,7 @@ narratives: `docs/agent-notes.md`.
 
 ## Layout and control flow
 
-One binary, seven verbs; `cmd/docs-gates` dispatches, everything else is
+One binary, ten verbs; `cmd/docs-gates` dispatches (verb tables in `verbs.go`), everything else is
 a library:
 
 | Package                                                    | Role                                                                                                                                                                                                                                |
@@ -22,7 +22,8 @@ a library:
 | `internal/gatecli`                                         | exit-code constants, boolean/valued `--flag` parsing (`CutIntFlag`), the config prologue (`LoadConfig`), repo-root resolution, `Outf`/`Errf` + kin (the ONE home for unchecked `fmt.Fprint*`), `Truncate`, `CaptureOutput`, `Livef` |
 | `internal/battery`                                         | the `run` verb: ordered gates from config, run INDEPENDENTLY with captured output, PASS/FAIL/SKIP matrix — no first-failure abort                                                                                                   |
 | `internal/config`                                          | `.docs-gates.json` loader: decode over `Defaults()`, unknown keys WARN, malformed/invalid exit 2                                                                                                                                    |
-| `internal/docs{freshness,annotate,routing,cadence,strike}` | the five gates: each a `Run([]string) int` whose argv matches the historical standalone binaries, each with a `Settings` projection (zero values → historical constants) + docs-purge                                               |
+| `internal/docs{freshness,annotate,routing,cadence,strike}` | the five historical gates: each a `Run([]string) int` whose argv matches the historical standalone binaries, each with a `Settings` projection (zero values → historical constants) + docs-purge                                               |
+| `internal/docs{stub,citations,stamps}` | the three content gates over the domain-language glossary (2026-11-21 census): bare-template checksums, code-citation resolution, verification-stamp age bars; warn-mode rollout knobs (`*_enforce`), same `Run`/`Settings` shape                                   |
 | `pkg/provider`                                             | BuildFlow toolsdk provider — a SEPARATE go module that EXECS the binary from PATH, parses `run --json` into findings (strict decode), registers via `toolsdk.Register`                                                              |
 
 Control flow: `main.go` → verb's `Run(rest)` → `gatecli.Parse` →
@@ -44,7 +45,7 @@ keep bare `FATAL: %v`.
 - **Zero-value Settings never reach gate logic** — projections fall back to
   the historical constants (`cmp.Or`, `OrSlice`, `> 0`); config-less repos
   behave byte-for-byte like pre-extraction. A default change re-proves parity.
-- **The five legacy names are API**: flake wrappers exec
+- **The five legacy names are API** (the three content gates carry no legacy wrapper): flake wrappers exec
   `docs-gates <verb>`; each answers `--version` under its legacy name.
   Never remove a wrapper without a migration plan.
 - **Parity is enforced**: `TestParityGolden` pins byte output of

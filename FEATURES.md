@@ -36,6 +36,23 @@ built.
 - **docs-cadence gate** — struck-row purge threshold + archive cadence
   (unarchived count + oldest age), config-driven thresholds, TODO file,
   report dir.
+- **docs-stub gate** — a domain-language glossary whose md5/sha256
+  matches the census-pinned bare-template digests is an unfilled stub;
+  warn-mode rollout (`stub_enforce`), exemptions (`stub_exempts`),
+  corpus (`stub_files`). Fleet baseline 2026-11-21: 38 findings,
+  matching the census evidence exactly (fixture test pins the
+  template↔digest pairing so a scaffold change forces re-derivation).
+- **docs-citations gate** — backticked repo-relative code citations in
+  the glossary must resolve to real files (`:line` suffixes ignored,
+  prose shapes refused by the classifier: URLs, globs, env tokens,
+  absolute paths); warn-mode rollout (`citation_enforce`). Fleet
+  baseline 2026-11-21: 53 repos, 147 dangling (CV's
+  `career-pipeline/profileagent/…` class — code moved, glossary never
+  followed). Verified true positives by hand.
+- **docs-stamps gate** — the oldest verify-word stamp per corpus file
+  flagged past the warn bar (90d) and fail bar (180d); warn-mode rollout
+  (`stamp_enforce`); a corpus with no stamps owes nothing. Fleet
+  baseline 2026-11-21: 1 finding (bank-sync, 92d).
 - **docs-strike tool** — TODO_LIST row-strike helper (dry-run default,
   ambiguity refusals, double-strike refusals, verdict-opener refusals),
   target file from config unless `--file` overrides; plus
@@ -46,7 +63,7 @@ built.
   struck TODO rows, drafts one dated CHANGELOG bullet per row, gates the
   draft through the pre-flight, writes only on SAFE (dry-run default;
   missing `[Unreleased]`/`### Changed` anchors are usage refusals).
-- **Battery runner** (`docs-gates run`) — five gates as one independent
+- **Battery runner** (`docs-gates run`) — eight gates as one independent
   matrix (PASS/FAIL/SKIP per gate, no first-failure abort), exit 0/1,
   `skip_gates` + `audit_max` from repo config. Every gate runs under
   `gate_timeout_sec` (default 300s, 0 = off; an expired wedge is a FAIL
