@@ -6,7 +6,18 @@ match the annotated git tags; anything after the newest tag sits under
 
 ## [Unreleased]
 
+## [v0.4.0] - 2026-11-21
+
 ### Added
+
+- **`audit_corpus` config knob** scopes the freshness replay
+  (`--audit-all` and `--pre-flight`): `"all"` (default — both the report
+  dir and its archived subdir, the historical behavior) or
+  `"unarchived"` (drop the archived subdir). An archived backlog stops
+  moving the unharvested count with unrelated living-doc prose edits
+  (the 122 → 123 → 120 drift go-sse measured across three prose-only
+  edits). Unknown values are a loud exit 2; the usage text now matches
+  the implementation (closed #8).
 
 - **Three content gates over the domain-language glossary** (`stub`,
   `citations`, `stamps`), born from the 2026-11-21 fleet census (38
@@ -33,20 +44,6 @@ match the annotated git tags; anything after the newest tag sits under
   `citation_enforce`, `stamp_files`, `stamp_warn_days`,
   `stamp_fail_days`, `stamp_enforce`; battery gate names `stub`,
   `citations`, `stamps` join the `skip_gates` vocabulary.
-
-### Changed
-
-- The battery runs eight gates (was five); `run` usage, the root help,
-  and the JSON face's gate rows carry the three new PASS rows — parity
-  goldens re-pinned (three additions, no existing row changed).
-- `cmd/docs-gates` split: the verb tables live in `verbs.go`; the
-  content-gate config surface lives in `internal/config/content_gates.go`
-  and the unknown-key machinery in `known_keys.go` (file-size gate).
-
-## [v0.4.0] - 2026-11-15
-
-### Added
-
 - **`rows` verb (the read-only half of the docs-health writer).**
   `docs-gates rows [--strict] <file>...` is the table-row completeness gate
   (the writer's `check-rows`): PARTIAL rows and mixed struck tables fail;
@@ -66,6 +63,15 @@ match the annotated git tags; anything after the newest tag sits under
 
 ### Changed
 
+- The battery runs eight gates (was five); `run` usage, the root help,
+  and the JSON face's gate rows carry the three new PASS rows — parity
+  goldens re-pinned (three additions, no existing row changed).
+- `cmd/docs-gates` split: the verb tables live in `verbs.go`; the
+  content-gate config surface lives in `internal/config/content_gates.go`
+  and the unknown-key machinery in `known_keys.go` (file-size gate).
+- The docs-stamps gate split its printing/failure logic so the battery
+  stays under the fleet lint budget; CI's golangci-lint-action digest
+  re-pinned (dependabot PR #1, merged 2026-11-21).
 - The read-only row gates are the supported surface; `annotate.go
   check-rows` / `bare-rows` remain aliases for callers pinned to the writer.
 - AGENTS.md compressed to the 220-line gate with no facts dropped.
