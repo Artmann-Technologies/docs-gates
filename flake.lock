@@ -38,11 +38,11 @@
         "samber-do-auditlog": "samber-do-auditlog"
       },
       "locked": {
-        "lastModified": 1795029400,
-        "narHash": "sha256-Yv5ZWoBcb0GeUTSZ77fx2efH9Nr1N/xoRNpLjeBNpIE=",
+        "lastModified": 1795195259,
+        "narHash": "sha256-fhTB+L01NtqCAlhkqWqEWQCU8hU/EwA203FGHIDgUxM=",
         "ref": "refs/heads/master",
-        "rev": "ee8a4154151a1ce25498716ad451dd431121ef22",
-        "revCount": 1924,
+        "rev": "dccfd10aa5294bbb7b8ec7a0ab36c8f9c60b1633",
+        "revCount": 1931,
         "type": "git",
         "url": "ssh://git@github.com/LarsArtmann/erraudit"
       },
@@ -261,11 +261,11 @@
         "treefmt-nix": "treefmt-nix"
       },
       "locked": {
-        "lastModified": 1795029015,
-        "narHash": "sha256-cQYqWJ9w1RASu+LVSx0apAoUh3eLs1VAHtOUfygP39Q=",
+        "lastModified": 1795093082,
+        "narHash": "sha256-67l2U/CfMManIMCwBpyoQwngRushVNYkgLW44RQ1Rv8=",
         "owner": "LarsArtmann",
         "repo": "go-nix-helpers",
-        "rev": "52dc6f8f90a05dcdc7e18ae1b01b010005c4a853",
+        "rev": "e0c4b7002621c89e66ef977b7a13380c5c0365e2",
         "type": "github"
       },
       "original": {
@@ -295,11 +295,11 @@
     "gogenfilter": {
       "flake": false,
       "locked": {
-        "lastModified": 1794909088,
-        "narHash": "sha256-9n3EThHRNbGE+IIeFl0ebf/TTGoUHL0XpqujXSPrXsk=",
+        "lastModified": 1795038246,
+        "narHash": "sha256-8ChGlQNi9HHj+EsLKttFN3omeIWbFJvbEIWIWmJVV8s=",
         "owner": "LarsArtmann",
         "repo": "gogenfilter",
-        "rev": "e051d66f2459c3b87053047032e9e3fa106e1bcc",
+        "rev": "51cf3eaaa3940c63754694371cad685c0eb4c8d8",
         "type": "github"
       },
       "original": {
@@ -333,11 +333,11 @@
     },
     "nixpkgs": {
       "locked": {
-        "lastModified": 1795085501,
-        "narHash": "sha256-S5keGWzaKpuXo9MNoIC2FfTIuTyTnx8P4NhYJMEsTLI=",
+        "lastModified": 1794192123,
+        "narHash": "sha256-SvB8u5qaJAOwZZyZciqTVOg/rBoUs2w0sFTU6ED51AQ=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "0bb8272318b4ca41bf0edc6224df3e3e3046b70d",
+        "rev": "177d0540942fb205af6993b1d5fa0b57799e09f8",
         "type": "github"
       },
       "original": {
