@@ -11,6 +11,13 @@
 # multi-input bump entangles rule changes with dependency noise and hides
 # which update changed behavior).
 #
+# Follows reality (2026-11-21): go-filewatcher, go-nix-helpers, and gogenfilter
+# follow erraudit's inputs, so `nix flake update erraudit` moves all four at
+# once — a truly single-input bump is structurally impossible. The deliberate
+# procedure is therefore: bump, verify BOTH erraudit checks (erraudit-lint,
+# nolint-audit) plus `nix build .#docs-gates` for the lib consumers, then pin
+# all four together in one edit.
+#
 # Precedent: go-codec scripts/check-erraudit-version.sh (the same
 # two-place agreement, for an install-line pin).
 #
@@ -22,10 +29,10 @@ cd "$(dirname "$0")/.."
 
 # input-name=expected locked rev (the deliberate-bump pins)
 declare -A expected=(
-	[erraudit]="5c841cf21140bbba3bff6613126720dad8298cbd"
-	[go-filewatcher]="a965e6b8be500594e117eb52e4269fefa90cfcfb"
-	[go-nix-helpers]="2c5d1d75aeacaaf6ddf558fd7d7bd5a4f4f7687a"
-	[gogenfilter]="ebdac855fea9ed24ed20e4e0590ab80fd24d826d"
+	[erraudit]="dccfd10aa5294bbb7b8ec7a0ab36c8f9c60b1633"
+	[go-filewatcher]="26459bad4eadb48ad47d7c1e09d827b631d03aaf"
+	[go-nix-helpers]="e0c4b7002621c89e66ef977b7a13380c5c0365e2"
+	[gogenfilter]="51cf3eaaa3940c63754694371cad685c0eb4c8d8"
 )
 
 failed=0
