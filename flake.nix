@@ -21,6 +21,15 @@
   # follows (2026-11-04).
   inputs.erraudit.inputs.nixpkgs.follows = "nixpkgs";
 
+  # nix-checker's staleness policy (fail >90d, BuildFlow ADR 0003 §2)
+  # flags erraudit's two most dormant transitive pins; erraudit's own lock
+  # holds them old, so only a root-level override can track them here. The
+  # erraudit PACKAGE stays hermetic (its FOD pins its Go deps) — these
+  # nodes feed erraudit's eval, not its built bytes. Both erraudit checks
+  # re-verified green after the override (2026-11-21).
+  inputs."erraudit/go-ndjson".url = "git+ssh://git@github.com/LarsArtmann/go-ndjson";
+  inputs."erraudit/go-composable-business-types".url = "git+ssh://git@github.com/LarsArtmann/go-composable-business-types";
+
   # The commit-time nolint-audit leg (the bank-sync pre-commit pattern):
   # the flake checks keep directives honest per `nix flake check`; this
   # input lets every `git commit` run the same staleness gate BEFORE the
