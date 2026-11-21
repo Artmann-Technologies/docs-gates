@@ -223,3 +223,18 @@ agents-md-size ratchet); nothing was deleted, only relocated.
   layer; fix it, then KEEP DIGGING — and never let a check be unpassable
   quietly: inside a failing train, an unpassable check is
   indistinguishable from a green one.
+- **A verdict hash must be reachable from the PUSHED remote, not just
+  your reflog** (2026-11-21, dogfood red for hours across CI-only
+  "4 findings"): four status verdicts said `done at 0bbced2` — a
+  rewrite-orphan twin of the dependabot PR head that existed on no
+  branch, while the PR itself was still OPEN. Local `cat-file` resolves
+  dangling objects, so the gate was green on the authoring machine and
+  red in every fresh clone; CI's log interleaving (stdout findings
+  attributed to the next gate's window) made it look like a battery
+  capture bug first. Repair: land the claimed work for real (local
+  merge + push — `gh`'s OAuth token lacks `workflow` scope, so PRs
+  touching workflows merge via git), then cite the landed commit
+  (`c8e8fbc`) or the peeled release commit a sibling-repo claim targets
+  (`3814e6a` = `v0.2.0^{commit}`). Rule: verify the claim's PR/commit
+  state at strike time — rule B only proves the HASH resolves in THAT
+  clone, not that the work happened.
