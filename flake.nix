@@ -28,7 +28,8 @@
   # nodes feed erraudit's eval, not its built bytes. Both erraudit checks
   # re-verified green after the override (2026-11-21).
   inputs.erraudit.inputs.go-ndjson.url = "git+ssh://git@github.com/LarsArtmann/go-ndjson";
-  inputs.erraudit.inputs.go-composable-business-types.url = "git+ssh://git@github.com/LarsArtmann/go-composable-business-types";
+  inputs.erraudit.inputs.go-composable-business-types.url =
+    "git+ssh://git@github.com/LarsArtmann/go-composable-business-types";
 
   # The commit-time nolint-audit leg (the bank-sync pre-commit pattern):
   # the flake checks keep directives honest per `nix flake check`; this

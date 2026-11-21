@@ -11,7 +11,7 @@
   "markdown": {},
   "dockerfile": {},
   "excludes": [
-    "testdata/parity/**",
+    "**/testdata/**",
     "vendor/**",
     ".git/**",
     "node_modules/**",
