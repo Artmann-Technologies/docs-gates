@@ -36,6 +36,13 @@
 #   --set-cell M=TEXT
 #                replace table cell M's content with TEXT verbatim
 #
+#   --purge      after a successful --apply strike, immediately run
+#                `docs-gates purge <repo-root> --apply` so the struck row
+#                never survives into a commit: the pre-commit hook's dprint
+#                --fix re-wraps whole-line strikes into per-cell partials
+#                and strips verdicts (the 2026-11-21 third mangle). Strike
+#                → purge → ONE commit is the mechanical rule this encodes.
+#
 # Exit codes: 0 struck (or clean dry-run), 1 refusal (anchor/shape/dirty/
 # gate findings), 2 usage.
 set -euo pipefail
@@ -57,6 +64,38 @@ cell=0
 set_cell=""
 no_verify=0
 batch=0
+purge=0
+
+# run_purge collects struck rows into the CHANGELOG in the working tree,
+# immediately after the strike writes. This is the §e1 gap closure: a struck
+# TODO_LIST must never survive into a commit, because the pre-commit hook's
+# dprint --fix re-wraps whole-line strikes into per-cell partials and strips
+# the verdicts (the 2026-11-21 third formatter-mangle). Purge failure is
+# FATAL: the operator must finish the purge by hand before any commit.
+run_purge() {
+	repo_root="$(git -C "$(dirname "$file")" rev-parse --show-toplevel 2>/dev/null)" || {
+		echo "FATAL: --purge needs a git repo (cannot locate the root from $file)" >&2
+		exit 2
+	}
+
+	echo "safe-strike: --purge — collecting struck rows in the working tree before any hook pass"
+
+	if command -v docs-gates >/dev/null 2>&1; then
+		if ! (cd "$repo_root" && docs-gates purge . --apply); then
+			echo "FATAL: purge failed — struck row(s) are still in the working tree;" >&2
+			echo "run docs-gates purge . --apply by hand BEFORE committing (a struck" >&2
+			echo "TODO_LIST must never touch a hook pass — dprint re-wraps strikes)" >&2
+			exit 1
+		fi
+	else
+		if ! go run ./cmd/docs-gates purge "$repo_root" --apply; then
+			echo "FATAL: purge failed — struck row(s) are still in the working tree;" >&2
+			echo "run docs-gates purge . --apply by hand BEFORE committing (a struck" >&2
+			echo "TODO_LIST must never touch a hook pass — dprint re-wraps strikes)" >&2
+			exit 1
+		fi
+	fi
+}
 
 while [ $# -gt 0 ]; do
 	case "$1" in
@@ -66,6 +105,7 @@ while [ $# -gt 0 ]; do
 	--allow-dirty) allow_dirty=1 ;;
 	--no-verify) no_verify=1 ;;
 	--batch) batch=1 ;;
+	--purge) purge=1 ;;
 	--cell)
 		[ $# -ge 2 ] || usage "$@"
 		cell="$2"
@@ -97,6 +137,11 @@ if [ "$batch" -eq 1 ]; then
 		usage "$@"
 	fi
 
+	if [ "$purge" -eq 1 ] && [ "$apply" -eq 0 ]; then
+		echo "FATAL: --purge only makes sense with --apply (a dry-run writes nothing to purge)" >&2
+		usage "$@"
+	fi
+
 	[ $# -ge 2 ] || {
 		[ $# -ge 1 ] || echo "FATAL: missing <file> — the TODO file the batch strikes (e.g. TODO_LIST.md)" >&2
 		echo "FATAL: --batch needs at least one ANCHOR=VERDICT positional after the file" >&2
@@ -107,6 +152,11 @@ else
 		[ $# -ge 1 ] || echo "FATAL: missing <file> — the TODO file to strike (e.g. TODO_LIST.md)" >&2
 		[ $# -ge 2 ] || echo "FATAL: missing <anchor-regex> — a unique task-TEXT substring of the row" >&2
 		[ $# -le 3 ] || echo "FATAL: $# positionals is too many — <file> <anchor-regex> [verdict] takes at most 3" >&2
+		usage "$@"
+	fi
+
+	if [ "$purge" -eq 1 ] && [ "$apply" -eq 0 ]; then
+		echo "FATAL: --purge only makes sense with --apply (a dry-run writes nothing to purge)" >&2
 		usage "$@"
 	fi
 fi
@@ -253,6 +303,10 @@ if [ "$batch" -eq 1 ]; then
 		fi
 	fi
 
+	if [ "$purge" -eq 1 ]; then
+		run_purge
+	fi
+
 	echo "safe-strike: struck $(($(printf '%s' "$seen_lines" | grep -c .))) row(s) — review the diff, run the battery, commit"
 	exit 0
 fi
@@ -371,6 +425,10 @@ if [ "$no_verify" -eq 0 ] && [ "$battery" -eq 1 ]; then
 	else
 		go run ./cmd/docs-gates run .
 	fi
+fi
+
+if [ "$purge" -eq 1 ]; then
+	run_purge
 fi
 
 echo "safe-strike: struck — review the diff, run the battery over the repo, commit"
