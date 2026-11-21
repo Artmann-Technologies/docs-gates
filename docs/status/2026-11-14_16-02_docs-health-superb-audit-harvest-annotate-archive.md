@@ -45,7 +45,7 @@ tracks. Trigger: the owner's explicit docs-health demand ("view ALL
    (harvest, meta-docs review, coordination, the annotate sweep itself).
 6. **Board repair.** The two malformed `| ~~ |` rows (erraudit re-pin,
    Cut v0.2.0) rebuilt as proper strikes; F94 (AGENTS distill
-   `39bed4d`), dependabot PR #1 (`0bbced2`), both WONT-DO rulings, and
+   `39bed4d`), dependabot PR #1 (`c8e8fbc`), both WONT-DO rulings, and
    the §1 sweep row struck — then the FIRST real `docs-gates purge
    --apply` run (7 rows → CHANGELOG [Unreleased] → ### Changed,
    pre-flighted by the verb itself; TODO now carries 0 struck rows).
