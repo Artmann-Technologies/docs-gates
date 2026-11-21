@@ -18,6 +18,12 @@
 # nolint-audit) plus `nix build .#docs-gates` for the lib consumers, then pin
 # all four together in one edit.
 #
+# The pins live in a case statement, NOT an associative array: shfmt parses
+# unquoted assoc subscripts as arithmetic and rewrites [go-filewatcher] into
+# [go - filewatcher], which changed the lookup semantics under the nix-build
+# bash and crashed the failure path (found twice 2026-11-21; proven with an
+# shfmt round-trip diff).
+#
 # Precedent: go-codec scripts/check-erraudit-version.sh (the same
 # two-place agreement, for an install-line pin).
 #
@@ -28,12 +34,15 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 
 # input-name=expected locked rev (the deliberate-bump pins)
-declare -A expected=(
-	[erraudit]="dccfd10aa5294bbb7b8ec7a0ab36c8f9c60b1633"
-	[go - filewatcher]="26459bad4eadb48ad47d7c1e09d827b631d03aaf"
-	[go - nix - helpers]="e0c4b7002621c89e66ef977b7a13380c5c0365e2"
-	[gogenfilter]="51cf3eaaa3940c63754694371cad685c0eb4c8d8"
-)
+expected_rev() {
+	case "$1" in
+	erraudit) echo "dccfd10aa5294bbb7b8ec7a0ab36c8f9c60b1633" ;;
+	go-filewatcher) echo "26459bad4eadb48ad47d7c1e09d827b631d03aaf" ;;
+	go-nix-helpers) echo "e0c4b7002621c89e66ef977b7a13380c5c0365e2" ;;
+	gogenfilter) echo "51cf3eaaa3940c63754694371cad685c0eb4c8d8" ;;
+	*) return 1 ;;
+	esac
+}
 
 failed=0
 
@@ -44,8 +53,9 @@ for name in erraudit go-filewatcher go-nix-helpers gogenfilter; do
 		failed=1
 		continue
 	fi
-	if [ "$locked_rev" != "${expected[$name]}" ]; then
-		echo "FAIL: $name rev drifted: flake.lock=$locked_rev expected=${expected[$name]}" >&2
+	pinned_rev=$(expected_rev "$name")
+	if [ "$locked_rev" != "$pinned_rev" ]; then
+		echo "FAIL: $name rev drifted: flake.lock=$locked_rev expected=$pinned_rev" >&2
 		echo "      nix flake update $name changed locked behavior — run the checks on the" >&2
 		echo "      new rev, then bump ONLY its expected pin in scripts/check-erraudit-rev.sh" >&2
 		echo "      (one input at a time; entangled bumps hide which update changed behavior)" >&2
