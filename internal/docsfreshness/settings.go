@@ -19,6 +19,7 @@ type Settings struct {
 	ArchivedSubdir string   // archive subdir UNDER ReportDir
 	LivingDocs     []string // the harvest corpus file names, under the repo root
 	GenericDF      int      // per-repo distinctive-token bar override (<= 0 = the GenericDF constant)
+	AuditCorpus    string   // replay scope: "all" (default) includes the archived subdir; "unarchived" excludes it
 }
 
 // DefaultSettings mirrors config.Defaults() — the exact constants this
@@ -32,6 +33,7 @@ func DefaultSettings() Settings {
 		ArchivedSubdir: c.ArchivedSubdir,
 		LivingDocs:     c.LivingDocs,
 		GenericDF:      c.GenericDF,
+		AuditCorpus:    c.AuditCorpus,
 	}
 }
 
@@ -44,6 +46,7 @@ func SettingsFromConfig(c config.Config) Settings {
 		ArchivedSubdir: c.ArchivedSubdir,
 		LivingDocs:     c.LivingDocs,
 		GenericDF:      c.GenericDF,
+		AuditCorpus:    c.AuditCorpus,
 	}
 }
 
@@ -55,6 +58,13 @@ func (s Settings) df() int {
 	}
 
 	return GenericDF
+}
+
+// auditCorpus is the effective replay scope; an unset value (zero-value
+// Settings, an explicitly empty JSON string) selects the shipped
+// "all" corpus, preserving the pre-knob behavior bit for bit.
+func (s Settings) auditCorpus() string {
+	return cmp.Or(s.AuditCorpus, config.DefaultAuditCorpus)
 }
 
 func (s Settings) reportGlobPath(root string) string {

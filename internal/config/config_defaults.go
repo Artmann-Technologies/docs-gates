@@ -15,6 +15,7 @@ func Defaults() Config {
 		RuleFExtensions:    []string{".md", ".sh", ".nix"},
 		GenericDF:          DefaultGenericDF,
 		AuditMax:           DefaultAuditMax,
+		AuditCorpus:        DefaultAuditCorpus,
 		AnnotateMax:        DefaultAnnotateMax,
 		TodoFile:           "TODO_LIST.md",
 		Cadence: Cadence{

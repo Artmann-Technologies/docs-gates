@@ -32,6 +32,7 @@ const FileName = ".docs-gates.json"
 const (
 	DefaultGenericDF      = 8
 	DefaultAuditMax       = -1
+	DefaultAuditCorpus    = "all"
 	DefaultAnnotateMax    = -1
 	DefaultStruckRows     = 20
 	DefaultMaxUnarchived  = 15
@@ -91,6 +92,7 @@ type Config struct {
 	RuleFExtensions    []string `json:"rule_f_extensions"`    // file extensions rule F scans (dot-prefixed)
 	GenericDF          int      `json:"generic_df"`           // the distinctive-token bar (a token on >= N living lines is generic)
 	AuditMax           int      `json:"audit_max"`            // docs-freshness --audit-max ratchet pin (-1 = strict)
+	AuditCorpus        string   `json:"audit_corpus"`        // freshness replay scope: "all" (default) or "unarchived"
 	AnnotateMax        int      `json:"annotate_max"`         // docs-annotate adoption ratchet pin (-1 = strict)
 	TodoFile           string   `json:"todo_file"`            // the TODO_LIST file (cadence reads it, docs-strike edits it)
 	Cadence            Cadence  `json:"cadence"`
@@ -239,6 +241,10 @@ func (c Config) validate() error {
 		return err
 	}
 
+	if err := c.validateCorpus(); err != nil {
+		return err
+	}
+
 	if err := c.validateExtensions(); err != nil {
 		return err
 	}
@@ -309,6 +315,20 @@ func (c Config) validateSkipGates() error {
 	}
 
 	return nil
+}
+
+// validateCorpus refuses an audit_corpus value outside the scope
+// vocabulary: the corpus builder string-compares the setting and would
+// silently treat a typo ("unarchved") as the default all-corpus replay —
+// exactly the silent-wrong-threshold class the validate contract exists
+// for.
+func (c Config) validateCorpus() error {
+	switch c.AuditCorpus {
+	case "", "all", "unarchived":
+		return nil
+	default:
+		return invalidf("audit_corpus must be \"all\" or \"unarchived\", got %q", c.AuditCorpus)
+	}
 }
 
 // validateExtensions checks the rule-F file-extension list.

@@ -57,7 +57,8 @@ usage: docs-freshness [repo-root] [--audit-all] [--audit-max=N] [--explain-token
                      [--pre-flight] [--duplicates] [--replace=OLD]
 
   (default)        check only the NEWEST docs/status report
-  --audit-all      replay the WHOLE unarchived corpus
+  --audit-all      replay the WHOLE report corpus (report dir + archived
+                   subdir; scope with "audit_corpus": "unarchived")
   --audit-max=N    ratchet pin: tolerated unharvested count, red only past N
   --explain-token  print the token evidence tables alongside the findings
   --explain-item   explain one item's token math (NEEDLE is the second

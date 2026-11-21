@@ -21,6 +21,7 @@ func knownKeys() map[string]bool {
 		"rule_f_extensions":    true,
 		"generic_df":           true,
 		"audit_max":            true,
+		"audit_corpus":         true,
 		"annotate_max":         true,
 		"todo_file":            true,
 		"cadence":              true,

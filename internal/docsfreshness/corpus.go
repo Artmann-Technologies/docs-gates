@@ -169,12 +169,19 @@ func tokenDFOver(lines []string) func(string) int {
 
 // statusReports lists every replayable report: the configured report dir
 // plus its archived subdir, oldest first — the corpus --audit-all and
-// --pre-flight replay.
+// --pre-flight replay. The audit_corpus config knob scopes it: the
+// default "all" keeps both globs (the historical behavior), "unarchived"
+// drops the archived subdir so a repo's archived backlog stops moving
+// the unharvested count with unrelated living-doc prose edits.
 func statusReports(root string, settings Settings) []string {
 	reports, _ := filepath.Glob(
 		settings.reportGlobPath(root),
 	) //nolint:erraudit // constant pattern cannot be malformed
 	sort.Strings(reports)
+
+	if settings.auditCorpus() == "unarchived" {
+		return reports
+	}
 
 	archived, _ := filepath.Glob(
 		settings.archivedGlobPath(root),
