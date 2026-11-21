@@ -114,6 +114,14 @@ for the guarded mechanics), archive resolved reports, purge struck rows
 into CHANGELOG (`docs-gates purge`). A red gate is the docs ritual
 due — fix the docs, never loosen the gate.
 
+**Known consumers** (the full install-coverage survey with per-repo
+pins lives in `docs/planning/` and is refreshed after each release
+install): crm, CV, go-appkit, webphone, and pbx-artmann run the
+docs-health writer (`annotate.go`) via `go run` from the skill fan-out;
+the docs-health SKILL.md pins the writer/judge subcommand map; this
+repo's `internal/docsrows` parity tests execute the live writer as
+their oracle.
+
 ## BuildFlow consumers
 
 The battery self-registers as a [BuildFlow](https://github.com/LarsArtmann/BuildFlow)
