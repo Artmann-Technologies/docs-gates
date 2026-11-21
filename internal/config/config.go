@@ -37,6 +37,8 @@ const (
 	DefaultMaxUnarchived  = 15
 	DefaultOldestDays     = 21
 	DefaultGateTimeoutSec = 300
+	DefaultStampWarnDays  = 90
+	DefaultStampFailDays  = 180
 )
 
 // The battery's gate names — the whole valid skip_gates vocabulary.
@@ -49,13 +51,35 @@ const (
 	GateAnnotate  = "annotate"
 	GateRouting   = "routing"
 	GateCadence   = "cadence"
+	GateStub      = "stub"
+	GateCitations = "citations"
+	GateStamps    = "stamps"
 )
 
 // KnownGates lists every battery gate name skip_gates may name. A
 // function, not a var: the vocabulary must not be mutable state.
 func KnownGates() []string {
-	return []string{GateFreshness, GateAuditAll, GateAnnotate, GateRouting, GateCadence}
+	return []string{GateFreshness, GateAuditAll, GateAnnotate, GateRouting, GateCadence, GateStub, GateCitations, GateStamps}
 }
+
+// DefaultDomainLanguageFile is the three content gates' shared default
+// corpus: the domain-language glossary every LarsArtmann repo carries
+// under docs/. One name so the stub/citations/stamps Settings
+// projections cannot drift apart.
+const DefaultDomainLanguageFile = "docs/DOMAIN_LANGUAGE.md"
+
+// DefaultStubChecksums pins the bare DDD template fleet-wide: 38 repos
+// shipped byte-identical copies of it on census day (2026-11-21,
+// ~/projects/docs status/evidence/2026-11-21_domain-language-identical-file-groups.txt).
+// Both digests are of the same bytes; a match on either is the finding.
+var DefaultStubChecksums = []string{
+	"5b32f8c3a96af80ad148696b539fb977",                                // md5
+	"0cd7d0c00ba6170e7ccff67c922a29d3211d28b3525a18f5f25b83dfcc9fe60d", // sha256
+}
+
+// DefaultCitationExts are the file extensions the citations gate counts
+// as code citations (dot-prefixed, repo-relative paths only).
+var DefaultCitationExts = []string{".go", ".ts", ".tsx", ".rs", ".py", ".sh", ".sql", ".templ", ".nix"}
 
 // Cadence holds the purge/archive thresholds (docs-cadence gate).
 type Cadence struct {
@@ -82,6 +106,17 @@ type Config struct {
 	Cadence            Cadence  `json:"cadence"`
 	GateTimeoutSec     int      `json:"gate_timeout_sec"` // battery per-gate wall-clock cap in seconds (0 = no timeout)
 	SkipGates          []string `json:"skip_gates"`       // battery verbs to skip (docs-gates run)
+	StubFiles          []string `json:"stub_files"`       // corpus the stub gate checksums (docs-stub)
+	StubChecksums      []string `json:"stub_checksums"`   // bare-template digests; a match is an unfilled stub (md5 or sha256 hex)
+	StubExempts        []string `json:"stub_exempts"`     // repo-relative files exempt from the stub gate (the template host, honest stubs)
+	StubEnforce        bool     `json:"stub_enforce"`     // stub gate rollout: false = findings WARN and exit 0; true = FAIL
+	CitationFiles      []string `json:"citation_files"`   // corpus the citations gate resolves (docs-citations)
+	CitationExts       []string `json:"citation_exts"`     // file extensions counted as code citations (dot-prefixed)
+	CitationEnforce    bool     `json:"citation_enforce"` // citations rollout: false = WARN, true = FAIL on missing targets
+	StampFiles         []string `json:"stamp_files"`      // corpus the stamps gate dates (docs-stamps)
+	StampWarnDays      int      `json:"stamp_warn_days"`  // verification stamps older than this WARN
+	StampFailDays      int      `json:"stamp_fail_days"`  // verification stamps older than this FAIL
+	StampEnforce       bool     `json:"stamp_enforce"`    // stamps rollout: false = findings WARN and exit 0; true = FAIL rows fail
 }
 
 // Path returns the config file location under a repo root.
@@ -262,6 +297,26 @@ func (c Config) validateNumbers() error {
 		return invalidf("gate_timeout_sec must be >= 0 (0 = no timeout), got %d", c.GateTimeoutSec)
 	}
 
+	if c.StampWarnDays < 1 || c.StampFailDays < 1 {
+		return invalidf("stamp thresholds must be >= 1, got warn=%d fail=%d", c.StampWarnDays, c.StampFailDays)
+	}
+
+	if c.StampFailDays < c.StampWarnDays {
+		return invalidf("stamp_fail_days (%d) must be >= stamp_warn_days (%d) — the FAIL bar cannot sit below the WARN bar", c.StampFailDays, c.StampWarnDays)
+	}
+
+	for _, sum := range c.StubChecksums {
+		if len(sum) != 32 && len(sum) != 64 {
+			return invalidf("stub_checksums entries must be md5 (32 hex) or sha256 (64 hex) digests, got %q", sum)
+		}
+	}
+
+	for _, ext := range c.CitationExts {
+		if len(ext) < 2 || ext[0] != '.' {
+			return invalidf("citation_exts entries must be dot-prefixed extensions, got %q", ext)
+		}
+	}
+
 	return nil
 }
 
@@ -309,6 +364,17 @@ func knownKeys() map[string]bool {
 		"cadence":              true,
 		"gate_timeout_sec":     true,
 		"skip_gates":           true,
+		"stub_files":           true,
+		"stub_checksums":       true,
+		"stub_exempts":         true,
+		"stub_enforce":         true,
+		"citation_files":       true,
+		"citation_exts":        true,
+		"citation_enforce":     true,
+		"stamp_files":          true,
+		"stamp_warn_days":      true,
+		"stamp_fail_days":      true,
+		"stamp_enforce":        true,
 	}
 }
 

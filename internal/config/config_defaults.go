@@ -24,6 +24,17 @@ func Defaults() Config {
 		},
 		GateTimeoutSec: DefaultGateTimeoutSec,
 		SkipGates:      nil,
+		StubFiles:      []string{DefaultDomainLanguageFile},
+		StubChecksums:  DefaultStubChecksums,
+		StubExempts:    nil,
+		StubEnforce:    false,
+		CitationFiles:  []string{DefaultDomainLanguageFile},
+		CitationExts:   DefaultCitationExts,
+		CitationEnforce: false,
+		StampFiles:     []string{DefaultDomainLanguageFile},
+		StampWarnDays:  DefaultStampWarnDays,
+		StampFailDays:  DefaultStampFailDays,
+		StampEnforce:   false,
 	}
 }
 
