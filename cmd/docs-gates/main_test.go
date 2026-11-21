@@ -176,7 +176,7 @@ func TestSuggestVerb(t *testing.T) {
 	}{
 		{"fresh", "freshness"},
 		{"ru", "run"},
-		{"st", ""}, // ambiguous prefix of strike/stub/stamps — do not guess
+		{"st", ""},        // ambiguous prefix of strike/stub/stamps — do not guess
 		{"sta", "stamps"}, // unambiguous prefix
 		{"stb", "stub"},   // edit distance 1
 		{"freshnness", "freshness"},

@@ -62,25 +62,6 @@ func KnownGates() []string {
 	return []string{GateFreshness, GateAuditAll, GateAnnotate, GateRouting, GateCadence, GateStub, GateCitations, GateStamps}
 }
 
-// DefaultDomainLanguageFile is the three content gates' shared default
-// corpus: the domain-language glossary every LarsArtmann repo carries
-// under docs/. One name so the stub/citations/stamps Settings
-// projections cannot drift apart.
-const DefaultDomainLanguageFile = "docs/DOMAIN_LANGUAGE.md"
-
-// DefaultStubChecksums pins the bare DDD template fleet-wide: 38 repos
-// shipped byte-identical copies of it on census day (2026-11-21,
-// ~/projects/docs status/evidence/2026-11-21_domain-language-identical-file-groups.txt).
-// Both digests are of the same bytes; a match on either is the finding.
-var DefaultStubChecksums = []string{
-	"5b32f8c3a96af80ad148696b539fb977",                                 // md5
-	"0cd7d0c00ba6170e7ccff67c922a29d3211d28b3525a18f5f25b83dfcc9fe60d", // sha256
-}
-
-// DefaultCitationExts are the file extensions the citations gate counts
-// as code citations (dot-prefixed, repo-relative paths only).
-var DefaultCitationExts = []string{".go", ".ts", ".tsx", ".rs", ".py", ".sh", ".sql", ".templ", ".nix"}
-
 // Cadence holds the purge/archive thresholds (docs-cadence gate).
 type Cadence struct {
 	StruckRows    int `json:"struck_rows"`    // max struck DONE rows before the purge ritual is owed
@@ -249,7 +230,11 @@ func (c Config) validate() error {
 		return err
 	}
 
-	return c.validateExtensions()
+	if err := c.validateExtensions(); err != nil {
+		return err
+	}
+
+	return c.validateContentGates()
 }
 
 // validatePaths checks the directory/glob/list shape fields.
@@ -297,26 +282,6 @@ func (c Config) validateNumbers() error {
 		return invalidf("gate_timeout_sec must be >= 0 (0 = no timeout), got %d", c.GateTimeoutSec)
 	}
 
-	if c.StampWarnDays < 1 || c.StampFailDays < 1 {
-		return invalidf("stamp thresholds must be >= 1, got warn=%d fail=%d", c.StampWarnDays, c.StampFailDays)
-	}
-
-	if c.StampFailDays < c.StampWarnDays {
-		return invalidf("stamp_fail_days (%d) must be >= stamp_warn_days (%d) — the FAIL bar cannot sit below the WARN bar", c.StampFailDays, c.StampWarnDays)
-	}
-
-	for _, sum := range c.StubChecksums {
-		if len(sum) != 32 && len(sum) != 64 {
-			return invalidf("stub_checksums entries must be md5 (32 hex) or sha256 (64 hex) digests, got %q", sum)
-		}
-	}
-
-	for _, ext := range c.CitationExts {
-		if len(ext) < 2 || ext[0] != '.' {
-			return invalidf("citation_exts entries must be dot-prefixed extensions, got %q", ext)
-		}
-	}
-
 	return nil
 }
 
@@ -346,45 +311,4 @@ func (c Config) validateExtensions() error {
 	}
 
 	return nil
-}
-
-func knownKeys() map[string]bool {
-	return map[string]bool{
-		"report_dir":           true,
-		"report_glob":          true,
-		"archived_subdir":      true,
-		"living_docs":          true,
-		"annotate_extra_globs": true,
-		"rule_f":               true,
-		"rule_f_extensions":    true,
-		"generic_df":           true,
-		"audit_max":            true,
-		"annotate_max":         true,
-		"todo_file":            true,
-		"cadence":              true,
-		"gate_timeout_sec":     true,
-		"skip_gates":           true,
-		"stub_files":           true,
-		"stub_checksums":       true,
-		"stub_exempts":         true,
-		"stub_enforce":         true,
-		"citation_files":       true,
-		"citation_exts":        true,
-		"citation_enforce":     true,
-		"stamp_files":          true,
-		"stamp_warn_days":      true,
-		"stamp_fail_days":      true,
-		"stamp_enforce":        true,
-	}
-}
-
-func sortedKeys(m map[string]json.RawMessage) []string {
-	keys := make([]string, 0, len(m))
-	for k := range m {
-		keys = append(keys, k)
-	}
-
-	slices.Sort(keys)
-
-	return keys
 }
