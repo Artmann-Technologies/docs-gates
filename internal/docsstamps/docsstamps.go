@@ -28,6 +28,9 @@ import (
 	"github.com/Artmann-Technologies/docs-gates/internal/gatecli"
 )
 
+// hoursPerDay converts an age in hours to whole days.
+const hoursPerDay = 24
+
 // Settings is the gate's config-driven knobs. Every field falls back to
 // the shipped default when the repo's .docs-gates.json is absent or
 // silent, so zero-value Settings never reach the gate logic.
@@ -103,6 +106,24 @@ func Run(args []string) int {
 		gatecli.Outf("SKIP %s\n", skip)
 	}
 
+	printFindings(findings, settings)
+
+	if len(findings) == 0 {
+		gatecli.Outf("OK no verification stamp past %d day(s) in %d file(s)\n", settings.WarnDays, len(settings.Files))
+
+		return gatecli.ExitClean
+	}
+
+	if anyEnforcedFailure(findings, settings) {
+		return gatecli.ExitFindings
+	}
+
+	return gatecli.ExitClean
+}
+
+// printFindings renders one line per aged-out stamp, naming the bar it
+// crossed and whether enforcement is active.
+func printFindings(findings []Finding, settings Settings) {
 	for _, finding := range findings {
 		enforced := settings.Enforce && finding.Severity == "fail"
 		verdict := map[bool]string{true: "FAIL", false: "WARN"}[enforced]
@@ -123,20 +144,17 @@ func Run(args []string) int {
 			mode,
 		)
 	}
+}
 
-	if len(findings) == 0 {
-		gatecli.Outf("OK no verification stamp past %d day(s) in %d file(s)\n", settings.WarnDays, len(settings.Files))
-
-		return gatecli.ExitClean
-	}
-
+// anyEnforcedFailure reports whether an enforced fail-bar finding exists.
+func anyEnforcedFailure(findings []Finding, settings Settings) bool {
 	for _, finding := range findings {
 		if settings.Enforce && finding.Severity == "fail" {
-			return gatecli.ExitFindings
+			return true
 		}
 	}
 
-	return gatecli.ExitClean
+	return false
 }
 
 // Finding is one aged-out stamp: the file, the oldest stamp date, its
@@ -205,7 +223,7 @@ func Scan(root string, settings Settings) ([]Finding, []string, error) {
 			}
 		}
 
-		ageDays := int(settings.Now.Sub(oldest).Hours() / 24)
+		ageDays := int(settings.Now.Sub(oldest).Hours() / hoursPerDay)
 		if ageDays <= settings.WarnDays {
 			continue
 		}
