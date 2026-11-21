@@ -80,14 +80,23 @@ shows execution evidence (script, CI job, flake check, or `.docs-gates.json`).
 
 Notes:
 
-- `quotaboard/scripts` hardcodes `/home/lars/.local/bin/docs-gates`, which does
+- `quotaboard/scripts` hardcoded `/home/lars/.local/bin/docs-gates`, which did
   not exist on this host (the fleet binary is
-  `/run/current-system/sw/bin/docs-gates`); its workflow would fail before
-  reaching any gate.
+  `/run/current-system/sw/bin/docs-gates`); its workflow would have failed
+  before reaching any gate. **Fixed 2026-11-21** — the workflow now calls the
+  system binary path.
+- Audited 2026-11-21 (§f.33): the 11 UNKNOWN repos carry only the inert
+  `.docs-gates.json` — no scripts, CI, or flake runner references the
+  battery anywhere; quotaboard is the inverse (runner, no config). The
+  inert configs are adoption intent, not wiring; each repo's session
+  decides whether to wire the battery or retire the config.
 - No repo ships a prebuilt `annotate`; every consumer runs the source.
   `webphone/scripts/cadence-candidates.sh` builds the source into `/tmp`.
 - The two ABSENT repos are the archive/annotation tools half, not full-battery
   consumers; they cannot adopt `docs-gates rows` until they call the binary.
+- `cv` and `CV` are separate GitHub repos (LarsArtmann/cv and LarsArtmann/CV,
+  distinct remotes, both active) — the 2-checkout count is correct, not a
+  case-duplication artifact (confirmed 2026-11-21).
 
 Conclusion: the read-only half is safe to move — every full-battery consumer
 has the binary pinned or on PATH. The write half still needs the ABSENT rows
