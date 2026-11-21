@@ -196,19 +196,22 @@ func (s *tableScanner) consume(line string, no int) {
 	s.marker(strings.TrimSpace(line))
 }
 
-// fenceOpen reports the fence run a line opens (``` or ~~~), or "" when the
+// fenceOpen reports the fence run a line opens (3+ backticks or tildes, with
+// an info string that contains no further fence characters), or "" when the
 // line does not open a fence.
 func fenceOpen(line string) string {
 	trimmed := strings.TrimLeft(line, " \t")
 
 	for _, c := range []string{"`", "~"} {
 		run := strings.TrimLeft(trimmed, c)
-		if len(run) < len(trimmed)-2 && strings.TrimSpace(run) == "" {
-			return trimmed[:len(trimmed)-len(run)]
+		n := len(trimmed) - len(run)
+
+		if n >= 3 && !strings.Contains(run, c) {
+			return trimmed[:n]
 		}
 	}
 
-		return ""
+	return ""
 }
 
 // isFenceClose reports whether a line closes the given open fence run: at
