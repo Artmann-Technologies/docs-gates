@@ -17,7 +17,7 @@
 package docsstub
 
 import (
-	"crypto/md5"  //nolint:gosec // checksum identity, not security
+	"crypto/md5" //nolint:gosec // checksum identity, not security
 	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
@@ -83,7 +83,9 @@ func Run(args []string) int {
 		return gatecli.ExitUsage
 	}
 
-	findings, skips, err := Scan(root, SettingsFromConfig(cfg))
+	settings := SettingsFromConfig(cfg)
+
+	findings, skips, err := Scan(root, settings)
 	if err != nil {
 		gatecli.Errf("FATAL: %v\n", err)
 
@@ -95,7 +97,7 @@ func Run(args []string) int {
 	}
 
 	for _, finding := range findings {
-		if SettingsFromConfig(cfg).Enforce {
+		if settings.Enforce {
 			gatecli.Outf("FAIL %s is the bare template (%s) — write the glossary or an honest stub\n", finding.Path, finding.Digest)
 		} else {
 			gatecli.Outf("WARN %s is the bare template (%s) — write the glossary or an honest stub (stub_enforce=false, warn mode)\n", finding.Path, finding.Digest)
@@ -103,12 +105,12 @@ func Run(args []string) int {
 	}
 
 	if len(findings) == 0 {
-		gatecli.Outf("OK no bare-template stubs in %d file(s)\n", len(SettingsFromConfig(cfg).Files))
+		gatecli.Outf("OK no bare-template stubs in %d file(s)\n", len(settings.Files))
 
 		return gatecli.ExitClean
 	}
 
-	if SettingsFromConfig(cfg).Enforce {
+	if settings.Enforce {
 		return gatecli.ExitFindings
 	}
 
@@ -151,7 +153,7 @@ func Scan(root string, settings Settings) ([]Finding, []string, error) {
 		md5Sum := md5.Sum(body) //nolint:gosec // checksum identity, not security
 		shaSum := sha256.Sum256(body)
 		digests := map[string]string{
-			hex.EncodeToString(md5Sum[:]):  "md5",
+			hex.EncodeToString(md5Sum[:]): "md5",
 			hex.EncodeToString(shaSum[:]): "sha256",
 		}
 

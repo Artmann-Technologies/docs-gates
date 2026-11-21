@@ -117,8 +117,8 @@ func Run(args []string) int {
 // Finding is one dangling citation: the citing file and the citation
 // token as written.
 type Finding struct {
-	File      string
-	Citation  string
+	File     string
+	Citation string
 }
 
 // backtickRe pulls every backticked token; classification happens after.

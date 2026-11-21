@@ -73,7 +73,7 @@ const DefaultDomainLanguageFile = "docs/DOMAIN_LANGUAGE.md"
 // ~/projects/docs status/evidence/2026-11-21_domain-language-identical-file-groups.txt).
 // Both digests are of the same bytes; a match on either is the finding.
 var DefaultStubChecksums = []string{
-	"5b32f8c3a96af80ad148696b539fb977",                                // md5
+	"5b32f8c3a96af80ad148696b539fb977",                                 // md5
 	"0cd7d0c00ba6170e7ccff67c922a29d3211d28b3525a18f5f25b83dfcc9fe60d", // sha256
 }
 
@@ -111,7 +111,7 @@ type Config struct {
 	StubExempts        []string `json:"stub_exempts"`     // repo-relative files exempt from the stub gate (the template host, honest stubs)
 	StubEnforce        bool     `json:"stub_enforce"`     // stub gate rollout: false = findings WARN and exit 0; true = FAIL
 	CitationFiles      []string `json:"citation_files"`   // corpus the citations gate resolves (docs-citations)
-	CitationExts       []string `json:"citation_exts"`     // file extensions counted as code citations (dot-prefixed)
+	CitationExts       []string `json:"citation_exts"`    // file extensions counted as code citations (dot-prefixed)
 	CitationEnforce    bool     `json:"citation_enforce"` // citations rollout: false = WARN, true = FAIL on missing targets
 	StampFiles         []string `json:"stamp_files"`      // corpus the stamps gate dates (docs-stamps)
 	StampWarnDays      int      `json:"stamp_warn_days"`  // verification stamps older than this WARN
