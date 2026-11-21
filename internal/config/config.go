@@ -59,7 +59,16 @@ const (
 // KnownGates lists every battery gate name skip_gates may name. A
 // function, not a var: the vocabulary must not be mutable state.
 func KnownGates() []string {
-	return []string{GateFreshness, GateAuditAll, GateAnnotate, GateRouting, GateCadence, GateStub, GateCitations, GateStamps}
+	return []string{
+		GateFreshness,
+		GateAuditAll,
+		GateAnnotate,
+		GateRouting,
+		GateCadence,
+		GateStub,
+		GateCitations,
+		GateStamps,
+	}
 }
 
 // Cadence holds the purge/archive thresholds (docs-cadence gate).

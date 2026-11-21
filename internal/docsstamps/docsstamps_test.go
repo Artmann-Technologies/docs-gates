@@ -62,7 +62,9 @@ func TestWarnBarStampStaysCleanEvenEnforced(t *testing.T) {
 func TestFailBarStampWarnsByDefault(t *testing.T) {
 	t.Parallel()
 
-	if rc := Run([]string{writeStampedGlossary(t, stampDate(config.DefaultStampFailDays+20))}); rc != gatecli.ExitClean {
+	if rc := Run(
+		[]string{writeStampedGlossary(t, stampDate(config.DefaultStampFailDays+20))},
+	); rc != gatecli.ExitClean {
 		t.Fatalf("a fail-bar stamp must WARN-exit-clean in default warn mode, got rc %d", rc)
 	}
 }
@@ -87,7 +89,11 @@ func TestNoStampsIsSkipNotFinding(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if err := os.WriteFile(filepath.Join(root, "docs", "DOMAIN_LANGUAGE.md"), []byte("# Domain Language\n\nglossary without any verification claim\n"), 0o644); err != nil {
+	if err := os.WriteFile(
+		filepath.Join(root, "docs", "DOMAIN_LANGUAGE.md"),
+		[]byte("# Domain Language\n\nglossary without any verification claim\n"),
+		0o644,
+	); err != nil {
 		t.Fatal(err)
 	}
 

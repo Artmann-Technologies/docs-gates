@@ -95,9 +95,17 @@ func Run(args []string) int {
 
 	for _, finding := range findings {
 		if settings.Enforce {
-			gatecli.Outf("FAIL %s cites %s — target does not exist under the repo root\n", finding.File, finding.Citation)
+			gatecli.Outf(
+				"FAIL %s cites %s — target does not exist under the repo root\n",
+				finding.File,
+				finding.Citation,
+			)
 		} else {
-			gatecli.Outf("WARN %s cites %s — target does not exist under the repo root (citation_enforce=false, warn mode)\n", finding.File, finding.Citation)
+			gatecli.Outf(
+				"WARN %s cites %s — target does not exist under the repo root (citation_enforce=false, warn mode)\n",
+				finding.File,
+				finding.Citation,
+			)
 		}
 	}
 

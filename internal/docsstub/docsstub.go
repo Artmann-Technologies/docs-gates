@@ -98,9 +98,17 @@ func Run(args []string) int {
 
 	for _, finding := range findings {
 		if settings.Enforce {
-			gatecli.Outf("FAIL %s is the bare template (%s) — write the glossary or an honest stub\n", finding.Path, finding.Digest)
+			gatecli.Outf(
+				"FAIL %s is the bare template (%s) — write the glossary or an honest stub\n",
+				finding.Path,
+				finding.Digest,
+			)
 		} else {
-			gatecli.Outf("WARN %s is the bare template (%s) — write the glossary or an honest stub (stub_enforce=false, warn mode)\n", finding.Path, finding.Digest)
+			gatecli.Outf(
+				"WARN %s is the bare template (%s) — write the glossary or an honest stub (stub_enforce=false, warn mode)\n",
+				finding.Path,
+				finding.Digest,
+			)
 		}
 	}
 

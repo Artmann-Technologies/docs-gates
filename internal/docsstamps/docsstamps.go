@@ -22,7 +22,6 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
-
 	"time"
 
 	"github.com/Artmann-Technologies/docs-gates/internal/config"
@@ -107,13 +106,22 @@ func Run(args []string) int {
 	for _, finding := range findings {
 		enforced := settings.Enforce && finding.Severity == "fail"
 		verdict := map[bool]string{true: "FAIL", false: "WARN"}[enforced]
+
 		mode := ""
 		if !enforced && finding.Severity == "fail" {
 			mode = " (stamp_enforce=false, warn mode)"
 		}
 
-		gatecli.Outf("%s %s oldest verification stamp %s is %dd old (warn %dd, fail %dd)%s\n",
-			verdict, finding.Path, finding.Date.Format("2006-01-02"), finding.AgeDays, settings.WarnDays, settings.FailDays, mode)
+		gatecli.Outf(
+			"%s %s oldest verification stamp %s is %dd old (warn %dd, fail %dd)%s\n",
+			verdict,
+			finding.Path,
+			finding.Date.Format("2006-01-02"),
+			finding.AgeDays,
+			settings.WarnDays,
+			settings.FailDays,
+			mode,
+		)
 	}
 
 	if len(findings) == 0 {
@@ -144,7 +152,9 @@ type Finding struct {
 // date within the same line segment (pipes end the segment — table
 // cells are segments). Capital-insensitive: the fleet writes both
 // "Verified against code" and "verified live".
-var stampRe = regexp.MustCompile(`(?i)\b(re-?verified|verified|refreshed|rebuilt)\b[^|\n]{0,120}?(20[0-9]{2}-[0-9]{2}-[0-9]{2})`)
+var stampRe = regexp.MustCompile(
+	`(?i)\b(re-?verified|verified|refreshed|rebuilt)\b[^|\n]{0,120}?(20[0-9]{2}-[0-9]{2}-[0-9]{2})`,
+)
 
 // Dates extracts every verification-stamp date from content.
 func Dates(content string) []time.Time {

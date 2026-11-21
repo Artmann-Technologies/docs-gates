@@ -1,9 +1,10 @@
+package main
+
 // The verb tables: vocabulary, legacy display names, dispatch, display
 // order, one-liners, and per-verb Usage wiring — one concern, one file.
 // Deliberately cmd-local: config.KnownGates names the BATTERY rows (the
 // skip_gates vocabulary — it has audit-all and lacks run/strike).
 // Overlapping values, distinct concepts.
-package main
 
 import (
 	"github.com/Artmann-Technologies/docs-gates/internal/battery"

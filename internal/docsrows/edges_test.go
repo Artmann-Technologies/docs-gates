@@ -27,7 +27,7 @@ func TestFencedTablesAreIgnored(t *testing.T) {
 				argv, out.Code, gatecli.ExitFindings, out.Stdout, out.Stderr)
 		}
 
-		for _, line := range strings.Split(out.Stdout, "\n") {
+		for line := range strings.SplitSeq(out.Stdout, "\n") {
 			if strings.Contains(line, "table at line") && !strings.Contains(line, "table at line 28") {
 				t.Errorf("%v: a table other than the real one at line 28 was judged: %s", argv, line)
 			}

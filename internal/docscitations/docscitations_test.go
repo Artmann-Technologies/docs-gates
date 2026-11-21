@@ -31,7 +31,11 @@ func writeGlossaryRepo(t *testing.T, withTargets bool) string {
 		t.Fatal(err)
 	}
 
-	if err := os.WriteFile(filepath.Join(root, "docs", "DOMAIN_LANGUAGE.md"), []byte(glossaryWithCitations), 0o644); err != nil {
+	if err := os.WriteFile(
+		filepath.Join(root, "docs", "DOMAIN_LANGUAGE.md"),
+		[]byte(glossaryWithCitations),
+		0o644,
+	); err != nil {
 		t.Fatal(err)
 	}
 
@@ -44,7 +48,11 @@ func writeGlossaryRepo(t *testing.T, withTargets bool) string {
 			t.Fatal(err)
 		}
 
-		if err := os.WriteFile(filepath.Join(root, "internal", "models", "schedule.go"), []byte("package models\n"), 0o644); err != nil {
+		if err := os.WriteFile(
+			filepath.Join(root, "internal", "models", "schedule.go"),
+			[]byte("package models\n"),
+			0o644,
+		); err != nil {
 			t.Fatal(err)
 		}
 
@@ -77,7 +85,11 @@ func TestDanglingCitationFailsWhenEnforced(t *testing.T) {
 
 	root := writeGlossaryRepo(t, false)
 
-	if err := os.WriteFile(filepath.Join(root, config.FileName), []byte(`{"citation_enforce": true}`), 0o644); err != nil {
+	if err := os.WriteFile(
+		filepath.Join(root, config.FileName),
+		[]byte(`{"citation_enforce": true}`),
+		0o644,
+	); err != nil {
 		t.Fatal(err)
 	}
 
