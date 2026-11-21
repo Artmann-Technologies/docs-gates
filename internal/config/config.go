@@ -92,7 +92,7 @@ type Config struct {
 	RuleFExtensions    []string `json:"rule_f_extensions"`    // file extensions rule F scans (dot-prefixed)
 	GenericDF          int      `json:"generic_df"`           // the distinctive-token bar (a token on >= N living lines is generic)
 	AuditMax           int      `json:"audit_max"`            // docs-freshness --audit-max ratchet pin (-1 = strict)
-	AuditCorpus        string   `json:"audit_corpus"`        // freshness replay scope: "all" (default) or "unarchived"
+	AuditCorpus        string   `json:"audit_corpus"`         // freshness replay scope: "all" (default) or "unarchived"
 	AnnotateMax        int      `json:"annotate_max"`         // docs-annotate adoption ratchet pin (-1 = strict)
 	TodoFile           string   `json:"todo_file"`            // the TODO_LIST file (cadence reads it, docs-strike edits it)
 	Cadence            Cadence  `json:"cadence"`

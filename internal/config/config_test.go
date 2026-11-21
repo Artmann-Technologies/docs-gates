@@ -5,6 +5,7 @@ import (
 	"path/filepath"
 	"reflect"
 	"slices"
+	"strings"
 	"testing"
 )
 
@@ -204,4 +205,42 @@ func TestPathJoinsRoot(t *testing.T) {
 
 func contains(list []string, needle string) bool {
 	return slices.Contains(list, needle)
+}
+
+func TestLoadAuditCorpusIsAKnownKey(t *testing.T) {
+	t.Parallel()
+	root := t.TempDir()
+	writeConfig(t, root, `{"audit_corpus": "unarchived"}`)
+
+	cfg, warnings, err := Load(root)
+	if err != nil {
+		t.Fatalf("Load: %v", err)
+	}
+
+	if len(warnings) != 0 {
+		t.Fatalf("warnings = %v, want none for audit_corpus", warnings)
+	}
+
+	if cfg.AuditCorpus != "unarchived" {
+		t.Fatalf("AuditCorpus = %q, want \"unarchived\"", cfg.AuditCorpus)
+	}
+
+	if Defaults().AuditCorpus != DefaultAuditCorpus {
+		t.Fatalf("Defaults().AuditCorpus = %q, want %q", Defaults().AuditCorpus, DefaultAuditCorpus)
+	}
+}
+
+func TestValidateRefusesUnknownAuditCorpusScope(t *testing.T) {
+	t.Parallel()
+	root := t.TempDir()
+	writeConfig(t, root, `{"audit_corpus": "archived-only"}`)
+
+	_, _, err := Load(root)
+	if err == nil {
+		t.Fatal("Load must refuse an audit_corpus value outside the scope vocabulary")
+	}
+
+	if !strings.Contains(err.Error(), "audit_corpus") {
+		t.Fatalf("refusal must name the key, got: %v", err)
+	}
 }

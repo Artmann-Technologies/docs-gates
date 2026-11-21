@@ -148,6 +148,7 @@ historical constant (see `internal/config.Defaults`):
   "living_docs": ["TODO_LIST.md", "ROADMAP.md", "CHANGELOG.md"],
   "generic_df": 8,
   "audit_max": -1,
+  "audit_corpus": "all",
   "annotate_max": -1,
   "cadence": { "struck_rows": 20, "max_unarchived": 15, "oldest_days": 21 },
   "gate_timeout_sec": 300,
@@ -157,7 +158,12 @@ historical constant (see `internal/config.Defaults`):
 
 The ratchet keys are strict by default (`-1` omits the flag entirely);
 a repo with measured debt pins the count (`audit_max`/`annotate_max` >= 0)
-and drains it down — REGRESSION past the pin fails. `gate_timeout_sec`
+and drains it down — REGRESSION past the pin fails. `audit_corpus`
+scopes the freshness replay (`--audit-all` and `--pre-flight`): `"all"`
+(default) replays the report dir plus its archived subdir;
+`"unarchived"` drops the archived subdir, so an archived backlog stops
+moving the unharvested count with unrelated living-doc prose edits.
+`gate_timeout_sec`
 caps each battery gate's wall clock (default 300s; `0` disables) — an
 expired gate becomes a FAIL row (`rc=timeout`) and the battery moves
 on, so a wedged gate can never hang the run. `skip_gates` entries
