@@ -61,7 +61,9 @@ func WarnSectionFNearMiss(report string) {
 	for _, m := range FindSectionFNearMiss(report) {
 		gatecli.Outf(
 			"WARN %s:%d: %q reads like a §f heading but misses the canon shape — its items are INVISIBLE to freshness/audit-all/routing; rename it to start \"## f)\"\n",
-			filepath.Base(report), m.LineNo, gatecli.Truncate(m.Text, 80),
+			filepath.Base(report),
+			m.LineNo,
+			gatecli.Truncate(m.Text, 80),
 		)
 	}
 }

@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/Artmann-Technologies/docs-gates/internal/docsfreshness"
+	"github.com/Artmann-Technologies/docs-gates/internal/gatecli"
 )
 
 // fixtureTree builds a minimal repo tree: one unarchived report + one
@@ -156,5 +157,28 @@ func TestPointerRowIsRouted(t *testing.T) {
 
 	if gaps := RoutingGaps(root, Settings{}); len(gaps) != 0 {
 		t.Errorf("pointer-citing rows are routed by convention, got %+v", gaps)
+	}
+}
+
+// TestRunWarnsOnNearMissSectionF: a report whose §f heading misses the
+// canon shape is scanned, not triaged, by this gate — the near-miss WARN
+// (shared detector, docsfreshness.WarnSectionFNearMiss) must name it on
+// the gate's stdout so the blind spot stays loud on a green run (#9).
+//
+//nolint:paralleltest // process-global capture swap, serialized on purpose
+func TestRunWarnsOnNearMissSectionF(t *testing.T) {
+	report := "## §f — Follow-ups\n\n1. A forward item behind a near-miss heading\n"
+	root := fixtureTree(t, report, "- nothing relevant\n")
+
+	captured := gatecli.CaptureOutput(func() int {
+		return Run([]string{root, "--strict"})
+	})
+
+	if !strings.Contains(captured.Stdout, "WARN 2026-10-06_x.md:1") {
+		t.Errorf("stdout must carry the near-miss WARN with report and line:\n%s", captured.Stdout)
+	}
+
+	if captured.Code != gatecli.ExitClean {
+		t.Errorf("the warn never flips the verdict, code = %d", captured.Code)
 	}
 }
