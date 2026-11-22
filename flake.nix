@@ -317,7 +317,7 @@
 
             src = "${self}/pkg/provider";
 
-            vendorHash = "sha256-qOX4CkUkDtAiNSewsMAJN/4Zk1FZe27E4pF0bHonwVU=";
+            vendorHash = "sha256-jRmMmeH4kZPHwECh6O/w8dZddbeOT8/+VU0alWwOsDo=";
 
             env = {
               CGO_ENABLED = "0";
