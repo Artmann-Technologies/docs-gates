@@ -48,14 +48,15 @@ const (
 // constants, and validate refuses anything outside the list, so a typo'd
 // skip_gates entry is a loud exit 2 instead of a silent no-op.
 const (
-	GateFreshness = "freshness"
-	GateAuditAll  = "audit-all"
-	GateAnnotate  = "annotate"
-	GateRouting   = "routing"
-	GateCadence   = "cadence"
-	GateStub      = "stub"
-	GateCitations = "citations"
-	GateStamps    = "stamps"
+	GateFreshness  = "freshness"
+	GateAuditAll   = "audit-all"
+	GateAnnotate   = "annotate"
+	GateRouting    = "routing"
+	GateCadence    = "cadence"
+	GateStub       = "stub"
+	GateCitations  = "citations"
+	GateStamps     = "stamps"
+	GateVocabulary = "vocabulary"
 )
 
 // KnownGates lists every battery gate name skip_gates may name. A
@@ -70,6 +71,7 @@ func KnownGates() []string {
 		GateStub,
 		GateCitations,
 		GateStamps,
+		GateVocabulary,
 	}
 }
 
@@ -108,9 +110,11 @@ type Config struct {
 	CitationExts       []string `json:"citation_exts"`    // file extensions counted as code citations (dot-prefixed)
 	CitationEnforce    bool     `json:"citation_enforce"` // citations rollout: false = WARN, true = FAIL on missing targets
 	StampFiles         []string `json:"stamp_files"`      // corpus the stamps gate dates (docs-stamps)
-	StampWarnDays      int      `json:"stamp_warn_days"`  // verification stamps older than this WARN
-	StampFailDays      int      `json:"stamp_fail_days"`  // verification stamps older than this FAIL
-	StampEnforce       bool     `json:"stamp_enforce"`    // stamps rollout: false = findings WARN and exit 0; true = FAIL rows fail
+	StampWarnDays      int     `json:"stamp_warn_days"`  // verification stamps older than this WARN
+	StampFailDays      int     `json:"stamp_fail_days"`  // verification stamps older than this FAIL
+	StampEnforce       bool    `json:"stamp_enforce"`    // stamps rollout: false = findings WARN and exit 0; true = FAIL rows fail
+	VocabularyFiles    []string `json:"vocabulary_files"`   // corpus the vocabulary gate judges (docs-vocabulary)
+	VocabularyEnforce  bool    `json:"vocabulary_enforce"` // vocabulary rollout: false = findings WARN and exit 0; true = FAIL
 }
 
 // Path returns the config file location under a repo root.

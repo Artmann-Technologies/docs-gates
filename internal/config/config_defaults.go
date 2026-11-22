@@ -33,10 +33,12 @@ func Defaults() Config {
 		CitationFiles:   []string{DefaultDomainLanguageFile},
 		CitationExts:    defaultCitationExts(),
 		CitationEnforce: false,
-		StampFiles:      []string{DefaultDomainLanguageFile},
-		StampWarnDays:   DefaultStampWarnDays,
-		StampFailDays:   DefaultStampFailDays,
-		StampEnforce:    false,
+		StampFiles:         []string{DefaultDomainLanguageFile},
+		StampWarnDays:      DefaultStampWarnDays,
+		StampFailDays:      DefaultStampFailDays,
+		StampEnforce:       false,
+		VocabularyFiles:    []string{DefaultFeaturesFile},
+		VocabularyEnforce:  false,
 	}
 }
 

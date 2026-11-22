@@ -11,6 +11,10 @@ package config
 // projections cannot drift apart.
 const DefaultDomainLanguageFile = "docs/DOMAIN_LANGUAGE.md"
 
+// DefaultFeaturesFile is the vocabulary gate's default corpus: the
+// feature inventory whose status columns the legend contract judges.
+const DefaultFeaturesFile = "FEATURES.md"
+
 // defaultStubChecksums pins the bare DDD template fleet-wide: 38 repos
 // shipped byte-identical copies of it on census day (2026-11-21,
 // ~/projects/docs status/evidence/2026-11-21_domain-language-identical-file-groups.txt).

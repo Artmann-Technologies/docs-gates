@@ -35,11 +35,12 @@ type row struct {
 	state rowState
 }
 
-// table is one markdown table: the header line's number, whether a
-// check-rows:ledger marker exempted it, and every data row with its
-// classification. Separator rows are excluded.
+// table is one markdown table: the header line's number and text,
+// whether a check-rows:ledger marker exempted it, and every data row
+// with its classification. Separator rows are excluded.
 type table struct {
 	headerLine int
+	header     string
 	ledger     bool
 	rows       []row
 }
@@ -260,7 +261,7 @@ func (s *tableScanner) flush() {
 		return
 	}
 
-	t := table{headerLine: data[0].no, ledger: wasLedger}
+	t := table{headerLine: data[0].no, header: data[0].text, ledger: wasLedger}
 
 	for _, r := range data[1:] {
 		r.state = classifyRow(r.text)
@@ -268,6 +269,54 @@ func (s *tableScanner) flush() {
 	}
 
 	s.tables = append(s.tables, t)
+}
+
+// TableRow is one data row of the exported view: its 1-based line and
+// text.
+type TableRow struct {
+	Line int
+	Text string
+}
+
+// Table is the exported read-only view of one scanned markdown table
+// for sibling gates (#11): where the header row lives, its text, and
+// every data row's line and text (separator rows excluded, fences
+// skipped).
+type Table struct {
+	HeaderLine int
+	Header     string
+	Rows       []TableRow
+}
+
+// Tables scans one file's markdown tables — the same fence-aware,
+// escaped-pipe-aware walk the rows gate judges with, exported so the
+// vocabulary gate reads tables through ONE parser instead of a second
+// drifting one.
+func Tables(path string) ([]Table, error) {
+	scanned, err := scanTables(path)
+	if err != nil {
+		return nil, err
+	}
+
+	out := make([]Table, 0, len(scanned))
+
+	for _, t := range scanned {
+		view := Table{HeaderLine: t.headerLine, Header: t.header}
+
+		for _, r := range t.rows {
+			view.Rows = append(view.Rows, TableRow{Line: r.no, Text: r.text})
+		}
+
+		out = append(out, view)
+	}
+
+	return out, nil
+}
+
+// SplitCells splits a table row into trimmed cells on unescaped pipes —
+// the cell boundary every table consumer shares.
+func SplitCells(line string) []string {
+	return splitCells(line)
 }
 
 // isTableLine reports whether a line starts a (or continues a) table block.
