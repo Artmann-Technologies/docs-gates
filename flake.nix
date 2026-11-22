@@ -27,7 +27,7 @@
   # erraudit PACKAGE stays hermetic (its FOD pins its Go deps) — these
   # nodes feed erraudit's eval, not its built bytes. Both erraudit checks
   # re-verified green after the override (2026-11-21).
-  inputs.erraudit.inputs.go-ndjson.url = "git+ssh://git@github.com/LarsArtmann/go-ndjson";
+  inputs.erraudit.inputs.go-ndjson.url = "github:LarsArtmann/go-ndjson";
   inputs.erraudit.inputs.go-composable-business-types.url =
     "git+ssh://git@github.com/LarsArtmann/go-composable-business-types";
 

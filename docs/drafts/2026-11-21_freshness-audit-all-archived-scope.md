@@ -20,7 +20,7 @@ return append(reports, archived...)
 `auditAll` iterates that combined list (`internal/docsfreshness/audit.go:27-45`), so `--audit-all` covers both corpora. The usage text disagrees (`internal/docsfreshness/docsfreshness.go:60`):
 
 ```
-  --audit-all      replay the WHOLE unarchived corpus
+--audit-all      replay the WHOLE unarchived corpus
 ```
 
 No flag or `.docs-gates.json` key scopes the replay. `known_keys.go` offers `audit_max` (ratchet pin) and `generic_df` (token bar), neither of which is a scope. The annotate gate has the same shape filed as #4; this is the freshness replay.
