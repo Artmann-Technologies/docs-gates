@@ -39,6 +39,12 @@ var markerFixture = []struct {
 // is owned by the rows gate, which classifies the arrow form as ROUTED
 // (see internal/docsrows). Pinning the negative here prevents a future
 // widening of markerRe from silently absorbing the routed class.
+//
+// The routed WORD still counts (2026-11-22, #3): a STRUCK routed row —
+// `~~item~~ **→ routed to TODO_LIST #32**`, the natural harvest closure —
+// must pass rule A, because docsrouting already treats that row as
+// closed. TestStruckRoutedRowPassesRuleA pins that leg; the fixture
+// phrase above contains no "routed" word, so both contracts hold at once.
 func TestMarkerVocabularyMatchesTheGate(t *testing.T) {
 	t.Parallel()
 
@@ -157,6 +163,39 @@ func TestRoutedMarkerOnAnUnstruckItemIsSilent(t *testing.T) {
 
 	if len(findings) != 0 {
 		t.Fatalf("routed verdict is not rule A's jurisdiction, got %+v", findings)
+	}
+}
+
+// TestStruckRoutedRowPassesRuleA is issue #3's minimal repro: the routing
+// gate accepts `**→ routed to TODO_LIST #32**` as a completed route, so
+// striking that closed row must not fail rule A. Before the fix the two
+// gates disagreed — routing green, annotate red on the same row.
+func TestStruckRoutedRowPassesRuleA(t *testing.T) {
+	t.Parallel()
+
+	root := t.TempDir()
+	path := filepath.Join(root, "repro-report.md")
+
+	body := "# Repro Report\n\n## f) Forward items\n\n" +
+		"1. Item moved to the living backlog\n" +
+		"   ~~1. Item moved to the living backlog~~ **→ routed to TODO_LIST #32 (harvested 2026-01-01)**\n"
+	if err := os.WriteFile(path, []byte(body), 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	var infos []Finding
+
+	findings, struck, err := checkFile(root, path, gitRunner{root: root, missing: true}, false, &infos)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if struck != 1 {
+		t.Fatalf("struck routed row must be seen as struck, struck = %d", struck)
+	}
+
+	if len(findings) != 0 {
+		t.Fatalf("struck routed row must pass rule A (routing already closed it), got %+v", findings)
 	}
 }
 

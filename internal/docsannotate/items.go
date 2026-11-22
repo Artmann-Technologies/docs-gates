@@ -22,8 +22,13 @@ var (
 	// own grep over archived reports), not a strike. Neutralise the tildes
 	// inside code spans before strike detection.
 	inlineCodeRe = regexp.MustCompile("`[^`]*`")
-	markerRe     = regexp.MustCompile(
-		`(?i)\b(?:done|resolved|superseded|fixed|adopted|decided|verified|` +
+	// `routed` counts since 2026-11-22 (#3): striking a routed row —
+	// `~~item~~ **→ routed to TODO_LIST #32**` — is the natural harvest
+	// closure once the item lands in a living doc, and docsrouting already
+	// treats the pointer form as a completed route; the two gates must
+	// agree that "routed" closes a STRUCK item.
+	markerRe = regexp.MustCompile(
+		`(?i)\b(?:done|resolved|routed|superseded|fixed|adopted|decided|verified|` +
 			`won'?t implement|not-do|duplicate|struck|moot|no longer)\b`,
 	)
 	openPhrases = regexp.MustCompile(
