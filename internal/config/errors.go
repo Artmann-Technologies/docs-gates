@@ -64,3 +64,64 @@ func byteLineColumn(data []byte, offset int64) (int, int) {
 
 	return line, column
 }
+
+// loadStep is the Load stage whose refusal produced a loadError: reading
+// the file, parsing its JSON, or validating the decoded values. The zero
+// value is no stage — the default String spelling makes an unset step
+// loud instead of silently reading as the first stage.
+type loadStep int
+
+const (
+	loadRead loadStep = iota + 1
+	loadParse
+	loadValidate
+)
+
+func (s loadStep) String() string {
+	switch s {
+	case loadRead:
+		return "reading"
+	case loadParse:
+		return "parsing"
+	case loadValidate:
+		return "invalid"
+	default:
+		return fmt.Sprintf("loadStep(%d)", int(s))
+	}
+}
+
+// loadError is the package's static error type for Load failures: the
+// refusing step, the file it refused on, and the underlying cause. The
+// message is the caller's FATAL line verbatim (historical
+// "reading/parsing/invalid <path>: <cause>" spelling); Unwrap keeps
+// errors.Is/errors.AsType classification of the cause reachable.
+type loadError struct {
+	step  loadStep
+	path  string
+	cause error
+}
+
+func (e *loadError) Error() string {
+	return fmt.Sprintf("%s %s: %v", e.step, e.path, e.cause)
+}
+
+func (e *loadError) Unwrap() error { return e.cause }
+
+// newLoadError builds one loadError with the FATAL-line message.
+func newLoadError(step loadStep, path string, cause error) *loadError {
+	return &loadError{step: step, path: path, cause: cause}
+}
+
+// invalidError is the package's static error type: every validate
+// refusal is the same concrete type (user-facing CLI text; no errors.Is
+// consumers by design, so no Unwrap).
+type invalidError struct {
+	msg string
+}
+
+func (e *invalidError) Error() string { return e.msg }
+
+// invalidf builds one invalidError with the refusal message.
+func invalidf(format string, args ...any) *invalidError {
+	return &invalidError{msg: fmt.Sprintf(format, args...)}
+}
