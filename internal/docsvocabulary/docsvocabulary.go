@@ -77,7 +77,7 @@ var headingRe = regexp.MustCompile(`^#{1,6}\s`)
 
 // tokenRe captures one backticked ALL-CAPS token (the status
 // vocabulary's shape: `FULLY_FUNCTIONAL`, `OUT_OF_SCOPE`).
-var tokenRe = regexp.MustCompile("`(ERROR|[A-Z][A-Z0-9_]{2,})`")
+var tokenRe = regexp.MustCompile("`([A-Z][A-Z0-9_]{2,})`")
 
 // statusColumn names the header cell whose column carries statuses
 // (case-insensitive; "Status/Note" style combined columns count).
