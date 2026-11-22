@@ -72,17 +72,19 @@ func TestPreFlightReportsBoundItemWithCandidate(t *testing.T) {
 	}
 }
 
-// The 2026-10-18 miss class made visible BEFORE the write: the item's
-// distinctive token is the slash-joined "metric/counter"; a row that
-// spells it "metric and counter" binds NOTHING, and the bind leg must
-// say so instead of letting a SAFE verdict imply a harvest.
+// The 2026-10-18 miss class, CONTRACT FLIPPED by the tokenizer fix
+// (#5, 2026-11-22): the item's distinctive token is the slash-joined
+// "metric/counter", and a row spelling it "metric and counter" now
+// BINDS — the split spelling is the harvest, exactly the timesheets
+// case where the joined token kept a fully-harvested item in DRIFT.
+// Before #5 the joined spelling was required and this test pinned the
+// non-binding; the pin now guards the binding direction instead.
 //
 //nolint:paralleltest // stdout swap is unsafe under t.Parallel()
-func TestPreFlightBindsNothingWhenSlashTokenIsSplit(t *testing.T) {
+func TestPreFlightBindsSplitSpellingOfSlashJoinedToken(t *testing.T) {
 	// The item's only harvestable tokens are the slash-joined
 	// "metric/counter" plus a pair of fresh words the candidate must NOT
-	// carry — otherwise THOSE bind and the slash miss hides again (the
-	// first draft of this test failed exactly that way).
+	// carry — the bind must come from the split spelling alone.
 	root := bindFixture(t, "the metric/counter qvadrant alarm needs a drain row")
 
 	captured := gatecli.CaptureOutput(func() int {
@@ -97,18 +99,18 @@ func TestPreFlightBindsNothingWhenSlashTokenIsSplit(t *testing.T) {
 	})
 
 	if captured.Code != gatecli.ExitClean {
-		t.Fatalf("the non-binding line must still exit clean, got %d (output:\n%s)",
+		t.Fatalf("the binding line must still exit clean, got %d (output:\n%s)",
 			captured.Code, captured.Stdout)
 	}
 
 	got := captured.Stdout
 
-	if strings.Contains(got, "via candidate:") {
-		t.Fatalf("a split spelling of a slash-joined token must not bind, got:\n%s", got)
+	if !strings.Contains(got, "via candidate: todo: one unrelated row spelling metric and counter separately") {
+		t.Fatalf("a split spelling of a slash-joined token must bind (#5), got:\n%s", got)
 	}
 
-	if !strings.Contains(got, "binds: no open report item is harvested") {
-		t.Fatalf("the empty-bind summary must be present, got:\n%s", got)
+	if !strings.Contains(got, "binds: [2026-09-02_00-00_BIND.md]") {
+		t.Fatalf("the harvested item must be listed with its report, got:\n%s", got)
 	}
 }
 

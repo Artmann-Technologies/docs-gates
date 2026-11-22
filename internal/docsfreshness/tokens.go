@@ -38,7 +38,13 @@ var stopwords = map[string]bool{
 const MinTokenLen = 4
 
 var (
-	tokenRe  = regexp.MustCompile(`[a-z0-9][a-z0-9._/-]*`)
+	// The token character class deliberately EXCLUDES "/" (#5): a report
+	// item that slash-joins its keywords ("grouping/valid-args/positional")
+	// used to become ONE token that matched no living line, failing the
+	// item as DRIFT while every word was harvested (the timesheets case).
+	// Path-like tokens ("docs/handoff/x.md") now match as segments —
+	// closer to how living docs reference them.
+	tokenRe  = regexp.MustCompile(`[a-z0-9][a-z0-9._-]*`)
 	hyphenRe = regexp.MustCompile(`[-\s]+`)
 )
 

@@ -58,3 +58,34 @@ func TestTokenTableShowsDFAndDistinctiveness(t *testing.T) {
 		t.Errorf("table must only carry the item's own tokens:\n%s", joined)
 	}
 }
+
+// TestTokensSplitSlashJoinedKeywords (#5): a slash-joined keyword run
+// must yield one token per segment — the timesheets false-DRIFT, where
+// "grouping/valid-args/positional" stayed one unmatchable token while
+// the living docs carried every word. Path-like tokens now match as
+// segments too.
+func TestTokensSplitSlashJoinedKeywords(t *testing.T) {
+	t.Parallel()
+
+	got := Tokens("F8: cmdguard P4 help grouping/valid-args/positional IDs (#64).")
+	joined := strings.Join(got, " ")
+
+	for _, want := range []string{"grouping", "valid-args", "positional", "cmdguard"} {
+		if !strings.Contains(joined, want) {
+			t.Errorf("token %q missing from %v", want, got)
+		}
+	}
+
+	for _, whole := range []string{"grouping/valid-args/positional"} {
+		if strings.Contains(joined, whole) {
+			t.Errorf("slash-joined run must not survive as one token: %v", got)
+		}
+	}
+
+	paths := Tokens("see docs/handoff/report-kit.md for the shape")
+	for _, want := range []string{"handoff", "report-kit.md"} {
+		if !strings.Contains(strings.Join(paths, " "), want) {
+			t.Errorf("path segment %q missing from %v", want, paths)
+		}
+	}
+}
