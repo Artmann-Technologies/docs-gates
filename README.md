@@ -1,10 +1,10 @@
 # docs-gates
 
 The docs-health battery gates as one standalone, stdlib-only Go binary.
-The battery runs eight gates — freshness, audit-all, annotate, routing,
-cadence, stub, citations, stamps — as one verdict matrix; `rows` is the
-read-only report-table gate, and `strike`/`purge` are guarded mutator
-verbs outside the battery.
+The battery runs nine gates — freshness, audit-all, annotate, routing,
+cadence, stub, citations, stamps, vocabulary — as one verdict matrix;
+`rows` is the read-only report-table gate, and `strike`/`purge` are
+guarded mutator verbs outside the battery.
 
 Extracted from the pbx-artmann deployment flake's `pbx-tools` package, where
 the gates were hand-rolled per repo. Every behavioral constant is now
@@ -30,14 +30,15 @@ go install github.com/Artmann-Technologies/docs-gates/cmd/docs-gates@v0.4.0
 docs-gates run .
 ```
 
-Verbs: `run | freshness | annotate | rows | routing | cadence | stub | citations | stamps | strike | purge`.
+Verbs: `run | freshness | annotate | rows | routing | cadence | stub | citations | stamps | vocabulary | strike | purge`.
 The five original gate verbs keep their historical standalone names
 (`docs-freshness`, `docs-annotate`, `docs-routing`, `docs-cadence`,
 `docs-strike`) as flake wrappers and answer `--version` under those
-names. `rows` and the three content gates (`stub`, `citations`,
-`stamps`) were born inside this binary and deliberately carry no legacy
-wrapper. `docs-gates help` (or `<verb> --help`) explains every
-verb and its flags; a typo'd verb gets a did-you-mean suggestion.
+names. `rows` and the four content gates (`stub`, `citations`,
+`stamps`, `vocabulary`) were born inside this binary and deliberately
+carry no legacy wrapper. `docs-gates help` (or `<verb> --help`)
+explains every verb and its flags; a typo'd verb gets a did-you-mean
+suggestion.
 
 `docs-gates rows <report.md>` judges one report's tables (PARTIAL and
 mixed rows; `--bare` for bare rows, `--strict` to also flag wholly
@@ -168,12 +169,17 @@ moving the unharvested count with unrelated living-doc prose edits.
 default; `"unarchived"` drops the archived subdir, whose history-locked
 strikes can never be legitimately repaired — repos that only want the
 live slice annotated no longer need to skip the whole gate).
+`vocabulary_files` (default `FEATURES.md`) and `vocabulary_enforce`
+drive the vocabulary gate: every table Status-column token must be
+defined by the file's own `## Status legend` section; findings WARN
+until `vocabulary_enforce` flips.
 `gate_timeout_sec`
 caps each battery gate's wall clock (default 300s; `0` disables) — an
 expired gate becomes a FAIL row (`rc=timeout`) and the battery moves
 on, so a wedged gate can never hang the run. `skip_gates` entries
 must name real battery gates (`freshness`, `audit-all`, `annotate`,
-`routing`, `cadence`) — a typo exits 2 rather than silently running the
+`routing`, `cadence`, `stub`, `citations`, `stamps`, `vocabulary`) — a
+typo exits 2 rather than silently running the
 gate you meant to drop. Unknown keys warn; malformed JSON or invalid
 values exit 2 — a gate silently running wrong thresholds is worse than a
 loud failure. JSON, not YAML: the module is stdlib-only by contract, and
