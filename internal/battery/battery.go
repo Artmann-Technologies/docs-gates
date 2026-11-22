@@ -1,4 +1,4 @@
-// Package battery runs the eight doc gates as one ordered matrix — the
+// Package battery runs the nine doc gates as one ordered matrix — the
 // extracted form of the shell battery's Go segment (scripts/docs-gates.sh
 // steps 2-4 and 7-8 in pbx-artmann). Every gate runs INDEPENDENTLY and
 // the run prints one verdict matrix at the end: one foreign red at step 3
@@ -26,6 +26,7 @@ import (
 	"github.com/Artmann-Technologies/docs-gates/internal/docsrouting"
 	"github.com/Artmann-Technologies/docs-gates/internal/docsstamps"
 	"github.com/Artmann-Technologies/docs-gates/internal/docsstub"
+	"github.com/Artmann-Technologies/docs-gates/internal/docsvocabulary"
 	"github.com/Artmann-Technologies/docs-gates/internal/gatecli"
 )
 
@@ -73,22 +74,23 @@ func gates(root string, cfg config.Config) []gate {
 		{name: config.GateStub, fn: docsstub.Run, args: []string{root}},
 		{name: config.GateCitations, fn: docscitations.Run, args: []string{root}},
 		{name: config.GateStamps, fn: docsstamps.Run, args: []string{root}},
+		{name: config.GateVocabulary, fn: docsvocabulary.Run, args: []string{root}},
 	}
 }
 
 // Usage is the `docs-gates run --help` text — the verb's contract in one
 // place, printed by the dispatcher before any gate parser runs.
-const Usage = `docs-gates run — all eight doc gates as one ordered verdict matrix
+const Usage = `docs-gates run — all nine doc gates as one ordered verdict matrix
 
 usage: docs-gates run [repo-root] [--json]
 
-Runs freshness, audit-all, annotate, routing, cadence, stub, citations
-and stamps INDEPENDENTLY: one red gate never masks the gates behind
-it. Gates named in skip_gates (config) print SKIP and stay exit-clean.
-The three content gates (stub, citations, stamps) ship warn-mode:
-findings print WARN and stay exit-clean until their *_enforce key
-flips. Every gate runs under the gate_timeout_sec wall-clock cap (0
-disables it).
+Runs freshness, audit-all, annotate, routing, cadence, stub, citations,
+stamps and vocabulary INDEPENDENTLY: one red gate never masks the gates
+behind it. Gates named in skip_gates (config) print SKIP and stay
+exit-clean. The four content gates (stub, citations, stamps,
+vocabulary) ship warn-mode: findings print WARN and stay exit-clean
+until their *_enforce key flips. Every gate runs under the
+gate_timeout_sec wall-clock cap (0 disables it).
 
   --json  machine face: stdout carries ONLY the verdict matrix as one
           JSON document; every human line (per-gate heartbeat, red

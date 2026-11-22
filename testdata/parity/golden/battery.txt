@@ -33,6 +33,10 @@ docs-gates: gate stamps ...
 SKIP docs/DOMAIN_LANGUAGE.md (missing)
 OK no verification stamp past 90 day(s) in 1 file(s)
 docs-gates: gate stamps done in D
+docs-gates: gate vocabulary ...
+SKIP FEATURES.md (missing)
+OK every status token comes from the legend in 1 file(s)
+docs-gates: gate vocabulary done in D
 docs-gates: verdict matrix
   PASS  freshness (in D)
   PASS  audit-all (in D)
@@ -42,4 +46,5 @@ docs-gates: verdict matrix
   PASS  stub (in D)
   PASS  citations (in D)
   PASS  stamps (in D)
+  PASS  vocabulary (in D)
 docs-gates: PASS — all doc gates green

@@ -81,6 +81,16 @@
       "duration_ms": D,
       "stdout": "SKIP docs/DOMAIN_LANGUAGE.md (missing)\nOK no verification stamp past 90 day(s) in 1 file(s)\n",
       "stderr": ""
+    },
+    {
+      "name": "vocabulary",
+      "verdict": "PASS",
+      "exit_code": 0,
+      "skipped": false,
+      "timed_out": false,
+      "duration_ms": D,
+      "stdout": "SKIP FEATURES.md (missing)\nOK every status token comes from the legend in 1 file(s)\n",
+      "stderr": ""
     }
   ]
 }
@@ -100,4 +110,6 @@ docs-gates: gate citations ...
 docs-gates: gate citations done in D
 docs-gates: gate stamps ...
 docs-gates: gate stamps done in D
+docs-gates: gate vocabulary ...
+docs-gates: gate vocabulary done in D
 docs-gates: PASS — all doc gates green

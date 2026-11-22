@@ -120,7 +120,7 @@ func Scan(root string, settings Settings) ([]Finding, []Info, []string, error) {
 			return nil, nil, nil, fmt.Errorf("reading %s: %w", rel, err)
 		}
 
-		section := legendSection(string(body))
+		section, spanStart, spanEnd := legendSection(strings.Split(string(body), "\n"))
 		if section == "" {
 			skips = append(skips, rel+" (no status legend section — not judged)")
 
@@ -136,6 +136,13 @@ func Scan(root string, settings Settings) ([]Finding, []Info, []string, error) {
 		}
 
 		for _, table := range tables {
+			// The legend table itself (its Status column IS the definition)
+			// never counts as usage — otherwise every legend entry would
+			// mark itself used and the informational leg could never fire.
+			if table.HeaderLine >= spanStart && table.HeaderLine < spanEnd {
+				continue
+			}
+
 			cells := docsrows.SplitCells(table.Header)
 			statusIdx := -1
 
@@ -177,38 +184,37 @@ func Scan(root string, settings Settings) ([]Finding, []Info, []string, error) {
 	return findings, infos, skips, nil
 }
 
-// legendSection returns the "## Status legend" section body: from the
-// heading to the next ATX heading. Prose inside the section (the
-// absent-why note) is part of the legend — definitions live in tables
-// AND in sentences.
-func legendSection(body string) string {
-	lines := strings.Split(body, "\n")
-
+// legendSection returns the "## Status legend" section: its body and
+// its 1-based line span [start, end) — from the heading to the next ATX
+// heading. Prose inside the section (the absent-why note) is part of
+// the legend — definitions live in tables AND in sentences — and the
+// span lets the usage scan skip the definition table itself.
+func legendSection(lines []string) (string, int, int) {
 	start := -1
 
 	for i, line := range lines {
 		if legendHeadingRe.MatchString(line) {
-			start = i + 1
+			start = i
 
 			break
 		}
 	}
 
 	if start < 0 {
-		return ""
+		return "", 0, 0
 	}
 
 	var section []string
 
-	for _, line := range lines[start:] {
+	for i, line := range lines[start+1:] {
 		if headingRe.MatchString(line) {
-			break
+			return strings.Join(section, "\n"), start + 1, start + 1 + i
 		}
 
 		section = append(section, line)
 	}
 
-	return strings.Join(section, "\n")
+	return strings.Join(section, "\n"), start + 1, len(lines) + 1
 }
 
 // legendTokens collects every backticked ALL-CAPS token of the legend

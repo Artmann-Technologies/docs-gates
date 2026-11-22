@@ -18,6 +18,7 @@ import (
 	"github.com/Artmann-Technologies/docs-gates/internal/docsstamps"
 	"github.com/Artmann-Technologies/docs-gates/internal/docsstrike"
 	"github.com/Artmann-Technologies/docs-gates/internal/docsstub"
+	"github.com/Artmann-Technologies/docs-gates/internal/docsvocabulary"
 )
 
 const (
@@ -27,11 +28,12 @@ const (
 	verbRows      = "rows"
 	verbRouting   = "routing"
 	verbCadence   = "cadence"
-	verbStub      = "stub"
-	verbCitations = "citations"
-	verbStamps    = "stamps"
-	verbStrike    = "strike"
-	verbPurge     = "purge"
+	verbStub       = "stub"
+	verbCitations  = "citations"
+	verbStamps     = "stamps"
+	verbVocabulary = "vocabulary"
+	verbStrike     = "strike"
+	verbPurge      = "purge"
 )
 
 // suggestMaxEditDistance is the typo tolerance of suggestVerb: any verb
@@ -54,11 +56,12 @@ var displayName = map[string]string{
 	verbRows:      "docs-gates",
 	verbRouting:   "docs-routing",
 	verbCadence:   "docs-cadence",
-	verbStub:      "docs-stub",
-	verbCitations: "docs-citations",
-	verbStamps:    "docs-stamps",
-	verbStrike:    "docs-strike",
-	verbPurge:     "docs-gates",
+	verbStub:       "docs-stub",
+	verbCitations:  "docs-citations",
+	verbStamps:     "docs-stamps",
+	verbVocabulary: "docs-vocabulary",
+	verbStrike:     "docs-strike",
+	verbPurge:      "docs-gates",
 }
 
 // verbHandlers is the dispatch table: every verb to its gate's Run. The
@@ -72,11 +75,12 @@ var verbHandlers = map[string]func([]string) int{
 	verbRows:      docsrows.Run,
 	verbRouting:   docsrouting.Run,
 	verbCadence:   docscadence.Run,
-	verbStub:      docsstub.Run,
-	verbCitations: docscitations.Run,
-	verbStamps:    docsstamps.Run,
-	verbStrike:    docsstrike.Run,
-	verbPurge:     docspurge.Run,
+	verbStub:       docsstub.Run,
+	verbCitations:  docscitations.Run,
+	verbStamps:     docsstamps.Run,
+	verbVocabulary: docsvocabulary.Run,
+	verbStrike:     docsstrike.Run,
+	verbPurge:      docspurge.Run,
 }
 
 // verbOrder is the display order of the verbs in the root usage.
@@ -85,7 +89,7 @@ var verbHandlers = map[string]func([]string) int{
 var verbOrder = []string{
 	verbRun, verbFreshness, verbAnnotate, verbRows,
 	verbRouting, verbCadence, verbStub, verbCitations, verbStamps,
-	verbStrike, verbPurge,
+	verbVocabulary, verbStrike, verbPurge,
 }
 
 // verbOverview is each verb's one-line purpose for the root usage; the
@@ -93,7 +97,7 @@ var verbOrder = []string{
 //
 //nolint:gochecknoglobals // the fixed verb one-liners, same class as the contract tables
 var verbOverview = map[string]string{
-	verbRun:       "all eight gates as one ordered verdict matrix (the battery)",
+	verbRun:       "all nine gates as one ordered verdict matrix (the battery)",
 	verbFreshness: "the newest report's §f items must be harvested into the living docs",
 	verbAnnotate:  "struck items must carry honest, verifiable verdicts",
 	verbRows:      "table-row completeness and bare-row gates over explicit files",
@@ -101,8 +105,9 @@ var verbOverview = map[string]string{
 	verbCadence:   "TODO_LIST purge and report archive thresholds",
 	verbStub:      "a domain-language doc matching the bare template checksum is an unfilled stub",
 	verbCitations: "backticked code citations in the glossary must resolve to real files",
-	verbStamps:    "verification stamps age; oldest per file flagged past warn/fail bars",
-	verbStrike:    "strike one TODO_LIST row (dry-run by default)",
+	verbStamps:     "verification stamps age; oldest per file flagged past warn/fail bars",
+	verbVocabulary: "FEATURES status tokens must come from the file's own legend",
+	verbStrike:     "strike one TODO_LIST row (dry-run by default)",
 	verbPurge:     "collect struck TODO rows into a CHANGELOG purge entry (dry-run by default)",
 }
 
@@ -120,7 +125,8 @@ var verbUsage = map[string]string{
 	verbCadence:   docscadence.Usage,
 	verbStub:      docsstub.Usage,
 	verbCitations: docscitations.Usage,
-	verbStamps:    docsstamps.Usage,
-	verbStrike:    docsstrike.Usage,
-	verbPurge:     docspurge.Usage,
+	verbStamps:     docsstamps.Usage,
+	verbVocabulary: docsvocabulary.Usage,
+	verbStrike:     docsstrike.Usage,
+	verbPurge:      docspurge.Usage,
 }
