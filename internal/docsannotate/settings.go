@@ -16,6 +16,7 @@ type Settings struct {
 	ReportDir          string   // unarchived status-report directory under the repo root
 	ArchivedSubdir     string   // archive subdir UNDER ReportDir
 	AnnotateExtraGlobs []string // extra annotate corpus beyond reports (planning dirs)
+	AnnotateCorpus     string   // corpus scope: "all" (default) includes the archived subdir; "unarchived" excludes it
 	RuleF              bool     // docs-annotate rule F (inline-code spacing) on/off
 	RuleFExtensions    []string // file extensions rule F scans (dot-prefixed)
 	AnnotateMax        int      // adoption ratchet pin (-1 = strict)
@@ -32,6 +33,7 @@ func DefaultSettings() Settings {
 		RuleF:           c.RuleF,
 		RuleFExtensions: c.RuleFExtensions,
 		AnnotateMax:     c.AnnotateMax,
+		AnnotateCorpus:  c.AnnotateCorpus,
 	}
 }
 
@@ -42,6 +44,7 @@ func SettingsFromConfig(c config.Config) Settings {
 		ReportDir:          c.ReportDir,
 		ArchivedSubdir:     c.ArchivedSubdir,
 		AnnotateExtraGlobs: c.AnnotateExtraGlobs,
+		AnnotateCorpus:     c.AnnotateCorpus,
 		RuleF:              c.RuleF,
 		RuleFExtensions:    c.RuleFExtensions,
 		AnnotateMax:        c.AnnotateMax,
@@ -55,6 +58,14 @@ func (s Settings) dir() string {
 
 func (s Settings) archivedSub() string {
 	return cmp.Or(s.ArchivedSubdir, config.Defaults().ArchivedSubdir)
+}
+
+// annotateCorpus is the effective corpus scope; an unset value
+// (zero-value Settings, an explicitly empty JSON string) selects the
+// shipped "all" corpus, preserving the pre-knob behavior bit for bit
+// (the audit_corpus accessor's mirror).
+func (s Settings) annotateCorpus() string {
+	return cmp.Or(s.AnnotateCorpus, config.DefaultAnnotateCorpus)
 }
 
 func (s Settings) extraGlobs() []string {

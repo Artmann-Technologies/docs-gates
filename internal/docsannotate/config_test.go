@@ -59,3 +59,69 @@ func TestRunHonorsConfiguredReportDirAndRuleFToggle(t *testing.T) {
 func containsSubstr(haystack, needle string) bool {
 	return strings.Contains(haystack, needle)
 }
+
+// annotateScopeFixture builds a repo whose ARCHIVED report carries the
+// only possible finding (a struck item with no verdict marker) while the
+// unarchived corpus is clean: the annotate_corpus knob's effect is
+// observable through the verdict alone — the default (all) corpus FAILs,
+// "unarchived" stays green without skipping the gate (#4).
+func annotateScopeFixture(t *testing.T) string {
+	t.Helper()
+
+	root := t.TempDir()
+
+	status := filepath.Join(root, "docs", "status")
+	if err := os.MkdirAll(filepath.Join(status, "archived"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+
+	unarchived := "# Live\n\n## f) Next\n\n1. ~~closed cleanly~~ done at `a1b2c3d`\n"
+	if err := os.WriteFile(filepath.Join(status, "2026-01-01_00-00_NEW.md"), []byte(unarchived), 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	archived := "# Old\n\n## f) Next\n\n1. ~~a history-locked bare strike~~\n"
+	if err := os.WriteFile(filepath.Join(status, "archived", "2026-01-02_00-00_OLD.md"), []byte(archived), 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	return root
+}
+
+//nolint:paralleltest // process-global capture swap, serialized on purpose
+func TestRunAnnotateCorpusUnarchivedExcludesArchive(t *testing.T) {
+	root := annotateScopeFixture(t)
+
+	if err := os.WriteFile(filepath.Join(root, ".docs-gates.json"), []byte(`{"annotate_corpus": "unarchived"}`), 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	captured := gatecli.CaptureOutput(func() int {
+		return Run([]string{root})
+	})
+
+	if captured.Code != gatecli.ExitClean {
+		t.Fatalf("unarchived scope must stay green without findings, code = %d:\n%s%s", captured.Code, captured.Stdout, captured.Stderr)
+	}
+
+	if !strings.Contains(captured.Stdout, "CLEAN") {
+		t.Fatalf("verdict line missing:\n%s", captured.Stdout)
+	}
+}
+
+//nolint:paralleltest // process-global capture swap, serialized on purpose
+func TestRunAnnotateCorpusDefaultScansArchive(t *testing.T) {
+	root := annotateScopeFixture(t)
+
+	captured := gatecli.CaptureOutput(func() int {
+		return Run([]string{root})
+	})
+
+	if captured.Code != gatecli.ExitFindings {
+		t.Fatalf("the default (all) corpus must keep scanning the archive, code = %d", captured.Code)
+	}
+
+	if !strings.Contains(captured.Stdout, "A/evidence") {
+		t.Fatalf("the archived bare strike must be the finding:\n%s", captured.Stdout)
+	}
+}

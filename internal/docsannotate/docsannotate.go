@@ -175,10 +175,17 @@ func Run(argv []string) int {
 		annotateMax = settings.AnnotateMax
 	}
 
-	docGlobs := append([]string{
-		filepath.Join(settings.dir(), "*.md"),
-		filepath.Join(settings.dir(), settings.archivedSub(), "*.md"),
-	}, settings.extraGlobs()...)
+	// The annotate_corpus knob scopes the corpus (#4): the default "all"
+	// keeps both globs (the historical behavior); "unarchived" drops the
+	// archived subdir, whose history-locked strikes can never be
+	// legitimately repaired — repos that only want the live slice
+	// annotated no longer have to skip the whole gate.
+	docGlobs := []string{filepath.Join(settings.dir(), "*.md")}
+	if settings.annotateCorpus() != "unarchived" {
+		docGlobs = append(docGlobs, filepath.Join(settings.dir(), settings.archivedSub(), "*.md"))
+	}
+
+	docGlobs = append(docGlobs, settings.extraGlobs()...)
 
 	files := collectDocFiles(root, docGlobs)
 

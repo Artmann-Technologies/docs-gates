@@ -23,6 +23,7 @@ func knownKeys() map[string]bool {
 		"audit_max":            true,
 		"audit_corpus":         true,
 		"annotate_max":         true,
+		"annotate_corpus":      true,
 		"todo_file":            true,
 		"cadence":              true,
 		"gate_timeout_sec":     true,

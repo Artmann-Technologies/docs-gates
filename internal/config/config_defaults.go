@@ -17,6 +17,7 @@ func Defaults() Config {
 		AuditMax:           DefaultAuditMax,
 		AuditCorpus:        DefaultAuditCorpus,
 		AnnotateMax:        DefaultAnnotateMax,
+		AnnotateCorpus:     DefaultAnnotateCorpus,
 		TodoFile:           "TODO_LIST.md",
 		Cadence: Cadence{
 			StruckRows:    DefaultStruckRows,

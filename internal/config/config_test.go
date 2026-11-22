@@ -244,3 +244,41 @@ func TestValidateRefusesUnknownAuditCorpusScope(t *testing.T) {
 		t.Fatalf("refusal must name the key, got: %v", err)
 	}
 }
+
+func TestLoadAnnotateCorpusIsAKnownKey(t *testing.T) {
+	t.Parallel()
+	root := t.TempDir()
+	writeConfig(t, root, `{"annotate_corpus": "unarchived"}`)
+
+	cfg, warnings, err := Load(root)
+	if err != nil {
+		t.Fatalf("Load: %v", err)
+	}
+
+	if len(warnings) != 0 {
+		t.Fatalf("warnings = %v, want none for annotate_corpus", warnings)
+	}
+
+	if cfg.AnnotateCorpus != "unarchived" {
+		t.Fatalf("AnnotateCorpus = %q, want \"unarchived\"", cfg.AnnotateCorpus)
+	}
+
+	if Defaults().AnnotateCorpus != DefaultAnnotateCorpus {
+		t.Fatalf("Defaults().AnnotateCorpus = %q, want %q", Defaults().AnnotateCorpus, DefaultAnnotateCorpus)
+	}
+}
+
+func TestValidateRefusesUnknownAnnotateCorpusScope(t *testing.T) {
+	t.Parallel()
+	root := t.TempDir()
+	writeConfig(t, root, `{"annotate_corpus": "archived-only"}`)
+
+	_, _, err := Load(root)
+	if err == nil {
+		t.Fatal("Load must refuse an annotate_corpus value outside the scope vocabulary")
+	}
+
+	if !strings.Contains(err.Error(), "annotate_corpus") {
+		t.Fatalf("refusal must name the key, got: %v", err)
+	}
+}

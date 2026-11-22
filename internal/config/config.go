@@ -34,6 +34,7 @@ const (
 	DefaultAuditMax       = -1
 	DefaultAuditCorpus    = "all"
 	DefaultAnnotateMax    = -1
+	DefaultAnnotateCorpus = "all"
 	DefaultStruckRows     = 20
 	DefaultMaxUnarchived  = 15
 	DefaultOldestDays     = 21
@@ -94,6 +95,7 @@ type Config struct {
 	AuditMax           int      `json:"audit_max"`            // docs-freshness --audit-max ratchet pin (-1 = strict)
 	AuditCorpus        string   `json:"audit_corpus"`         // freshness replay scope: "all" (default) or "unarchived"
 	AnnotateMax        int      `json:"annotate_max"`         // docs-annotate adoption ratchet pin (-1 = strict)
+	AnnotateCorpus     string   `json:"annotate_corpus"`      // annotate corpus scope: "all" (default) or "unarchived"
 	TodoFile           string   `json:"todo_file"`            // the TODO_LIST file (cadence reads it, docs-strike edits it)
 	Cadence            Cadence  `json:"cadence"`
 	GateTimeoutSec     int      `json:"gate_timeout_sec"` // battery per-gate wall-clock cap in seconds (0 = no timeout)
@@ -317,17 +319,23 @@ func (c Config) validateSkipGates() error {
 	return nil
 }
 
-// validateCorpus refuses an audit_corpus value outside the scope
-// vocabulary: the corpus builder string-compares the setting and would
-// silently treat a typo ("unarchved") as the default all-corpus replay —
-// exactly the silent-wrong-threshold class the validate contract exists
-// for.
+// validateCorpus refuses an audit_corpus or annotate_corpus value
+// outside the scope vocabulary: the corpus builders string-compare the
+// setting and would silently treat a typo ("unarchved") as the default
+// all-corpus scan — exactly the silent-wrong-threshold class the
+// validate contract exists for.
 func (c Config) validateCorpus() error {
 	switch c.AuditCorpus {
 	case "", "all", "unarchived":
-		return nil
 	default:
 		return invalidf("audit_corpus must be \"all\" or \"unarchived\", got %q", c.AuditCorpus)
+	}
+
+	switch c.AnnotateCorpus {
+	case "", "all", "unarchived":
+		return nil
+	default:
+		return invalidf("annotate_corpus must be \"all\" or \"unarchived\", got %q", c.AnnotateCorpus)
 	}
 }
 
