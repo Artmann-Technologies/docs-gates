@@ -101,6 +101,44 @@ func TestPlanStrikeRefusesAmbiguousMissingStruckAndAlienShapes(t *testing.T) {
 	}
 }
 
+// TestPlanStrikeFollowsTheHeaderAcrossFleetShapes (#6): the fleet ships
+// 4- and 5-column TODO_LISTs with Status last, and tables with no Status
+// column at all — the header, not a position constant, names the cells.
+func TestPlanStrikeFollowsTheHeaderAcrossFleetShapes(t *testing.T) {
+	t.Parallel()
+
+	fourCol := "| # | Task | Evidence | Status |\n| - | ---- | -------- | ------ |\n" +
+		"| 172 | Extract the mail seam | `contracts.go` | 🔴 `TODO` |\n"
+
+	strike, err := PlanStrike(fourCol, Options{Row: "mail seam", Verdict: "landed in `abc1234`", Status: DefaultStatus})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if !strings.HasPrefix(strike.New, "| 172 | ~~Extract the mail seam~~ done (landed in `abc1234`)") {
+		t.Fatalf("task cell not wrapped in place: %q", strike.New)
+	}
+
+	if !strings.HasSuffix(strike.New, "| ✅ `DONE` |") {
+		t.Fatalf("the LAST column is the status cell on the 4-column shape: %q", strike.New)
+	}
+
+	noStatus := "| # | Task | Effort |\n| - | ---- | ------ |\n| 8 | Retire the legacy parser | 30min |\n"
+
+	strike, err = PlanStrike(noStatus, Options{Row: "legacy parser", Verdict: "done at `deadbee`"})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if !strings.Contains(strike.New, "| ~~Retire the legacy parser~~ done (done at `deadbee`) | 30min |") {
+		t.Fatalf("the no-status shape must strike only the task cell: %q", strike.New)
+	}
+
+	if _, err = PlanStrike(noStatus, Options{Row: "legacy parser", Verdict: "x", Evidence: "nowhere"}); err == nil {
+		t.Fatal("--evidence on a table whose header names no Evidence column must be refused")
+	}
+}
+
 func TestRunDryRunLeavesFileIntactApplyWrites(t *testing.T) {
 	t.Parallel()
 
