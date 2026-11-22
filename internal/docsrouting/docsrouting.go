@@ -248,6 +248,10 @@ func Run(args []string) int {
 
 	s := SettingsFromConfig(cfg)
 
+	for _, report := range unarchivedReports(root, s) {
+		docsfreshness.WarnSectionFNearMiss(report)
+	}
+
 	gaps := RoutingGaps(root, s)
 
 	for _, gap := range gaps {
