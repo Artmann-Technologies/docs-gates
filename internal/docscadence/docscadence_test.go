@@ -284,3 +284,37 @@ func TestConfigDrivenKnobs(t *testing.T) {
 		t.Fatalf("2 unarchived reports under max_unarchived=1 must fail, got rc %d", rc)
 	}
 }
+
+// TestStatusCellPredicates pin the exported status-cell vocabulary both
+// predicates share with the purge collector (#10): emoji/backtick-wrapped
+// open markers count, task text merely containing a status word never
+// occupies a whole cell, and DONE stays the closed vocabulary.
+func TestStatusCellPredicates(t *testing.T) {
+	t.Parallel()
+
+	open := []string{
+		"🔴 `TODO`", "🟡 `IN_PROGRESS`", "TODO", "BLOCKED",
+		"TODO — blocked upstream", "🔵 BLOCKED",
+	}
+
+	for _, cell := range open {
+		if !IsOpenCell(cell) {
+			t.Errorf("IsOpenCell(%q) = false, want true", cell)
+		}
+	}
+
+	closed := []string{
+		"✅ `DONE`", "DONE", "✅ DONE 2026-11-04", "DONE — evidence lands",
+		"the switch IS DONE", "todo list grooming work", "",
+	}
+
+	for _, cell := range closed {
+		if IsOpenCell(cell) {
+			t.Errorf("IsOpenCell(%q) = true, want false", cell)
+		}
+	}
+
+	if !IsDoneCell("✅ DONE 2026-11-04") || IsDoneCell("todo list grooming work") {
+		t.Error("IsDoneCell boundary drifted")
+	}
+}

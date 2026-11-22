@@ -70,7 +70,7 @@ func IsOpenCell(cell string) bool {
 		c = strings.TrimPrefix(c, marker)
 	}
 
-	c = strings.TrimSpace(strings.Trim(c, "`"))
+	c = strings.Trim(strings.TrimSpace(c), "`")
 
 	return c == "TODO" || c == "BLOCKED" || c == "IN_PROGRESS" ||
 		strings.HasPrefix(c, "TODO ") || strings.HasPrefix(c, "BLOCKED ") ||
