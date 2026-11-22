@@ -24,6 +24,7 @@ a library:
 | `internal/config`                                          | `.docs-gates.json` loader: decode over `Defaults()`, unknown keys WARN, malformed/invalid exit 2                                                                                                                                    |
 | `internal/docs{freshness,annotate,routing,cadence,strike}` | the five historical gates: each a `Run([]string) int` whose argv matches the historical standalone binaries, each with a `Settings` projection (zero values → historical constants) + docs-purge                                    |
 | `internal/docs{stub,citations,stamps}`                     | the three content gates over the domain-language glossary (2026-11-21 census): bare-template checksums, code-citation resolution, verification-stamp age bars; warn-mode rollout knobs (`*_enforce`), same `Run`/`Settings` shape   |
+| `internal/docsvocabulary`                                  | the vocabulary gate (2026-11-22, #11): FEATURES Status-column tokens must be defined by the file's own `## Status legend` section; cell-aware via the exported `docsrows.Tables`/`SplitCells` walk; warn-mode `vocabulary_enforce` |
 | `pkg/provider`                                             | BuildFlow toolsdk provider — a SEPARATE go module that EXECS the binary from PATH, parses `run --json` into findings (strict decode), registers via `toolsdk.Register`                                                              |
 
 Control flow: `main.go` → verb's `Run(rest)` → `gatecli.Parse` →
@@ -45,9 +46,14 @@ keep bare `FATAL: %v`.
 - **Zero-value Settings never reach gate logic** — projections fall back to
   the historical constants (`cmp.Or`, `OrSlice`, `> 0`); config-less repos
   behave byte-for-byte like pre-extraction. A default change re-proves parity.
-- **The five legacy names are API** (the three content gates carry no legacy wrapper): flake wrappers exec
+- **The five legacy names are API** (the four content gates carry no legacy wrapper): flake wrappers exec
   `docs-gates <verb>`; each answers `--version` under its legacy name.
   Never remove a wrapper without a migration plan.
+- **The battery runs NINE gates** (2026-11-22): freshness, audit-all,
+  annotate, routing, cadence, stub, citations, stamps, vocabulary —
+  `KnownGates` is the whole `skip_gates` vocabulary; the JSON face's
+  gate rows are generic so the provider absorbs a new row without
+  drift (proven when vocabulary joined).
 - **Parity is enforced**: `TestParityGolden` pins byte output of
   fifteen invocations (the five gates + battery + battery-json + the
   margins/dump-items/preflight arms, incl. intended non-clean exits)
@@ -85,6 +91,33 @@ keep bare `FATAL: %v`.
 
 ## Non-obvious facts (paid for)
 
+- **`routed` counts as a rule-A marker** (2026-11-22, #3): striking a
+  routed row is the natural harvest closure and docsrouting already
+  treats it as closed; markers_test pins BOTH contracts (the unstruck
+  writer phrase has no "routed" word and stays invisible to rule A).
+- **Near-miss §f headings WARN on gate STDOUT** (#9):
+  `docsfreshness.WarnSectionFNearMiss` fires in freshness, audit-all
+  and routing for canon-rejected `## §f`-shaped headings — stdout, not
+  stderr, because the battery swallows a PASS row's stderr.
+- **The purge collector refuses struck rows whose status cell reads
+  OPEN** (#10): `docscadence.IsOpenCell`/`IsDoneCell` are the shared
+  predicates (cadence counting and purge collection share one
+  vocabulary); refusal = exit 2, nothing written; unrecognized status
+  = WARN but still collects.
+- **docs-strike locates Task/Status/Evidence BY HEADER NAME** (#6):
+  fleet TODO_LISTs are 4-, 5- and 6-column with Status first, last or
+  absent; the row's cell count must equal its table's header count. A
+  no-Status table strikes only the task cell.
+- **The tokenizer splits tokens on `/`** (#5): a split spelling of a
+  slash-joined token BINDS (the 2026-10-18 joined-spelling contract
+  was flipped deliberately); path-like tokens match as segments. The
+  parity corpus carries no slash-joined tokens, so no golden moved.
+- **`annotate_corpus`** mirrors `audit_corpus` ("all" default /
+  "unarchived" drops the archived subdir) — validateCorpus guards both.
+- **A dependabot bump to pkg/provider does NOT carry the flake's
+  vendorHash** (PR #7 lesson): the merge train must also bump
+  flake.nix's `docs-gates-provider-suite` vendorHash or the
+  provider-suite check FOD breaks (nix prints the correct hash).
 - **Pre-flight before ANY living-docs edit batch** (`docs-freshness
   --pre-flight`, stdin candidates, SAFE only, battery BEFORE the commit —
   paid twice; universe is exactly the trio; the refusal is a lowercased
