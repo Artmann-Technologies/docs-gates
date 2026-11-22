@@ -245,7 +245,7 @@ these are ROADMAP fuel, not promises.
     ~~line vs ride to next MINOR (OWNER).~~
 11. Answer §g-3 of 07:33 + g-3 here: which SURFACED ruling first
     (OWNER).
-12. ~~Ruling: dependabot PR #1 (owner-gated).~~ done at `0bbced2`
+12. ~~Ruling: dependabot PR #1 (owner-gated).~~ done at `c8e8fbc`
 13. Ruling: D1 (owner-gated). **→ routed TODO_LIST 4 (D1 row)**
 14. Ruling: D2 (owner-gated). **→ routed TODO_LIST 4 (D2 row)**
 15. Ruling: io-surface adoption (owner-gated). **→ routed TODO_LIST 4 (io-surface adoption row)**

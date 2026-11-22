@@ -20,101 +20,12 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/Artmann-Technologies/docs-gates/internal/battery"
-	"github.com/Artmann-Technologies/docs-gates/internal/docsannotate"
-	"github.com/Artmann-Technologies/docs-gates/internal/docscadence"
-	"github.com/Artmann-Technologies/docs-gates/internal/docsfreshness"
-	"github.com/Artmann-Technologies/docs-gates/internal/docspurge"
-	"github.com/Artmann-Technologies/docs-gates/internal/docsrouting"
-	"github.com/Artmann-Technologies/docs-gates/internal/docsstrike"
 	"github.com/Artmann-Technologies/docs-gates/internal/gatecli"
 )
 
 // version is stamped by the flake build (ldflags -X main.version);
 // "dev" in bare go build/run.
 var version = "dev"
-
-// The verb vocabulary. Deliberately cmd-local: config.KnownGates names
-// the BATTERY rows (the skip_gates vocabulary — it has audit-all and
-// lacks run/strike). Overlapping values, distinct concepts.
-const (
-	verbRun       = "run"
-	verbFreshness = "freshness"
-	verbAnnotate  = "annotate"
-	verbRouting   = "routing"
-	verbCadence   = "cadence"
-	verbStrike    = "strike"
-	verbPurge     = "purge"
-)
-
-// suggestMaxEditDistance is the typo tolerance of suggestVerb: any verb
-// within this Levenshtein distance is offered as a did-you-mean.
-const suggestMaxEditDistance = 2
-
-// displayName maps each verb to the program name its --version line
-// carries: the battery verb answers as docs-gates, the five gate verbs
-// answer under their legacy standalone names (the wrappers exec this
-// binary, so `docs-freshness --version` must still read
-// "docs-freshness <version>").
-//
-//nolint:gochecknoglobals // the fixed verb-to-legacy-name map, same class as the contract tables
-var displayName = map[string]string{
-	verbRun:       "docs-gates",
-	verbFreshness: "docs-freshness",
-	verbAnnotate:  "docs-annotate",
-	verbRouting:   "docs-routing",
-	verbCadence:   "docs-cadence",
-	verbStrike:    "docs-strike",
-	verbPurge:     "docs-gates",
-}
-
-// verbHandlers is the dispatch table: every verb to its gate's Run. The
-// table IS the vocabulary — unknownVerb answers for anything not in it.
-//
-//nolint:gochecknoglobals // the fixed dispatch table, same class as the contract tables
-var verbHandlers = map[string]func([]string) int{
-	verbRun:       battery.Run,
-	verbFreshness: docsfreshness.Run,
-	verbAnnotate:  docsannotate.Run,
-	verbRouting:   docsrouting.Run,
-	verbCadence:   docscadence.Run,
-	verbStrike:    docsstrike.Run,
-	verbPurge:     docspurge.Run,
-}
-
-// verbOrder is the display order of the verbs in the root usage.
-//
-//nolint:gochecknoglobals // the fixed display order, same class as the contract tables
-var verbOrder = []string{verbRun, verbFreshness, verbAnnotate, verbRouting, verbCadence, verbStrike, verbPurge}
-
-// verbOverview is each verb's one-line purpose for the root usage; the
-// detailed flag help lives in the gate packages' Usage.
-//
-//nolint:gochecknoglobals // the fixed verb one-liners, same class as the contract tables
-var verbOverview = map[string]string{
-	verbRun:       "all five gates as one ordered verdict matrix (the battery)",
-	verbFreshness: "the newest report's §f items must be harvested into the living docs",
-	verbAnnotate:  "struck items must carry honest, verifiable verdicts",
-	verbRouting:   "open actionable rows outside §f must be routed to a living doc",
-	verbCadence:   "TODO_LIST purge and report archive thresholds",
-	verbStrike:    "strike one TODO_LIST row (dry-run by default)",
-	verbPurge:     "collect struck TODO rows into a CHANGELOG purge entry (dry-run by default)",
-}
-
-// verbUsage wires each verb to its package's Usage text — the same
-// packages the dispatch table calls, so the help and the behavior
-// cannot fork.
-//
-//nolint:gochecknoglobals // the fixed verb-to-usage map, same class as the contract tables
-var verbUsage = map[string]string{
-	verbRun:       battery.Usage,
-	verbFreshness: docsfreshness.Usage,
-	verbAnnotate:  docsannotate.Usage,
-	verbRouting:   docsrouting.Usage,
-	verbCadence:   docscadence.Usage,
-	verbStrike:    docsstrike.Usage,
-	verbPurge:     docspurge.Usage,
-}
 
 func main() {
 	os.Exit(run(os.Args[1:]))
@@ -254,7 +165,7 @@ func printUsageError() {
 func rootUsage() string {
 	var b strings.Builder
 
-	b.WriteString("docs-gates — the docs-health battery: five doc gates, one binary\n\n")
+	b.WriteString("docs-gates — the docs-health battery: eight doc gates, one binary\n\n")
 	b.WriteString("usage: docs-gates <verb> [args]\n\nverbs:\n")
 
 	for _, verb := range verbOrder {

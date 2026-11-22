@@ -21,6 +21,16 @@
   # follows (2026-11-04).
   inputs.erraudit.inputs.nixpkgs.follows = "nixpkgs";
 
+  # nix-checker's staleness policy (fail >90d, BuildFlow ADR 0003 §2)
+  # flags erraudit's two most dormant transitive pins; erraudit's own lock
+  # holds them old, so only a root-level override can track them here. The
+  # erraudit PACKAGE stays hermetic (its FOD pins its Go deps) — these
+  # nodes feed erraudit's eval, not its built bytes. Both erraudit checks
+  # re-verified green after the override (2026-11-21).
+  inputs.erraudit.inputs.go-ndjson.url = "github:LarsArtmann/go-ndjson";
+  inputs.erraudit.inputs.go-composable-business-types.url =
+    "git+ssh://git@github.com/LarsArtmann/go-composable-business-types";
+
   # The commit-time nolint-audit leg (the bank-sync pre-commit pattern):
   # the flake checks keep directives honest per `nix flake check`; this
   # input lets every `git commit` run the same staleness gate BEFORE the
@@ -222,6 +232,14 @@
                     exit 1
                   fi
                 done
+
+                # The rows verb has no legacy wrapper, but the wrapper
+                # surface is only honest if the multi-call binary behind it
+                # still answers the read-only gate verbs callers pin.
+                if ! docs-gates rows --help >/dev/null 2>&1; then
+                  echo "FAIL: docs-gates rows is not a resolvable verb" >&2
+                  exit 1
+                fi
 
                 touch $out
               '';

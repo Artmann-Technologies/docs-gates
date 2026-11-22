@@ -1,8 +1,10 @@
 # docs-gates
 
 The docs-health battery gates as one standalone, stdlib-only Go binary.
-Five gates — freshness, annotate, routing, cadence, strike — plus `run`,
-the ordered battery that executes them as one verdict matrix.
+The battery runs eight gates — freshness, audit-all, annotate, routing,
+cadence, stub, citations, stamps — as one verdict matrix; `rows` is the
+read-only report-table gate, and `strike`/`purge` are guarded mutator
+verbs outside the battery.
 
 Extracted from the pbx-artmann deployment flake's `pbx-tools` package, where
 the gates were hand-rolled per repo. Every behavioral constant is now
@@ -22,33 +24,51 @@ repo is the one tool any repo can adopt: drop a binary, optionally seed a
 ## Quick start
 
 ```console
-nix run github:Artmann-Technologies/docs-gates/v0.3.1 -- run .
+nix run github:Artmann-Technologies/docs-gates/v0.4.0 -- run .
 # or
-go install github.com/Artmann-Technologies/docs-gates/cmd/docs-gates@v0.3.1
+go install github.com/Artmann-Technologies/docs-gates/cmd/docs-gates@v0.4.0
 docs-gates run .
 ```
 
-Verbs: `run | freshness | annotate | routing | cadence | strike | purge`. Each
-gate verb keeps its historical standalone name (`docs-freshness`,
-`docs-annotate`, `docs-routing`, `docs-cadence`, `docs-strike`) as a flake
-wrapper, and answers `--version` under that name. `docs-gates help`
-(or `<verb> --help`) explains every verb and its flags; a typo'd verb
-gets a did-you-mean suggestion.
+Verbs: `run | freshness | annotate | rows | routing | cadence | stub | citations | stamps | strike | purge`.
+The five original gate verbs keep their historical standalone names
+(`docs-freshness`, `docs-annotate`, `docs-routing`, `docs-cadence`,
+`docs-strike`) as flake wrappers and answer `--version` under those
+names. `rows` and the three content gates (`stub`, `citations`,
+`stamps`) were born inside this binary and deliberately carry no legacy
+wrapper. `docs-gates help` (or `<verb> --help`) explains every
+verb and its flags; a typo'd verb gets a did-you-mean suggestion.
+
+`docs-gates rows <report.md>` judges one report's tables (PARTIAL and
+mixed rows; `--bare` for bare rows, `--strict` to also flag wholly
+unstruck tables) — the check to run before harvesting a report. It is
+read-only end to end; the writer's `--normalize` rewrite stays in
+`annotate.go`.
 
 ### Exit codes
 
 `0` clean, `1` findings, `2` usage/environment error — one contract for
 every verb:
 
-| Verb        | `0`                               | `1`                                                  | `2`                                                        |
-| ----------- | --------------------------------- | ---------------------------------------------------- | ---------------------------------------------------------- |
-| `run`       | every gate PASS or SKIP           | ≥ 1 gate FAIL (a gate's own rc=2 becomes a FAIL row) | bad repo root / bad config only                            |
-| `freshness` | FRESH                             | DRIFT — unharvested §f items                         | usage error, malformed config                              |
-| `annotate`  | clean or within the ratchet       | annotation findings past the pin                     | usage error, malformed config                              |
-| `routing`   | no routing gaps                   | open rows no living doc represents                   | usage error, malformed config                              |
-| `cadence`   | purge/archive thresholds met      | a threshold is overdue                               | usage error, malformed config                              |
-| `strike`    | row struck (dry-run is default)   | —                                                    | refusal: ambiguous row, double strike, verdict-less target |
-| `purge`     | draft printed (dry-run) or purged | unsafe draft (the gate refuses)                      | usage error, missing [Unreleased]/Changed anchors          |
+| Verb        | `0`                                 | `1`                                                  | `2`                                                        |
+| ----------- | ----------------------------------- | ---------------------------------------------------- | ---------------------------------------------------------- |
+| `run`       | every gate PASS or SKIP             | ≥ 1 gate FAIL (a gate's own rc=2 becomes a FAIL row) | bad repo root / bad config only                            |
+| `freshness` | FRESH                               | DRIFT — unharvested §f items                         | usage error, malformed config                              |
+| `annotate`  | clean or within the ratchet         | annotation findings past the pin                     | usage error, malformed config                              |
+| `rows`      | every table complete / no bare rows | PARTIAL or mixed rows (`--bare`: bare rows)          | usage error, unreadable file                               |
+| `routing`   | no routing gaps                     | open rows no living doc represents                   | usage error, malformed config                              |
+| `cadence`   | purge/archive thresholds met        | a threshold is overdue                               | usage error, malformed config                              |
+| `strike`    | row struck (dry-run is default)     | —                                                    | refusal: ambiguous row, double strike, verdict-less target |
+| `purge`     | draft printed (dry-run) or purged   | unsafe draft (the gate refuses)                      | usage error, missing [Unreleased]/Changed anchors          |
+
+**Judge vs writer.** `docs-gates` reads and judges a corpus; it never
+rewrites one. Annotation (striking, repairing, marking verdicts) belongs to
+the docs-health skill's `annotate.go`, which shares this binary's marker
+grammar. The boundary, the executable grammar test, and the migration plan
+live in [ADR 0001](docs/adr/0001-marker-grammar-ownership.md). Measured
+2026-11-15: the writer as `go run` costs ~1.9 s cold / ~25 ms warm, the
+judge binary answers in ~1.5 ms — pin the binary in CI, keep the writer
+zero-install.
 
 ## Adopting docs-gates
 
@@ -61,7 +81,7 @@ Pin the release — a floating install can drift from the battery your CI
 judged:
 
 ```console
-go run github.com/Artmann-Technologies/docs-gates/cmd/docs-gates@v0.3.1 run .
+go run github.com/Artmann-Technologies/docs-gates/cmd/docs-gates@v0.4.0 run .
 ```
 
 **2. Wire CI (the dogfood job).** Full history is load-bearing: the
@@ -75,7 +95,7 @@ dogfood:
   steps:
     - uses: actions/checkout@v7 # with: { fetch-depth: 0 }
     - uses: actions/setup-go@v7 # with: { go-version: "1.27" }
-    - run: go run github.com/Artmann-Technologies/docs-gates/cmd/docs-gates@v0.3.1 run .
+    - run: go run github.com/Artmann-Technologies/docs-gates/cmd/docs-gates@v0.4.0 run .
 ```
 
 Bump the pin manually when a docs-gates release lands (dependabot does
@@ -95,6 +115,14 @@ Then adopt the rituals the gates enforce: strike landed TODO rows
 for the guarded mechanics), archive resolved reports, purge struck rows
 into CHANGELOG (`docs-gates purge`). A red gate is the docs ritual
 due — fix the docs, never loosen the gate.
+
+**Known consumers** (the full install-coverage survey with per-repo
+pins lives in `docs/planning/` and is refreshed after each release
+install): crm, CV, go-appkit, webphone, and pbx-artmann run the
+docs-health writer (`annotate.go`) via `go run` from the skill fan-out;
+the docs-health SKILL.md pins the writer/judge subcommand map; this
+repo's `internal/docsrows` parity tests execute the live writer as
+their oracle.
 
 ## BuildFlow consumers
 
@@ -120,6 +148,7 @@ historical constant (see `internal/config.Defaults`):
   "living_docs": ["TODO_LIST.md", "ROADMAP.md", "CHANGELOG.md"],
   "generic_df": 8,
   "audit_max": -1,
+  "audit_corpus": "all",
   "annotate_max": -1,
   "cadence": { "struck_rows": 20, "max_unarchived": 15, "oldest_days": 21 },
   "gate_timeout_sec": 300,
@@ -129,7 +158,12 @@ historical constant (see `internal/config.Defaults`):
 
 The ratchet keys are strict by default (`-1` omits the flag entirely);
 a repo with measured debt pins the count (`audit_max`/`annotate_max` >= 0)
-and drains it down — REGRESSION past the pin fails. `gate_timeout_sec`
+and drains it down — REGRESSION past the pin fails. `audit_corpus`
+scopes the freshness replay (`--audit-all` and `--pre-flight`): `"all"`
+(default) replays the report dir plus its archived subdir;
+`"unarchived"` drops the archived subdir, so an archived backlog stops
+moving the unharvested count with unrelated living-doc prose edits.
+`gate_timeout_sec`
 caps each battery gate's wall clock (default 300s; `0` disables) — an
 expired gate becomes a FAIL row (`rc=timeout`) and the battery moves
 on, so a wedged gate can never hang the run. `skip_gates` entries
@@ -182,8 +216,24 @@ echo "- the new TODO row text" | docs-gates freshness . --pre-flight
 
 ## Releases
 
-v0.3.0 is current (see [CHANGELOG.md](CHANGELOG.md)); the BuildFlow
+v0.4.0 is current (see [CHANGELOG.md](CHANGELOG.md)); the BuildFlow
 provider module is versioned separately as `pkg/provider/v0.2.0`.
+`--version` prints the flake's shortRev, so between tags it names a
+commit, not a release.
+
+Release checklist — push and install are part of the release, not an
+afterthought:
+
+1. Cut the CHANGELOG section; bump the version pins in README and
+   FEATURES.
+2. `buildflow --build-mode full` green, plus the battery on this repo
+   and one adopting repo.
+3. Annotated tag `vX.Y.Z`; push the branch and the tag; GitHub release
+   from the CHANGELOG section.
+4. Install over the previous fleet binary and VERIFY `docs-gates
+   --version` prints the new rev before any caller is switched to new
+   verbs.
+
 Contributing: [CONTRIBUTING.md](CONTRIBUTING.md); security reporting:
 [SECURITY.md](SECURITY.md); the paid-for incident narratives behind
 AGENTS.md live in [docs/agent-notes.md](docs/agent-notes.md).

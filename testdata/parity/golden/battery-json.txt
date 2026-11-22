@@ -51,6 +51,36 @@
       "duration_ms": D,
       "stdout": "docs-cadence: 1 struck DONE row(s) in TODOS.md (threshold 5)\ndocs-cadence: PURGE-HEALTHY\ndocs-cadence: 1 unarchived report(s) in reports/ (threshold 3); oldest {{DATE}}_10-00_ship-it.md is 0 day(s) old (threshold 10)\ndocs-cadence: ARCHIVE-HEALTHY\n",
       "stderr": ""
+    },
+    {
+      "name": "stub",
+      "verdict": "PASS",
+      "exit_code": 0,
+      "skipped": false,
+      "timed_out": false,
+      "duration_ms": D,
+      "stdout": "SKIP docs/DOMAIN_LANGUAGE.md (missing)\nOK no bare-template stubs in 1 file(s)\n",
+      "stderr": ""
+    },
+    {
+      "name": "citations",
+      "verdict": "PASS",
+      "exit_code": 0,
+      "skipped": false,
+      "timed_out": false,
+      "duration_ms": D,
+      "stdout": "SKIP docs/DOMAIN_LANGUAGE.md (missing)\nOK 0 citation(s) across 1 file(s) all resolve\n",
+      "stderr": ""
+    },
+    {
+      "name": "stamps",
+      "verdict": "PASS",
+      "exit_code": 0,
+      "skipped": false,
+      "timed_out": false,
+      "duration_ms": D,
+      "stdout": "SKIP docs/DOMAIN_LANGUAGE.md (missing)\nOK no verification stamp past 90 day(s) in 1 file(s)\n",
+      "stderr": ""
     }
   ]
 }
@@ -64,4 +94,10 @@ docs-gates: gate routing ...
 docs-gates: gate routing done in D
 docs-gates: gate cadence ...
 docs-gates: gate cadence done in D
+docs-gates: gate stub ...
+docs-gates: gate stub done in D
+docs-gates: gate citations ...
+docs-gates: gate citations done in D
+docs-gates: gate stamps ...
+docs-gates: gate stamps done in D
 docs-gates: PASS — all doc gates green

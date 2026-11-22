@@ -15,6 +15,7 @@ func Defaults() Config {
 		RuleFExtensions:    []string{".md", ".sh", ".nix"},
 		GenericDF:          DefaultGenericDF,
 		AuditMax:           DefaultAuditMax,
+		AuditCorpus:        DefaultAuditCorpus,
 		AnnotateMax:        DefaultAnnotateMax,
 		TodoFile:           "TODO_LIST.md",
 		Cadence: Cadence{
@@ -22,8 +23,19 @@ func Defaults() Config {
 			MaxUnarchived: DefaultMaxUnarchived,
 			OldestDays:    DefaultOldestDays,
 		},
-		GateTimeoutSec: DefaultGateTimeoutSec,
-		SkipGates:      nil,
+		GateTimeoutSec:  DefaultGateTimeoutSec,
+		SkipGates:       nil,
+		StubFiles:       []string{DefaultDomainLanguageFile},
+		StubChecksums:   defaultStubChecksums(),
+		StubExempts:     nil,
+		StubEnforce:     false,
+		CitationFiles:   []string{DefaultDomainLanguageFile},
+		CitationExts:    defaultCitationExts(),
+		CitationEnforce: false,
+		StampFiles:      []string{DefaultDomainLanguageFile},
+		StampWarnDays:   DefaultStampWarnDays,
+		StampFailDays:   DefaultStampFailDays,
+		StampEnforce:    false,
 	}
 }
 

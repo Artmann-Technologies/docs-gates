@@ -36,6 +36,23 @@ built.
 - **docs-cadence gate** — struck-row purge threshold + archive cadence
   (unarchived count + oldest age), config-driven thresholds, TODO file,
   report dir.
+- **docs-stub gate** — a domain-language glossary whose md5/sha256
+  matches the census-pinned bare-template digests is an unfilled stub;
+  warn-mode rollout (`stub_enforce`), exemptions (`stub_exempts`),
+  corpus (`stub_files`). Fleet baseline 2026-11-21: 38 findings,
+  matching the census evidence exactly (fixture test pins the
+  template↔digest pairing so a scaffold change forces re-derivation).
+- **docs-citations gate** — backticked repo-relative code citations in
+  the glossary must resolve to real files (`:line` suffixes ignored,
+  prose shapes refused by the classifier: URLs, globs, env tokens,
+  absolute paths); warn-mode rollout (`citation_enforce`). Fleet
+  baseline 2026-11-21: 53 repos, 147 dangling (CV's
+  `career-pipeline/profileagent/…` class — code moved, glossary never
+  followed). Verified true positives by hand.
+- **docs-stamps gate** — the oldest verify-word stamp per corpus file
+  flagged past the warn bar (90d) and fail bar (180d); warn-mode rollout
+  (`stamp_enforce`); a corpus with no stamps owes nothing. Fleet
+  baseline 2026-11-21: 1 finding (bank-sync, 92d).
 - **docs-strike tool** — TODO_LIST row-strike helper (dry-run default,
   ambiguity refusals, double-strike refusals, verdict-opener refusals),
   target file from config unless `--file` overrides; plus
@@ -46,7 +63,7 @@ built.
   struck TODO rows, drafts one dated CHANGELOG bullet per row, gates the
   draft through the pre-flight, writes only on SAFE (dry-run default;
   missing `[Unreleased]`/`### Changed` anchors are usage refusals).
-- **Battery runner** (`docs-gates run`) — five gates as one independent
+- **Battery runner** (`docs-gates run`) — eight gates as one independent
   matrix (PASS/FAIL/SKIP per gate, no first-failure abort), exit 0/1,
   `skip_gates` + `audit_max` from repo config. Every gate runs under
   `gate_timeout_sec` (default 300s, 0 = off; an expired wedge is a FAIL
@@ -117,12 +134,36 @@ built.
   setup-go / golangci pins never age without a renewal PR.
 - **Releases** — v0.1.0 (the extraction train), v0.1.1 (annotate_max
   ratchet + provider module), v0.2.0 (CLI help surface, purge verb,
-  `--json` face, erraudit adoption, parity corpus), and v0.3.0
-  (`--land-parity`, typed refusal carriers) tagged; provider module at
+  `--json` face, erraudit adoption, parity corpus), v0.3.0
+  (`--land-parity`, typed refusal carriers), and v0.3.1 (meta docs,
+  pre-flight stamp hygiene, batch safe-strike) tagged; v0.4.0 adds the
+  read-only `rows` verb + the executable marker grammar. Provider module at
   `pkg/provider/v0.2.0`; `go install …@latest` resolves.
+- **`docs-gates rows` (read-only split, 2026-11-15)** — table-row
+  completeness (`--strict` UNTOUCHED arm) and the `--bare` row scan extracted
+  from the docs-health writer, with its own exit contract; byte-parity with
+  the writer's `check-rows`/`bare-rows` is pinned by
+  `internal/docsrows/parity_test.go` against the local writer source.
+  The marker grammar itself is pinned by
+  `internal/docsannotate/markers_test.go` + [ADR 0001](docs/adr/0001-marker-grammar-ownership.md).
 - **Pilot rollout evidence** — crm + go-appkit seeded (2026-11-03) and
   green under adoption ratchets (audit_max, annotate_max, cadence bars at
   the measured debt); the ratchets drain as the rituals run.
+
+## Verb matrix
+
+Every verb, once, with its exit contract.
+
+| Verb        | Kind    | `0`                            | `1`                            | `2`                            |
+| ----------- | ------- | ------------------------------ | ------------------------------ | ------------------------------ |
+| `run`       | battery | every gate PASS or SKIP        | ≥ 1 gate FAIL                  | bad root / bad config          |
+| `freshness` | gate    | FRESH                          | DRIFT (unharvested §f items)   | usage error / malformed config |
+| `annotate`  | gate    | clean or within the ratchet    | findings past the pin          | usage error / malformed config |
+| `rows`      | gate    | tables complete / no bare rows | PARTIAL, mixed, or bare rows   | usage error / unreadable file  |
+| `routing`   | gate    | no routing gaps                | open rows no living doc covers | usage error / malformed config |
+| `cadence`   | gate    | thresholds met                 | a threshold is overdue         | usage error / malformed config |
+| `strike`    | writer  | row struck (dry-run default)   | —                              | refusal (ambiguous/double)     |
+| `purge`     | writer  | draft printed or purged        | unsafe draft                   | usage error / missing anchors  |
 
 ## WORTH CONSIDERING
 

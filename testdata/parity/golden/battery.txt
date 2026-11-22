@@ -21,10 +21,25 @@ docs-cadence: PURGE-HEALTHY
 docs-cadence: 1 unarchived report(s) in reports/ (threshold 3); oldest {{DATE}}_10-00_ship-it.md is 0 day(s) old (threshold 10)
 docs-cadence: ARCHIVE-HEALTHY
 docs-gates: gate cadence done in D
+docs-gates: gate stub ...
+SKIP docs/DOMAIN_LANGUAGE.md (missing)
+OK no bare-template stubs in 1 file(s)
+docs-gates: gate stub done in D
+docs-gates: gate citations ...
+SKIP docs/DOMAIN_LANGUAGE.md (missing)
+OK 0 citation(s) across 1 file(s) all resolve
+docs-gates: gate citations done in D
+docs-gates: gate stamps ...
+SKIP docs/DOMAIN_LANGUAGE.md (missing)
+OK no verification stamp past 90 day(s) in 1 file(s)
+docs-gates: gate stamps done in D
 docs-gates: verdict matrix
   PASS  freshness (in D)
   PASS  audit-all (in D)
   PASS  annotate (in D)
   PASS  routing (in D)
   PASS  cadence (in D)
+  PASS  stub (in D)
+  PASS  citations (in D)
+  PASS  stamps (in D)
 docs-gates: PASS — all doc gates green

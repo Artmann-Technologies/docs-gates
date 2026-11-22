@@ -32,11 +32,14 @@ const FileName = ".docs-gates.json"
 const (
 	DefaultGenericDF      = 8
 	DefaultAuditMax       = -1
+	DefaultAuditCorpus    = "all"
 	DefaultAnnotateMax    = -1
 	DefaultStruckRows     = 20
 	DefaultMaxUnarchived  = 15
 	DefaultOldestDays     = 21
 	DefaultGateTimeoutSec = 300
+	DefaultStampWarnDays  = 90
+	DefaultStampFailDays  = 180
 )
 
 // The battery's gate names — the whole valid skip_gates vocabulary.
@@ -49,12 +52,24 @@ const (
 	GateAnnotate  = "annotate"
 	GateRouting   = "routing"
 	GateCadence   = "cadence"
+	GateStub      = "stub"
+	GateCitations = "citations"
+	GateStamps    = "stamps"
 )
 
 // KnownGates lists every battery gate name skip_gates may name. A
 // function, not a var: the vocabulary must not be mutable state.
 func KnownGates() []string {
-	return []string{GateFreshness, GateAuditAll, GateAnnotate, GateRouting, GateCadence}
+	return []string{
+		GateFreshness,
+		GateAuditAll,
+		GateAnnotate,
+		GateRouting,
+		GateCadence,
+		GateStub,
+		GateCitations,
+		GateStamps,
+	}
 }
 
 // Cadence holds the purge/archive thresholds (docs-cadence gate).
@@ -77,11 +92,23 @@ type Config struct {
 	RuleFExtensions    []string `json:"rule_f_extensions"`    // file extensions rule F scans (dot-prefixed)
 	GenericDF          int      `json:"generic_df"`           // the distinctive-token bar (a token on >= N living lines is generic)
 	AuditMax           int      `json:"audit_max"`            // docs-freshness --audit-max ratchet pin (-1 = strict)
+	AuditCorpus        string   `json:"audit_corpus"`         // freshness replay scope: "all" (default) or "unarchived"
 	AnnotateMax        int      `json:"annotate_max"`         // docs-annotate adoption ratchet pin (-1 = strict)
 	TodoFile           string   `json:"todo_file"`            // the TODO_LIST file (cadence reads it, docs-strike edits it)
 	Cadence            Cadence  `json:"cadence"`
 	GateTimeoutSec     int      `json:"gate_timeout_sec"` // battery per-gate wall-clock cap in seconds (0 = no timeout)
 	SkipGates          []string `json:"skip_gates"`       // battery verbs to skip (docs-gates run)
+	StubFiles          []string `json:"stub_files"`       // corpus the stub gate checksums (docs-stub)
+	StubChecksums      []string `json:"stub_checksums"`   // bare-template digests; a match is an unfilled stub (md5 or sha256 hex)
+	StubExempts        []string `json:"stub_exempts"`     // repo-relative files exempt from the stub gate (the template host, honest stubs)
+	StubEnforce        bool     `json:"stub_enforce"`     // stub gate rollout: false = findings WARN and exit 0; true = FAIL
+	CitationFiles      []string `json:"citation_files"`   // corpus the citations gate resolves (docs-citations)
+	CitationExts       []string `json:"citation_exts"`    // file extensions counted as code citations (dot-prefixed)
+	CitationEnforce    bool     `json:"citation_enforce"` // citations rollout: false = WARN, true = FAIL on missing targets
+	StampFiles         []string `json:"stamp_files"`      // corpus the stamps gate dates (docs-stamps)
+	StampWarnDays      int      `json:"stamp_warn_days"`  // verification stamps older than this WARN
+	StampFailDays      int      `json:"stamp_fail_days"`  // verification stamps older than this FAIL
+	StampEnforce       bool     `json:"stamp_enforce"`    // stamps rollout: false = findings WARN and exit 0; true = FAIL rows fail
 }
 
 // Path returns the config file location under a repo root.
@@ -214,7 +241,15 @@ func (c Config) validate() error {
 		return err
 	}
 
-	return c.validateExtensions()
+	if err := c.validateCorpus(); err != nil {
+		return err
+	}
+
+	if err := c.validateExtensions(); err != nil {
+		return err
+	}
+
+	return c.validateContentGates()
 }
 
 // validatePaths checks the directory/glob/list shape fields.
@@ -282,6 +317,20 @@ func (c Config) validateSkipGates() error {
 	return nil
 }
 
+// validateCorpus refuses an audit_corpus value outside the scope
+// vocabulary: the corpus builder string-compares the setting and would
+// silently treat a typo ("unarchved") as the default all-corpus replay —
+// exactly the silent-wrong-threshold class the validate contract exists
+// for.
+func (c Config) validateCorpus() error {
+	switch c.AuditCorpus {
+	case "", "all", "unarchived":
+		return nil
+	default:
+		return invalidf("audit_corpus must be \"all\" or \"unarchived\", got %q", c.AuditCorpus)
+	}
+}
+
 // validateExtensions checks the rule-F file-extension list.
 func (c Config) validateExtensions() error {
 	for _, ext := range c.RuleFExtensions {
@@ -291,34 +340,4 @@ func (c Config) validateExtensions() error {
 	}
 
 	return nil
-}
-
-func knownKeys() map[string]bool {
-	return map[string]bool{
-		"report_dir":           true,
-		"report_glob":          true,
-		"archived_subdir":      true,
-		"living_docs":          true,
-		"annotate_extra_globs": true,
-		"rule_f":               true,
-		"rule_f_extensions":    true,
-		"generic_df":           true,
-		"audit_max":            true,
-		"annotate_max":         true,
-		"todo_file":            true,
-		"cadence":              true,
-		"gate_timeout_sec":     true,
-		"skip_gates":           true,
-	}
-}
-
-func sortedKeys(m map[string]json.RawMessage) []string {
-	keys := make([]string, 0, len(m))
-	for k := range m {
-		keys = append(keys, k)
-	}
-
-	slices.Sort(keys)
-
-	return keys
 }

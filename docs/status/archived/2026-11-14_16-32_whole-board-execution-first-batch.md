@@ -106,12 +106,13 @@ stamp --clear-stamp + skip-if-no-git guard; structural-heading implicit
 io-surface +962% investigation; pre-commit arm + e2e docs-battery run;
 buildflow timing re-baseline; dprint plugin bundle; io-history-ratchet
 verify (2 runs); buildflow counter reset; AGENTS regrow alert; erraudit
-+ BuildFlow pushes; second-machine buildflow run; go-finding raceDetector
-snippet; crush-config lessons runbook. §3: SystemNix float + standalone
-flake check; evo-x2 deploy; SystemNix switch; SystemNix push decision;
-crm/go-appkit ratchet drain; BuildFlow#87 fix; nixpkgs maintainers PR;
-pma storm handoff. §4/4b rulings; CI race-step watch (§6.2); v0.3.1 cut
-(§4b.1). Board hygiene (strikes, purge, archive-if-due).
+
+- BuildFlow pushes; second-machine buildflow run; go-finding raceDetector
+  snippet; crush-config lessons runbook. §3: SystemNix float + standalone
+  flake check; evo-x2 deploy; SystemNix switch; SystemNix push decision;
+  crm/go-appkit ratchet drain; BuildFlow#87 fix; nixpkgs maintainers PR;
+  pma storm handoff. §4/4b rulings; CI race-step watch (§6.2); v0.3.1 cut
+  (§4b.1). Board hygiene (strikes, purge, archive-if-due).
 
 ## d) TOTALLY FUCKED UP (honest ledger)
 

@@ -208,14 +208,20 @@ expect_rc 2 "batch entry without verdict" --batch TODOS.md 'no equals sign here'
 
 # 18: a missing <file> positional NAMES ITSELF in the refusal.
 got=0
-msg="$("$strike" --batch >/dev/null 2>"$scratch/stderr" || true; cat "$scratch/stderr")"
+msg="$(
+	"$strike" --batch >/dev/null 2>"$scratch/stderr" || true
+	cat "$scratch/stderr"
+)"
 printf '%s' "$msg" | grep -q "missing <file>" || {
 	echo "FAIL [missing file names itself]: refusal lacks the <file> name:" >&2
 	printf '%s\n' "$msg" >&2
 	fail=1
 }
 got=0
-msg="$("$strike" >/dev/null 2>"$scratch/stderr" || true; cat "$scratch/stderr")"
+msg="$(
+	"$strike" >/dev/null 2>"$scratch/stderr" || true
+	cat "$scratch/stderr"
+)"
 printf '%s' "$msg" | grep -q "missing <file>" || {
 	echo "FAIL [missing file names itself, single mode]: refusal lacks the <file> name:" >&2
 	printf '%s\n' "$msg" >&2

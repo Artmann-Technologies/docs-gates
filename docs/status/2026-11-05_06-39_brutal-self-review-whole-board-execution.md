@@ -271,7 +271,7 @@ plan). Judgment calls are named as such.
     ~~docs-gates on PATH; keep it skip-clean without one).~~
 36. Sweep `git check-ignore` ritual over the dependabot.yml + new <!-- fresh:skip -->
     testdata-adjacent files (no testdata added this session — verify).
-37. ~~Check Dependabot's opened PRs (3 runs already fired; the <!-- fresh:skip -->~~ done at `0bbced2`
+37. ~~Check Dependabot's opened PRs (3 runs already fired; the <!-- fresh:skip -->~~ done at `c8e8fbc`
     ~~golangci-action bump PR needs review/merge; its CI now passes with~~
     ~~fetch-depth fixed).~~
 38. ROADMAP.md: the 02-50 plan's "20%" items that landed could be <!-- fresh:skip -->

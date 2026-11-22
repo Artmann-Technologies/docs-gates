@@ -4,6 +4,89 @@ All notable changes. Dates are 2026 unless stated. Version sections
 match the annotated git tags; anything after the newest tag sits under
 [Unreleased].
 
+## [Unreleased]
+
+## [v0.4.0] - 2026-11-21
+
+### Added
+
+- **`audit_corpus` config knob** scopes the freshness replay
+  (`--audit-all` and `--pre-flight`): `"all"` (default — both the report
+  dir and its archived subdir, the historical behavior) or
+  `"unarchived"` (drop the archived subdir). An archived backlog stops
+  moving the unharvested count with unrelated living-doc prose edits
+  (the 122 → 123 → 120 drift go-sse measured across three prose-only
+  edits). Unknown values are a loud exit 2; the usage text now matches
+  the implementation (closed #8).
+
+- **Three content gates over the domain-language glossary** (`stub`,
+  `citations`, `stamps`), born from the 2026-11-21 fleet census (38
+  byte-identical bare-template glossaries; citations rotting silently —
+  CV's glossary still cites `career-pipeline/profileagent/…` after the
+  code moved to `internal/profileagent`; verification stamps aging with
+  no bar). All three ship **warn-mode**: findings print WARN and stay
+  exit-clean until the repo flips `stub_enforce` / `citation_enforce` /
+  `stamp_enforce` (the fleet-wide flip rides a TODO row, one week after
+  ship).
+  - `docs-gates stub` — a glossary whose md5/sha256 matches the pinned
+    bare-template digests (`stub_checksums`, census-pinned by default)
+    is an unfilled stub. Exemptions via `stub_exempts` (the template
+    host, honest stubs).
+  - `docs-gates citations` — every backticked repo-relative code path
+    (extension-listed via `citation_exts`, `:line`/`:line-range`
+    suffixes ignored) must resolve to a real file. URLs, globs, env
+    tokens and absolute paths are prose, not citations.
+  - `docs-gates stamps` — the oldest verify-word stamp per file
+    (`verified` / `re-verified` / `refreshed` / `rebuilt` + ISO date)
+    flagged past `stamp_warn_days` (90) and `stamp_fail_days` (180).
+- Config keys: `stub_files`, `stub_checksums`, `stub_exempts`,
+  `stub_enforce`, `citation_files`, `citation_exts`,
+  `citation_enforce`, `stamp_files`, `stamp_warn_days`,
+  `stamp_fail_days`, `stamp_enforce`; battery gate names `stub`,
+  `citations`, `stamps` join the `skip_gates` vocabulary.
+- **`rows` verb (the read-only half of the docs-health writer).**
+  `docs-gates rows [--strict] <file>...` is the table-row completeness gate
+  (the writer's `check-rows`): PARTIAL rows and mixed struck tables fail;
+  `--strict` adds the UNTOUCHED arm for the archive decision.
+  `docs-gates rows --bare <file>...` lists every bare data row outside
+  ledger-marked tables. Explicit file paths, its own exit contract (0 clean,
+  1 findings, 2 usage/environment), and no write path at all.
+- **Marker-grammar contract test.** One fixture line per rendered kind
+  (`h/v/p/w/n/r/s`), a round-trip run over every strike verdict, a sabotage
+  case that fails on a renamed phrase, and a negative case pinning the
+  routed kind as intentionally unstruck.
+- **Writer-oracle parity test** for `rows`: the same fixtures run through
+  this verb and the skill's `annotate.go`, requiring identical finding lines
+  and exit codes (skips where the local skill fan-out is absent).
+- **ADR 0001 (marker grammar ownership) and ADR 0002 (destructive
+  authority)**, plus the split and mutator-migration planning documents.
+
+### Changed
+
+- The battery runs eight gates (was five); `run` usage, the root help,
+  and the JSON face's gate rows carry the three new PASS rows — parity
+  goldens re-pinned (three additions, no existing row changed).
+- `cmd/docs-gates` split: the verb tables live in `verbs.go`; the
+  content-gate config surface lives in `internal/config/content_gates.go`
+  and the unknown-key machinery in `known_keys.go` (file-size gate).
+- The docs-stamps gate split its printing/failure logic so the battery
+  stays under the fleet lint budget; CI's golangci-lint-action digest
+  re-pinned (dependabot PR #1, merged 2026-11-21).
+- The read-only row gates are the supported surface; `annotate.go
+  check-rows` / `bare-rows` remain aliases for callers pinned to the writer.
+- AGENTS.md compressed to the 220-line gate with no facts dropped.
+
+### Fixed
+
+- A formatter pass had rewritten whole-row strikes in an archived report and
+  lost tasks 6-11; the text is restored from history and encoded in per-cell
+  strikes, and the repo's own annotate gate is green again.
+- The erraudit rev tripwire worked for the first time: its associative-array
+  keys contained spaces, so every lookup died under `set -u` instead of
+  naming drift. The verified lock pins were restored after a repair-step
+  rewrite.
+- `result` points at the package build rather than a drift-check derivation.
+
 ## [v0.3.1] - 2026-11-14
 
 ### Added

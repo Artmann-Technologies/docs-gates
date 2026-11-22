@@ -252,7 +252,7 @@ session's HARVEST has the full picture without re-reading the board.)
 | #      | Task                                                                                                                               | Impact       | Effort | Category          |
 | ------ | ---------------------------------------------------------------------------------------------------------------------------------- | ------------ | ------ | ----------------- |
 | ~~1~~  | ~~Cut v0.2.0 (section cut collapses the purge entries; go-release ritual; fleet announce)~~ done at `83073d9`                      | ~~Critical~~ | ~~M~~  | ~~Release~~       |
-| ~~2~~  | ~~Merge dependabot PR #1 (drift-verified; the merge is a push)~~ done at `0bbced2`                                                 | ~~High~~     | ~~S~~  | ~~Release~~       |
+| ~~2~~  | ~~Merge dependabot PR #1 (drift-verified; the merge is a push)~~ done at `c8e8fbc`                                                 | ~~High~~     | ~~S~~  | ~~Release~~       |
 | ~~3~~  | ~~Push the session's deliberate trains (owner ruling — see §g Q3)~~ done — verified — c7c0a4d is on origin/main                    | ~~High~~     | ~~S~~  | ~~Release~~       |
 | 4      | File the io-surface findings when its tree quiets (clean-build data: b7 headline, d1 moot)                                         | High         | S      | External          |
 | 5      | Post-release: bump pbx-artmann's pin (§3 row)                                                                                      | Medium       | S      | External          |
