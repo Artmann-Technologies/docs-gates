@@ -53,9 +53,16 @@ The drafted bullets ALWAYS pass the docs-freshness pre-flight first
 (landing them is a living-docs edit like any other); nothing is written
 unless the gate answers SAFE.
 
+The collector never trusts a bare ~~~: a struck table row whose status
+cell still reads OPEN (TODO/BLOCKED/IN_PROGRESS, emoji-wrapped or not)
+is REFUSED — stray tilde noise on open work is edit noise, not done
+work (#10: the io-surface purge deleted six open rows that way) — and
+a struck row with no recognizable DONE cell is collected with a WARN.
+
 Exit codes: 0 purge planned/applied (0 struck rows is a clean no-op),
 1 the pre-flight gate refused — the entry would flip historical items to
-DRIFT (reword or resolve the drift first), 2 usage or environment error.
+DRIFT (reword or resolve the drift first), 2 usage or environment error
+(a refused open-row strike is an environment error: fix the row).
 `
 
 // struckRow is one collected strike: the source line, its position, the
@@ -105,7 +112,34 @@ func execute(opts Options) int {
 		return gatecli.ExitUsage
 	}
 
-	rows := collectStruck(string(todoData))
+	rows, guards := collectStruck(string(todoData))
+
+	refused := false
+
+	for _, g := range guards {
+		if g.refuse {
+			refused = true
+
+			gatecli.Errf(
+				"docs-purge: REFUSED %s:%d carries a strike but the row status still reads OPEN (%q) — stray ~~ noise on open work is not done work; remove the strike or complete the row first\n",
+				opts.File, g.lineNo, g.cell,
+			)
+
+			continue
+		}
+
+		gatecli.Outf(
+			"WARN %s:%d is struck but carries no DONE status cell — collecting anyway; verify the row is really done\n",
+			opts.File, g.lineNo,
+		)
+	}
+
+	if refused {
+		gatecli.Errln("docs-purge: nothing was written — fix the refused row(s) above and re-run")
+
+		return gatecli.ExitUsage
+	}
+
 	if len(rows) == 0 {
 		gatecli.Outf("docs-purge: no struck rows in %s — nothing to purge\n", opts.File)
 

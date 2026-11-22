@@ -5,14 +5,31 @@ import (
 	"os"
 	"strings"
 	"time"
+
+	"github.com/Artmann-Technologies/docs-gates/internal/docscadence"
 )
 
-// collectStruck returns the struck rows of a TODO file in order: every
-// line carrying a ~~…~~ wrap with non-empty task text. Empty struck
-// cells (`~~ ~~`, the formatter-stable padding shape) are decoration,
-// not strikes, and never collect.
-func collectStruck(content string) []struckRow {
+// guardNote is one collected line the status-cell guard flagged: a
+// refusal (a struck TABLE row whose status cell still reads OPEN — edit
+// noise, never done work) or a warning (a struck table row with no
+// recognizable DONE cell — collected, but named).
+type guardNote struct {
+	lineNo int
+	cell   string
+	refuse bool
+}
+
+// collectStruck returns the struck rows of a TODO file in order, plus
+// the status-cell guard notes: every line carrying a ~~…~~ wrap with
+// non-empty task text. Empty struck cells (`~~ ~~`, the
+// formatter-stable padding shape) are decoration, not strikes, and
+// never collect. A struck TABLE row whose status cell still reads OPEN
+// (cadence.IsOpenCell) is refused — not collected, named — and one
+// with no DONE cell (cadence.IsDoneCell) collects under a warning.
+func collectStruck(content string) ([]struckRow, []guardNote) {
 	var rows []struckRow
+
+	var guards []guardNote
 
 	for i, line := range strings.Split(content, "\n") {
 		row, ok := splitStrike(line, i+1)
@@ -20,10 +37,35 @@ func collectStruck(content string) []struckRow {
 			continue
 		}
 
+		if strings.HasPrefix(line, "|") {
+			if cell, open := statusCell(line, docscadence.IsOpenCell); open {
+				guards = append(guards, guardNote{lineNo: i + 1, cell: cell, refuse: true})
+
+				continue
+			}
+
+			if _, done := statusCell(line, docscadence.IsDoneCell); !done {
+				guards = append(guards, guardNote{lineNo: i + 1, refuse: false})
+			}
+		}
+
 		rows = append(rows, row)
 	}
 
-	return rows
+	return rows, guards
+}
+
+// statusCell finds the first cell of a table row matching the predicate,
+// returning its trimmed text. Cell-scoped on purpose: a bare substring
+// scan would read task text that merely CONTAINS a status word.
+func statusCell(line string, predicate func(string) bool) (string, bool) {
+	for cell := range strings.SplitSeq(line, "|") {
+		if c := strings.TrimSpace(cell); predicate(c) {
+			return c, true
+		}
+	}
+
+	return "", false
 }
 
 // splitStrike extracts the strike at a line: the task text between the
