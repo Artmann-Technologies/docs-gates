@@ -92,12 +92,12 @@ func TestPlanStrikeRefusesAmbiguousMissingStruckAndAlienShapes(t *testing.T) {
 		t.Fatal("an already-struck row must be refused")
 	}
 
-	alien := "| ID | Task | Owner |\n| -- | ---- | ----- |\n| T1 | push | OWNER |\n"
+	alien := "| ID | Owner |\n| -- | ----- |\n| T1 | push to OWNER |\n"
 	opts = baseOpts()
 
 	opts.Row = "push"
 	if _, err := PlanStrike(alien, opts); err == nil {
-		t.Fatal("a 3-column row (not the TODO_LIST shape) must be refused")
+		t.Fatal("a table whose header names no Task column must be refused")
 	}
 }
 

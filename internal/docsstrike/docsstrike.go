@@ -9,19 +9,26 @@
 // list tail, or a lost column. This package is that pattern as a repo
 // tool, so a strike is one reviewed command instead of a fresh script.
 //
-// Contract (the TODO_LIST 5-column row shape only):
+// Contract (any TODO_LIST table whose header names its columns, #6):
 //
-//		| Task | Status | Impact | Effort | Evidence |
+//		| Task | Status | … |  — column POSITIONS come from the header row
 //
 //	  - The selector (--row) must match EXACTLY ONE table row in the file;
 //	    zero or multiple matches are errors, never a guess.
+//	  - The row's table must carry a header row (a | --- | separator
+//	    under a header line): Task, Status and Evidence cells are located
+//	    BY HEADER NAME, so the fleet's 4-, 5- and 6-column TODO_LIST
+//	    shapes (`# Task Evidence Status`, `Task Status Priority Effort
+//	    Evidence`, …) all strike correctly; position constants cannot.
+//	  - A table without a Status column strikes only the task cell; a
+//	    --evidence on a table without an Evidence column is refused.
 //	  - A row that already carries ~~ is refused (never double-strike).
 //	  - Task cell becomes `~~<task>~~ done (<verdict>)`; the `done (`
 //	    prefix is the docs-annotate verdict vocabulary, so the gate stays
 //	    green by construction.
 //	  - Status cell becomes ✅ `DONE` unless --status overrides (e.g. a
 //	    `Won't implement` style verdict).
-//	  - Impact/Effort cells are preserved BYTE-identically; Evidence is
+//	  - Unnamed cells are preserved BYTE-identically; Evidence is
 //	    preserved unless --evidence replaces it.
 //	  - Default is DRY-RUN: the old→new row pair is printed and nothing
 //	    is written until --apply.
@@ -50,12 +57,6 @@ import (
 // + backticked DONE matches every existing DONE row in TODO_LIST.md.
 const DefaultStatus = "✅ `DONE`"
 
-// TODOColumns is the TODO_LIST row shape: 5 columns means strings.Split
-// on "|" yields exactly 7 cells (two empty edges). A row with any other
-// cell count is not a TODO_LIST row and is refused — the helper never
-// guesses which cell is the task on a differently-shaped table.
-const TODOColumns = 7
-
 // defaultFileMode is the fallback permission when the target's own mode
 // cannot be observed (fresh-file creation).
 const defaultFileMode = 0o644
@@ -73,8 +74,10 @@ usage: docs-strike [repo-root] --row <selector> --verdict <text>
   --row       substring matching EXACTLY ONE table row (strike mode, required)
   --verdict   the done (…) evidence payload, WITHOUT a leading verdict
               word — the tool adds the wrap (strike mode, required)
-  --evidence  replacement Evidence cell (default: preserved byte-identically)
-  --status    replacement Status cell (default: ✅ ` + "`DONE`" + `)
+  --evidence  replacement Evidence cell (default: preserved byte-identically);
+              refused on tables whose header names no Evidence column
+  --status    replacement Status cell (default: ✅ ` + "`DONE`" + `); tables
+              whose header names no Status column skip the flip
   --file      target file (default: the config's todo_file)
   --apply     write the strike; without it the old→new pair is printed
               and nothing is written

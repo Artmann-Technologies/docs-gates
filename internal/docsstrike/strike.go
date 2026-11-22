@@ -2,8 +2,12 @@ package docsstrike
 
 import (
 	"fmt"
+	"regexp"
 	"strings"
 )
+
+// sepRowRe matches a markdown table separator row (`| --- | --- |`).
+var sepRowRe = regexp.MustCompile(`^\|[\s:|-]+\|\s*$`)
 
 // strikeError is the package's static error type: the parser and the
 // strike planner report every refusal as *strikeError (user-facing CLI
@@ -22,15 +26,83 @@ type Strike struct {
 	New    string
 }
 
+// tableShape is one table's header-derived layout: the row cell count
+// and the split-on-"|" indexes of the named columns (-1 = absent).
+type tableShape struct {
+	cells     int
+	taskCol   int
+	statusCol int
+	evidence  int
+}
+
+// shapeOf derives the row contract from the table's OWN header row: the
+// nearest `| --- |` separator at/above the matched row, whose line
+// above is the header. Position constants cannot pin a fleet layout
+// (#6): TODO_LISTs ship as `# Task Evidence Status`, `Task Status
+// Priority Effort Evidence`, `# Task Status Impact Effort Evidence` and
+// even header-only-Task shapes — only the header names the cells.
+func shapeOf(lines []string, idx int) (tableShape, *strikeError) {
+	for i := idx; i > 0; i-- {
+		if !strings.HasPrefix(lines[i], "|") {
+			break // left the table without crossing a separator
+		}
+
+		if !sepRowRe.MatchString(lines[i]) {
+			continue
+		}
+
+		header := lines[i-1]
+		if !strings.HasPrefix(header, "|") {
+			break
+		}
+
+		return mapHeader(strings.Split(header, "|"))
+	}
+
+	return tableShape{}, &strikeError{msg: fmt.Sprintf(
+		"row %d sits in no table with a header row (a | --- | separator above a header line) — the layout cannot be derived",
+		idx+1,
+	)}
+}
+
+// mapHeader names the columns by their header cells: Task is required,
+// Status and Evidence are optional and stay -1 when the table has no
+// such column.
+func mapHeader(cells []string) (tableShape, *strikeError) {
+	shape := tableShape{cells: len(cells), taskCol: -1, statusCol: -1, evidence: -1}
+
+	for i, name := range cells {
+		switch strings.ToLower(strings.TrimSpace(name)) {
+		case "task":
+			shape.taskCol = i
+		case "status":
+			shape.statusCol = i
+		case "evidence":
+			shape.evidence = i
+		}
+	}
+
+	if shape.taskCol < 1 {
+		return tableShape{}, &strikeError{
+			msg: "the table's header carries no Task column — refusing to guess which cell holds the task",
+		}
+	}
+
+	return shape, nil
+}
+
 // PlanStrike locates the single row matching opts.Row and builds its
 // struck replacement without touching anything else in the content.
+// Task, Status and Evidence cells are located BY HEADER NAME (#6), so
+// every fleet TODO_LIST shape strikes correctly; a table without a
+// Status column strikes only the task cell.
 func PlanStrike(content string, opts Options) (Strike, *strikeError) {
 	lines := strings.Split(content, "\n")
 
 	var matches []int
 
 	for i, line := range lines {
-		if strings.HasPrefix(line, "|") && strings.Contains(line, opts.Row) {
+		if strings.HasPrefix(line, "|") && !sepRowRe.MatchString(line) && strings.Contains(line, opts.Row) {
 			matches = append(matches, i)
 		}
 	}
@@ -49,17 +121,22 @@ func PlanStrike(content string, opts Options) (Strike, *strikeError) {
 
 	idx := matches[0]
 
+	shape, shapeErr := shapeOf(lines, idx)
+	if shapeErr != nil {
+		return Strike{}, shapeErr
+	}
+
 	cells := strings.Split(lines[idx], "|")
-	if len(cells) != TODOColumns {
+	if len(cells) != shape.cells {
 		return Strike{}, &strikeError{msg: fmt.Sprintf(
-			"row %d has %d cells, expected exactly %d (the 5-column TODO_LIST shape) — refusing to guess the layout",
+			"row %d has %d cells, the table's header has %d — refusing to guess the layout",
 			idx+1,
 			len(cells),
-			TODOColumns,
+			shape.cells,
 		)}
 	}
 
-	task := strings.TrimSpace(cells[1])
+	task := strings.TrimSpace(cells[shape.taskCol])
 	if task == "" {
 		return Strike{}, &strikeError{msg: fmt.Sprintf("row %d has an empty task cell — not a strikeable row", idx+1)}
 	}
@@ -70,11 +147,20 @@ func PlanStrike(content string, opts Options) (Strike, *strikeError) {
 		}
 	}
 
-	cells[1] = " ~~" + task + "~~ done (" + opts.Verdict + ") "
-	cells[2] = " " + opts.Status + " "
+	cells[shape.taskCol] = " ~~" + task + "~~ done (" + opts.Verdict + ") "
+
+	if shape.statusCol >= 0 {
+		cells[shape.statusCol] = " " + opts.Status + " "
+	}
 
 	if opts.Evidence != "" {
-		cells[len(cells)-2] = " " + opts.Evidence + " "
+		if shape.evidence < 0 {
+			return Strike{}, &strikeError{
+				msg: "the table's header carries no Evidence column but --evidence was given — nowhere to write it",
+			}
+		}
+
+		cells[shape.evidence] = " " + opts.Evidence + " "
 	}
 
 	return Strike{LineNo: idx + 1, Old: lines[idx], New: strings.Join(cells, "|")}, nil
