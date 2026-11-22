@@ -150,6 +150,7 @@ historical constant (see `internal/config.Defaults`):
   "audit_max": -1,
   "audit_corpus": "all",
   "annotate_max": -1,
+  "annotate_corpus": "all",
   "cadence": { "struck_rows": 20, "max_unarchived": 15, "oldest_days": 21 },
   "gate_timeout_sec": 300,
   "skip_gates": []
@@ -163,6 +164,10 @@ scopes the freshness replay (`--audit-all` and `--pre-flight`): `"all"`
 (default) replays the report dir plus its archived subdir;
 `"unarchived"` drops the archived subdir, so an archived backlog stops
 moving the unharvested count with unrelated living-doc prose edits.
+`annotate_corpus` scopes the annotate corpus the same way (`"all"`
+default; `"unarchived"` drops the archived subdir, whose history-locked
+strikes can never be legitimately repaired — repos that only want the
+live slice annotated no longer need to skip the whole gate).
 `gate_timeout_sec`
 caps each battery gate's wall clock (default 300s; `0` disables) — an
 expired gate becomes a FAIL row (`rc=timeout`) and the battery moves
