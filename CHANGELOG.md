@@ -6,6 +6,26 @@ match the annotated git tags; anything after the newest tag sits under
 
 ## [Unreleased]
 
+### Fixed
+
+- **annotate accepts `routed` verdict markers on struck rows** — striking a routed row (`~~item~~ **→ routed to TODO_LIST #32**`) is the natural harvest closure and the routing gate already treats it as closed; the two gates no longer disagree on the same row (closed #3).
+
+- **freshness and routing WARN on near-miss §f headings** (`## §f — …` instead of the canon `## f)`): the section stays invisible to harvest, but the blind spot is now loud on the gates' stdout instead of silently green — the io-surface reports sat machine-unharvestable for 6 days behind exactly that shape (closed #9).
+
+- **purge refuses strikes on rows whose status cell still reads OPEN** (TODO/BLOCKED/IN_PROGRESS): stray `~~` edit noise on open rows was collected as done work and deleted from TODO_LIST — the io-surface incident recovered six rows from git only because the loss was noticed. An unrecognized status cell collects under a loud warning; the status-cell predicates are shared with cadence (closed #10).
+
+- **strike derives the row shape from the table's own header** instead of the hardcoded 5-column TODO_LIST layout: Task/Status/Evidence cells are located by header name, so the fleet's 4- and 6-column shapes (`# Task Evidence Status`, `# Task Status Impact Effort Evidence`) and tables without a Status column all strike correctly; `--evidence` on a table without an Evidence column is refused (closed #6).
+
+- **the freshness tokenizer splits tokens on `/`**: a report item slash-joining its keywords (`grouping/valid-args/positional`) no longer reads as ONE unmatchable token — the false-DRIFT that hid three real harvest hits at timesheets. Path-like tokens match as segments (closed #5).
+
+### Added
+
+- **`annotate_corpus` config knob** mirrors `audit_corpus`: `"all"` (default) keeps the archived subdir in the annotate corpus; `"unarchived"` drops it — archived strikes are history-locked and can never be legitimately repaired, so repos whose archive alone could never green no longer need to skip the whole gate (closed #4).
+
+- **`vocabulary` gate (the battery's ninth row)**: every FEATURES.md table Status-column token must be defined by the file's own `## Status legend` section — the legend table AND the prose around it define tokens; extraction is cell-aware through the docsrows table walk (`JSON` in a Notes cell never flags), unused legend entries stay informational, and the warn-mode rollout follows the docsstub doctrine (`vocabulary_enforce` flips WARN to FAIL; closed #11).
+
+- **README documents the annotate verdict rules** (A–G plus the P placement rules): the marker vocabulary (including `routed`), the hash/path/tag evidence checks, rule F spacing with its `<!-- format:allow -->` opt-out, and the per-cell table-strike rule — previously source-only knowledge (closed #2).
+
 ## [v0.4.0] - 2026-11-21
 
 ### Added

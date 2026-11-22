@@ -185,6 +185,34 @@ values exit 2 — a gate silently running wrong thresholds is worse than a
 loud failure. JSON, not YAML: the module is stdlib-only by contract, and
 JSON is jq-able.
 
+## Annotate verdict rules
+
+The annotate gate judges every struck (`~~…~~`) item in the report
+corpus. The rules in source order (`internal/docsannotate`):
+
+| Rule | Verdict | What it requires |
+| ---- | ------- | ---------------- |
+| `A/evidence` | FAIL | A struck item's verdict text (everything outside the `~~…~~`) must carry a marker word — see the vocabulary below. |
+| `B/hash` | FAIL | `` `done at <sha>` `` citations must resolve to a real commit or tag via git. |
+| `C/path` | FAIL | Backticked repo-relative paths in the verdict must exist on disk; paths inside the strike are exempt. |
+| `D/verdict-leads-open` | INFO | A verdict marker followed by an unfinished phrase ("still open", "owed", …) is reported, never failed. |
+| `E/ref` | FAIL | Tag-existence and removed-path claims are verified against the repo. |
+| `F/spacing`, `F/walk` | FAIL | Rule F: no letter/digit may touch a backtick; `<!-- format:allow -->` exempts a line (dprint strips spaces around inline code with escaped backticks). |
+| `G/uniform` | FAIL | Every table cell needs an even `~~` count — strike per cell, never across the pipe (a cross-cell strike renders as a broken row). |
+| `P/verdict-inside`, `P/number-inside` | FAIL | The verdict word and the list-item number must sit OUTSIDE the `~~` spans — inside, the renderer deletes the verdict and renumbers the list tail. |
+
+Marker vocabulary (case-insensitive, word-boundary matched): `done`,
+`resolved`, `routed`, `superseded`, `fixed`, `adopted`, `decided`,
+`verified`, `won't implement`, `not-do`, `duplicate`, `struck`,
+`moot`, `no longer`. `routed` counts so striking a routed row —
+`~~item~~ **→ routed to TODO_LIST #32**` — closes it the same way the
+routing gate does; the unstruck routed marker stays the rows gate's
+jurisdiction. Annotate never strikes an open item: the D rule reports
+the smell, the A rule refuses the bare strike. Exempt one §f item from
+harvest with `<!-- fresh:skip: reason -->`; the ratchet
+(`annotate_max`) tolerates a pinned finding count green-but-named
+while a corpus drains.
+
 ## Scripts
 
 | Script                          | What it does                                                                                                                                                                                                              |
