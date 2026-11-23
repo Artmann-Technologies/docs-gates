@@ -27,21 +27,21 @@ The world had moved under the previous session's summary:
 
 ## 2) Fully done
 
-| Work | Evidence |
-| --- | --- |
-| Diagnosed both red CI runs to the exact findings | `gh run view` 45081343809, 45086415501 |
-| Fixed all 17 local golangci findings (drill 17 → 6 → 0) | `buildflow -s golangci-lint --format finding` total: 0 |
-| `docsvocabulary.Scan` gocognit 47 → decomposed (`scanFile`/`statusUsage`/`statusColumnIndex`, `fileScan` struct) | parity goldens byte-UNCHANGED (pure refactor, `internal/battery` tests green) |
-| `config.validateContentGates` cyclop 13 → four per-gate validators | `internal/config/content_gates.go` |
-| `docsstrike.PlanStrike` cyclop 15 → `uniqueRowMatching` + `applyStrike` | `internal/docsstrike/strike.go`, tests green |
-| godox/goconst/mnd/prealloc/unparam/varnamelen/wsl fixes | classify.go comment reword; `severityWarn`/`severityFail`; `nearMissWidth`; `writeEnforcedConfig`; routing `settings` rename |
-| flake.lock erraudit damage (3rd occurrence) — tripwire caught rev 8831ce2 (also broke devShell build); restored pin dccfd10 from `fb25c41` | commit `2cebb40`, `scripts/check-erraudit-rev.sh` PASS |
-| Archive ritual: audit-all proof (31 reports, 0 unharvested), per-report dump-items counts, 8 × 11-05/11-06 reports bannered + `git mv` to archived/ | commit `b0987e7` (banners amended in after the pre-commit-stash trap) |
-| Battery over this repo: **10/10 PASS** (freshness, audit-all, annotate, routing, cadence, stub, citations, stamps, vocabulary, agents) | `go run ./cmd/docs-gates run .` rc=0, twice |
-| Full local verification: root + provider suites, `go vet`, erraudit rc=0, nolint-audit 17 needed/0 stale, `nix flake check --all-systems --no-build` | all green |
-| Pushed everything; **CI SUCCESS** on `b0987e7` and `443a065` | runs 45093982368 + final watch |
-| AGENTS.md memory: 11-23 lockfile recurrence + 2 new traps (buildflow format ≠ golangci fmt coverage; pre-commit stashes unstaged edits) | commit `443a065` |
-| nextd queue sync | zero docs-gates items tracked; the 8 closures registered as drift-closed |
+| Work                                                                                                                                                 | Evidence                                                                                                                     |
+| ---------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| Diagnosed both red CI runs to the exact findings                                                                                                     | `gh run view` 45081343809, 45086415501                                                                                       |
+| Fixed all 17 local golangci findings (drill 17 → 6 → 0)                                                                                              | `buildflow -s golangci-lint --format finding` total: 0                                                                       |
+| `docsvocabulary.Scan` gocognit 47 → decomposed (`scanFile`/`statusUsage`/`statusColumnIndex`, `fileScan` struct)                                     | parity goldens byte-UNCHANGED (pure refactor, `internal/battery` tests green)                                                |
+| `config.validateContentGates` cyclop 13 → four per-gate validators                                                                                   | `internal/config/content_gates.go`                                                                                           |
+| `docsstrike.PlanStrike` cyclop 15 → `uniqueRowMatching` + `applyStrike`                                                                              | `internal/docsstrike/strike.go`, tests green                                                                                 |
+| godox/goconst/mnd/prealloc/unparam/varnamelen/wsl fixes                                                                                              | classify.go comment reword; `severityWarn`/`severityFail`; `nearMissWidth`; `writeEnforcedConfig`; routing `settings` rename |
+| flake.lock erraudit damage (3rd occurrence) — tripwire caught rev 8831ce2 (also broke devShell build); restored pin dccfd10 from `fb25c41`           | commit `2cebb40`, `scripts/check-erraudit-rev.sh` PASS                                                                       |
+| Archive ritual: audit-all proof (31 reports, 0 unharvested), per-report dump-items counts, 8 × 11-05/11-06 reports bannered + `git mv` to archived/  | commit `b0987e7` (banners amended in after the pre-commit-stash trap)                                                        |
+| Battery over this repo: **10/10 PASS** (freshness, audit-all, annotate, routing, cadence, stub, citations, stamps, vocabulary, agents)               | `go run ./cmd/docs-gates run .` rc=0, twice                                                                                  |
+| Full local verification: root + provider suites, `go vet`, erraudit rc=0, nolint-audit 17 needed/0 stale, `nix flake check --all-systems --no-build` | all green                                                                                                                    |
+| Pushed everything; **CI SUCCESS** on `b0987e7` and `443a065`                                                                                         | runs 45093982368 + final watch                                                                                               |
+| AGENTS.md memory: 11-23 lockfile recurrence + 2 new traps (buildflow format ≠ golangci fmt coverage; pre-commit stashes unstaged edits)              | commit `443a065`                                                                                                             |
+| nextd queue sync                                                                                                                                     | zero docs-gates items tracked; the 8 closures registered as drift-closed                                                     |
 
 ## 3) The three owner questions — decided on evidence
 
