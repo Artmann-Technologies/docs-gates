@@ -228,7 +228,6 @@ func statusColumnIndex(cells []string) int {
 // cellTokens collects the backticked ALL-CAPS tokens of one status
 // cell (an emoji prefix or a trailing note never hides the token).
 
-
 // Run is the CLI entry (repo-root positional).
 func Run(args []string) int {
 	flags, root, err := gatecli.Parse(args)

@@ -194,8 +194,8 @@ func verdict(reports []fileReport, opts options) int {
 // baseName is the display name of a corpus file (the writer's convention:
 // findings name the file, not the path).
 func baseName(path string) string {
-	if i := strings.LastIndexByte(path, '/'); i >= 0 {
-		return path[i+1:]
+	if _, after, found := strings.CutLast(path, "/"); found {
+		return after
 	}
 
 	return path
