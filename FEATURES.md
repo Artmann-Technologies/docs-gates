@@ -53,6 +53,20 @@ built.
   flagged past the warn bar (90d) and fail bar (180d); warn-mode rollout
   (`stamp_enforce`); a corpus with no stamps owes nothing. Fleet
   baseline 2026-11-21: 1 finding (bank-sync, 92d).
+- **docs-vocabulary gate** — every living-doc table Status-column token
+  must be defined by the file's own `## Status legend` section (the
+  legend table AND the prose around it define tokens); extraction is
+  cell-aware through the docsrows walk (`JSON` in a Notes cell never
+  flags), unused legend entries stay informational; warn-mode rollout
+  (`vocabulary_enforce`). Skips files without a legend section —
+  unjudged, not green.
+- **docs-agents gate** — the AI-collaboration contract dated: AGENTS.md
+  must exist (missing = fail severity, the contract is fleet-mandatory)
+  and its mtime is flagged WARN past `agents_warn_days` (default 7) and
+  FAIL past `agents_max_days` (default 14, the proven bar
+  go-structure-linter's agent-config rule carried); warn-mode rollout
+  (`agents_enforce`), path from `agents_file`. A fresh clone resets
+  mtime — content rot is the stamps gate's job.
 - **docs-strike tool** — TODO_LIST row-strike helper (dry-run default,
   ambiguity refusals, double-strike refusals, verdict-opener refusals),
   target file from config unless `--file` overrides; plus
@@ -63,7 +77,7 @@ built.
   struck TODO rows, drafts one dated CHANGELOG bullet per row, gates the
   draft through the pre-flight, writes only on SAFE (dry-run default;
   missing `[Unreleased]`/`### Changed` anchors are usage refusals).
-- **Battery runner** (`docs-gates run`) — eight gates as one independent
+- **Battery runner** (`docs-gates run`) — ten gates as one independent
   matrix (PASS/FAIL/SKIP per gate, no first-failure abort), exit 0/1,
   `skip_gates` + `audit_max` from repo config. Every gate runs under
   `gate_timeout_sec` (default 300s, 0 = off; an expired wedge is a FAIL
@@ -154,16 +168,21 @@ built.
 
 Every verb, once, with its exit contract.
 
-| Verb        | Kind    | `0`                            | `1`                            | `2`                            |
-| ----------- | ------- | ------------------------------ | ------------------------------ | ------------------------------ |
-| `run`       | battery | every gate PASS or SKIP        | ≥ 1 gate FAIL                  | bad root / bad config          |
-| `freshness` | gate    | FRESH                          | DRIFT (unharvested §f items)   | usage error / malformed config |
-| `annotate`  | gate    | clean or within the ratchet    | findings past the pin          | usage error / malformed config |
-| `rows`      | gate    | tables complete / no bare rows | PARTIAL, mixed, or bare rows   | usage error / unreadable file  |
-| `routing`   | gate    | no routing gaps                | open rows no living doc covers | usage error / malformed config |
-| `cadence`   | gate    | thresholds met                 | a threshold is overdue         | usage error / malformed config |
-| `strike`    | writer  | row struck (dry-run default)   | —                              | refusal (ambiguous/double)     |
-| `purge`     | writer  | draft printed or purged        | unsafe draft                   | usage error / missing anchors  |
+| Verb         | Kind    | `0`                            | `1`                             | `2`                            |
+| ------------ | ------- | ------------------------------ | ------------------------------- | ------------------------------ |
+| `run`        | battery | every gate PASS or SKIP        | ≥ 1 gate FAIL                   | bad root / bad config          |
+| `freshness`  | gate    | FRESH                          | DRIFT (unharvested §f items)    | usage error / malformed config |
+| `annotate`   | gate    | clean or within the ratchet    | findings past the pin           | usage error / malformed config |
+| `rows`       | gate    | tables complete / no bare rows | PARTIAL, mixed, or bare rows    | usage error / unreadable file  |
+| `routing`    | gate    | no routing gaps                | open rows no living doc covers  | usage error / malformed config |
+| `cadence`    | gate    | thresholds met                 | a threshold is overdue          | usage error / malformed config |
+| `stub`       | gate    | clean or warn-mode findings    | enforced stub findings          | usage error / malformed config |
+| `citations`  | gate    | clean or warn-mode findings    | enforced citation findings      | usage error / malformed config |
+| `stamps`     | gate    | clean or warn-mode findings    | enforced fail-bar findings      | usage error / malformed config |
+| `vocabulary` | gate    | clean or warn-mode findings    | enforced vocabulary findings    | usage error / malformed config |
+| `agents`     | gate    | clean or warn-mode findings    | enforced fail-severity findings | usage error / misrouted file   |
+| `strike`     | writer  | row struck (dry-run default)   | —                               | refusal (ambiguous/double)     |
+| `purge`      | writer  | draft printed or purged        | unsafe draft                    | usage error / missing anchors  |
 
 ## WORTH CONSIDERING
 
