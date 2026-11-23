@@ -8,7 +8,7 @@ match the annotated git tags; anything after the newest tag sits under
 
 ### Added
 
-- Nothing yet.
+- **`archive` verb (the fourteenth)**: the cadence ritual's mechanical core as one gated command — fully-resolved reports (zero open §f items, the dump-items extraction) get the Live-remainder banner prepended and are `git mv`'d into the archived subdir. Dry-run by default; `--apply` writes; open reports print as SKIP and never move; a second banner is a FATAL refusal. The proof legs (freshness `--audit-all`, routing, annotate green first) stay gates — the banner claims what the battery proves.
 
 ### Fixed
 

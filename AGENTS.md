@@ -160,11 +160,17 @@ keep bare `FATAL: %v`.
   bump silently and rules ARE behavior — check on the new rev, THEN
   bump one input at a time.
 - **Buildflow's repair phase rewrites lockfiles; the daemon wraps the
-  damage** (paid 11-06, 11-14 AND 11-23 — erraudit input each time; the
-  11-23 bump 8831ce2 also failed to build the devShell). Recovery:
-  forward `git restore --source=<good-sha> -- flake.lock` + OWN commit,
-  tripwire before trusting; hash fixes happen in erraudit via
-  `buildflow -s nix-hash-fix --fix` (done 11-14), never here.
+  damage** (paid 11-06, 11-14, 11-23 ×3, 11-23-late ×1 — six events).
+  ROOT CAUSE PROVEN 2026-11-23 (live repro + source read): the
+  `nix-flake-update` step is a blindRepairer over BARE `nix flake
+  update` (BuildFlow tools/providers/nix_flake_check_tools.go:143) —
+  `buildflow --fix` fires it for every flake repo; plain `buildflow`
+  runs and bare `nix flake check` leave the lock byte-identical.
+  BuildFlow#115 filed (finding-driven per-input update or drop from
+  --fix proposed). Until it lands: recovery stays forward `git
+  restore --source=<good-sha> -- flake.lock` + OWN commit, tripwire
+  before trusting; hash fixes happen in erraudit via `buildflow -s
+  nix-hash-fix --fix`, never here.
 - **`buildflow format` does NOT cover golangci fmt** (golines/gci): a
   format run can pass while gci/golines findings remain — finish with
   `nix develop -c golangci-lint fmt ./...` and re-run the
@@ -175,6 +181,21 @@ keep bare `FATAL: %v`.
   11-23 archive ritual committed pure renames first; the banners
   needed `git add` + amend). Stage every ritual edit explicitly before
   committing.
+- **The daemon RACES staging** (paid 11-23, five times): it commits
+  your just-written files mid-edit, so `git commit` finds "nothing to
+  commit" while the work already sits in a daemon commit — check
+  `git log` before re-editing, then just push. One strike batch = one
+  commit boundary still holds: safe-strike refuses a dirty file, so
+  commit each strike before the next.
+- **Annotated tags return the TAG OBJECT sha** from `git rev-parse
+  <tag>` and `git ls-remote` — compare commits via `<tag>^{commit}`
+  before declaring a moved tag (the 11-23 false alarm: tag object
+  52a5831 vs commit 34c7c5f read as "the release was hijacked").
+- **`go get` on a nested module caches negative resolution**: if the
+  first attempt ran before the proxy indexed the tag, every retry
+  fails with "found, but does not contain package" from the module
+  cache — retest with a fresh GOMODCACHE (paid proving
+  pkg/provider@v0.5.0).
 - **Stale buildflow binary is the #1 silent root cause** (11-14: masked
   upstream fixes for hours) — `buildflow doctor`, rebuild + reinstall.
 - **The nix-fmt/treefmt roundtrip wedge is FIXED upstream** (2026-11-14;
