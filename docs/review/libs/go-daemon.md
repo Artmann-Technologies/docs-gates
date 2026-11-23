@@ -15,6 +15,7 @@ NOT-APPLICABLE — docs-gates is a run-to-completion CLI with no socket, no list
 - A = 0 (no row maps onto any behavior docs-gates has or wants; the nearest adjacency — the per-gate watchdog timeout — is a bounded-wait concern already solved with one-shot timers inside the run).
 - M = 0.
 - Score = **0** (0/0; by convention 0 when nothing is applicable) — band **low**. For a NOT-APPLICABLE library the score is noise; the verdict is the signal.
+- Roadmap check, for honesty: TODO_LIST/ROADMAP carry no serve/socket/systemd row — the fleet's only daemon-shaped ask of this repo is "be exec-friendly", which the exit-code contract already answers.
 
 ## What the library offers
 
@@ -37,6 +38,10 @@ The extracted lifecycle chassis of a proven unix-socket daemon: `Start` owns an 
 ### What [Unreleased] signals about its direction
 
 The head of its changelog adds `JSONv2Codec` and injectable negotiation codecs (`WithJSONCodec`/`WithCBORCodec`) so consumers keep json/v2 semantics while adopting content negotiation (go-daemon/CHANGELOG.md:8-19). The trajectory is deeper serving-protocol flexibility — further from a batch CLI's needs, not closer; every unreleased item presumes an `http.Request`/`http.ResponseWriter` pair that docs-gates will never construct.
+
+### The watchdog adjacency, examined and dismissed
+
+`Watchdog(ctx, logger, interval)` (go-daemon/notify.go:75) keep-alives a systemd watchdog at `WatchdogSec/2`; the battery's half-budget watchdog (internal/battery/battery_watchdog.go) fires ONE informational stderr line at `gate_timeout_sec/2`. Both are "alert before the deadline" — but go-daemon's is a liveness HEARTBEAT into a supervisor (absence = the supervisor kills you), while the battery's is a one-shot early warning to a human (presence = information, absence = nothing). One presumes systemd; the other presumes a terminal. They share a name and nothing else.
 
 ## What docs-gates does today
 

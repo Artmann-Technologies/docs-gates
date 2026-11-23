@@ -15,6 +15,7 @@ NOT-APPLICABLE — go-datastar is the server side of a hypermedia protocol (SSE-
 - A = 0 (no row addresses a problem docs-gates has; the nearest adjacency — streaming progress to a live terminal — is solved in-repo with `gatecli.Livef` writing to the real stdout during a capture, no protocol involved).
 - M = 0.
 - Score = **0** (0/0; by convention 0 when nothing is applicable) — band **low**. For a NOT-APPLICABLE library the score is noise; the verdict is the signal.
+- Roadmap check, for honesty: TODO_LIST/ROADMAP carry no dashboard/web/live-view row — the docs domain's "UI" is the markdown files themselves, judged by this battery, viewed in any editor.
 
 ## What the library offers
 
@@ -22,6 +23,8 @@ NOT-APPLICABLE — go-datastar is the server side of a hypermedia protocol (SSE-
 |---|---|---|---|---|
 | 1 | Patch model — every DOM patch a first-class value (`Patch` → `sse.Event`), buildable without a live connection | No — nothing in the consumer renders DOM or speaks the DataStar wire protocol | N/A | go-datastar/patch.go:25 |
 | 2 | `Response` — element/signal/script patch writers over an `sse.Stream` (`PatchElements`, `PatchSignals`, `ExecuteScript`, `Redirect`, …) | No — requires an HTTP response stream; the consumer has zero `net/http` imports | N/A | go-datastar/response.go:40-110 |
+
+  (Row 2's full method set — `PatchElementsTempl`, `RemoveElement(ByID)`, `ConsoleLog/Error`, `DispatchCustomEvent`, `ReplaceURL(Querystring)`, `Prefetch` — extends through go-datastar/response.go:152; every one writes to a browser connection.)
 | 3 | `ReadSignals`/`LastEventID` — inbound client-state parsing (query/body signals, reconnect IDs) | No — the CLI's inbound surface is argv, a JSON config file, and one stdin pre-flight mode | N/A | go-datastar/inbound.go:26, :107 |
 | 4 | `broadcast` submodule — fan-out to N connections, `WithReplayCapacity` reconnection replay, `Hub` sharing, heartbeats | No — the battery has exactly one consumer per run (the terminal or the provider reading stdout); there is no fan-out topology | N/A | go-datastar/broadcast/broadcaster.go:57; go-datastar/broadcast/options.go:63 |
 | 5 | `ScriptHandler`/`ScriptTag` — serve the embedded DataStar JS client with ETag/Cache-Control | No — the binary serves nothing | N/A | go-datastar/script_handler.go:37, :88 |

@@ -15,6 +15,7 @@ NOT-APPLICABLE — docs-gates is a point-in-time batch judge by doctrine (every 
 - A = 0 (no row addresses a problem docs-gates has; the nearest adjacency — noticing when docs change — is a scheduling concern the fleet solves outside this binary: CI on push, BuildFlow detect, the auto-commit daemon).
 - M = 0.
 - Score = **0** (0/0; by convention 0 when nothing is applicable) — band **low**. For a NOT-APPLICABLE library the score is noise; the verdict is the signal.
+- Roadmap check, for honesty: TODO_LIST/ROADMAP carry no watch/hot-reload/live-reload row at any priority (the word "watch" appears only for CI-run watching and the cadence gate's metaphorical "watches this file") — nothing planned is being blocked by this non-adoption.
 
 ## What the library offers
 
@@ -65,6 +66,17 @@ There is also no hand-rolled watcher to deduplicate — the design has no equiva
 ### Why the doctrine excludes watching (not just the code)
 
 The exclusion is architectural, not incidental. The binary's contract is "reads and judges a corpus; it never rewrites one" (README.md:65-66) — a judge whose verdicts are meaningful BECAUSE they are point-in-time snapshots of a corpus that foreign processes (editors, the auto-commit daemon, BuildFlow) mutate concurrently. A watcher-based mode would blur exactly that semantics: a verdict would no longer name a moment but a window, and the timestamp discipline (AGENTS.md:188-189) would lose its meaning. The battery even bounds each gate's wall clock (`gate_timeout_sec`) so that NOTHING inside a run waits on the world — the opposite posture of an event loop whose job is to wait on the world.
+
+### The re-run triggers that exist today (the watcher's job, already assigned)
+
+| Trigger | Who owns it | How docs-gates is invoked |
+|---|---|---|
+| Push to GitHub | CI dogfood job (AGENTS.md:218-223) | `go run ./cmd/docs-gates run .` |
+| Local doc edit | the human's ritual (AGENTS.md:6-9) | `go run ./cmd/docs-gates run .` after touching living docs |
+| BuildFlow quality loop | BuildFlow detect step | exec via pkg/provider/provider.go:149 |
+| Commit time | pre-commit docs-battery leg (AGENTS.md:160-165) | pre-commit hook over all files |
+
+Four independent re-run triggers, none owned by this repo's code — the scheduling layer is already built, fleet-side. Adding an in-process watcher would duplicate the fleet's scheduling, the exact anti-pattern the fleet argument warns about, in the one place it would be wrong.
 
 ## Gap analysis — should docs-gates adopt it?
 

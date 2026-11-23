@@ -15,6 +15,7 @@ NOT-ADOPTED — every rendering surface docs-gates owns (verdict matrix lines, o
 - A = 3 (terminal-safe truncation, table serialization, golden-test helpers — real rendering concerns with an in-repo answer).
 - M = 0.
 - Score = **0** (round(100·0/3)) — band **low**, as expected for NOT-ADOPTED; the standing decisions carry the signal.
+- Why the other nine rows are N/A, grouped: the eight format renderers (markdown, table, tree, graph, d2, plantuml, daghtml, markup, delimited, tui) target outputs the consumer does not produce — no format flag, no column math, no diagram, no TUI exists; `nom`'s live progress targets long-running builds, not a battery that finishes in seconds or fails a row on timeout; the `bdd` suite is a test-paradigm offer to a repo whose testing contract forbids it.
 
 ## What the library offers
 
@@ -89,6 +90,8 @@ Enumerating every output shape the binary produces — this is the completeness 
 **pkg/provider check.** The provider's job is strict JSON decode of an already-rendered document (pkg/provider parses `run --json` with `DisallowUnknownFields`); it produces findings objects for BuildFlow, not human rendering. No format multiplexing exists there to delegate.
 
 **Testing-style note.** go-output's bdd submodule demonstrates ginkgo/gomega specs, and testhelpers offers substring assertions — but the consumer's testing contract is stdlib-`testing`-only, gates exercised through their real `Run` functions with `gatecli.CaptureOutput`, never mocked (AGENTS.md:191-195). Its parity harness already IS a golden framework, purpose-built around `PARITY_UPDATE=1` re-pinning and a `{{DATE}}` token; testhelpers' looser assertions would be a downgrade, not a dedup.
+
+**What root adoption would actually cost, concretely.** (1) Break zero-requires — CI red on the next stack-drift run (scripts/stack-drift-check.sh:9). (2) A STACK.md row and a separate-module carve-out even for the lightest import, or a golden re-pin train for any face that touched library-rendered bytes. (3) The `Format`-enum mental model imported into a repo whose two faces are deliberately NOT interchangeable renders of one dataset. Against that: the ability to call `TruncateVisible` — a function whose semantics the repo explicitly does not want (docs/agent-notes.md:64-68). The ledger does not balance in any row.
 
 RECONSIDER-WHEN: docs-gates grows a verb whose OUTPUT FORMAT is user-selected or whose output is a real data table — e.g. a `docs-gates report --format markdown|html|csv` verb that renders the verdict matrix into docs/status dashboards, or an age-bars/DF-margins report that benefits from column alignment. That verb should live in its own nested module (the pkg/provider pattern) with go-output/markdown or go-output/serialization behind it, while `run`'s byte-pinned faces stay stdlib. Until a second consumer asks for machine-rendered tables, the pinned plain lines are the cheaper contract.
 

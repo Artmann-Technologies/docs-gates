@@ -17,7 +17,8 @@ One nuance keeps this from being a clean NOT-APPLICABLE: unlike the fleet's retr
 - Inputs N = 10 (inventory rows below).
 - A = 5 (crash-durable write, fsync-before-rename, TOCTOU/fingerprint verification, mode preservation, concurrent-writer lock — all address real exposure at the four write sites).
 - M = 0.
-- Score = **0** (round(100·0/5)) — band **low**. Expected for NOT-ADOPTED; the verdict and the residual-risk note are the signal, not the score.
+- Score = **0** (round(100·0/5)) — band **low**, as expected for NOT-ADOPTED; the verdict and the residual-risk note are the signal, not the score.
+- Why the other five rows are N/A, in one line each: WriteIfChanged — the only repeat-write target is a gitignored stamp whose mtime nobody observes; MkdirAll — target trees pre-exist and archive creates its dir explicitly; WriteFunc streaming — payloads are in-memory living docs; Windows rename retry — Linux-only fleet; the `.tmp` self-clean residual — moot when no temps are ever created.
 
 ## What the library offers
 
@@ -102,7 +103,7 @@ Every site stacks the same four guards in place of write-level atomicity:
 
 **The one genuine re-implementation slice.** Mode preservation is the library's offering the consumer hand-rolled — three copies of a `Stat`-then-`Perm`-fallback helper (inventory row 4). That is 3×7 duplicated lines inside one repo, not fleet-wide duplication of the library; the dedup fix is an internal `gatecli` helper, not a dependency. It does not move the adoption needle.
 
-**pkg/provider check.** The provider writes nothing (read-only by contract, README.md:139); there is no write path there to harden.
+**pkg/provider check.** The provider writes nothing (read-only by contract, README.md:139); there is no write path there to harden. A carve-out module modeled on pkg/provider purely to host go-atomic-write for four already-guarded writes would be architecture for its own sake — the sanctioned dep home exists for a CONSUMER of a library's capability, and no capability gap exists that the guards plus git leave open at this blast radius.
 
 RECONSIDER-WHEN: (1) any mutator grows an unguarded or multi-file write sequence that git cannot cheaply unwind — e.g. purge batching across repos, or a write to a NON-tracked file (the stamp today, anything user-configurable tomorrow); (2) a fleet decision ever relaxes stdlib-only for a vetted allowlist — go-atomic-write is then the first candidate for the four sites, ideally vendored-by-stdlib-reimplementation (temp+rename+fsync is ~40 lines) rather than the dependency itself; (3) a second fleet consumer adopts the purge ritual on NFS/FUSE where torn writes bite harder.
 
@@ -142,6 +143,9 @@ $ rg -n "os\.Rename|\.tmp|\.Sync\(\)" /home/lars/projects/docs-gates/internal /h
 
 $ sed -n '195,210p' /home/lars/projects/docs-gates/internal/docspurge/docspurge.go
 # — TODO_LIST written at :199, CHANGELOG at :205: the two-write purge window
+$ python3 -c "import json; print(json.load(open('/home/lars/projects/docs-gates/flake.lock'))['nodes']['go-atomic-write']['original'])"
+# {'owner': 'LarsArtmann', 'ref': 'v0.6.0', 'repo': 'go-atomic-write', 'type': 'github'}
+# — a TRANSITIVE pin under the erraudit input; not a direct input of this flake
 $ bash /home/lars/projects/docs-gates/scripts/stack-drift-check.sh
 # stack-drift: root go.mod is dependency-free — OK
 ```
