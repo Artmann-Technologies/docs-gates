@@ -89,6 +89,18 @@ the battery's *verbs* to BuildFlow, the natural shape is findings/Spec
 metadata via toolsdk (already registered, pkg/provider/provider.go:187) — not
 an HTTP route listing.
 
+**Negotiation vs flag — the sharpest contrast.** endpoints' headline
+mechanic is serving two representations of one URL picked by `Accept`
+(httputil/endpoints/README.md:74-79). docs-gates has the same two-audience
+problem (humans and the provider) and deliberately resolves it by *stream
+separation under a flag*: `--json` reserves stdout for the machine document
+and detours every human line to stderr, so a consumer never parses mixed
+content (internal/battery/battery.go:97-98, :171-173). For an exec'd CLI
+this is the strictly safer design — no heuristic can mis-pick the
+representation — and it is byte-pinned by the battery-json golden. The
+fleet's two solutions answer two different substrates; neither subsumes the
+other.
+
 **One honest parallel worth stating (not adoption-shaped):** the design
 instinct behind endpoints — "the listing must be derived from the registration
 site, never maintained by hand" — is already honored in docs-gates: the
@@ -106,6 +118,20 @@ the CLI as it stands, the insulation is correct.
 ## Ranked opportunities
 
 None.
+
+## Release shape (context for any future adoption)
+
+`endpoints/v0.1.0` is the module's first and only tag (2026-11-06), cut under
+an explicit owner ruling that it sits in the pre-1.0 iteration tier — 0.x
+semantics govern "while real consumers validate it" (httputil/CHANGELOG.md:61)
+— unlike `server_timing`'s day-one-v1 posture. The first real consumer is CV,
+which routes its entire surface through `Registry.Handle` so the listing
+derives from the actual registration site (httputil/endpoints/README.md:97);
+the `[Unreleased]` section above v0.1.0 already hardens negotiation (all
+`Accept` header lines combined per RFC 9110 §5.3) and CI now runs the
+submodule tests on every push. An adopter today gets a small, stdlib-only,
+single-purpose module — exactly the right shape to slot into a future
+docs-gates HTTP sibling, and exactly irrelevant to the current CLI.
 
 ## How to verify
 

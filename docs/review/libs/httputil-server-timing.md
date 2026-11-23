@@ -114,6 +114,18 @@ correct.
 
 None.
 
+## Release shape (context for any future adoption)
+
+`server_timing` carries a day-one-v1 posture (v1.0.3 is the fourth v1.x tag;
+the httputil owner ruled it the stable tier, versus `endpoints`' pre-1.0
+iteration tier — httputil/CHANGELOG.md:61), and its README is explicit that
+the module exists precisely so services can add Server-Timing *without* the
+root httputil dependency set (httputil/server_timing/README.md:9, :61). The
+consumption pattern for the fleet's services is settled: middleware in the
+chain, `MeasureServerTiming` from handlers, `ServerTimingMiddlewareWhen` to
+gate it in production (httputil/server_timing/README.md:62). None of that
+surface has a CLI-battery analog, which is the whole verdict in one line.
+
 ## How to verify
 
 ```console
