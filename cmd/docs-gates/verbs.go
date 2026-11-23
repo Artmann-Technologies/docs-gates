@@ -10,6 +10,7 @@ import (
 	"github.com/Artmann-Technologies/docs-gates/internal/battery"
 	"github.com/Artmann-Technologies/docs-gates/internal/docsagents"
 	"github.com/Artmann-Technologies/docs-gates/internal/docsannotate"
+	"github.com/Artmann-Technologies/docs-gates/internal/docsarchive"
 	"github.com/Artmann-Technologies/docs-gates/internal/docscadence"
 	"github.com/Artmann-Technologies/docs-gates/internal/docscitations"
 	"github.com/Artmann-Technologies/docs-gates/internal/docsfreshness"
@@ -36,6 +37,7 @@ const (
 	verbAgents     = "agents"
 	verbStrike     = "strike"
 	verbPurge      = "purge"
+	verbArchive    = "archive"
 )
 
 // suggestMaxEditDistance is the typo tolerance of suggestVerb: any verb
@@ -65,6 +67,7 @@ var displayName = map[string]string{
 	verbAgents:     "docs-agents",
 	verbStrike:     "docs-strike",
 	verbPurge:      "docs-gates",
+	verbArchive:    "docs-gates",
 }
 
 // verbHandlers is the dispatch table: every verb to its gate's Run. The
@@ -85,6 +88,7 @@ var verbHandlers = map[string]func([]string) int{
 	verbAgents:     docsagents.Run,
 	verbStrike:     docsstrike.Run,
 	verbPurge:      docspurge.Run,
+	verbArchive:    docsarchive.Run,
 }
 
 // verbOrder is the display order of the verbs in the root usage.
@@ -93,7 +97,7 @@ var verbHandlers = map[string]func([]string) int{
 var verbOrder = []string{
 	verbRun, verbFreshness, verbAnnotate, verbRows,
 	verbRouting, verbCadence, verbStub, verbCitations, verbStamps,
-	verbVocabulary, verbAgents, verbStrike, verbPurge,
+	verbVocabulary, verbAgents, verbStrike, verbPurge, verbArchive,
 }
 
 // verbOverview is each verb's one-line purpose for the root usage; the
@@ -114,6 +118,7 @@ var verbOverview = map[string]string{
 	verbAgents:     "AGENTS.md must exist and stay fresh (warn/max age bars)",
 	verbStrike:     "strike one TODO_LIST row (dry-run by default)",
 	verbPurge:      "collect struck TODO rows into a CHANGELOG purge entry (dry-run by default)",
+	verbArchive:    "banner + git-mv fully-resolved reports into the archive (dry-run by default)",
 }
 
 // verbUsage wires each verb to its package's Usage text — the same
@@ -135,4 +140,5 @@ var verbUsage = map[string]string{
 	verbAgents:     docsagents.Usage,
 	verbStrike:     docsstrike.Usage,
 	verbPurge:      docspurge.Usage,
+	verbArchive:    docsarchive.Usage,
 }

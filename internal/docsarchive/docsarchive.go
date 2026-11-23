@@ -36,6 +36,14 @@ import (
 // convention opens with the bolded Live-remainder claim.
 const bannerPrefix = "> **Live remainder:**"
 
+// Permission bits for the verb's writes: fresh report rewrites keep the
+// house default (existing files keep their own — writePreservingMode),
+// the archive dir is created owner-writable-group-readable.
+const (
+	defaultReportMode = 0o600
+	archiveDirMode    = 0o750
+)
+
 // Usage is the `docs-gates archive --help` text — the verb's contract
 // in one place, printed by the dispatcher before the parser runs.
 const Usage = `docs-archive — banner + git-mv fully-resolved reports into the archive (dry-run by default)
@@ -115,7 +123,10 @@ type candidate struct {
 // collectCandidates walks the unarchived report corpus and splits it
 // into fully-resolved candidates and open-item skips.
 func collectCandidates(root string, cfg config.Config) ([]candidate, []candidate) {
-	glob := filepath.Join(orDefault(cfg.ReportDir, config.Defaults().ReportDir), orDefault(cfg.ReportGlob, config.Defaults().ReportGlob))
+	glob := filepath.Join(
+		orDefault(cfg.ReportDir, config.Defaults().ReportDir),
+		orDefault(cfg.ReportGlob, config.Defaults().ReportGlob),
+	)
 
 	entries, err := filepath.Glob(filepath.Join(root, glob))
 	if err != nil {
@@ -182,7 +193,7 @@ func applyArchive(root, archived string, reports []candidate, now time.Time) int
 
 		destRel := filepath.Join(filepath.Dir(report.rel), archived, filepath.Base(report.rel))
 
-		if err := os.MkdirAll(filepath.Dir(filepath.Join(root, destRel)), 0o750); err != nil {
+		if err := os.MkdirAll(filepath.Dir(filepath.Join(root, destRel)), archiveDirMode); err != nil {
 			gatecli.Errf("FATAL: creating the archive dir: %v\n", err)
 
 			return gatecli.ExitUsage
@@ -209,7 +220,7 @@ func applyArchive(root, archived string, reports []candidate, now time.Time) int
 // bits (fresh files get the house default) — a banner must never change
 // a report's mode.
 func writePreservingMode(path, content string) error {
-	mode := os.FileMode(0o600)
+	mode := os.FileMode(defaultReportMode)
 
 	if info, err := os.Stat(path); err == nil {
 		mode = info.Mode().Perm()
