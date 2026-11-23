@@ -135,7 +135,7 @@
   standing gate is blind to it.** Ten rows in two shapes: nine read
   `| ~~ | <task> | <status> | <priority> | <effort> |` — the strike marker
   alone in the Task cell, every column shifted one left, the Evidence cell
-  gone — and one row is struck *before* its leading pipe (`TODO_LIST.md:87`),
+  gone — and one row is struck _before_ its leading pipe (`TODO_LIST.md:87`),
   so it is no longer a table row at all. Severity: the living ledger has
   lost evidence cells; recoverable from history. Present since
   2026-11-04, ten rows already at this session's baseline — not caused
@@ -211,6 +211,9 @@ Process and design, with the self-review answered inline.
   abbreviated transcripts. Fix: strict by default, as shipped.
 - **Formatters only inside `nix develop`.** Fix: one line in
   `docs/agent-notes.md`.
+- **dprint keeps a table compact only when the separator cells match the
+  header widths;** otherwise it pads every cell to the widest one. Impact:
+  a wide table becomes unreadable in source and trips a formatter warning.
 - **Never read batched `sed` ranges as if ordered by argument.** Fix:
   `awk` with printed line numbers, or re-derive after every edit.
 - **Run the product's own on-demand verbs on the living docs** (`rows` on
@@ -255,7 +258,7 @@ Ranked by impact. A brainstorm beyond the first ten, not a commitment
 list: routing follows the harvest ledger below.
 
 | # | Task | Impact | Effort | Category |
-| --- | --- | --- | --- | --- |
+| - | ---- | ------ | ------ | -------- |
 | 1 | Battery panic guard: add a deferred `recover()` in the gate-capture wrapper so a panicking gate becomes a named FAIL row instead of crashing the whole run | Critical | S | Bug |
 | 2 | Config did-you-mean: lift the Levenshtein suggester into one shared helper and propose the right key on an unknown `.docs-gates.json` key | High | S | Feature |
 | 3 | Dedupe `writePreservingMode`: three hand-rolled copies (docspurge, docsarchive, docsstrike) collapse into one `gatecli` helper | Medium | S | Cleanup |
@@ -334,7 +337,7 @@ premise was re-checked against TODO_LIST.md and ROADMAP.md on 2026-11-24
 before rowing (topic greps plus the gate and instrument outputs above).
 
 | Source | Disposition | Destination / reason |
-| --- | --- | --- |
+| ------ | ----------- | ------------------- |
 | 11-24 §f1 | existing row | TODO_LIST §10 row 1, routed 2026-11-23 from the audit reports — premise re-checked 2026-11-24 |
 | 11-24 §f2 | existing row | TODO_LIST §10 row 2, routed 2026-11-23 from the audit reports — premise re-checked 2026-11-24 |
 | 11-24 §f3 | existing row | TODO_LIST §10 row 3, routed 2026-11-23 from the audit reports — premise re-checked 2026-11-24 |
