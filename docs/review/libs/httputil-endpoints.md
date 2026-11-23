@@ -50,7 +50,6 @@ submodule tests on every push. An adopter today gets a small, stdlib-only,
 single-purpose module — exactly the right shape to slot into a future
 docs-gates HTTP sibling, and exactly irrelevant to the current CLI.
 
-
 ## What docs-gates does today
 
 Zero usage, zero presence. Verified:

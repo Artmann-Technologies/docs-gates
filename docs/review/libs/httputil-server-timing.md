@@ -49,7 +49,6 @@ chain, `MeasureServerTiming` from handlers, `ServerTimingMiddlewareWhen` to
 gate it in production (httputil/server_timing/README.md:62). None of that
 surface has a CLI-battery analog, which is the whole verdict in one line.
 
-
 ## What docs-gates does today
 
 Zero usage, zero presence. Verified:

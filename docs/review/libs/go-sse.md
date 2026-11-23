@@ -52,7 +52,6 @@ for a future live surface. The root module's two small dependencies
 an adopter carries (go-sse/README.md:7); `sseparse` alone is zero-dependency
 if only wire parsing is ever needed.
 
-
 ## What docs-gates does today
 
 Zero usage, zero presence. Verified:

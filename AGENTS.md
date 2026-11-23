@@ -161,8 +161,8 @@ usage_test.go.
   attempt before proxy indexing poisons retries; retest with a fresh
   GOMODCACHE (paid proving pkg/provider@v0.5.0).
 - **Fixed upstream, do not re-litigate**: the nix-fmt/treefmt roundtrip
-  wedge (2026-11-14); BuildFlow#87 (result cache; dprint bundle rides
-  `nix build .#dprint-plugins` + BUILDFLOW_DPRINT_PLUGINS); the
+  wedge (2026-11-14); BuildFlow#87 (result cache, no bypass; dprint bundle
+  rides `nix build .#dprint-plugins` + BUILDFLOW_DPRINT_PLUGINS); the
   `inputs.<name>.url` false-FAIL (do not reformat flake.nix to dodge it).
 - **Pre-commit legs** (`preCommitCheckFor`): nolint-audit everywhere,
   docs-battery + erraudit-rev-tripwire on flake.lock staging; the
