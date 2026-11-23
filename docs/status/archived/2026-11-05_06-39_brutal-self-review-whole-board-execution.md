@@ -1,3 +1,10 @@
+> **Live remainder:** archived 2026-11-23 by the cadence ritual (16
+> unarchived vs max_unarchived=15). All open rows were verified
+> harvested/routed at archive time (freshness + audit-all + routing +
+> annotate green over the corpus); owning rows live in TODO_LIST.md
+> (§4, §5) and ROADMAP.md; foreign-repo rows are owned by their own
+> boards (merge-by-reference).
+
 # Brutal Self-Review + Full Status — The Whole-Board Execution Session
 
 **2026-11-05 06:39 CET** · session window ~02:50–05:00 · baseline

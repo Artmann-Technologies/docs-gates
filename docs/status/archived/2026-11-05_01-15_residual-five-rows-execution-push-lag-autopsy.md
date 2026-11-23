@@ -1,3 +1,10 @@
+> **Live remainder:** archived 2026-11-23 by the cadence ritual (16
+> unarchived vs max_unarchived=15). All open rows were verified
+> harvested/routed at archive time (freshness + audit-all + routing +
+> annotate green over the corpus); owning rows live in TODO_LIST.md
+> (§2c, §3) and ROADMAP.md; foreign-repo rows are owned by their own
+> boards (merge-by-reference).
+
 # Residual Execution: the Five Sanctioned Rows, the Push-Lag Autopsy
 
 2026-11-05 01:15 CET — the execution session that resumed after the 23-06

@@ -1,3 +1,10 @@
+> **Live remainder:** archived 2026-11-23 by the cadence ritual (16
+> unarchived vs max_unarchived=15). All open rows were verified
+> harvested/routed at archive time (freshness + audit-all + routing +
+> annotate green over the corpus); owning rows live in TODO_LIST.md
+> (§3, §5) and ROADMAP.md; foreign-repo rows are owned by their own
+> boards (merge-by-reference).
+
 # Status Report — Buildflow Lockfile-Drift Recovery: erraudit vendorHash Fix, 26-Finding Triage, Gated Docs Trains
 
 **Report:** 2026-11-06 (session ~05:00–05:45 CET) · **Repo:** docs-gates @ `4c73c78` (main) + erraudit @ `5c841cf2` (local, unpushed) · Origin: docs-gates pushed to `ea7f380` minus the docs train; erraudit pushed to `c1902fea` (its fix is local-only)
