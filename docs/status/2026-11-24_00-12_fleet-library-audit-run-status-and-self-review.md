@@ -7,16 +7,19 @@
 
 ## Scope
 
-**Verified for this report** (every number below was re-derived at
-2026-11-24 00:03–00:12 on tree `2258fe9`, not remembered):
+**Verified for this report** (every number below was re-derived between
+2026-11-24 00:03 and 00:40 on tree `2258fe9` plus this session's
+uncommitted edits, not remembered):
 
 - `python3 scripts/replay-verify.py` — 196 of 196 verify commands in the 23
   reports replay exactly (strict, order-insensitive).
 - `python3 scripts/citation-sweep.py` — 702 `path:line` citations resolve
   and are in range.
 - `go run ./cmd/docs-gates run .` — all ten gates PASS.
-- `go run ./cmd/docs-gates freshness --land-parity .` — the four TODO §10
-  rows landed byte-exact (SAFE batch 2026-11-23T18:37:23Z).
+- `go run ./cmd/docs-gates freshness --land-parity .` — the 26 TODO rows of
+  §10 and §11 landed byte-exact in the formatter's padded bytes (SAFE batch
+  2026-11-23T23:22:01Z); the 24 ROADMAP lines landed verbatim in the
+  earlier batch (SAFE 23:16:51Z, 46 content lines).
 - `freshness --dump-items` over each of the 12 unarchived reports, plus a
   bullet count of each `f)` section — the basis of d2.
 - `go run ./cmd/docs-gates freshness .` on this report before any
@@ -46,8 +49,9 @@
 - **Library-side observations are the auditors', not mine** (cmdguard
   suggester, go-codec knobs, go-credentials-store drift). I did not
   re-verify them in the library repos.
-- **The TODO_LIST.md corruption was diagnosed, not repaired**, and its
-  cause was not investigated past the date it first appeared.
+- **The TODO_LIST.md corruption was diagnosed, not repaired.** Its
+  mechanism was reproduced in a scratch file; which session wrote the bad
+  strikes was not determined.
 - **Whether the three alternate model providers still have no credits** —
   observed once, not re-checked.
 - **Archived reports were not opened** (ritual rule).
@@ -69,7 +73,7 @@
 - **Findings routed, not entombed**: four hardening rows in TODO_LIST §10
   (pre-flight SAFE, land-parity OK); the fifth landed in AGENTS.md.
 - **AGENTS.md carries the durable outcome**: the audit verdict, the
-  re-audit triggers and the torn-write decision (AGENTS.md:123-135).
+  re-audit triggers and the torn-write decision (AGENTS.md:123-134).
 - **Report defects the instruments caught and I fixed**: 58 non-literal
   transcripts made literal, 30 more in the strict pass, 33 tip queries
   pinned to the reviewed commit; wrong-content citations corrected
@@ -106,8 +110,8 @@
 - **CHANGELOG and FEATURES.** Undecided whether the scripts and the
   corpus count as shipped tooling; nothing recorded. Effort: S once
   decided.
-- **This report's own harvest.** Being executed as this file is written;
-  the ledger is appended below once the gates are green.
+- **This report's own harvest.** Works: 22 rows in TODO_LIST §11 and 24
+  lines in a new ROADMAP block, ledger appended below. Open: nothing.
 - **Push.** 34 commits sit ahead of origin/main; nothing was pushed (the
   daemon never pushes and I was not asked).
 
@@ -141,8 +145,14 @@
   2026-11-04, ten rows already at this session's baseline — not caused
   here. The cadence gate reports "0 struck DONE rows" and the battery is
   green; only the on-demand `rows` verb sees it (exit 1, two tables). Root
-  cause: not investigated; the shape matches the "row number is a
-  corruption machine" lesson already in AGENTS.md. Mitigation: none.
+  cause, reproduced in a scratch file: a strike written _before_ the row's
+  leading pipe gives the row a surplus cell, and the table formatter then
+  keeps that marker as the Task cell, shifts every column left and drops
+  the Evidence cell. docs-gates' own `strike` verb is not the source — it
+  writes inside the Task cell and refuses double strikes
+  (`internal/docsstrike/strike.go:170`); the shape is the "strike by row
+  number" anti-pattern AGENTS.md already warns about. Which session wrote
+  it was not determined. Mitigation: none.
 - **d2. The freshness gate is satisfiable by omission.** Of 12 unarchived
   reports, four (all of 2026-11-23) have no `f)` section and two have
   bullet-only `f)` sections from which zero items are extracted. Their
@@ -187,7 +197,9 @@
   which is why 18 reports needed reconciliation; (v) dashboard rows
   mis-sorted and a render trace generated from an outdated render — both
   caught by my own gates; (vi) two vision passes misread small text until
-  I cropped at 2x.
+  I cropped at 2x; (vii) I pre-flighted and landed the TODO §10 and §11
+  rows in compact bytes instead of the formatter's padded bytes — the
+  exact lesson AGENTS.md records — and had to re-judge them in rewrite mode.
 - **d7. Infrastructure.** Rate limits killed two of the first two
   auditor groups and one group twice more; three alternate providers had
   no credits (gemini, hyper, huggingface); glm-4.6v rejected the vision
@@ -211,9 +223,9 @@ Process and design, with the self-review answered inline.
   abbreviated transcripts. Fix: strict by default, as shipped.
 - **Formatters only inside `nix develop`.** Fix: one line in
   `docs/agent-notes.md`.
-- **dprint keeps a table compact only when the separator cells match the
-  header widths;** otherwise it pads every cell to the widest one. Impact:
-  a wide table becomes unreadable in source and trips a formatter warning.
+- **dprint pads every table to its widest cell.** Impact: a pre-flight run
+  on hand-written rows judges bytes the formatter then changes. Fix: format
+  first, then pre-flight those bytes (rewrite mode when the rows exist).
 - **Never read batched `sed` ranges as if ordered by argument.** Fix:
   `awk` with printed line numbers, or re-derive after every edit.
 - **Run the product's own on-demand verbs on the living docs** (`rows` on
@@ -332,7 +344,9 @@ list: routing follows the harvest ledger below.
 
 Routed by hand: the freshness judge called this report FRESH before
 anything was harvested (d2b). Pre-flight over the 46 new content lines:
-SAFE, 36 reports, nothing flips to DRIFT; land-parity OK for all 46. Every
+SAFE, 36 reports, nothing flips to DRIFT; all 46 landed verbatim. The 26
+TODO rows were then re-judged in rewrite mode after the formatter padded
+them (SAFE again, land-parity OK). Every
 premise was re-checked against TODO_LIST.md and ROADMAP.md on 2026-11-24
 before rowing (topic greps plus the gate and instrument outputs above).
 
