@@ -41,6 +41,10 @@ func knownKeys() map[string]bool {
 		"stamp_enforce":        true,
 		"vocabulary_files":     true,
 		"vocabulary_enforce":   true,
+		"agents_file":          true,
+		"agents_warn_days":     true,
+		"agents_max_days":      true,
+		"agents_enforce":       true,
 	}
 }
 

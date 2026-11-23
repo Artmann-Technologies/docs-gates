@@ -39,7 +39,23 @@ func Defaults() Config {
 		StampEnforce:       false,
 		VocabularyFiles:    []string{DefaultFeaturesFile},
 		VocabularyEnforce:  false,
+		AgentsFile:         DefaultAgentsFile,
+		AgentsWarnDays:     DefaultAgentsWarnDays,
+		AgentsMaxDays:      DefaultAgentsMaxDays,
+		AgentsEnforce:      false,
 	}
+}
+
+// Or is cmp.Or for comparable values (strings): the first non-zero
+// argument wins. The Settings projections' scalar fallback rides this,
+// the sibling of OrSlice.
+func Or[T comparable](override, def T) T {
+	var zero T
+	if override != zero {
+		return override
+	}
+
+	return def
 }
 
 // OrSlice is cmp.Or for slices (which are not comparable): the first

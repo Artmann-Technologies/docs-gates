@@ -41,6 +41,8 @@ const (
 	DefaultGateTimeoutSec = 300
 	DefaultStampWarnDays  = 90
 	DefaultStampFailDays  = 180
+	DefaultAgentsWarnDays = 7
+	DefaultAgentsMaxDays  = 14
 )
 
 // The battery's gate names — the whole valid skip_gates vocabulary.
@@ -57,6 +59,7 @@ const (
 	GateCitations  = "citations"
 	GateStamps     = "stamps"
 	GateVocabulary = "vocabulary"
+	GateAgents     = "agents"
 )
 
 // KnownGates lists every battery gate name skip_gates may name. A
@@ -72,6 +75,7 @@ func KnownGates() []string {
 		GateCitations,
 		GateStamps,
 		GateVocabulary,
+		GateAgents,
 	}
 }
 
@@ -115,6 +119,10 @@ type Config struct {
 	StampEnforce       bool    `json:"stamp_enforce"`    // stamps rollout: false = findings WARN and exit 0; true = FAIL rows fail
 	VocabularyFiles    []string `json:"vocabulary_files"`   // corpus the vocabulary gate judges (docs-vocabulary)
 	VocabularyEnforce  bool    `json:"vocabulary_enforce"` // vocabulary rollout: false = findings WARN and exit 0; true = FAIL
+	AgentsFile         string  `json:"agents_file"`        // the agent-config doc the agents gate dates (docs-agents)
+	AgentsWarnDays     int     `json:"agents_warn_days"`   // AGENTS.md older than this WARN
+	AgentsMaxDays      int     `json:"agents_max_days"`    // AGENTS.md older than this FAIL (a missing file always fails)
+	AgentsEnforce      bool    `json:"agents_enforce"`     // agents rollout: false = findings WARN and exit 0; true = FAIL
 }
 
 // Path returns the config file location under a repo root.

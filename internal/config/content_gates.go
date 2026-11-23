@@ -1,9 +1,10 @@
 package config
 
-// The three content gates (docs-stub, docs-citations, docs-stamps) and
-// their config surface: the shared glossary corpus, the census-pinned
-// bare-template digests, the citation extension list, and the stamp age
-// bars. One file so the content-gate contract reads as one table.
+// The content gates (docs-stub, docs-citations, docs-stamps,
+// docs-agents) and their config surface: the shared glossary corpus,
+// the census-pinned bare-template digests, the citation extension
+// list, the stamp age bars, and the agents freshness bars. One file so
+// the content-gate contract reads as one table.
 
 // DefaultDomainLanguageFile is the three content gates' shared default
 // corpus: the domain-language glossary every LarsArtmann repo carries
@@ -14,6 +15,10 @@ const DefaultDomainLanguageFile = "docs/DOMAIN_LANGUAGE.md"
 // DefaultFeaturesFile is the vocabulary gate's default corpus: the
 // feature inventory whose status columns the legend contract judges.
 const DefaultFeaturesFile = "FEATURES.md"
+
+// DefaultAgentsFile is the agents gate's default corpus: the
+// AI-collaboration contract every fleet repo carries at its root.
+const DefaultAgentsFile = "AGENTS.md"
 
 // defaultStubChecksums pins the bare DDD template fleet-wide: 38 repos
 // shipped byte-identical copies of it on census day (2026-11-21,
@@ -34,8 +39,8 @@ func defaultCitationExts() []string {
 }
 
 // validateContentGates enforces the content-gate value contract: stamp
-// bars are ordered, stub digests are md5/sha256 hex, citation
-// extensions are dot-prefixed.
+// and agents age bars are ordered, stub digests are md5/sha256 hex,
+// citation extensions are dot-prefixed.
 func (c Config) validateContentGates() error {
 	if c.StampWarnDays < 1 || c.StampFailDays < 1 {
 		return invalidf("stamp thresholds must be >= 1, got warn=%d fail=%d", c.StampWarnDays, c.StampFailDays)
@@ -46,6 +51,18 @@ func (c Config) validateContentGates() error {
 			"stamp_fail_days (%d) must be >= stamp_warn_days (%d) — the FAIL bar cannot sit below the WARN bar",
 			c.StampFailDays,
 			c.StampWarnDays,
+		)
+	}
+
+	if c.AgentsWarnDays < 1 || c.AgentsMaxDays < 1 {
+		return invalidf("agents thresholds must be >= 1, got warn=%d max=%d", c.AgentsWarnDays, c.AgentsMaxDays)
+	}
+
+	if c.AgentsMaxDays < c.AgentsWarnDays {
+		return invalidf(
+			"agents_max_days (%d) must be >= agents_warn_days (%d) — the FAIL bar cannot sit below the WARN bar",
+			c.AgentsMaxDays,
+			c.AgentsWarnDays,
 		)
 	}
 
