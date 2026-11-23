@@ -35,7 +35,11 @@ NOT-ADOPTED — every rendering surface docs-gates owns (verdict matrix lines, o
 
 ### Why the library exists vs why the consumer does not need it
 
-go-output's pitch is "write your data once, render it anywhere": one `Table`/`Tree`/`Graph` value, sixteen format renderers, runtime format selection via the `Format` enum (go-output/format.go:48), unified dispatch through `RenderTable` (go-output/render_tabledata.go:45). That value proposition begins at the SECOND output format. docs-gates' rendering obligations run in the opposite direction: the human face and the JSON face are not two renders of one dataset — they are two different contracts (progress + verdict lines vs one machine document), each byte-pinned independently by the parity goldens (internal/battery/parity_test.go:188), with `--json` deliberately reserving stdout for the document alone (internal/battery/battery.go:107-110). A format matrix would be a liability: every format would be an unpinned surface the parity ritual has to grow to cover, or an unpinned surface it silently does not.
+go-output's pitch is "write your data once, render it anywhere": one `Table`/`Tree`/`Graph` value, sixteen format renderers, runtime format selection via the `Format` enum (go-output/format.go:48), unified dispatch through `RenderTable` (go-output/render_tabledata.go:45). That value proposition begins at the SECOND output format. docs-gates' rendering obligations run in the opposite direction: the human face and the JSON face are not two renders of one dataset — they are two different contracts (progress + verdict lines vs one machine document), each byte-pinned independently by the parity goldens (internal/battery/parity_test.go:188), with `--json` deliberately reserving stdout for the document alone (internal/battery/battery.go:97, the render at :260). A format matrix would be a liability: every format would be an unpinned surface the parity ritual has to grow to cover, or an unpinned surface it silently does not.
+
+### The dependency shape, submodule by submodule
+
+The workspace is honest about weight — formats are modules so importers pay only for what they use — but the formats a table-centric consumer would want are exactly the heavy ones: `table` requires lipgloss v2 (go-output/table/go.mod:5), `tui` requires bubbletea + lipgloss + charmbracelet/x (go-output/tui/go.mod:5-10), `nom` (the TruncateVisible home) rides the full charmbracelet ANSI stack (go-output/nom/go.mod:5-13), and `bdd` requires ginkgo/v2 + gomega plus a 20-line indirect tree (go-output/bdd/go.mod:8-13). Even the root module — the zero-heavy-deps selling point — carries three non-stdlib requires (go-output/go.mod:5-10). For a repo whose CI fails on ANY root require (scripts/stack-drift-check.sh:9), there is no light corner of this library to stand on.
 
 ## What docs-gates does today
 
@@ -61,6 +65,15 @@ What the consumer does instead, per surface:
 ### The two golden layers, and why a library cannot own them
 
 The rendering correctness story is not "code that formats" — it is two pinned invariants: (1) `TestParityGolden` byte-compares fifteen invocations across five corpora (internal/battery/parity_test.go:188, re-pin only via `PARITY_UPDATE=1` at :189), and (2) the defaults-are-historical invariant — zero-value Settings fall back to the pre-extraction constants so a config-less repo is byte-for-byte the old battery (AGENTS.md:40-42). Both bind the OUTPUT bytes, not the rendering mechanism. Swapping the mechanism for go-output would obligate a full golden re-pin with no behavioral gain — the textbook "golden bump is a contract change" the repo warns about (AGENTS.md:51-54). The goldens are the reason there is no rendering debt to share with the fleet: the shared thing IS the pinned bytes, and those already travel (the provider consumes them cross-repo).
+
+### The consumer's full output inventory (nothing hides here)
+
+Enumerating every output shape the binary produces — this is the completeness argument that no go-output capability is being hand-rolled under a different name:
+
+- Verdict/heartbeat lines: `PASS/FAIL/SKIP` matrix rows, per-gate `gate X ...` progress, timeout/FATAL notices — all `gatecli.Outf`-family one-liners (internal/battery/battery.go:317-339; internal/gatecli/gatecli_output.go:32).
+- Finding lines: each gate names its findings as prefixed lines with file:line anchors and truncated snippets — e.g. `UNROUTED [report:line] text` (internal/docsrouting/docsrouting.go:258), `table at line N ...` (internal/docsrows/rows.go:157), rule-F spacing findings (internal/docsannotate/spacing.go:64). No columns, no alignment, no footers — a line protocol, golden-pinned.
+- One JSON document: the `--json` face (internal/battery/battery.go:264-315).
+- Files: the four guarded living-doc writes covered by the go-atomic-write report; the reports themselves (docs/status/*.md) are authored by the status-report SKILL, outside this Go code.
 
 ## Gap analysis — should docs-gates adopt it?
 

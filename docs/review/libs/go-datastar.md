@@ -29,6 +29,10 @@ NOT-APPLICABLE — go-datastar is the server side of a hypermedia protocol (SSE-
 | 7 | `datastartest` module — SSE parsing, typed decoding, and assertion helpers for E2E-testing DataStar handlers | No — nothing to test end-to-end over SSE; gates are tested through their real `Run` functions with captured stdout | N/A | go-datastar/datastartest/assert.go |
 | 8 | Templ/GoStar rendering adapters for patch content | No — the only "renderer" the docs domain knows is the markdown viewer a human points at docs/status/*.md, produced by the status-report skill, not this binary | N/A | go-datastar/adapters.go |
 
+### What the library is, in one paragraph
+
+The Go server-side vocabulary of the DataStar hypermedia protocol: DOM patches, signal updates, and script executions pushed to the browser as Server-Sent Events over go-sse. Its differentiating bet is that "patches are values, not method calls" — every patch implements `Patch` and can be built offline from any connection (go-datastar/patch.go:25), then routed through a broadcaster with reconnection replay (go-datastar/broadcast/broadcaster.go:57, ring-buffer capacity at go-datastar/broadcast/options.go:63), persisted, or filtered per subscriber. The [Unreleased] section is an activity-feed showcase exercising exactly that pipeline (go-datastar/CHANGELOG.md:8-19). Everything it offers presumes an HTTP response stream and a browser on the other end.
+
 ## What docs-gates does today
 
 Zero usage, zero presence in either module graph. Verified:
@@ -46,6 +50,10 @@ No hand-rolled hypermedia-equivalent exists either — the absence is structural
 - **No interactive state to sync**: "signals" in this repo's vocabulary would collide with the docs domain's `report_dir` tokens; the closest thing to live state is the half-budget watchdog line, and its transport is stderr via `gatecli.LiveErrf` — one fire-and-forget write, no session.
 - **Output faces are exactly two, both pinned**: the human verdict matrix (internal/battery/battery.go:317) and the `--json` machine document (internal/battery/battery.go:264-295), byte-pinned by parity goldens (internal/battery/parity_test.go:188). Neither has a browser consumer; the provider is the sole machine consumer and it wants one JSON document on stdout, the opposite of an event stream.
 
+### The consumer's entire user-facing surface
+
+Worth enumerating to prove no interactive channel hides anywhere: fourteen verbs dispatched from a fixed table (cmd/docs-gates/verbs.go:28-44), each rendering verdict/finding lines to stdout/stderr through the `gatecli` write family and exiting 0/1/2 (internal/gatecli/gatecli.go:27-29); one JSON face; stdin consumed exactly once (`--pre-flight` candidate lines); four guarded file writes (the go-atomic-write report's four sites). No port, no socket, no long-lived connection, no push — the complete inventory of "delivery" this binary knows is: process exit and file bytes. A hypermedia protocol has nothing to attach to.
+
 ## Gap analysis — should docs-gates adopt it?
 
 **The fleet argument, addressed.** Both prongs score zero. docs-gates re-implements nothing go-datastar offers — there is no HTML fragment, no SSE framing, no signals store, no reconnection semantics anywhere in the tree (that absence is what the group's zero-hit sweeps above prove). And the problems go-datastar solves (live DOM patching, broadcast fan-out, replay on reconnect) are problems only a web-served product has; docs-gates' consumers are a terminal, a CI runner, and one BuildFlow plugin. The fleet argument's insulation half works exactly as intended here: the library solves a problem this consumer deliberately does not have — "no net/http, no network" is stated architecture, and it keeps the nix build hermetic and the goldens deterministic.
@@ -55,6 +63,8 @@ No hand-rolled hypermedia-equivalent exists either — the absence is structural
 **The honest adjacent thought, declined.** A "docs-health dashboard" that live-updates as reports land would be a legitimate go-datastar product — but it belongs to a separate fleet service that EXECS `docs-gates run --json` (the exact pattern pkg/provider already demonstrates), never to the gate binary itself. Nothing in the consumer's ROADMAP or TODO_LIST points at a dashboard.
 
 RECONSIDER-WHEN: the fleet ever builds a live docs-health dashboard (web page showing gate verdicts/report freshness as files change). That project should adopt go-datastar (plus go-filewatcher for the change source) from day one and shell out to this binary for verdicts — the consumer itself stays terminal-only.
+
+**Fleet-argument scorecard, per prong.** (a) "Re-implementation debt": zero — no HTML, no SSE framing, no signals store, no reconnect state anywhere in the tree (the group's zero-hit sweeps are the proof). (b) "Collective improvement": nothing to inherit under NOT-APPLICABLE — protocol/vocabulary gains in go-datastar (new patch kinds, replay semantics) benefit web surfaces this consumer will never have while it remains a CLI. The correct fleet-level move if a dashboard is ever wanted is adopting go-datastar in the dashboard repo and exec-ing `docs-gates run --json` there — the provider module already demonstrates that this binary integrates as a SUBPROCESS, which is the whole architectural answer.
 
 ## Ranked opportunities
 
@@ -71,6 +81,9 @@ $ git -C /home/lars/projects/go-datastar tag --list | tail -3
 v0.6.2
 v0.6.3
 v0.7.0
+$ head -10 /home/lars/projects/go-datastar/go.mod
+# module github.com/larsartmann/go-datastar — requires static v0.8.0,
+# go-error-family v0.12.0, go-sse v0.7.0
 
 $ rg -n "datastar" /home/lars/projects/docs-gates -g '!docs/review/**' --type go
 # rc=1 (zero Go-file hits)

@@ -30,6 +30,10 @@ NOT-APPLICABLE — docs-gates is a run-to-completion CLI with no socket, no list
 | 8 | `FlightRecorder` — execution-trace recorder with slow-request triggers and Prometheus metrics | No — the battery's observability surface is its exit code plus byte-pinned stdout/stderr | N/A | go-daemon/flightrecorder.go:57-165 |
 | 9 | `IsSocketAlive` liveness probe | No — no socket file to probe | N/A | go-daemon/socket.go:418 |
 
+### What the library is, in one paragraph
+
+The extracted lifecycle chassis of a proven unix-socket daemon: `Start` owns an explicit ordering — stale-socket cleanup, listen, readiness probe, `sd_notify READY=1`, graceful drain inside `WithShutdownGracePeriod`, socket removal on EVERY exit path (go-daemon/socket.go:50-51, :207). Around it sit the serving ancillaries a real daemon accumulates: negotiated response codecs with pooled-buffer writes (go-daemon/write.go:29-66), a WPT-corpus-pinned SSE parser for streaming endpoints (go-daemon/sse.go:42), and an execution-trace flight recorder with slow-request triggers (go-daemon/flightrecorder.go:57-165). "Mechanism, not policy" is its own README framing — it wants a long-lived process to govern.
+
 ## What docs-gates does today
 
 Zero usage, zero presence in either module graph. Verified:
@@ -49,6 +53,19 @@ There is likewise no hand-rolled daemon-equivalent to deduplicate:
 - **No listener or serve loop**: `rg -n "ListenAndServe|http\.Server|net\.Listen" internal/ cmd/ --type go` → rc=1. The process-graph edges are: `main.go` → verb `Run` → gates; `pkg/provider` execs the binary from PATH once per BuildFlow Detect (pkg/provider/provider.go:149); flake wrappers exec `docs-gates <verb>` under legacy names. Every edge is one-shot exec with an exit code.
 - **No persistence between runs**: the only cross-run state is the gitignored land-parity stamp (internal/docsfreshness/preflight_land.go:28), explicitly "local editor state, never shared" — the opposite of a daemon's coordination state.
 
+### The consumer's complete process inventory
+
+For completeness, everything that could be mistaken for daemon surface, audited:
+
+| Candidate | What it actually is | Verdict |
+|---|---|---|
+| `internal/battery/battery_watchdog.go` timer | A one-shot `time.NewTimer` firing the half-budget warning while a gate runs; dies with the gate | bounded wait, not supervision |
+| `gatecli.CaptureOutputWithTimeout` | A process-global stream swap with drainers and a timeout; returns when the gate returns | capture, not a loop |
+| `cmd/docs-gates` verb dispatch | A table of fourteen `Run([]string) int` entries (cmd/docs-gates/verbs.go:28-44); dispatch and exit | pure CLI |
+| `pkg/provider` | A BuildFlow toolsdk registration that execs the binary once per Detect | plugin, not a server |
+| The auto-commit daemon | Fleet infrastructure OUTSIDE this repo; docs-gates is the thing being committed to, never the supervisor | not this codebase |
+| The land-parity stamp | One gitignored JSON file, written best-effort, read next run | incidental state, no lifecycle |
+
 ## Gap analysis — should docs-gates adopt it?
 
 **The fleet argument, addressed.** Both prongs score zero. docs-gates re-implements nothing go-daemon offers — there is no socket, no graceful shutdown, no readiness protocol, no negotiation, no supervision anywhere in the tree. And the problems go-daemon solves (long-lived socket servers, systemd integration, content negotiation across clients, trace capture on slow requests) belong to a serving process; docs-gates' product is a deterministic batch verdict whose every output byte is pinned by parity goldens (internal/battery/parity_test.go:188) and whose contract is three exit codes (internal/gatecli/gatecli.go:27-29). Turning it into a served daemon would invert the architecture the extraction was FOR: fourteen verbs, each a library `Run([]string) int`, dispatched once.
@@ -56,6 +73,8 @@ There is likewise no hand-rolled daemon-equivalent to deduplicate:
 **Root-contract bar.** Barred outright and doubly: five direct requires including prometheus/client_golang, and a socket server would reintroduce the long-running-process class the consumer's "no long-running process" boundary excludes. pkg/provider is equally wrong a home — it is a BuildFlow plugin that registers tools and execs a binary; it does not serve.
 
 RECONSIDER-WHEN: docs-gates ever grows a resident service — the only realistic shape is a `docs-gates serve` mode exposing the battery over a unix socket for editors/CI to poll verdicts live. If that day comes, go-daemon (in a nested module) is the right chassis for it, and the parity goldens would need a deliberate carve-out for the served faces. Nothing in the current corpus or ROADMAP points there.
+
+**Fleet-argument scorecard, per prong.** (a) "Re-implementation debt": zero — the sweeps above show no signal handling, no listener, no lifecycle code anywhere in the tree; the battery's answer to a hung process (per-gate `gate_timeout_sec` cap converting a wedge into a named FAIL row, then moving on) is a batch-design answer, not a daemon-supervision answer, so it is not a hand-rolled go-daemon. (b) "Collective improvement": nothing to inherit — lifecycle ordering, sd_notify, and negotiation improvements accrue to serving processes; this consumer has none and gains none by staying out. The one fleet-relevant note: any FUTURE daemon in the docs ecosystem (e.g. a verdict-serving wrapper) should reach for go-daemon rather than hand-rolling lifecycle — that adoption belongs to the wrapper repo, with this binary as its exec'd backend (the pkg/provider pattern, again).
 
 ## Ranked opportunities
 
@@ -71,6 +90,9 @@ v0.4.0-39-g6b9ee1d
 $ git -C /home/lars/projects/go-daemon tag --list | tail -2
 v0.3.1
 v0.4.0
+$ head -12 /home/lars/projects/go-daemon/go.mod
+# module github.com/LarsArtmann/go-daemon — go-systemd/v22, go-codec,
+# go-flightrecorder, go-sse/sseparse, prometheus/client_golang direct
 
 $ rg -n "go-daemon|godmn" /home/lars/projects/docs-gates -g '!docs/review/**' --type go
 # rc=1 (zero Go-file hits)
