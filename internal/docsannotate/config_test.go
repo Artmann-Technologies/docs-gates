@@ -81,7 +81,11 @@ func annotateScopeFixture(t *testing.T) string {
 	}
 
 	archived := "# Old\n\n## f) Next\n\n1. ~~a history-locked bare strike~~\n"
-	if err := os.WriteFile(filepath.Join(status, "archived", "2026-01-02_00-00_OLD.md"), []byte(archived), 0o644); err != nil {
+	if err := os.WriteFile(
+		filepath.Join(status, "archived", "2026-01-02_00-00_OLD.md"),
+		[]byte(archived),
+		0o644,
+	); err != nil {
 		t.Fatal(err)
 	}
 
@@ -92,7 +96,11 @@ func annotateScopeFixture(t *testing.T) string {
 func TestRunAnnotateCorpusUnarchivedExcludesArchive(t *testing.T) {
 	root := annotateScopeFixture(t)
 
-	if err := os.WriteFile(filepath.Join(root, ".docs-gates.json"), []byte(`{"annotate_corpus": "unarchived"}`), 0o644); err != nil {
+	if err := os.WriteFile(
+		filepath.Join(root, ".docs-gates.json"),
+		[]byte(`{"annotate_corpus": "unarchived"}`),
+		0o644,
+	); err != nil {
 		t.Fatal(err)
 	}
 
@@ -101,7 +109,12 @@ func TestRunAnnotateCorpusUnarchivedExcludesArchive(t *testing.T) {
 	})
 
 	if captured.Code != gatecli.ExitClean {
-		t.Fatalf("unarchived scope must stay green without findings, code = %d:\n%s%s", captured.Code, captured.Stdout, captured.Stderr)
+		t.Fatalf(
+			"unarchived scope must stay green without findings, code = %d:\n%s%s",
+			captured.Code,
+			captured.Stdout,
+			captured.Stderr,
+		)
 	}
 
 	if !strings.Contains(captured.Stdout, "CLEAN") {

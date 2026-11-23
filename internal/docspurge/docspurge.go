@@ -122,7 +122,9 @@ func execute(opts Options) int {
 
 			gatecli.Errf(
 				"docs-purge: REFUSED %s:%d carries a strike but the row status still reads OPEN (%q) — stray ~~ noise on open work is not done work; remove the strike or complete the row first\n",
-				opts.File, g.lineNo, g.cell,
+				opts.File,
+				g.lineNo,
+				g.cell,
 			)
 
 			continue

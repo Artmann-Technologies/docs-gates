@@ -342,7 +342,10 @@ func Run(args []string) int {
 		} else {
 			gatecli.Outf(
 				"WARN %s:%d: status %s is not defined by the file's own legend — %s (vocabulary_enforce=false, warn mode)\n",
-				finding.Path, finding.Line, finding.Token, remedy,
+				finding.Path,
+				finding.Line,
+				finding.Token,
+				remedy,
 			)
 		}
 	}

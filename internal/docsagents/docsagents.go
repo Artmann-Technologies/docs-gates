@@ -113,7 +113,12 @@ func Run(args []string) int {
 	printFindings(findings, settings)
 
 	if len(findings) == 0 {
-		gatecli.Outf("OK %s within the freshness bars (warn %dd, max %dd)\n", settings.File, settings.WarnDays, settings.MaxDays)
+		gatecli.Outf(
+			"OK %s within the freshness bars (warn %dd, max %dd)\n",
+			settings.File,
+			settings.WarnDays,
+			settings.MaxDays,
+		)
 
 		return gatecli.ExitClean
 	}

@@ -313,4 +313,3 @@ func TestParseArgsKnowsTheContract(t *testing.T) {
 		t.Fatalf("options misparsed: %+v", opts)
 	}
 }
-

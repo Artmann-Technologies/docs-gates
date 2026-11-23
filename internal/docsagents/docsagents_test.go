@@ -20,7 +20,11 @@ func writeAgentsMd(t *testing.T, root string, ageDays int) time.Time {
 
 	path := filepath.Join(root, config.DefaultAgentsFile)
 
-	if err := os.WriteFile(path, []byte("# Agent Configuration\n\ncontext, conventions, key patterns\n"), 0o644); err != nil {
+	if err := os.WriteFile(
+		path,
+		[]byte("# Agent Configuration\n\ncontext, conventions, key patterns\n"),
+		0o644,
+	); err != nil {
 		t.Fatal(err)
 	}
 
@@ -36,7 +40,11 @@ func writeAgentsMd(t *testing.T, root string, ageDays int) time.Time {
 func writeEnforcedConfig(t *testing.T, root string) {
 	t.Helper()
 
-	if err := os.WriteFile(filepath.Join(root, config.FileName), []byte(`{"agents_enforce": true}`), 0o644); err != nil {
+	if err := os.WriteFile(
+		filepath.Join(root, config.FileName),
+		[]byte(`{"agents_enforce": true}`),
+		0o644,
+	); err != nil {
 		t.Fatal(err)
 	}
 }
