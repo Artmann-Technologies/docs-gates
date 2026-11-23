@@ -25,6 +25,7 @@ a library:
 | `internal/docs{freshness,annotate,routing,cadence,strike}` | the five historical gates: each a `Run([]string) int` whose argv matches the historical standalone binaries, each with a `Settings` projection (zero values → historical constants) + docs-purge                                    |
 | `internal/docs{stub,citations,stamps}`                     | the three content gates over the domain-language glossary (2026-11-21 census): bare-template checksums, code-citation resolution, verification-stamp age bars; warn-mode rollout knobs (`*_enforce`), same `Run`/`Settings` shape   |
 | `internal/docsvocabulary`                                  | the vocabulary gate (2026-11-22, #11): FEATURES Status-column tokens must be defined by the file's own `## Status legend` section; cell-aware via the exported `docsrows.Tables`/`SplitCells` walk; warn-mode `vocabulary_enforce` |
+| `internal/docsagents`                                      | the agents gate (2026-11-23): AGENTS.md must exist and stay fresh — mtime age bars `agents_warn_days` (7) / `agents_max_days` (14), missing file is fail severity; warn-mode `agents_enforce`                                     |
 | `pkg/provider`                                             | BuildFlow toolsdk provider — a SEPARATE go module that EXECS the binary from PATH, parses `run --json` into findings (strict decode), registers via `toolsdk.Register`                                                              |
 
 Control flow: `main.go` → verb's `Run(rest)` → `gatecli.Parse` →
@@ -49,11 +50,12 @@ keep bare `FATAL: %v`.
 - **The five legacy names are API** (the four content gates carry no legacy wrapper): flake wrappers exec
   `docs-gates <verb>`; each answers `--version` under its legacy name.
   Never remove a wrapper without a migration plan.
-- **The battery runs NINE gates** (2026-11-22): freshness, audit-all,
-  annotate, routing, cadence, stub, citations, stamps, vocabulary —
+- **The battery runs TEN gates** (2026-11-23): freshness, audit-all,
+  annotate, routing, cadence, stub, citations, stamps, vocabulary,
+  agents —
   `KnownGates` is the whole `skip_gates` vocabulary; the JSON face's
   gate rows are generic so the provider absorbs a new row without
-  drift (proven when vocabulary joined).
+  drift (proven when vocabulary joined, re-proven when agents joined).
 - **Parity is enforced**: `TestParityGolden` pins byte output of
   fifteen invocations (the five gates + battery + battery-json + the
   margins/dump-items/preflight arms, incl. intended non-clean exits)

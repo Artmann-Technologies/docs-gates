@@ -20,6 +20,8 @@ match the annotated git tags; anything after the newest tag sits under
 
 ### Added
 
+- **`agents` gate (the battery's tenth row)**: AGENTS.md must exist and stay fresh — the gate stats the file's mtime and flags it WARN past `agents_warn_days` (default 7), FAIL past `agents_max_days` (default 14, the proven bar go-structure-linter's agent-config rule carried before it retired its freshness check); a missing file is fail severity (the agent contract is fleet-mandatory). Warn-mode rollout follows the docsstub doctrine (`agents_enforce` flips WARN to FAIL).
+
 - **`annotate_corpus` config knob** mirrors `audit_corpus`: `"all"` (default) keeps the archived subdir in the annotate corpus; `"unarchived"` drops it — archived strikes are history-locked and can never be legitimately repaired, so repos whose archive alone could never green no longer need to skip the whole gate (closed #4).
 
 - **`vocabulary` gate (the battery's ninth row)**: every FEATURES.md table Status-column token must be defined by the file's own `## Status legend` section — the legend table AND the prose around it define tokens; extraction is cell-aware through the docsrows table walk (`JSON` in a Notes cell never flags), unused legend entries stay informational, and the warn-mode rollout follows the docsstub doctrine (`vocabulary_enforce` flips WARN to FAIL; closed #11).

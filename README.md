@@ -1,8 +1,8 @@
 # docs-gates
 
 The docs-health battery gates as one standalone, stdlib-only Go binary.
-The battery runs nine gates — freshness, audit-all, annotate, routing,
-cadence, stub, citations, stamps, vocabulary — as one verdict matrix;
+The battery runs ten gates — freshness, audit-all, annotate, routing,
+cadence, stub, citations, stamps, vocabulary, agents — as one verdict matrix;
 `rows` is the read-only report-table gate, and `strike`/`purge` are
 guarded mutator verbs outside the battery.
 
@@ -30,12 +30,12 @@ go install github.com/Artmann-Technologies/docs-gates/cmd/docs-gates@v0.4.0
 docs-gates run .
 ```
 
-Verbs: `run | freshness | annotate | rows | routing | cadence | stub | citations | stamps | vocabulary | strike | purge`.
+Verbs: `run | freshness | annotate | rows | routing | cadence | stub | citations | stamps | vocabulary | agents | strike | purge`.
 The five original gate verbs keep their historical standalone names
 (`docs-freshness`, `docs-annotate`, `docs-routing`, `docs-cadence`,
 `docs-strike`) as flake wrappers and answer `--version` under those
-names. `rows` and the four content gates (`stub`, `citations`,
-`stamps`, `vocabulary`) were born inside this binary and deliberately
+names. `rows` and the content gates (`stub`, `citations`,
+`stamps`, `vocabulary`, `agents`) were born inside this binary and deliberately
 carry no legacy wrapper. `docs-gates help` (or `<verb> --help`)
 explains every verb and its flags; a typo'd verb gets a did-you-mean
 suggestion.
@@ -173,12 +173,18 @@ live slice annotated no longer need to skip the whole gate).
 drive the vocabulary gate: every table Status-column token must be
 defined by the file's own `## Status legend` section; findings WARN
 until `vocabulary_enforce` flips.
+`agents_file` (default `AGENTS.md`), the age bars `agents_warn_days`
+(default 7) and `agents_max_days` (default 14), and `agents_enforce`
+drive the agents gate: the file's mtime is flagged WARN past the warn
+bar, FAIL past the max bar (a missing file is always fail severity);
+findings WARN until `agents_enforce` flips.
 `gate_timeout_sec`
 caps each battery gate's wall clock (default 300s; `0` disables) — an
 expired gate becomes a FAIL row (`rc=timeout`) and the battery moves
 on, so a wedged gate can never hang the run. `skip_gates` entries
 must name real battery gates (`freshness`, `audit-all`, `annotate`,
-`routing`, `cadence`, `stub`, `citations`, `stamps`, `vocabulary`) — a
+`routing`, `cadence`, `stub`, `citations`, `stamps`, `vocabulary`,
+`agents`) — a
 typo exits 2 rather than silently running the
 gate you meant to drop. Unknown keys warn; malformed JSON or invalid
 values exit 2 — a gate silently running wrong thresholds is worse than a
