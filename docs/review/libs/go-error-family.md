@@ -128,7 +128,7 @@ stack-drift fails), force re-pinning every FATAL-line golden whose wording moved
 `ExitCode(err)` values that then have to be overridden back to 1/2 everywhere. Negative leverage.
 
 **pkg/provider check.** The one legitimate third-party home — and even there the fit is absent:
-provider failures become `finding.Finding`s with severity (provider.go:241-289), not process
+provider failures become `finding.Finding` values with severity (provider.go:241-289), not process
 exits or HTTP responses, the two things errorfamily's boundary helpers produce. The one marginal
 idea (classifying "binary not on PATH" as Rejection vs "exec failed" as Transient for
 BuildFlow-side retry) adds a require for information no BuildFlow consumer currently acts on.
