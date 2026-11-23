@@ -124,7 +124,22 @@ usage_test.go.
   goldens pin semantics); samber/lo withheld (stdlib-only root); jsonv1tov2
   declined (`DisallowUnknownFields` is the row-shape contract, byte-pinned);
   crypto/md5 in docsstub is census-fingerprint matching, not security (the
-  library-policy ERROR is a standing known-delta, documented here).
+  library-policy ERROR is a standing known-delta, documented here); the
+  mutators write through plain `os.WriteFile` under `--apply` — git is the
+  atomicity layer for tracked files, and the purge two-write window is
+  accepted (TODO_LIST §10 carries the CHANGELOG-first order swap).
+- **Fleet library audit (2026-11-23, `docs/review/libs/index.html` + 23
+  per-library reports):** NO LarsArtmann library is adopted, and that is
+  the correct call for all 23 subjects — 16 NOT-APPLICABLE (no HTTP,
+  server, secrets, DB or event problem class), 7 NOT-ADOPTED with named
+  overlap barred by the root contract (cmdguard, go-appkit,
+  go-atomic-write, go-business-rules, go-codec, go-error-family,
+  go-output). New serving, watch or daemon capability belongs in a
+  sibling module that execs the binary (the `pkg/provider` pattern),
+  never in the root. **Refresh the audit when** cmdguard ships a
+  zero-dependency core, stdlib-only is relaxed fleet-wide, or such a
+  sibling module is created. `scripts/citation-sweep.py` and
+  `scripts/replay-verify.py` re-verify the corpus mechanically.
 - **`nix fmt` needs the tracked treefmt.toml.** **Darwin is deliberately absent** from flake systems (revisit on a real consumer).
 - **erraudit rides the flake as a PRIVATE git+ssh master-tracking input**
   (its OWN hermetic package; rev pinned in flake.lock). Probes may
