@@ -24,9 +24,9 @@ repo is the one tool any repo can adopt: drop a binary, optionally seed a
 ## Quick start
 
 ```console
-nix run github:Artmann-Technologies/docs-gates/v0.4.0 -- run .
+nix run github:Artmann-Technologies/docs-gates/v0.5.0 -- run .
 # or
-go install github.com/Artmann-Technologies/docs-gates/cmd/docs-gates@v0.4.0
+go install github.com/Artmann-Technologies/docs-gates/cmd/docs-gates@v0.5.0
 docs-gates run .
 ```
 
@@ -82,7 +82,7 @@ Pin the release — a floating install can drift from the battery your CI
 judged:
 
 ```console
-go run github.com/Artmann-Technologies/docs-gates/cmd/docs-gates@v0.4.0 run .
+go run github.com/Artmann-Technologies/docs-gates/cmd/docs-gates@v0.5.0 run .
 ```
 
 **2. Wire CI (the dogfood job).** Full history is load-bearing: the
@@ -96,7 +96,7 @@ dogfood:
   steps:
     - uses: actions/checkout@v7 # with: { fetch-depth: 0 }
     - uses: actions/setup-go@v7 # with: { go-version: "1.27" }
-    - run: go run github.com/Artmann-Technologies/docs-gates/cmd/docs-gates@v0.4.0 run .
+    - run: go run github.com/Artmann-Technologies/docs-gates/cmd/docs-gates@v0.5.0 run .
 ```
 
 Bump the pin manually when a docs-gates release lands (dependabot does
@@ -261,8 +261,8 @@ echo "- the new TODO row text" | docs-gates freshness . --pre-flight
 
 ## Releases
 
-v0.4.0 is current (see [CHANGELOG.md](CHANGELOG.md)); the BuildFlow
-provider module is versioned separately as `pkg/provider/v0.2.0`.
+v0.5.0 is current (see [CHANGELOG.md](CHANGELOG.md)); the BuildFlow
+provider module is versioned in lockstep as `pkg/provider/v0.5.0`.
 `--version` prints the flake's shortRev, so between tags it names a
 commit, not a release.
 
