@@ -21,18 +21,18 @@ NOT-APPLICABLE — go-sse is a Server-Sent Events transport (wire serialization,
 
 ## What the library offers
 
-| # | Capability | Applies to docs-gates? | Status | Evidence |
-|---|---|---|---|---|
-| 1 | `Event`/`EventID` wire types + `WriteEvent` allocation-minimized serializer (multi-line data, CRLF) | No — no SSE wire output; stdout is matrix lines and one JSON doc | N/A | go-sse/event.go:29, :91, :167 |
-| 2 | `Stream` — single connection lifecycle: headers, send, heartbeat, context, `Last-Event-ID` | No — no connections, no long-running process | N/A | go-sse/stream.go:38, :66, :83 |
-| 3 | `Broadcaster[T]` fan-out with subscribe/broadcast/close, drop hooks, bounded buffers | No — no subscribers; each run is single-consumer | N/A | go-sse/fanout.go:24-74 |
-| 4 | `EventStore` + `Replay` reconnection replay (missed events on reconnect) | No — no reconnecting clients; the provider execs fresh runs | N/A | go-sse/replay.go; go-sse/README.md:22 |
-| 5 | `SubscribeFilter` / `FilteredEventStore` predicate push-down | No | N/A | go-sse/filter_test.go surface; go-sse/README.md:21, :23 |
-| 6 | Heartbeat/comment writer to defeat idle-proxy timeouts | No — no proxies; the battery's own anti-wedge is the timeout watchdog, in-process | N/A | go-sse/event.go:239; consumer internal/battery/battery_watchdog.go:25 |
-| 7 | `sseparse` (submodule v0.2.1): zero-dependency WHATWG-conformant wire-format parser (`ReadEvents`, `StreamReader`) | No — nothing parses `event:`/`data:`/`id:` lines; see row 10 | N/A | go-sse/sseparse/README.md:3-4; go-sse/sseparse/reader.go:90, :197 |
-| 8 | `sseparse` WPT conformance corpus (embedded, regenerable vectors) | No — no protocol conformance duty | N/A | go-sse/sseparse/corpus.go:10-18 |
-| 9 | `ssetest` (submodule v0.5.0): httptest-based collectors + assertions for SSE handlers | No — no handlers to exercise; gates test through real `Run` + captured stdio | N/A | go-sse/ssetest/collect.go:25, :129; go-sse/ssetest/compat.go:145 |
-| 10 | Line-oriented stateful scanning of a text corpus (the parsing concept underneath) | Yes in concept — the gates scan Markdown line by line | Missed Opportunity (solved with stdlib) — whole-file reads + `strings.Split` + small scanner structs; no incremental `io.Reader` streaming anywhere | consumer internal/docsrows/rows.go:211; internal/docsrows/scan.go:150-166 |
+| #  | Capability                                                                                                         | Applies to docs-gates?                                                            | Status                                                                                                                                              | Evidence                                                                  |
+| -- | ------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------- |
+| 1  | `Event`/`EventID` wire types + `WriteEvent` allocation-minimized serializer (multi-line data, CRLF)                | No — no SSE wire output; stdout is matrix lines and one JSON doc                  | N/A                                                                                                                                                 | go-sse/event.go:29, :91, :167                                             |
+| 2  | `Stream` — single connection lifecycle: headers, send, heartbeat, context, `Last-Event-ID`                         | No — no connections, no long-running process                                      | N/A                                                                                                                                                 | go-sse/stream.go:38, :66, :83                                             |
+| 3  | `Broadcaster[T]` fan-out with subscribe/broadcast/close, drop hooks, bounded buffers                               | No — no subscribers; each run is single-consumer                                  | N/A                                                                                                                                                 | go-sse/fanout.go:24-74                                                    |
+| 4  | `EventStore` + `Replay` reconnection replay (missed events on reconnect)                                           | No — no reconnecting clients; the provider execs fresh runs                       | N/A                                                                                                                                                 | go-sse/replay.go; go-sse/README.md:22                                     |
+| 5  | `SubscribeFilter` / `FilteredEventStore` predicate push-down                                                       | No                                                                                | N/A                                                                                                                                                 | go-sse/filter_test.go surface; go-sse/README.md:21, :23                   |
+| 6  | Heartbeat/comment writer to defeat idle-proxy timeouts                                                             | No — no proxies; the battery's own anti-wedge is the timeout watchdog, in-process | N/A                                                                                                                                                 | go-sse/event.go:239; consumer internal/battery/battery_watchdog.go:25     |
+| 7  | `sseparse` (submodule v0.2.1): zero-dependency WHATWG-conformant wire-format parser (`ReadEvents`, `StreamReader`) | No — nothing parses `event:`/`data:`/`id:` lines; see row 10                      | N/A                                                                                                                                                 | go-sse/sseparse/README.md:3-4; go-sse/sseparse/reader.go:90, :197         |
+| 8  | `sseparse` WPT conformance corpus (embedded, regenerable vectors)                                                  | No — no protocol conformance duty                                                 | N/A                                                                                                                                                 | go-sse/sseparse/corpus.go:10-18                                           |
+| 9  | `ssetest` (submodule v0.5.0): httptest-based collectors + assertions for SSE handlers                              | No — no handlers to exercise; gates test through real `Run` + captured stdio      | N/A                                                                                                                                                 | go-sse/ssetest/collect.go:25, :129; go-sse/ssetest/compat.go:145          |
+| 10 | Line-oriented stateful scanning of a text corpus (the parsing concept underneath)                                  | Yes in concept — the gates scan Markdown line by line                             | Missed Opportunity (solved with stdlib) — whole-file reads + `strings.Split` + small scanner structs; no incremental `io.Reader` streaming anywhere | consumer internal/docsrows/rows.go:211; internal/docsrows/scan.go:150-166 |
 
 Dependency note: the root module requires `templ`, `go-branded-id`, and
 `go-error-family` (go-sse/go.mod:5-9) — root-module adoption in docs-gates
@@ -76,8 +76,8 @@ internal/docsfreshness/corpus.go:26). No connection object, no flusher, no
 heartbeat, no replay buffer, no event serializer exists to cite as
 duplicated — the duplication answer is none.
 
-One reverse-direction fact worth recording: go-sse is a *docs-gates
-consumer* — its repo runs the battery over its own living docs, and the
+One reverse-direction fact worth recording: go-sse is a _docs-gates
+consumer_ — its repo runs the battery over its own living docs, and the
 2026-11-22 corpus-scope fix in docs-gates (CHANGELOG: the 122 → 123 → 120
 prose-drift class go-sse measured) came from exactly that dogfooding. The
 relationship is fleet-tooling, not library dependency.
@@ -87,7 +87,7 @@ relationship is fleet-tooling, not library dependency.
 **The fleet argument, addressed.** go-sse exists because "every Go project
 that serves SSE reinvents the same four pieces" (go-sse/README.md:11) —
 event serialization, connection lifecycle, fan-out, replay. Those four pieces
-are real shared debt for the fleet's *live* services (go-datastar, dashboards,
+are real shared debt for the fleet's _live_ services (go-datastar, dashboards,
 activity feeds). docs-gates serves nothing: it is a judge-and-exit battery
 whose inter-process contract is one JSON document consumed by a local exec.
 There is no fifth piece for it to re-implement; insulating here avoids
@@ -102,7 +102,7 @@ line against a protocol never spoken.
 
 **pkg/provider check.** No target: Detect's lifetime is one exec + one
 strict decode (pkg/provider/provider.go:92-102, :148-171). If BuildFlow ever
-wanted *live gate telemetry* (a gate starting/finishing as it happens), the
+wanted _live gate telemetry_ (a gate starting/finishing as it happens), the
 shape would be a new long-running surface in a new module — and then go-sse
 would be the right transport there, not here.
 
@@ -124,7 +124,7 @@ Root v0.7.0 (2026-11-04) with `sseparse` v0.2.1 and `ssetest` v0.5.0 as
 nested-module tags; `[Unreleased]` at HEAD moves the DataStar activity-feed
 example to the companion go-datastar repo with the stated scope rationale
 that go-sse "stays a protocol-free transport" (go-sse/CHANGELOG.md:26-37) —
-the same boundary discipline that makes it the right *transport-only* pick
+the same boundary discipline that makes it the right _transport-only_ pick
 for a future live surface. The root module's two small dependencies
 (`go-branded-id` for typed event IDs, `go-error-family`) are the only weight
 an adopter carries (go-sse/README.md:7); `sseparse` alone is zero-dependency

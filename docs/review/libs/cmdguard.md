@@ -8,7 +8,7 @@
 
 ## Verdict
 
-NOT-ADOPTED — a genuine, nameable overlap exists (the hand-rolled verb table, boolean flag parser, config prologue, did-you-mean engine, and exit-code ladder are cmdguard's core product, down to one near line-for-line duplicated Levenshtein implementation), but adopting it would break the root module's zero-require contract, force re-pinning every byte-pinned help text and parity golden that defines the argv-compatibility API (`Run([]string) int` matching the historical standalone binaries, legacy wrappers answering `--version` under their own names), and invert a relationship that already works in the right direction: cmdguard is docs-gates' showcase *consumer*, not the other way around.
+NOT-ADOPTED — a genuine, nameable overlap exists (the hand-rolled verb table, boolean flag parser, config prologue, did-you-mean engine, and exit-code ladder are cmdguard's core product, down to one near line-for-line duplicated Levenshtein implementation), but adopting it would break the root module's zero-require contract, force re-pinning every byte-pinned help text and parity golden that defines the argv-compatibility API (`Run([]string) int` matching the historical standalone binaries, legacy wrappers answering `--version` under their own names), and invert a relationship that already works in the right direction: cmdguard is docs-gates' showcase _consumer_, not the other way around.
 
 ## Score
 
@@ -21,24 +21,24 @@ NOT-ADOPTED — a genuine, nameable overlap exists (the hand-rolled verb table, 
 
 ## What the library offers
 
-| # | Capability | Applies to docs-gates? | Status | Evidence |
-|---|---|---|---|---|
-| 1 | Typed struct-tag flags (13 tags: flag/short/default/help/env/required/validate/values/count/local/hidden/prompt/secret) | Concept yes — docs-gates hand-rolls boolean-only parsing | Missed Opportunity (hand-rolled) | cmdguard/README.md:455-483; internal/gatecli/gatecli.go:124-156 |
-| 2 | Per-command flag structs, validated at construction (missing handler, duplicate, invalid flag die at `AddCommand`) | No — the verb tables are static map literals that cannot mis-wire | N/A — nothing to validate at construction: a missing handler or duplicate verb cannot exist in a map literal | cmdguard/README.md:101-121; cmd/docs-gates/verbs.go:77-92 |
-| 3 | Command tree/dispatch (cobra underneath, parents + subcommands) | Yes — the 14-verb dispatch table is the same concern | Missed Opportunity (hand-rolled) | cmdguard/README.md:344-359; cmd/docs-gates/verbs.go:77-92 |
-| 4 | "Did you mean?" suggestions for commands and flags (Levenshtein) | Yes — **duplicated almost line-for-line** (see gap analysis) | Missed Opportunity (hand-rolled) | cmdguard/pkg/cmdguard/v5/flags_suggest.go:13-84; cmd/docs-gates/main.go:188-247 |
-| 5 | Version command + `WithCLIVersion` | Concept yes — docs-gates intercepts `--version` per legacy name | Missed Opportunity (hand-rolled) | cmdguard/README.md:706-719; internal/gatecli/gatecli.go:109-117 |
-| 6 | Styled help surface (fang + lipgloss, markdown via glamour submodule) | Concept yes — docs-gates' help is byte-pinned plain text | Missed Opportunity (hand-rolled) | cmdguard/README.md:152-158; cmd/docs-gates/main.go:165-182 |
-| 7 | Config files with precedence flag → env → file → default, strict keys ON, unknown-key suggestions | Concept yes — docs-gates' JSON config prologue warns on unknown keys (no suggestions) | Missed Opportunity (hand-rolled) | cmdguard/README.md:613-627; cmdguard/pkg/cmdguard/v5/config_keys.go:456-459; internal/gatecli/gatecli.go:220-234 |
-| 8 | Exit-code contract (`ExitCode(err)`, `ExitCoder`, error printed exactly once) | Concept yes — docs-gates' 0/1/2 constants with different semantics (exit 1 is a verdict, not an error) | Missed Opportunity (hand-rolled) | cmdguard/pkg/cmdguard/v5/cli_errors_json.go:73; cmdguard/pkg/cmdguard/v5/errors.go:205; internal/gatecli/gatecli.go:26-30 |
-| 9 | DI container (samber/do v2, Provide/Invoke, lazy services, lifecycle) | No — gates are stateless packages; nothing to inject | N/A | cmdguard/README.md:283-305 |
-| 10 | Signal handling + graceful reverse-order shutdown (default ON in v5) | No — run-and-exit; no long-lived services | N/A | cmdguard/README.md:559-569 |
-| 11 | Middleware (Timing, Recovery, custom; spinner/telemetry/flightrecorder as submodules) | No — handlers are one `Run` call, no chain | N/A | cmdguard/README.md:269; cmdguard/README.md:631-643 |
-| 12 | 16 output formats via go-output (table/JSON/CSV/YAML/…) | No — output is byte-pinned prose + exactly one JSON face | N/A | cmdguard/README.md:327-340; internal/battery/battery.go:264-313 |
-| 13 | Machine-readable `describe` contract (versioned JSON of the command/flag tree) | No — `run --json` is a pinned verdict document, not a machine-readable description of the command/flag tree | N/A | cmdguard/README.md:133-149; pkg/provider/provider.go:92-102 |
-| 14 | `doctor` command over `do.HealthcheckerWithContext` services | No — health is the exit code (go-health report, this group) | N/A | cmdguard/README.md:305 |
-| 15 | prompts / spinner / glamour / telemetry / flightrecorder / lint / schema submodules | No — no interactivity, no TTY chrome, no OTel, not a cmdguard CLI to lint | N/A | cmdguard/README.md:631-643 |
-| 16 | Cobra escape hatch (`ConfigFromContext`, `WithPostFlagParse`, raw subcommands) | No — no cobra anywhere to bridge from | N/A | cmdguard/README.md:397-423 |
+| #  | Capability                                                                                                              | Applies to docs-gates?                                                                                      | Status                                                                                                       | Evidence                                                                                                                  |
+| -- | ----------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------- |
+| 1  | Typed struct-tag flags (13 tags: flag/short/default/help/env/required/validate/values/count/local/hidden/prompt/secret) | Concept yes — docs-gates hand-rolls boolean-only parsing                                                    | Missed Opportunity (hand-rolled)                                                                             | cmdguard/README.md:455-483; internal/gatecli/gatecli.go:124-156                                                           |
+| 2  | Per-command flag structs, validated at construction (missing handler, duplicate, invalid flag die at `AddCommand`)      | No — the verb tables are static map literals that cannot mis-wire                                           | N/A — nothing to validate at construction: a missing handler or duplicate verb cannot exist in a map literal | cmdguard/README.md:101-121; cmd/docs-gates/verbs.go:77-92                                                                 |
+| 3  | Command tree/dispatch (cobra underneath, parents + subcommands)                                                         | Yes — the 14-verb dispatch table is the same concern                                                        | Missed Opportunity (hand-rolled)                                                                             | cmdguard/README.md:344-359; cmd/docs-gates/verbs.go:77-92                                                                 |
+| 4  | "Did you mean?" suggestions for commands and flags (Levenshtein)                                                        | Yes — **duplicated almost line-for-line** (see gap analysis)                                                | Missed Opportunity (hand-rolled)                                                                             | cmdguard/pkg/cmdguard/v5/flags_suggest.go:13-84; cmd/docs-gates/main.go:188-247                                           |
+| 5  | Version command + `WithCLIVersion`                                                                                      | Concept yes — docs-gates intercepts `--version` per legacy name                                             | Missed Opportunity (hand-rolled)                                                                             | cmdguard/README.md:706-719; internal/gatecli/gatecli.go:109-117                                                           |
+| 6  | Styled help surface (fang + lipgloss, markdown via glamour submodule)                                                   | Concept yes — docs-gates' help is byte-pinned plain text                                                    | Missed Opportunity (hand-rolled)                                                                             | cmdguard/README.md:152-158; cmd/docs-gates/main.go:165-182                                                                |
+| 7  | Config files with precedence flag → env → file → default, strict keys ON, unknown-key suggestions                       | Concept yes — docs-gates' JSON config prologue warns on unknown keys (no suggestions)                       | Missed Opportunity (hand-rolled)                                                                             | cmdguard/README.md:613-627; cmdguard/pkg/cmdguard/v5/config_keys.go:456-459; internal/gatecli/gatecli.go:220-234          |
+| 8  | Exit-code contract (`ExitCode(err)`, `ExitCoder`, error printed exactly once)                                           | Concept yes — docs-gates' 0/1/2 constants with different semantics (exit 1 is a verdict, not an error)      | Missed Opportunity (hand-rolled)                                                                             | cmdguard/pkg/cmdguard/v5/cli_errors_json.go:73; cmdguard/pkg/cmdguard/v5/errors.go:205; internal/gatecli/gatecli.go:26-30 |
+| 9  | DI container (samber/do v2, Provide/Invoke, lazy services, lifecycle)                                                   | No — gates are stateless packages; nothing to inject                                                        | N/A                                                                                                          | cmdguard/README.md:283-305                                                                                                |
+| 10 | Signal handling + graceful reverse-order shutdown (default ON in v5)                                                    | No — run-and-exit; no long-lived services                                                                   | N/A                                                                                                          | cmdguard/README.md:559-569                                                                                                |
+| 11 | Middleware (Timing, Recovery, custom; spinner/telemetry/flightrecorder as submodules)                                   | No — handlers are one `Run` call, no chain                                                                  | N/A                                                                                                          | cmdguard/README.md:269; cmdguard/README.md:631-643                                                                        |
+| 12 | 16 output formats via go-output (table/JSON/CSV/YAML/…)                                                                 | No — output is byte-pinned prose + exactly one JSON face                                                    | N/A                                                                                                          | cmdguard/README.md:327-340; internal/battery/battery.go:264-313                                                           |
+| 13 | Machine-readable `describe` contract (versioned JSON of the command/flag tree)                                          | No — `run --json` is a pinned verdict document, not a machine-readable description of the command/flag tree | N/A                                                                                                          | cmdguard/README.md:133-149; pkg/provider/provider.go:92-102                                                               |
+| 14 | `doctor` command over `do.HealthcheckerWithContext` services                                                            | No — health is the exit code (go-health report, this group)                                                 | N/A                                                                                                          | cmdguard/README.md:305                                                                                                    |
+| 15 | prompts / spinner / glamour / telemetry / flightrecorder / lint / schema submodules                                     | No — no interactivity, no TTY chrome, no OTel, not a cmdguard CLI to lint                                   | N/A                                                                                                          | cmdguard/README.md:631-643                                                                                                |
+| 16 | Cobra escape hatch (`ConfigFromContext`, `WithPostFlagParse`, raw subcommands)                                          | No — no cobra anywhere to bridge from                                                                       | N/A                                                                                                          | cmdguard/README.md:397-423                                                                                                |
 
 Dependency note: cmdguard is the opposite pole of the consumer's
 architecture — cmdguard/go.mod:72-87 directly requires cobra, pflag, koanf
@@ -98,24 +98,25 @@ the census:
 
 **The fleet argument, addressed — honestly in both directions.**
 
-*What adoption would genuinely retire:* cmd/docs-gates/main.go (248 lines)
-+ verbs.go (145 lines) + gatecli's parse/config prologue (~130 lines) are
-hand-rolled CLI plumbing, and cmdguard's own "Replace your hand-rolled"
-table (cmdguard/README.md:63-77) reads like a checklist of this repo:
-exit-code ladder, version command, did-you-mean, config loader. One item
-is flat duplication: cmd/docs-gates/main.go:188-247 (`suggestVerb` +
-`editDistance`, prefix-match then Levenshtein ≤2) is the same algorithm as
-cmdguard/pkg/cmdguard/v5/flags_suggest.go:13-84 (`SuggestFlag`/
-`SuggestCommand` + `editDistance`, distance ≤3) — both hand-rolled because
-the root module cannot require cobra's. If the fleet argument is read as
-"one Levenshtein per fleet is enough," docs-gates is on the wrong side of
-it, and so is cmdguard (which rewrote cobra's instead of exporting it).
-Construction-time validation (row 2) is the one capability with no
-consumer-side equivalent at all — but the verb tables are package-level
-map literals over compiled-in functions; there is no runtime registration
-to get wrong, and main_test.go plus per-gate usage tests pin the wiring.
+_What adoption would genuinely retire:_ cmd/docs-gates/main.go (248 lines)
 
-*What adoption would destroy — the bar the brief sets:* root adoption must
+- verbs.go (145 lines) + gatecli's parse/config prologue (~130 lines) are
+  hand-rolled CLI plumbing, and cmdguard's own "Replace your hand-rolled"
+  table (cmdguard/README.md:63-77) reads like a checklist of this repo:
+  exit-code ladder, version command, did-you-mean, config loader. One item
+  is flat duplication: cmd/docs-gates/main.go:188-247 (`suggestVerb` +
+  `editDistance`, prefix-match then Levenshtein ≤2) is the same algorithm as
+  cmdguard/pkg/cmdguard/v5/flags_suggest.go:13-84 (`SuggestFlag`/
+  `SuggestCommand` + `editDistance`, distance ≤3) — both hand-rolled because
+  the root module cannot require cobra's. If the fleet argument is read as
+  "one Levenshtein per fleet is enough," docs-gates is on the wrong side of
+  it, and so is cmdguard (which rewrote cobra's instead of exporting it).
+  Construction-time validation (row 2) is the one capability with no
+  consumer-side equivalent at all — but the verb tables are package-level
+  map literals over compiled-in functions; there is no runtime registration
+  to get wrong, and main_test.go plus per-gate usage tests pin the wiring.
+
+_What adoption would destroy — the bar the brief sets:_ root adoption must
 justify breaking zero-requires, and it cannot:
 
 1. **The argv contract is the API.** Every gate is a `Run([]string) int`
@@ -129,7 +130,7 @@ justify breaking zero-requires, and it cannot:
    golden bump a contract change.
 2. **Exit 1 is not an error here.** cmdguard's core contract is "the error
    is printed exactly once, exit code mapped" (cmdguard/README.md:152-158).
-   docs-gates' exit 1 is a *verdict*: findings print in each gate's own
+   docs-gates' exit 1 is a _verdict_: findings print in each gate's own
    byte-pinned format on its own stream, and the battery's job is to
    aggregate them (internal/battery/battery.go:317-340). Mapping that onto
    `NewExitError` + error-print suppression means fighting the framework's
@@ -154,7 +155,7 @@ justify breaking zero-requires, and it cannot:
    go-finding/toolsdk only, and it has no CLI to framework.
 
 Net: the ~500 lines of dispatch/parse/config scaffolding are not free, but
-they are the *price* of the contract set, they are pinned by tests at
+they are the _price_ of the contract set, they are pinned by tests at
 three layers (unit, usage pins, parity goldens), and they change rarely —
 the TODO/CHANGELOG show no flag-parser bug class. The fleet argument's
 correct application here is the one already in force: docs-gates serves

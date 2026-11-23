@@ -21,16 +21,16 @@ NOT-APPLICABLE — server_timing serializes per-request sub-metrics into the W3C
 
 ## What the library offers
 
-| # | Capability | Applies to docs-gates? | Status | Evidence |
-|---|---|---|---|---|
-| 1 | `ServerTimingMiddleware` — installs a concurrency-safe collector per request, stamps the `Server-Timing` header at first write | No — no `http.Handler`, no `ResponseWriter`, no response headers | N/A | httputil/server_timing/server_timing.go:400; httputil/server_timing/README.md:53-55 |
-| 2 | `MeasureServerTiming(ctx, name)` timed-region helper returning a stop func | No — the concept row 8 below is the non-HTTP analog | N/A | httputil/server_timing/server_timing.go:258 |
-| 3 | `RecordServerTiming(ctx, name, desc, dur)` for already-measured durations | No | N/A | httputil/server_timing/server_timing.go:237 |
-| 4 | `total` auto-metric (time to first byte) | No — no first byte; gates finish before any output is released | N/A | httputil/server_timing/README.md:43-46 |
-| 5 | Conditional instrumentation (`ServerTimingMiddlewareWhen(pred)`) — gate the header to admin/debug requests | No — nothing to gate; no requests | N/A | httputil/server_timing/server_timing.go:416 |
-| 6 | Injection-safe header serialization (RFC 7230 token sanitization, quoted-string escaping, fuzz-tested) | No — no header values are ever constructed | N/A | httputil/server_timing/README.md:64 |
-| 7 | Capability-preserving writer wrapper (Flush/Hijack/Push/Unwrap delegation, `http.ResponseController` transparency) | No — the consumer's writer swapping is `os.Stdout`/`os.Stderr` pipe swapping, not `http.ResponseWriter` wrapping | N/A | httputil/server_timing/server_timing.go:270, :309 |
-| 8 | Per-unit wall-clock duration capture (the concept under the header) | Yes — the battery times every gate | Missed Opportunity (solved with stdlib) — `time.Now`/`time.Since` per gate, printed as heartbeat lines and `duration_ms` JSON rows | consumer internal/battery/battery.go:197-203, :255; httputil/server_timing exports no non-HTTP timing API |
+| # | Capability                                                                                                                     | Applies to docs-gates?                                                                                           | Status                                                                                                                             | Evidence                                                                                                  |
+| - | ------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
+| 1 | `ServerTimingMiddleware` — installs a concurrency-safe collector per request, stamps the `Server-Timing` header at first write | No — no `http.Handler`, no `ResponseWriter`, no response headers                                                 | N/A                                                                                                                                | httputil/server_timing/server_timing.go:400; httputil/server_timing/README.md:53-55                       |
+| 2 | `MeasureServerTiming(ctx, name)` timed-region helper returning a stop func                                                     | No — the concept row 8 below is the non-HTTP analog                                                              | N/A                                                                                                                                | httputil/server_timing/server_timing.go:258                                                               |
+| 3 | `RecordServerTiming(ctx, name, desc, dur)` for already-measured durations                                                      | No                                                                                                               | N/A                                                                                                                                | httputil/server_timing/server_timing.go:237                                                               |
+| 4 | `total` auto-metric (time to first byte)                                                                                       | No — no first byte; gates finish before any output is released                                                   | N/A                                                                                                                                | httputil/server_timing/README.md:43-46                                                                    |
+| 5 | Conditional instrumentation (`ServerTimingMiddlewareWhen(pred)`) — gate the header to admin/debug requests                     | No — nothing to gate; no requests                                                                                | N/A                                                                                                                                | httputil/server_timing/server_timing.go:416                                                               |
+| 6 | Injection-safe header serialization (RFC 7230 token sanitization, quoted-string escaping, fuzz-tested)                         | No — no header values are ever constructed                                                                       | N/A                                                                                                                                | httputil/server_timing/README.md:64                                                                       |
+| 7 | Capability-preserving writer wrapper (Flush/Hijack/Push/Unwrap delegation, `http.ResponseController` transparency)             | No — the consumer's writer swapping is `os.Stdout`/`os.Stderr` pipe swapping, not `http.ResponseWriter` wrapping | N/A                                                                                                                                | httputil/server_timing/server_timing.go:270, :309                                                         |
+| 8 | Per-unit wall-clock duration capture (the concept under the header)                                                            | Yes — the battery times every gate                                                                               | Missed Opportunity (solved with stdlib) — `time.Now`/`time.Since` per gate, printed as heartbeat lines and `duration_ms` JSON rows | consumer internal/battery/battery.go:197-203, :255; httputil/server_timing exports no non-HTTP timing API |
 
 Module shape worth noting: this submodule is itself stdlib-only with zero
 dependencies (httputil/server_timing/go.mod:1-3, httputil/server_timing/README.md:9, :61),
@@ -67,10 +67,10 @@ asks about (`gate_timeout_sec` watchdog + `CaptureOutputWithTimeout`):
 
 **Adjacency judgment:** concept-adjacent, mechanism-unrelated. Both libraries
 answer "how long did this unit take, and what do we do when it exceeds a
-budget" — but server_timing's answer is *serialize sub-metrics into an HTTP
-response header for browser DevTools/RUM to read* (httputil/server_timing/README.md:7),
-while docs-gates' answer is *print a duration in a CLI matrix / JSON row and
-abandon the straggler goroutine*. There is no `http.ResponseWriter` in
+budget" — but server_timing's answer is _serialize sub-metrics into an HTTP
+response header for browser DevTools/RUM to read_ (httputil/server_timing/README.md:7),
+while docs-gates' answer is _print a duration in a CLI matrix / JSON row and
+abandon the straggler goroutine_. There is no `http.ResponseWriter` in
 docs-gates to wrap, no header to stamp, and no consumer of a Server-Timing
 header (the only machine consumer of battery output is pkg/provider, which
 parses JSON — pkg/provider/provider.go:92-102). The battery's three timing
@@ -82,7 +82,7 @@ packages.
 ## Gap analysis — should docs-gates adopt it?
 
 **The fleet argument, addressed.** server_timing solves a shared problem for
-the fleet's *HTTP services* — injectable request-phase timing visible in
+the fleet's _HTTP services_ — injectable request-phase timing visible in
 DevTools without vendor agents. docs-gates is not such a service, and its
 timing needs are already met by three small, golden-pinned stdlib constructs.
 The honest answer to "is docs-gates hand-rolling something the fleet solved?"
@@ -121,7 +121,7 @@ None.
 `server_timing` carries a day-one-v1 posture (v1.0.3 is the fourth v1.x tag;
 the httputil owner ruled it the stable tier, versus `endpoints`' pre-1.0
 iteration tier — httputil/CHANGELOG.md:61), and its README is explicit that
-the module exists precisely so services can add Server-Timing *without* the
+the module exists precisely so services can add Server-Timing _without_ the
 root httputil dependency set (httputil/server_timing/README.md:9, :61). The
 consumption pattern for the fleet's services is settled: middleware in the
 chain, `MeasureServerTiming` from handlers, `ServerTimingMiddlewareWhen` to

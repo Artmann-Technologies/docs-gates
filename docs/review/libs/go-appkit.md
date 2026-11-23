@@ -14,26 +14,26 @@ NOT-ADOPTED — go-appkit is the fleet's HTTP service framework ("A NEW fleet se
 - Inputs N = 12 (inventory rows below).
 - A = 1 (the config-loading row — the only problem docs-gates actually has).
 - M = 0.
-- Score = round(100 × 0/1) = **0** — band **low**. The verdict and gap analysis carry the substance; note the relationship between these two repos is already strong in the *inverse* direction (below).
+- Score = round(100 × 0/1) = **0** — band **low**. The verdict and gap analysis carry the substance; note the relationship between these two repos is already strong in the _inverse_ direction (below).
 
 - Applicable rows are exactly the inventory rows graded **Missed Opportunity** (the consumer has the underlying need; the capability is hand-rolled, solved in-domain, or declined by contract). Every **Not Applicable** row carries a one-line reason. `M` counts rows graded Fully Leveraged.
 
 ## What the library offers
 
-| # | Capability | Applies to docs-gates? | Status | Evidence |
-|---|---|---|---|---|
-| 1 | Core: `appkit.Service` — HTTP server lifecycle, middleware stack, graceful drain/shutdown, health endpoints | No — no server, no listener, no long-running process; the binary runs gates and exits | N/A | go-appkit/README.md:36-56 |
-| 2 | `preset` — one-call composition (core + systemd + health dashboard + errorpages, env-switched otel/security/realtime legs) | No — the battery composes gates from config, not services; see gap analysis | N/A | go-appkit/preset/README.md:3-5 |
-| 3 | `cqrs` — event service over go-cqrs-lite `system` (store, projections, DLQ, typed C/Q facade) | No — no events, no store; judged fully in the go-cqrs-lite report | N/A | go-appkit/cqrs/README.md:1-5 |
-| 4 | `config` — env-first struct-tag loading, precedence flag > env > file > default, strict YAML/JSON layer | **Yes in problem shape** — docs-gates loads `.docs-gates.json` onto typed settings; deliberately re-solved stdlib-only | Missed Opportunity (declined by contract, see gap analysis) | go-appkit/README.md:98; internal/config/config.go:3-14 |
-| 5 | `docs` — auto-generated OpenAPI/AsyncAPI/D2 docs from Go types | No — docs-gates has no API surface to document | N/A | go-appkit/docs/README.md:3 |
-| 6 | `errorpages` — pretty classified error pages (HTML) + JSON contracts | No — errors are exit codes 0/1/2 + stderr prose | N/A | go-appkit/README.md:89 |
-| 7 | `realtime` — SSE hub (broadcast, replay, heartbeat, Last-Event-ID resume) | No — no connections, nothing streamed | N/A | go-appkit/README.md:90 |
-| 8 | `flightrecorder` (+ health bridge) — on-demand runtime/trace capture on failure | No — wedged gates are abandoned at the wall-clock cap, not diagnosed in-process; capture is pipe-draining (internal/gatecli/gatecli_capture.go:121) | N/A | go-appkit/README.md:92-93 |
-| 9 | `health` — probes, startup latch, real-time dashboard | No — health IS the exit code; the matrix is the dashboard | N/A | go-appkit/README.md:94 |
-| 10 | `security` — CSRF, rate limiting, body limits, CSP nonce | No — no requests, no origins | N/A | go-appkit/README.md:95 |
-| 11 | `systemd` — sd_notify READY/STOPPING/WatchdogSec keepalive | No — not a daemon; CI owns its lifecycle | N/A | go-appkit/README.md:96 |
-| 12 | `httpx` — handler DX (ResultHandler, bind+validation, content negotiation) + `integration`/testkit | No — no `http.Handler` exists in either consumer module | N/A | go-appkit/README.md:97 |
+| #  | Capability                                                                                                                 | Applies to docs-gates?                                                                                                                              | Status                                                      | Evidence                                               |
+| -- | -------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------- | ------------------------------------------------------ |
+| 1  | Core: `appkit.Service` — HTTP server lifecycle, middleware stack, graceful drain/shutdown, health endpoints                | No — no server, no listener, no long-running process; the binary runs gates and exits                                                               | N/A                                                         | go-appkit/README.md:36-56                              |
+| 2  | `preset` — one-call composition (core + systemd + health dashboard + errorpages, env-switched otel/security/realtime legs) | No — the battery composes gates from config, not services; see gap analysis                                                                         | N/A                                                         | go-appkit/preset/README.md:3-5                         |
+| 3  | `cqrs` — event service over go-cqrs-lite `system` (store, projections, DLQ, typed C/Q facade)                              | No — no events, no store; judged fully in the go-cqrs-lite report                                                                                   | N/A                                                         | go-appkit/cqrs/README.md:1-5                           |
+| 4  | `config` — env-first struct-tag loading, precedence flag > env > file > default, strict YAML/JSON layer                    | **Yes in problem shape** — docs-gates loads `.docs-gates.json` onto typed settings; deliberately re-solved stdlib-only                              | Missed Opportunity (declined by contract, see gap analysis) | go-appkit/README.md:98; internal/config/config.go:3-14 |
+| 5  | `docs` — auto-generated OpenAPI/AsyncAPI/D2 docs from Go types                                                             | No — docs-gates has no API surface to document                                                                                                      | N/A                                                         | go-appkit/docs/README.md:3                             |
+| 6  | `errorpages` — pretty classified error pages (HTML) + JSON contracts                                                       | No — errors are exit codes 0/1/2 + stderr prose                                                                                                     | N/A                                                         | go-appkit/README.md:89                                 |
+| 7  | `realtime` — SSE hub (broadcast, replay, heartbeat, Last-Event-ID resume)                                                  | No — no connections, nothing streamed                                                                                                               | N/A                                                         | go-appkit/README.md:90                                 |
+| 8  | `flightrecorder` (+ health bridge) — on-demand runtime/trace capture on failure                                            | No — wedged gates are abandoned at the wall-clock cap, not diagnosed in-process; capture is pipe-draining (internal/gatecli/gatecli_capture.go:121) | N/A                                                         | go-appkit/README.md:92-93                              |
+| 9  | `health` — probes, startup latch, real-time dashboard                                                                      | No — health IS the exit code; the matrix is the dashboard                                                                                           | N/A                                                         | go-appkit/README.md:94                                 |
+| 10 | `security` — CSRF, rate limiting, body limits, CSP nonce                                                                   | No — no requests, no origins                                                                                                                        | N/A                                                         | go-appkit/README.md:95                                 |
+| 11 | `systemd` — sd_notify READY/STOPPING/WatchdogSec keepalive                                                                 | No — not a daemon; CI owns its lifecycle                                                                                                            | N/A                                                         | go-appkit/README.md:96                                 |
+| 12 | `httpx` — handler DX (ResultHandler, bind+validation, content negotiation) + `integration`/testkit                         | No — no `http.Handler` exists in either consumer module                                                                                             | N/A                                                         | go-appkit/README.md:97                                 |
 
 Root module composition note: adoption of ANY row into the docs-gates root
 module breaks the zero-require contract on the first import — even the lightest
@@ -42,7 +42,7 @@ indirects (go-appkit/config/go.mod:5-13).
 
 ## What docs-gates does today
 
-Zero code usage; an unusually rich *inverse* relationship. Verified:
+Zero code usage; an unusually rich _inverse_ relationship. Verified:
 
 ```console
 $ rg -n "larsartmann/go-appkit" /home/lars/projects/docs-gates --hidden -g '!.git' -g '!docs/review/**'

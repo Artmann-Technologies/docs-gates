@@ -21,15 +21,15 @@ NOT-APPLICABLE — endpoints is a route registry that mounts handlers on `http.S
 
 ## What the library offers
 
-| # | Capability | Applies to docs-gates? | Status | Evidence |
-|---|---|---|---|---|
-| 1 | `Registry` — one declaration both mounts a route on `*http.ServeMux` and records it, so the listing cannot drift from what is served | No — no `http.ServeMux`, no routes to mount | N/A | httputil/endpoints/endpoints.go:55, :93; httputil/endpoints/README.md:7-9 |
-| 2 | `GET /endpoints` listing handler, mounted via `Register` (lists itself) | No — no GET, no endpoint | N/A | httputil/endpoints/endpoints.go:16, :191 |
-| 3 | RFC 9110 proactive content negotiation between JSON and an HTML table on `Accept` (multi-line Accept combined; never 406s; ties → JSON) | No — the battery's dual face is chosen by `--json` flag, not negotiated: one JSON document on stdout, humans on stderr | N/A | httputil/endpoints/README.md:74-79; consumer internal/battery/battery.go:97-98 |
-| 4 | CSP-clean HTML table rendering with escaped fields, plus `Vary: Accept` / `Cache-Control: no-store` | No — no HTML output, no cacheable surface | N/A | httputil/endpoints/README.md:88 |
-| 5 | UTF-8 validation and wiring errors as values at registration (nil mux, duplicate/malformed pattern) | No — verb dispatch rejects unknown verbs with exit 2 + did-you-mean, argv-shaped, not pattern-shaped | N/A | httputil/endpoints/endpoints.go:62; consumer cmd/docs-gates/verbs.go:77 |
-| 6 | Concurrency-safe registry with immutable atomic snapshots for reads | No — the verb table is fixed at compile time; nothing registers at runtime | N/A | httputil/endpoints/README.md:83 |
-| 7 | Self-describing surface listing (the concept under the route registry) | Yes in concept — docs-gates' help/usage surface | Missed Opportunity (solved natively) — verb tables + per-verb usage pinned by usage_test.go; see below | consumer cmd/docs-gates/verbs.go:77, :107, :129 |
+| # | Capability                                                                                                                              | Applies to docs-gates?                                                                                                 | Status                                                                                                 | Evidence                                                                       |
+| - | --------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------ |
+| 1 | `Registry` — one declaration both mounts a route on `*http.ServeMux` and records it, so the listing cannot drift from what is served    | No — no `http.ServeMux`, no routes to mount                                                                            | N/A                                                                                                    | httputil/endpoints/endpoints.go:55, :93; httputil/endpoints/README.md:7-9      |
+| 2 | `GET /endpoints` listing handler, mounted via `Register` (lists itself)                                                                 | No — no GET, no endpoint                                                                                               | N/A                                                                                                    | httputil/endpoints/endpoints.go:16, :191                                       |
+| 3 | RFC 9110 proactive content negotiation between JSON and an HTML table on `Accept` (multi-line Accept combined; never 406s; ties → JSON) | No — the battery's dual face is chosen by `--json` flag, not negotiated: one JSON document on stdout, humans on stderr | N/A                                                                                                    | httputil/endpoints/README.md:74-79; consumer internal/battery/battery.go:97-98 |
+| 4 | CSP-clean HTML table rendering with escaped fields, plus `Vary: Accept` / `Cache-Control: no-store`                                     | No — no HTML output, no cacheable surface                                                                              | N/A                                                                                                    | httputil/endpoints/README.md:88                                                |
+| 5 | UTF-8 validation and wiring errors as values at registration (nil mux, duplicate/malformed pattern)                                     | No — verb dispatch rejects unknown verbs with exit 2 + did-you-mean, argv-shaped, not pattern-shaped                   | N/A                                                                                                    | httputil/endpoints/endpoints.go:62; consumer cmd/docs-gates/verbs.go:77        |
+| 6 | Concurrency-safe registry with immutable atomic snapshots for reads                                                                     | No — the verb table is fixed at compile time; nothing registers at runtime                                             | N/A                                                                                                    | httputil/endpoints/README.md:83                                                |
+| 7 | Self-describing surface listing (the concept under the route registry)                                                                  | Yes in concept — docs-gates' help/usage surface                                                                        | Missed Opportunity (solved natively) — verb tables + per-verb usage pinned by usage_test.go; see below | consumer cmd/docs-gates/verbs.go:77, :107, :129                                |
 
 Module shape worth noting: like server_timing, this submodule is stdlib-only
 with zero dependencies (httputil/endpoints/go.mod:1-3, httputil/endpoints/README.md:11),
@@ -87,15 +87,15 @@ scripts/stack-drift-check.sh:8-9, importing `net/http`-typed machinery
 network-free exit-code CLI can never execute. Dead weight, contract broken.
 
 **pkg/provider check.** No target. If the provider ever wanted to advertise
-the battery's *verbs* to BuildFlow, the natural shape is findings/Spec
+the battery's _verbs_ to BuildFlow, the natural shape is findings/Spec
 metadata via toolsdk (already registered, pkg/provider/provider.go:187) — not
 an HTTP route listing.
 
 **Negotiation vs flag — the sharpest contrast.** endpoints' headline
 mechanic is serving two representations of one URL picked by `Accept`
 (httputil/endpoints/README.md:74-79). docs-gates has the same two-audience
-problem (humans and the provider) and deliberately resolves it by *stream
-separation under a flag*: `--json` reserves stdout for the machine document
+problem (humans and the provider) and deliberately resolves it by _stream
+separation under a flag_: `--json` reserves stdout for the machine document
 and detours every human line to stderr, so a consumer never parses mixed
 content (internal/battery/battery.go:97-98, :171-173). For an exec'd CLI
 this is the strictly safer design — no heuristic can mis-pick the

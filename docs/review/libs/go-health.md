@@ -21,21 +21,21 @@ NOT-APPLICABLE — go-health is a Kubernetes health-probe SDK (HTTP `/healthz`/`
 
 ## What the library offers
 
-| # | Capability | Applies to docs-gates? | Status | Evidence |
-|---|---|---|---|---|
-| 1 | Three-probe HTTP SDK: liveness/readiness/startup handlers with 200/503 semantics | No — no HTTP server, no kubelet; health IS the 0/1/2 exit code | N/A | go-health/README.md:197-217; go-health/handlers.go |
-| 2 | samber/do v2 injector integration (`health.New(injector, ...)`, eager critical invocation) | No — no DI container anywhere in either module | N/A | go-health/probe.go:161; go-health/README.md:93-128 |
-| 3 | Critical vs non-critical classification (fail→503 vs warn→200) | Concept only — the battery's FAIL/SKIP rows and the gates' WARN-before-enforce knobs solve the "degraded but green" question in exit-code space | Missed Opportunity (solved in-domain — exit-code space already carries the degraded-but-green distinction) | go-health/README.md:247-249; internal/battery/battery.go:272-279 |
-| 4 | Named concurrent checks with per-check duration, panic recovery, batch deadline (`NewChecks`) | Concept yes — the battery's closest analog; mechanism unusable (see gap analysis) | Missed Opportunity (declined: mechanism unusable — see gap analysis) | go-health/README.md:444-451; go-health/checks.go:15 |
-| 5 | Background result caching + refresh loop (1s default) | No — gates are point-in-time by doctrine; a cached verdict would lie | N/A | go-health/README.md:307-315 |
-| 6 | Shutdown awareness / two-phase drain (`MarkShuttingDown`, grace period) | No — the binary runs and exits; nothing to drain | N/A | go-health/README.md:399-413 |
-| 7 | Programmatic health API (`Status()`, `Ready()`, `AwaitReady`, `Healthz()`) | No — `Run([]string) int` return values are the whole status surface | N/A | go-health/README.md:415-434 |
-| 8 | `checks` batteries: Disk, Memory, HTTP, Database probe functions | No — no disks, heaps, URLs, or DB handles to probe | N/A | go-health/checks/checks.go:27; go-health/checks/checks.go:58; go-health/checks/checks.go:93; go-health/checks/checks.go:127 |
-| 9 | `aggregate` sub-package: merge N in-process probes, worst-of status, namespaced keys | No — one process, one battery; the matrix is not a merge of probes | N/A | go-health/aggregate/aggregate.go:74; go-health/README.md:482-503 |
-| 10 | `federation` sub-package: fetch remote health documents over HTTP, merge untrusted input | No — the root module has no network by contract | N/A | go-health/federation/federation.go:147; go-health/README.md:505-551 |
-| 11 | Observability seam (`WithEvaluationHook`, Prometheus recipe) | No — no polling consumers; findings ride the gate's own stdout | N/A | go-health/README.md:453-468 |
-| 12 | Build-version endpoint (`VersionHandler`, `WithVersion`) | No — `--version` interception already answers this under legacy names | N/A | go-health/README.md:254; internal/gatecli/gatecli.go:109-117 |
-| 13 | `tools/doanalyzerv2`: private AST analyzer for samber/do anti-patterns | No — no samber/do usage to analyze | N/A | go-health/tools/doanalyzerv2/main.go:1-16 |
+| #  | Capability                                                                                    | Applies to docs-gates?                                                                                                                          | Status                                                                                                     | Evidence                                                                                                                    |
+| -- | --------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| 1  | Three-probe HTTP SDK: liveness/readiness/startup handlers with 200/503 semantics              | No — no HTTP server, no kubelet; health IS the 0/1/2 exit code                                                                                  | N/A                                                                                                        | go-health/README.md:197-217; go-health/handlers.go                                                                          |
+| 2  | samber/do v2 injector integration (`health.New(injector, ...)`, eager critical invocation)    | No — no DI container anywhere in either module                                                                                                  | N/A                                                                                                        | go-health/probe.go:161; go-health/README.md:93-128                                                                          |
+| 3  | Critical vs non-critical classification (fail→503 vs warn→200)                                | Concept only — the battery's FAIL/SKIP rows and the gates' WARN-before-enforce knobs solve the "degraded but green" question in exit-code space | Missed Opportunity (solved in-domain — exit-code space already carries the degraded-but-green distinction) | go-health/README.md:247-249; internal/battery/battery.go:272-279                                                            |
+| 4  | Named concurrent checks with per-check duration, panic recovery, batch deadline (`NewChecks`) | Concept yes — the battery's closest analog; mechanism unusable (see gap analysis)                                                               | Missed Opportunity (declined: mechanism unusable — see gap analysis)                                       | go-health/README.md:444-451; go-health/checks.go:15                                                                         |
+| 5  | Background result caching + refresh loop (1s default)                                         | No — gates are point-in-time by doctrine; a cached verdict would lie                                                                            | N/A                                                                                                        | go-health/README.md:307-315                                                                                                 |
+| 6  | Shutdown awareness / two-phase drain (`MarkShuttingDown`, grace period)                       | No — the binary runs and exits; nothing to drain                                                                                                | N/A                                                                                                        | go-health/README.md:399-413                                                                                                 |
+| 7  | Programmatic health API (`Status()`, `Ready()`, `AwaitReady`, `Healthz()`)                    | No — `Run([]string) int` return values are the whole status surface                                                                             | N/A                                                                                                        | go-health/README.md:415-434                                                                                                 |
+| 8  | `checks` batteries: Disk, Memory, HTTP, Database probe functions                              | No — no disks, heaps, URLs, or DB handles to probe                                                                                              | N/A                                                                                                        | go-health/checks/checks.go:27; go-health/checks/checks.go:58; go-health/checks/checks.go:93; go-health/checks/checks.go:127 |
+| 9  | `aggregate` sub-package: merge N in-process probes, worst-of status, namespaced keys          | No — one process, one battery; the matrix is not a merge of probes                                                                              | N/A                                                                                                        | go-health/aggregate/aggregate.go:74; go-health/README.md:482-503                                                            |
+| 10 | `federation` sub-package: fetch remote health documents over HTTP, merge untrusted input      | No — the root module has no network by contract                                                                                                 | N/A                                                                                                        | go-health/federation/federation.go:147; go-health/README.md:505-551                                                         |
+| 11 | Observability seam (`WithEvaluationHook`, Prometheus recipe)                                  | No — no polling consumers; findings ride the gate's own stdout                                                                                  | N/A                                                                                                        | go-health/README.md:453-468                                                                                                 |
+| 12 | Build-version endpoint (`VersionHandler`, `WithVersion`)                                      | No — `--version` interception already answers this under legacy names                                                                           | N/A                                                                                                        | go-health/README.md:254; internal/gatecli/gatecli.go:109-117                                                                |
+| 13 | `tools/doanalyzerv2`: private AST analyzer for samber/do anti-patterns                        | No — no samber/do usage to analyze                                                                                                              | N/A                                                                                                        | go-health/tools/doanalyzerv2/main.go:1-16                                                                                   |
 
 Dependency note for any future adoption: go-health is not stdlib-only —
 go-health/go.mod:5-9 requires `samber/do/v2`, `go-branded-id`, and
@@ -59,7 +59,7 @@ The only "go-health" strings in the repo are prose: planning docs and
 archived status reports recording the 2026-11-05 dogfood run of the
 docs-gates battery OVER the go-health repo (e.g.
 docs/status/archived/2026-11-05_02-15_fleet-dogfood-go-health-cv-audit-all-perf-cliff.md:15)
-— go-health is a *subject* of the battery, not a dependency. No samber
+— go-health is a _subject_ of the battery, not a dependency. No samber
 imports anywhere: `rg -n "samber" go.mod pkg/provider/go.mod` → rc=1.
 
 The hand-rolled-equivalent hunt (battery aggregation + provider health
@@ -76,7 +76,7 @@ hooks), with the exact code that owns each concern:
 - **Provider health hook** — pkg/provider/provider.go:291-297 implements the
   toolsdk `Spec.HealthCheck` as `exec.LookPath("docs-gates")` plus an install
   hint. Judged honestly against go-health's model: this is an
-  *installation* check ("is the tool present"), not a *dependency health*
+  _installation_ check ("is the tool present"), not a _dependency health_
   check ("is a runtime service reachable"). go-health's
   check/aggregate/classify machinery answers a question the provider does
   not have — the provider's only dependency is a local binary, and
@@ -85,7 +85,7 @@ hooks), with the exact code that owns each concern:
 ## Gap analysis — should docs-gates adopt it?
 
 **The fleet argument, addressed.** go-health exists to stop every fleet
-*service* from hand-rolling restart-cascade-prone health endpoints — a real
+_service_ from hand-rolling restart-cascade-prone health endpoints — a real
 shared problem across the owner's HTTP projects (15 direct consumers,
 go-health/README.md:677-684). docs-gates is not in that class: it is a
 judge that runs, decides, and exits. Its "aggregation" (the battery) is not

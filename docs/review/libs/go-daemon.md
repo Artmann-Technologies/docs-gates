@@ -21,17 +21,17 @@ NOT-APPLICABLE — docs-gates is a run-to-completion CLI with no socket, no list
 
 ## What the library offers
 
-| # | Capability | Applies to docs-gates? | Status | Evidence |
-|---|---|---|---|---|
-| 1 | `NewSocketServer`/`NewServer` — full socket lifecycle: stale-socket cleanup, 0600 perms, ordered `Lifecycle` hooks | No — the binary never listens on anything | N/A | go-daemon/socket.go:158-237 |
-| 2 | Graceful shutdown: `sd_notify STOPPING=1`, drain within `WithShutdownGracePeriod` | No — there is nothing to drain; each verb writes its verdict lines and exits | N/A | go-daemon/socket.go:126-128, :207 |
-| 3 | `NotifyReady`/`NotifyStopping`/`Watchdog` — sd_notify integration with observability counters | No — not a systemd unit; `WatchdogInterval` would report `false` everywhere by design | N/A | go-daemon/notify.go:59-102 |
-| 4 | `NewHTTPClient`/`NewHTTPClientNoTimeout` — unix-socket HTTP transports | No — the consumer has zero `net/http` imports (verified below); its only IPC is exec-ing itself from pkg/provider | N/A | go-daemon/transport.go:25-41; pkg/provider/provider.go:149 |
-| 5 | Content negotiation — `ResolveRequestCodec`/`ResolveResponseCodec` (JSON/CBOR, q-values, `q=0` refusals) | No — the battery speaks exactly two fixed faces: pinned human lines and one snake_case JSON document | N/A | go-daemon/negotiation.go:73-98; internal/battery/battery.go:264 |
-| 6 | `WriteEncoded`/`WriteJSON`/`WriteErrorf` — negotiated, pooled-buffer response writes | No — no `http.ResponseWriter` exists in the tree | N/A | go-daemon/write.go:29-66 |
-| 7 | `ParseSSEData` — WHATWG-conformant SSE framing parser (WPT-corpus-pinned) | No — no SSE anywhere (that is go-datastar/go-sse territory; see that report) | N/A | go-daemon/sse.go:42 |
-| 8 | `FlightRecorder` — execution-trace recorder with slow-request triggers and Prometheus metrics | No — the battery's observability surface is its exit code plus byte-pinned stdout/stderr | N/A | go-daemon/flightrecorder.go:57-165 |
-| 9 | `IsSocketAlive` liveness probe | No — no socket file to probe | N/A | go-daemon/socket.go:418 |
+| # | Capability                                                                                                         | Applies to docs-gates?                                                                                            | Status | Evidence                                                        |
+| - | ------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------- | ------ | --------------------------------------------------------------- |
+| 1 | `NewSocketServer`/`NewServer` — full socket lifecycle: stale-socket cleanup, 0600 perms, ordered `Lifecycle` hooks | No — the binary never listens on anything                                                                         | N/A    | go-daemon/socket.go:158-237                                     |
+| 2 | Graceful shutdown: `sd_notify STOPPING=1`, drain within `WithShutdownGracePeriod`                                  | No — there is nothing to drain; each verb writes its verdict lines and exits                                      | N/A    | go-daemon/socket.go:126-128, :207                               |
+| 3 | `NotifyReady`/`NotifyStopping`/`Watchdog` — sd_notify integration with observability counters                      | No — not a systemd unit; `WatchdogInterval` would report `false` everywhere by design                             | N/A    | go-daemon/notify.go:59-102                                      |
+| 4 | `NewHTTPClient`/`NewHTTPClientNoTimeout` — unix-socket HTTP transports                                             | No — the consumer has zero `net/http` imports (verified below); its only IPC is exec-ing itself from pkg/provider | N/A    | go-daemon/transport.go:25-41; pkg/provider/provider.go:149      |
+| 5 | Content negotiation — `ResolveRequestCodec`/`ResolveResponseCodec` (JSON/CBOR, q-values, `q=0` refusals)           | No — the battery speaks exactly two fixed faces: pinned human lines and one snake_case JSON document              | N/A    | go-daemon/negotiation.go:73-98; internal/battery/battery.go:264 |
+| 6 | `WriteEncoded`/`WriteJSON`/`WriteErrorf` — negotiated, pooled-buffer response writes                               | No — no `http.ResponseWriter` exists in the tree                                                                  | N/A    | go-daemon/write.go:29-66                                        |
+| 7 | `ParseSSEData` — WHATWG-conformant SSE framing parser (WPT-corpus-pinned)                                          | No — no SSE anywhere (that is go-datastar/go-sse territory; see that report)                                      | N/A    | go-daemon/sse.go:42                                             |
+| 8 | `FlightRecorder` — execution-trace recorder with slow-request triggers and Prometheus metrics                      | No — the battery's observability surface is its exit code plus byte-pinned stdout/stderr                          | N/A    | go-daemon/flightrecorder.go:57-165                              |
+| 9 | `IsSocketAlive` liveness probe                                                                                     | No — no socket file to probe                                                                                      | N/A    | go-daemon/socket.go:418                                         |
 
 ### What the library is, in one paragraph
 
@@ -71,7 +71,7 @@ $ rg -n "go-daemon" /home/lars/projects/docs-gates/go.mod /home/lars/projects/do
 # rc=1, no matches
 ```
 
-(The word "daemon" in the repo refers to the FLEET auto-commit daemon — external infrastructure, ~2-3 min cadence, never pushed — and to "foreign daemons" in the point-in-time verdict doctrine, AGENTS.md:55-59 and :188-189. No Go code in this repo implements, supervises, or talks to any daemon.)
+(The word "daemon" in the repo refers to the FLEET auto-commit daemon — external infrastructure, ~2-3 min cadence, never pushed — and to "foreign daemons" in the point-in-time verdict doctrine, AGENTS.md:55-59 and :193-194. No Go code in this repo implements, supervises, or talks to any daemon.)
 
 There is likewise no hand-rolled daemon-equivalent to deduplicate:
 
@@ -83,14 +83,14 @@ There is likewise no hand-rolled daemon-equivalent to deduplicate:
 
 For completeness, everything that could be mistaken for daemon surface, audited:
 
-| Candidate | What it actually is | Verdict |
-|---|---|---|
-| `internal/battery/battery_watchdog.go` timer | A one-shot `time.NewTimer` firing the half-budget warning while a gate runs; dies with the gate | bounded wait, not supervision |
-| `gatecli.CaptureOutputWithTimeout` | A process-global stream swap with drainers and a timeout; returns when the gate returns | capture, not a loop |
-| `cmd/docs-gates` verb dispatch | A table of fourteen `Run([]string) int` entries (cmd/docs-gates/verbs.go:28-44); dispatch and exit | pure CLI |
-| `pkg/provider` | A BuildFlow toolsdk registration that execs the binary once per Detect | plugin, not a server |
-| The auto-commit daemon | Fleet infrastructure OUTSIDE this repo; docs-gates is the thing being committed to, never the supervisor | not this codebase |
-| The land-parity stamp | One gitignored JSON file, written best-effort, read next run | incidental state, no lifecycle |
+| Candidate                                    | What it actually is                                                                                      | Verdict                        |
+| -------------------------------------------- | -------------------------------------------------------------------------------------------------------- | ------------------------------ |
+| `internal/battery/battery_watchdog.go` timer | A one-shot `time.NewTimer` firing the half-budget warning while a gate runs; dies with the gate          | bounded wait, not supervision  |
+| `gatecli.CaptureOutputWithTimeout`           | A process-global stream swap with drainers and a timeout; returns when the gate returns                  | capture, not a loop            |
+| `cmd/docs-gates` verb dispatch               | A table of fourteen `Run([]string) int` entries (cmd/docs-gates/verbs.go:28-44); dispatch and exit       | pure CLI                       |
+| `pkg/provider`                               | A BuildFlow toolsdk registration that execs the binary once per Detect                                   | plugin, not a server           |
+| The auto-commit daemon                       | Fleet infrastructure OUTSIDE this repo; docs-gates is the thing being committed to, never the supervisor | not this codebase              |
+| The land-parity stamp                        | One gitignored JSON file, written best-effort, read next run                                             | incidental state, no lifecycle |
 
 ## Gap analysis — should docs-gates adopt it?
 

@@ -21,18 +21,18 @@ NOT-APPLICABLE — go-credentials-store is an event-sourced, encrypted-at-rest s
 
 ## What the library offers
 
-| # | Capability | Applies to docs-gates? | Status | Evidence |
-|---|---|---|---|---|
-| 1 | Encrypted-at-rest credential store (XChaCha20-Poly1305, KeyID rotation, sealed-before-event) | No — docs-gates never persists a secret | N/A | go-credentials-store/README.md:3-12 |
-| 2 | Library SDK: `credentials.Build(ctx, opts)` + `Resolve(ctx, platform, kind)` for API keys / passwords / session blobs | No — nothing to resolve; the binary's inputs are argv, JSON config, and repo files | N/A | go-credentials-store/README.md:45-64 |
-| 3 | Lifecycle audit trail (created/rotated/probed/used/revealed events) | No — no secret lifecycle to audit | N/A | go-credentials-store/README.md:4-6 |
-| 4 | Loopback admin UI (`adminui.Mount`) with audited one-time reveal, SSE live updates | No — no admin surface, no server | N/A | go-credentials-store/README.md:66-81 |
-| 5 | API-key / Basic auth gate for non-loopback HTTP binds | No — no HTTP listener | N/A | go-credentials-store/README.md:26-28 |
-| 6 | Env-var resolution fallback for credentials | No — docs-gates reads no environment variables in non-test code (verified below) | N/A | go-credentials-store/resolve_env.go:20 |
-| 7 | Health/status endpoints + Prometheus metrics with build info | No — covered in the go-health / go-health-dashboard reports; no server here | N/A | go-credentials-store/health.go |
-| 8 | Master-key management (key files, rotation by KeyID) | No — no master key, nothing to encrypt | N/A | go-credentials-store/README.md:41; go-credentials-store/README.md:54 |
-| 9 | go-cqrs-lite event-sourced composition root (system + metaengine/sqlite) | No — no event store, no DB by contract | N/A | go-credentials-store/README.md:13-14 |
-| 10 | Operator drill / recovery posture (restart persistence, at-rest scans) | No — nothing at rest | N/A | go-credentials-store/README.md:18-24 |
+| #  | Capability                                                                                                            | Applies to docs-gates?                                                             | Status | Evidence                                                             |
+| -- | --------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------- | ------ | -------------------------------------------------------------------- |
+| 1  | Encrypted-at-rest credential store (XChaCha20-Poly1305, KeyID rotation, sealed-before-event)                          | No — docs-gates never persists a secret                                            | N/A    | go-credentials-store/README.md:3-12                                  |
+| 2  | Library SDK: `credentials.Build(ctx, opts)` + `Resolve(ctx, platform, kind)` for API keys / passwords / session blobs | No — nothing to resolve; the binary's inputs are argv, JSON config, and repo files | N/A    | go-credentials-store/README.md:45-64                                 |
+| 3  | Lifecycle audit trail (created/rotated/probed/used/revealed events)                                                   | No — no secret lifecycle to audit                                                  | N/A    | go-credentials-store/README.md:4-6                                   |
+| 4  | Loopback admin UI (`adminui.Mount`) with audited one-time reveal, SSE live updates                                    | No — no admin surface, no server                                                   | N/A    | go-credentials-store/README.md:66-81                                 |
+| 5  | API-key / Basic auth gate for non-loopback HTTP binds                                                                 | No — no HTTP listener                                                              | N/A    | go-credentials-store/README.md:26-28                                 |
+| 6  | Env-var resolution fallback for credentials                                                                           | No — docs-gates reads no environment variables in non-test code (verified below)   | N/A    | go-credentials-store/resolve_env.go:20                               |
+| 7  | Health/status endpoints + Prometheus metrics with build info                                                          | No — covered in the go-health / go-health-dashboard reports; no server here        | N/A    | go-credentials-store/health.go                                       |
+| 8  | Master-key management (key files, rotation by KeyID)                                                                  | No — no master key, nothing to encrypt                                             | N/A    | go-credentials-store/README.md:41; go-credentials-store/README.md:54 |
+| 9  | go-cqrs-lite event-sourced composition root (system + metaengine/sqlite)                                              | No — no event store, no DB by contract                                             | N/A    | go-credentials-store/README.md:13-14                                 |
+| 10 | Operator drill / recovery posture (restart persistence, at-rest scans)                                                | No — nothing at rest                                                               | N/A    | go-credentials-store/README.md:18-24                                 |
 
 Dependency note: the store is one of the heaviest modules in the fleet —
 32 direct requires including the whole go-cqrs-lite family, templ,
@@ -54,7 +54,7 @@ The secret/token/env hunt across the whole consumer found no surface to
 name:
 
 - No credential or token handling: `rg -n "token|secret|password|credential" -g '*.go'`
-  over the repo returns only domain vocabulary — gate *verdict tokens*
+  over the repo returns only domain vocabulary — gate _verdict tokens_
   (FEATURES.md status legend, internal/docsvocabulary), the tokenizer's
   word "token" (docsfreshness distinctive-token doctrine), and test
   fixtures. No keychain, no OAuth, no bearer anything.

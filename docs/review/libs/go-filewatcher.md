@@ -21,17 +21,17 @@ NOT-APPLICABLE — docs-gates is a point-in-time batch judge by doctrine (every 
 
 ## What the library offers
 
-| # | Capability | Applies to docs-gates? | Status | Evidence |
-|---|---|---|---|---|
-| 1 | `New(paths, opts...)` — recursive fsnotify watch setup with path validation and walk | No — no path is ever watched; every verb takes a repo-root argument and scans once | N/A | go-filewatcher/watcher.go:237 |
-| 2 | `Watch(ctx)` event loop returning a read-only event channel | No — the binary has no long-lived goroutine feeding a consumer loop; the only background goroutines are per-gate watchdogs that end with the gate | N/A | go-filewatcher/watcher.go:369; internal/gatecli/gatecli_capture.go:141 |
-| 3 | 20 built-in filters + AND/OR/NOT composition (`WithExtensions`, `WithIgnoreDirs`, …) | No — corpus selection is one glob over `report_dir` plus config lists (`living_docs`), evaluated once per run | N/A | go-filewatcher/options.go:24-418; internal/docsfreshness/reports.go |
-| 4 | Debouncing (global + per-path) | No — no repeated events exist to coalesce | N/A | go-filewatcher/options.go:24-46 |
-| 5 | 19 middleware (logging, recovery, rate limiting, metrics) | No — gates fail fast with named evidence; recovery/rate-limit semantics would mask exactly the wedge class the battery exists to surface | N/A | go-filewatcher/middleware.go:39-123 |
-| 6 | Resilience: ENOSPC watch-limit handling, circuit breaker + `Healthy()` | No — no inotify watches to exhaust | N/A | go-filewatcher/health.go:32; go-filewatcher/options.go:104 |
-| 7 | Self-healing re-registration loop (`WithSelfHeal`) | No — nothing to re-register | N/A | go-filewatcher/watcher_selfheal.go:11 |
-| 8 | NFS/FUSE polling fallback (`WithPolling`, `WithPollInterval`) | No — one-shot directory reads don't need change detection | N/A | go-filewatcher/options.go:209-232 |
-| 9 | .gitignore-aware event skipping | No — ironically adjacent: the battery's one gitignore interaction is `git check-ignore` for the pre-flight stamp note (internal/docsfreshness/preflight_land.go:74), a one-shot exec, not a watcher rule | N/A | go-filewatcher/watcher_gitignore.go; internal/docsfreshness/preflight_land.go:74 |
+| # | Capability                                                                           | Applies to docs-gates?                                                                                                                                                                                   | Status | Evidence                                                                         |
+| - | ------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------ | -------------------------------------------------------------------------------- |
+| 1 | `New(paths, opts...)` — recursive fsnotify watch setup with path validation and walk | No — no path is ever watched; every verb takes a repo-root argument and scans once                                                                                                                       | N/A    | go-filewatcher/watcher.go:237                                                    |
+| 2 | `Watch(ctx)` event loop returning a read-only event channel                          | No — the binary has no long-lived goroutine feeding a consumer loop; the only background goroutines are per-gate watchdogs that end with the gate                                                        | N/A    | go-filewatcher/watcher.go:369; internal/gatecli/gatecli_capture.go:141           |
+| 3 | 20 built-in filters + AND/OR/NOT composition (`WithExtensions`, `WithIgnoreDirs`, …) | No — corpus selection is one glob over `report_dir` plus config lists (`living_docs`), evaluated once per run                                                                                            | N/A    | go-filewatcher/options.go:24-418; internal/docsfreshness/reports.go              |
+| 4 | Debouncing (global + per-path)                                                       | No — no repeated events exist to coalesce                                                                                                                                                                | N/A    | go-filewatcher/options.go:24-46                                                  |
+| 5 | 19 middleware (logging, recovery, rate limiting, metrics)                            | No — gates fail fast with named evidence; recovery/rate-limit semantics would mask exactly the wedge class the battery exists to surface                                                                 | N/A    | go-filewatcher/middleware.go:39-123                                              |
+| 6 | Resilience: ENOSPC watch-limit handling, circuit breaker + `Healthy()`               | No — no inotify watches to exhaust                                                                                                                                                                       | N/A    | go-filewatcher/health.go:32; go-filewatcher/options.go:104                       |
+| 7 | Self-healing re-registration loop (`WithSelfHeal`)                                   | No — nothing to re-register                                                                                                                                                                              | N/A    | go-filewatcher/watcher_selfheal.go:11                                            |
+| 8 | NFS/FUSE polling fallback (`WithPolling`, `WithPollInterval`)                        | No — one-shot directory reads don't need change detection                                                                                                                                                | N/A    | go-filewatcher/options.go:209-232                                                |
+| 9 | .gitignore-aware event skipping                                                      | No — ironically adjacent: the battery's one gitignore interaction is `git check-ignore` for the pre-flight stamp note (internal/docsfreshness/preflight_land.go:74), a one-shot exec, not a watcher rule | N/A    | go-filewatcher/watcher_gitignore.go; internal/docsfreshness/preflight_land.go:74 |
 
 ### What the library is, in one paragraph
 
@@ -78,12 +78,12 @@ The exclusion is architectural, not incidental. The binary's contract is "reads 
 
 ### The re-run triggers that exist today (the watcher's job, already assigned)
 
-| Trigger | Who owns it | How docs-gates is invoked |
-|---|---|---|
-| Push to GitHub | CI dogfood job (AGENTS.md:223-228) | `go run ./cmd/docs-gates run .` |
-| Local doc edit | the human's ritual (AGENTS.md:6-9) | `go run ./cmd/docs-gates run .` after touching living docs |
-| BuildFlow quality loop | BuildFlow detect step | exec via pkg/provider/provider.go:149 |
-| Commit time | pre-commit docs-battery leg (AGENTS.md:167-172) | pre-commit hook over all files |
+| Trigger                | Who owns it                                     | How docs-gates is invoked                                  |
+| ---------------------- | ----------------------------------------------- | ---------------------------------------------------------- |
+| Push to GitHub         | CI dogfood job (AGENTS.md:223-228)              | `go run ./cmd/docs-gates run .`                            |
+| Local doc edit         | the human's ritual (AGENTS.md:6-9)              | `go run ./cmd/docs-gates run .` after touching living docs |
+| BuildFlow quality loop | BuildFlow detect step                           | exec via pkg/provider/provider.go:149                      |
+| Commit time            | pre-commit docs-battery leg (AGENTS.md:167-172) | pre-commit hook over all files                             |
 
 Four independent re-run triggers, none owned by this repo's code — the scheduling layer is already built, fleet-side. Adding an in-process watcher would duplicate the fleet's scheduling, the exact anti-pattern the fleet argument warns about, in the one place it would be wrong.
 
@@ -147,10 +147,10 @@ $ rg -n "time\.Ticker|fsnotify|Watch\(" /home/lars/projects/docs-gates/internal 
 # rc=1 — no tickers, no watchers, no event loops in non-test code
 
 $ rg -n -A3 "Size a foreign corpus BEFORE launching" /home/lars/projects/docs-gates/AGENTS.md
-201:- **Size a foreign corpus BEFORE launching the battery** (`ls docs/status
-202-  | wc -l`; memoized replays: one scan per DISTINCT token, hours → 49s).
-203-  Gate verdicts are point-in-time under foreign daemons — timestamp the
-204-  run; one run is not steady state.
+191:- **Size a foreign corpus BEFORE launching the battery** (`ls docs/status
+192-  | wc -l`; memoized replays: one scan per DISTINCT token, hours → 49s).
+193-  Gate verdicts are point-in-time under foreign daemons — timestamp the
+194-  run; one run is not steady state.
 $ sed -n '65,66p' /home/lars/projects/docs-gates/README.md
 **Judge vs writer.** `docs-gates` reads and judges a corpus; it never
 rewrites one. Annotation (striking, repairing, marking verdicts) belongs to
