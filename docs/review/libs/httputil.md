@@ -151,8 +151,8 @@ $ cat /home/lars/projects/docs-gates/pkg/provider/go.mod
 # the consumer's deadline machinery (in-process, not request-shaped):
 $ rg -n "func CaptureOutputWithTimeout|The gate functions take no context" \
     /home/lars/projects/docs-gates/internal/gatecli/gatecli_capture.go
-121:func CaptureOutputWithTimeout(fn func() int, timeout time.Duration) (CapturedOutput, bool) {
 116:// context, so an expired gate CANNOT be killed — it keeps running as an
+121:func CaptureOutputWithTimeout(fn func() int, timeout time.Duration) (CapturedOutput, bool) {
 $ rg -n "func startHalfBudgetWatchdog" /home/lars/projects/docs-gates/internal/battery/battery_watchdog.go
 25:func startHalfBudgetWatchdog(gateName string, timeout time.Duration, warnf func(string, ...any)) func() {
 ```
