@@ -422,3 +422,30 @@ three follow-ups of the 2026-11-23 05-33 report that its bullet-style §f
 never got harvested (the AGENTS distill, the md5 exception, BuildFlow#115).
 The three questions in section g) are questions, not tasks, and were not
 rowed.
+
+## Errata (2026-11-24, appended by the planning pass)
+
+Corrections to this report, found while verifying the board for the
+2026-11-24 execution plan. The text above is left as written.
+
+1. **The formatter explanation in d6 (ii) and section e) was wrong.** I
+   wrote that running the formatter outside the devShell made it fetch
+   remote dprint plugins and format a different tree. Checked at 00:50:
+   the plugin-bundle variable is set in both shells, BuildFlow reports the
+   same four unformatted files in both, and the same "remote plugins"
+   preflight warning fires in both. The real cause: `--fix` is repo-wide
+   and four committed files were never formatter-clean. The TODO_LIST §11
+   rows for §f.25 and §f.28 now say so.
+2. **§f.37 rested on a false premise.** The bundle variable was set; the
+   cold-fetch warning comes from dprint.json naming remote plugin URLs.
+   The TODO row is reworded to that in-repo fix.
+3. **Main was red in CI while this report only said the gate "exits 69".**
+   Run 45112672861 on `adfa9c8` failed at golangci-lint: a gci blank line
+   and a `strings.CutLast` modernize finding. BuildFlow reports the same two
+   findings at warning severity and exits 0. Fixed forward in `b152739`;
+   the gate gap is a new TODO_LIST §11 row.
+4. **Twenty-one open TODO rows were already done**: the land-parity goldens,
+   the carrier tests, the clear-stamp and duplicates flags, the CI race
+   lanes, the safe-strike hint and batch flag, and others. The plan's
+   Step 0 lists them; a TODO_LIST §11 row schedules striking them with
+   evidence.
