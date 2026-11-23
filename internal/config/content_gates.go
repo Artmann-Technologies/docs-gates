@@ -38,10 +38,26 @@ func defaultCitationExts() []string {
 	return []string{".go", ".ts", ".tsx", ".rs", ".py", ".sh", ".sql", ".templ", ".nix"}
 }
 
-// validateContentGates enforces the content-gate value contract: stamp
-// and agents age bars are ordered, stub digests are md5/sha256 hex,
-// citation extensions are dot-prefixed.
+// validateContentGates enforces the content-gate value contract: one
+// validator per gate, first refusal wins.
 func (c Config) validateContentGates() error {
+	for _, err := range []error{
+		c.validateStampBars(),
+		c.validateAgentsBars(),
+		c.validateStubChecksums(),
+		c.validateCitationExts(),
+	} {
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+// validateStampBars keeps both stamp age bars positive and the FAIL bar
+// never below the WARN bar.
+func (c Config) validateStampBars() error {
 	if c.StampWarnDays < 1 || c.StampFailDays < 1 {
 		return invalidf("stamp thresholds must be >= 1, got warn=%d fail=%d", c.StampWarnDays, c.StampFailDays)
 	}
@@ -54,6 +70,12 @@ func (c Config) validateContentGates() error {
 		)
 	}
 
+	return nil
+}
+
+// validateAgentsBars keeps both agents age bars positive and the max
+// bar never below the warn bar.
+func (c Config) validateAgentsBars() error {
 	if c.AgentsWarnDays < 1 || c.AgentsMaxDays < 1 {
 		return invalidf("agents thresholds must be >= 1, got warn=%d max=%d", c.AgentsWarnDays, c.AgentsMaxDays)
 	}
@@ -66,12 +88,23 @@ func (c Config) validateContentGates() error {
 		)
 	}
 
+	return nil
+}
+
+// validateStubChecksums keeps every digest an md5 (32 hex) or sha256
+// (64 hex) string.
+func (c Config) validateStubChecksums() error {
 	for _, sum := range c.StubChecksums {
 		if len(sum) != 32 && len(sum) != 64 {
 			return invalidf("stub_checksums entries must be md5 (32 hex) or sha256 (64 hex) digests, got %q", sum)
 		}
 	}
 
+	return nil
+}
+
+// validateCitationExts keeps every extension dot-prefixed.
+func (c Config) validateCitationExts() error {
 	for _, ext := range c.CitationExts {
 		if len(ext) < 2 || ext[0] != '.' {
 			return invalidf("citation_exts entries must be dot-prefixed extensions, got %q", ext)

@@ -55,14 +55,14 @@ func IsDoneCell(cell string) bool {
 }
 
 // IsOpenCell reports whether a table cell is an OPEN status cell: the
-// TODO/BLOCKED/IN_PROGRESS markers the fleet's TODO_LISTs and status
-// reports share, bare or emoji/backtick-wrapped (`🔴 \`TODO\“,
-// `🟡 \`IN_PROGRESS\“), optionally with a trailing note ("TODO — blocked
-// upstream"). Cell-scoped for the same reason as IsDoneCell: task text
-// merely CONTAINING "todo" never occupies a whole cell. The purge
-// collector refuses to collect a strike sitting on a row whose cell
-// reads open (#10: the io-surface purge deleted six open rows that
-// carried stray ~~ edit noise).
+// fleet's open-status markers shared by TODO_LISTs and status reports
+// (`TODO`, `BLOCKED`, `IN_PROGRESS`), bare or emoji/backtick-wrapped
+// (`🔴 \`TODO\“, `🟡 \`IN_PROGRESS\“), optionally with a trailing note
+// ("TODO — blocked upstream"). Cell-scoped for the same reason as
+// IsDoneCell: task text merely CONTAINING "todo" never occupies a whole
+// cell. The purge collector refuses to collect a strike sitting on a
+// row whose cell reads open (#10: the io-surface purge deleted six open
+// rows that carried stray ~~ edit noise).
 func IsOpenCell(cell string) bool {
 	c := strings.TrimSpace(cell)
 

@@ -9,6 +9,10 @@ import (
 	"github.com/Artmann-Technologies/docs-gates/internal/gatecli"
 )
 
+// nearMissWidth bounds the quoted heading text in the WARN line so one
+// warn stays on one screen row.
+const nearMissWidth = 80
+
 // sectionFNearMissRe matches a heading that READS like a §f section in a
 // shape the canon SectionFRe rejects (`## §f — Follow-ups`, `## f.`,
 // `## §f)`). The canon stays the one spelling — see SectionFRe for why
@@ -63,7 +67,7 @@ func WarnSectionFNearMiss(report string) {
 			"WARN %s:%d: %q reads like a §f heading but misses the canon shape — its items are INVISIBLE to freshness/audit-all/routing; rename it to start \"## f)\"\n",
 			filepath.Base(report),
 			m.LineNo,
-			gatecli.Truncate(m.Text, 80),
+			gatecli.Truncate(m.Text, nearMissWidth),
 		)
 	}
 }

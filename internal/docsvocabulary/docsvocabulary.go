@@ -107,56 +107,94 @@ func Scan(root string, settings Settings) ([]Finding, []Info, []string, error) {
 	var skips []string
 
 	for _, rel := range settings.Files {
-		path := filepath.Join(root, rel)
-
-		body, err := os.ReadFile(path)
+		scan, err := scanFile(root, rel)
 		if err != nil {
-			if os.IsNotExist(err) {
-				skips = append(skips, rel+" (missing)")
-
-				continue
-			}
-
-			return nil, nil, nil, fmt.Errorf("reading %s: %w", rel, err)
+			return nil, nil, nil, err
 		}
 
-		section, spanStart, spanEnd := legendSection(strings.Split(string(body), "\n"))
-		if section == "" {
-			skips = append(skips, rel+" (no status legend section — not judged)")
+		findings = append(findings, scan.findings...)
+
+		if scan.skip != "" {
+			skips = append(skips, scan.skip)
 
 			continue
 		}
 
-		legend := legendTokens(section)
-		used := map[string]bool{}
+		for _, token := range sortedKeys(scan.legend) {
+			if !scan.used[token] {
+				infos = append(infos, Info{Path: rel, Token: token})
+			}
+		}
+	}
 
-		tables, err := docsrows.Tables(path)
-		if err != nil {
-			return nil, nil, nil, fmt.Errorf("scanning %s: %w", rel, err)
+	return findings, infos, skips, nil
+}
+
+// fileScan is one corpus file's verdict: its undefined-token findings,
+// the tokens its status columns used, and its legend. skip carries the
+// human-readable skip note; a skipped file has no findings, usage, or
+// legend to aggregate.
+type fileScan struct {
+	findings []Finding
+	used     map[string]bool
+	legend   map[string]bool
+	skip     string
+}
+
+// scanFile judges one corpus file end to end: locating its legend
+// section, collecting its definitions, and walking its status columns.
+func scanFile(root, rel string) (fileScan, error) {
+	path := filepath.Join(root, rel)
+
+	body, err := os.ReadFile(path)
+	if err != nil {
+		if os.IsNotExist(err) {
+			return fileScan{skip: rel + " (missing)"}, nil
 		}
 
-		for _, table := range tables {
-			// The legend table itself (its Status column IS the definition)
-			// never counts as usage — otherwise every legend entry would
-			// mark itself used and the informational leg could never fire.
-			if table.HeaderLine >= spanStart && table.HeaderLine < spanEnd {
-				continue
-			}
+		return fileScan{}, fmt.Errorf("reading %s: %w", rel, err)
+	}
 
-			cells := docsrows.SplitCells(table.Header)
-			statusIdx := -1
+	section, spanStart, spanEnd := legendSection(strings.Split(string(body), "\n"))
+	if section == "" {
+		return fileScan{skip: rel + " (no status legend section — not judged)"}, nil
+	}
 
-			for i, name := range cells {
-				if statusColumnRe.MatchString(strings.TrimSpace(name)) {
-					statusIdx = i
+	tables, err := docsrows.Tables(path)
+	if err != nil {
+		return fileScan{}, fmt.Errorf("scanning %s: %w", rel, err)
+	}
 
-					break
-				}
-			}
+	legend := legendTokens(section)
+	findings, used := statusUsage(tables, rel, spanStart, spanEnd, legend)
 
-			if statusIdx < 0 {
-				continue
-			}
+	return fileScan{findings: findings, used: used, legend: legend}, nil
+}
+
+// statusUsage walks every table outside the legend span: each row's
+// status-cell tokens count as used, and tokens the legend never defined
+// are findings. The legend table itself (its Status column IS the
+// definition) never counts as usage — otherwise every legend entry
+// would mark itself used and the informational leg could never fire.
+func statusUsage(
+	tables []docsrows.Table,
+	rel string,
+	spanStart, spanEnd int,
+	legend map[string]bool,
+) ([]Finding, map[string]bool) {
+	var findings []Finding
+
+	used := map[string]bool{}
+
+	for _, table := range tables {
+		if table.HeaderLine >= spanStart && table.HeaderLine < spanEnd {
+			continue
+		}
+
+		statusIdx := statusColumnIndex(docsrows.SplitCells(table.Header))
+		if statusIdx < 0 {
+			continue
+		}
 
 		for _, row := range table.Rows {
 			rowCells := docsrows.SplitCells(row.Text)
@@ -171,17 +209,22 @@ func Scan(root string, settings Settings) ([]Finding, []Info, []string, error) {
 					findings = append(findings, Finding{Path: rel, Line: row.Line, Token: token})
 				}
 			}
-			}
-		}
-
-		for _, token := range sortedKeys(legend) {
-			if !used[token] {
-				infos = append(infos, Info{Path: rel, Token: token})
-			}
 		}
 	}
 
-	return findings, infos, skips, nil
+	return findings, used
+}
+
+// statusColumnIndex finds the Status column of a header row; -1 when
+// the table carries none.
+func statusColumnIndex(cells []string) int {
+	for i, name := range cells {
+		if statusColumnRe.MatchString(strings.TrimSpace(name)) {
+			return i
+		}
+	}
+
+	return -1
 }
 
 // legendSection returns the "## Status legend" section: its body and
@@ -233,9 +276,11 @@ func legendTokens(section string) map[string]bool {
 // cellTokens collects the backticked ALL-CAPS tokens of one status
 // cell (an emoji prefix or a trailing note never hides the token).
 func cellTokens(cell string) []string {
-	var tokens []string
+	matches := tokenRe.FindAllStringSubmatch(cell, -1)
 
-	for _, m := range tokenRe.FindAllStringSubmatch(cell, -1) {
+	tokens := make([]string, 0, len(matches))
+
+	for _, m := range matches {
 		tokens = append(tokens, m[1])
 	}
 
