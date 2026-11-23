@@ -77,6 +77,11 @@ found none to name, verified from both directions:
   strict-decodes (pkg/provider/provider.go:92-102). All byte-pinned by
   parity goldens — an HTML render layer would be a new contract, not a
   replacement for an old one.
+- The JSON face is integration-ready by design: its gate rows are generic
+  so a new battery gate lands without a provider change (AGENTS.md
+  battery row) — any future dashboard consumer would read this document,
+  not scrape the human matrix. That is the whole integration surface a
+  status-board deployment would need, and it already exists.
 
 ## Gap analysis — should docs-gates adopt it?
 

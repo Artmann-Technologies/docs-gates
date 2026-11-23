@@ -73,6 +73,11 @@ name:
 - Writes are plain `os.WriteFile` under dry-run-default/`--apply` guards
   (e.g. internal/docsarchive/docsarchive.go for the archive verb); no file
   is ever written with secret-class content.
+- The consumer's entire security surface is a policy file: SECURITY.md:3-7
+  is a supported-versions table plus a private-reporting pointer — there
+  is no attack surface section to write because there is no attack
+  surface: a stdlib judge with no network, no DB, no env reads, and no
+  credentials cannot mishandle what it never holds.
 
 ## Gap analysis — should docs-gates adopt it?
 
@@ -133,9 +138,10 @@ internal/battery/parity_test.go:189:	update := os.Getenv("PARITY_UPDATE") != ""
 
 $ rg -in "token|secret|password|credential" -g '*.go' --glob '!*_test.go' /home/lars/projects/docs-gates | head -4
 cmd/docs-gates/verbs.go:117:      verbVocabulary: "FEATURES status tokens must come from the file's own legend",
-internal/docsvocabulary/docsvocabulary.go:2:  // status tokens the file's own legend never defines.
+internal/docsvocabulary/docsvocabulary.go:2:   // status tokens the file's own legend never defines.
+internal/docsvocabulary/docsvocabulary.go:9:  // column must only contain tokens the file's own "## Status legend"
 internal/docsvocabulary/docsvocabulary.go:53:const Usage = `docs-vocabulary — FEATURES status tokens must come from the file's own legend
-# ... every hit is domain vocabulary (status tokens / tokenizer words), zero secrets
+# every hit is domain vocabulary (status tokens / tokenizer words), zero secrets
 
 # every exec site (all literal, local, no credentials):
 $ rg -n "exec.CommandContext" -g '*.go' /home/lars/projects/docs-gates | rg -v _test.go
