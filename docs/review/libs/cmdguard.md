@@ -26,7 +26,7 @@ NOT-ADOPTED — a genuine, nameable overlap exists (the hand-rolled verb table, 
 | 1 | Typed struct-tag flags (13 tags: flag/short/default/help/env/required/validate/values/count/local/hidden/prompt/secret) | Concept yes — docs-gates hand-rolls boolean-only parsing | Missed Opportunity (hand-rolled) | cmdguard/README.md:455-483; internal/gatecli/gatecli.go:124-156 |
 | 2 | Per-command flag structs, validated at construction (missing handler, duplicate, invalid flag die at `AddCommand`) | No — the verb tables are static map literals that cannot mis-wire | N/A — nothing to validate at construction: a missing handler or duplicate verb cannot exist in a map literal | cmdguard/README.md:101-121; cmd/docs-gates/verbs.go:77-92 |
 | 3 | Command tree/dispatch (cobra underneath, parents + subcommands) | Yes — the 14-verb dispatch table is the same concern | Missed Opportunity (hand-rolled) | cmdguard/README.md:344-359; cmd/docs-gates/verbs.go:77-92 |
-| 4 | "Did you mean?" suggestions for commands and flags (Levenshtein) | Yes — **duplicated almost line-for-line** (see gap analysis) | Missed Opportunity (hand-rolled) | cmdguard/pkg/cmdguard/v5/flags_suggest.go:13-42; cmd/docs-gates/main.go:188-247 |
+| 4 | "Did you mean?" suggestions for commands and flags (Levenshtein) | Yes — **duplicated almost line-for-line** (see gap analysis) | Missed Opportunity (hand-rolled) | cmdguard/pkg/cmdguard/v5/flags_suggest.go:13-84; cmd/docs-gates/main.go:188-247 |
 | 5 | Version command + `WithCLIVersion` | Concept yes — docs-gates intercepts `--version` per legacy name | Missed Opportunity (hand-rolled) | cmdguard/README.md:706-719; internal/gatecli/gatecli.go:109-117 |
 | 6 | Styled help surface (fang + lipgloss, markdown via glamour submodule) | Concept yes — docs-gates' help is byte-pinned plain text | Missed Opportunity (hand-rolled) | cmdguard/README.md:152-158; cmd/docs-gates/main.go:165-182 |
 | 7 | Config files with precedence flag → env → file → default, strict keys ON, unknown-key suggestions | Concept yes — docs-gates' JSON config prologue warns on unknown keys (no suggestions) | Missed Opportunity (hand-rolled) | cmdguard/README.md:613-627; cmdguard/pkg/cmdguard/v5/config_keys.go:456-459; internal/gatecli/gatecli.go:220-234 |
@@ -105,7 +105,7 @@ table (cmdguard/README.md:63-77) reads like a checklist of this repo:
 exit-code ladder, version command, did-you-mean, config loader. One item
 is flat duplication: cmd/docs-gates/main.go:188-247 (`suggestVerb` +
 `editDistance`, prefix-match then Levenshtein ≤2) is the same algorithm as
-cmdguard/pkg/cmdguard/v5/flags_suggest.go:13-42 (`SuggestFlag`/
+cmdguard/pkg/cmdguard/v5/flags_suggest.go:13-84 (`SuggestFlag`/
 `SuggestCommand` + `editDistance`, distance ≤3) — both hand-rolled because
 the root module cannot require cobra's. If the fleet argument is read as
 "one Levenshtein per fleet is enough," docs-gates is on the wrong side of

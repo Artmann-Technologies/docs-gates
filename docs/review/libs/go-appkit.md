@@ -1,7 +1,7 @@
 # go-appkit utilization audit — docs-gates
 
 - Audited: 2026-11-23.
-- Library version reviewed: root v0.13.0 (latest local tag; `git describe` from the manifest HEAD → `cqrs/v0.10.0-19-…`, i.e. satellites tagged independently) + HEAD 74e4d8011c6c275bb9e3115384ab951ed9d66d0a per the fleet manifest (the checkout tip carries later auto-commits, 9d93de47, none touching module code I cite). 15 modules: root core, config v0.1.1, cqrs v0.10.0, docs v0.3.4, errorpages v0.1.3, flightrecorder v0.2.0, flightrecorderhealth v0.1.7, health v0.3.2, httpx v0.2.0, otel v0.4.0, preset v0.1.1, realtime v0.2.0, security v0.3.0, systemd v0.2.0, integration.
+- Library version reviewed: root v0.13.0 (latest local tag; `git describe` from the manifest HEAD → `cqrs/v0.10.0-7-g74e4d80`, i.e. satellites tagged independently) + HEAD 74e4d8011c6c275bb9e3115384ab951ed9d66d0a per the fleet manifest (the checkout tip carries later auto-commits past the manifest HEAD — a moving target under the fleet's auto-commit daemon — none touching module code I cite). 15 modules: root core, config v0.1.1, cqrs v0.10.0, docs v0.3.4, errorpages v0.1.3, flightrecorder v0.2.0, flightrecorderhealth v0.1.7, health v0.3.2, httpx v0.2.0, otel v0.4.0, preset v0.1.1, realtime v0.2.0, security v0.3.0, systemd v0.2.0, integration.
 - Consumer: docs-gates @ adfa9c80a74bdba3ea1bd1cc37fdb1b016109f9f baseline — root module stdlib-only (zero non-stdlib requires) + `pkg/provider` as the one third-party-dep module.
 - Provenance: group 5 (UI + CQRS/application frameworks) subagent of the multi-library utilization audit fleet.
 
@@ -130,9 +130,7 @@ inside docs-gates; keeping them green IS the fleet-leverage play here.)
 
 ```console
 $ git -C /home/lars/projects/go-appkit rev-parse 74e4d8011c6c275bb9e3115384ab951ed9d66d0a
-74e4d8011c6c275bb9e3115384ab951ed9d66d0a
-$ git -C /home/lars/projects/go-appkit rev-parse 74e4d8011c6c275bb9e3115384ab951ed9d66d0a
-74e4d8011c6c275bb9e3115384ab951ed9d66d0a   # fleet-manifest HEAD exists on the branch
+74e4d8011c6c275bb9e3115384ab951ed9d66d0a   # fleet-manifest HEAD exists on the branch (the tip is deliberately not pinned: it drifts under the fleet's auto-commit daemon)
 $ git -C /home/lars/projects/go-appkit describe --tags 74e4d8011c6c275bb9e3115384ab951ed9d66d0a
 cqrs/v0.10.0-7-g74e4d80
 

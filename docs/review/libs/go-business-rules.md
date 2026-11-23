@@ -37,7 +37,7 @@ NOT-ADOPTED — go-business-rules is a severity-aware rules engine over Go value
 | 12 | Events + `Listener` (`RuleEvaluated`, `ValidationCompleted`) | No — no observability consumer; the printed matrix IS the report | N/A | go-business-rules/events.go:8-82 |
 | 13 | `adapters/cqrslite` — rule evaluation as CQRS command-guard | No — no command bus | N/A | go-business-rules/adapters/cqrslite/adapter.go:1 |
 | 14 | `listeners/otel` — validation events → OTel spans/metrics | No — no OTel, no metrics | N/A | go-business-rules/listeners/otel/adapter.go:1 |
-| 15 | Dependency convergence: requires `go-finding` v1.15.1 — the exact library+version `pkg/provider` already uses | No — if the provider ever needed severity-typed findings, `finding.Severity` is already in its graph WITHOUT go-business-rules | N/A | go-business-rules/go.mod; consumer pkg/provider/go.mod:5 |
+| 15 | Dependency convergence: requires `go-finding` v1.15.1 — the exact library+version `pkg/provider` already uses | No — if the provider ever needed severity-typed findings, `finding.Severity` is already in its graph WITHOUT go-business-rules | N/A | go-business-rules/go.mod; consumer pkg/provider/go.mod:6 |
 
 (`examples/sse` — a Datastar/go-sse demo command — is demonstration code, not a capability; N/A.)
 

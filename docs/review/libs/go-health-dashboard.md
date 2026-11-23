@@ -63,9 +63,10 @@ The hand-rolled-equivalent hunt (any HTML/render surface the repo owns)
 found none to name, verified from both directions:
 
 - No template engine anywhere: `rg -l "text/template|html/template" -g '*.go'`
-  over the repo matches only internal/docsstub/docsstub.go — whose
-  "template" is a checksum of unfilled doc scaffolds (crypto/md5 identity
-  matching, internal/docsstub/docsstub.go:17-19), not a render library.
+  over the repo matches nothing (rc=1). The nearest namesake,
+  internal/docsstub/docsstub.go, uses "template" for a checksum of unfilled
+  doc scaffolds (crypto/md5 identity matching,
+  internal/docsstub/docsstub.go:20-21), not as a render library.
   The "html" hits in internal/docsfreshness/explain.go:39-49 are the
   HtmlBlindSpot detector (flagging stray `2*.html` report snapshots the
   `.md` glob misses) — reading HTML filenames, never writing HTML.
