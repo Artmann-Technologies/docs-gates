@@ -193,6 +193,10 @@ func Scan(root string, settings Settings) ([]Finding, error) {
 		return nil, fmt.Errorf("stating %s: %w", settings.File, err)
 	}
 
+	if info.IsDir() {
+		return nil, fmt.Errorf("%s is a directory, not the agent contract file", settings.File)
+	}
+
 	ageDays := int(settings.Now.Sub(info.ModTime()).Hours() / hoursPerDay)
 	if ageDays <= settings.WarnDays {
 		return nil, nil

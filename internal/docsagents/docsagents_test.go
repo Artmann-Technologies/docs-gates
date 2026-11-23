@@ -151,6 +151,96 @@ func TestRunPrintsVerdictLines(t *testing.T) {
 	}
 }
 
+// TestScanRefusesDirectoryAgentsFile pins the directory edge (#32
+// decision): agents_file pointing at a directory must be a FATAL
+// misconfiguration, never a silent verdict computed from the
+// directory's mtime — a directory is not the agent contract.
+//
+//nolint:paralleltest // process-global capture, serialized on purpose
+func TestScanRefusesDirectoryAgentsFile(t *testing.T) {
+	root := t.TempDir()
+
+	if err := os.MkdirAll(filepath.Join(root, config.DefaultAgentsFile), 0o755); err != nil {
+		t.Fatal(err)
+	}
+
+	if _, err := Scan(root, Settings{File: config.DefaultAgentsFile, WarnDays: 7, MaxDays: 14}); err == nil {
+		t.Fatal("a directory at agents_file must error, not produce a verdict")
+	} else if !strings.Contains(err.Error(), "is a directory") {
+		t.Fatalf("the error must name the misconfiguration, got: %v", err)
+	}
+
+	out := gatecli.CaptureOutput(func() int { return Run([]string{root}) })
+
+	if out.Code != gatecli.ExitUsage {
+		t.Fatalf("a directory agents_file is a config problem: exit 2, got %d; stderr: %s", out.Code, out.Stderr)
+	}
+
+	if !strings.Contains(out.Stderr, "FATAL") {
+		t.Fatalf("the FATAL line must name the directory, got: %s", out.Stderr)
+	}
+}
+
+// TestScanStatErrorTravelsThroughRun covers the wrapped-stat-error path
+// (an unreadable/unstatable target) with a deterministic trigger that
+// works under any user: agents_file routed THROUGH a regular file
+// yields ENOTDIR from os.Stat — never os.IsNotExist, so Scan wraps it
+// and Run turns it into FATAL + exit 2. No chmod tricks (root ignores
+// file modes; the docsannotate test corpus avoided them for the same
+// reason).
+//
+//nolint:paralleltest // process-global capture, serialized on purpose
+func TestScanStatErrorTravelsThroughRun(t *testing.T) {
+	root := t.TempDir()
+	blocker := filepath.Join(root, "blocker")
+
+	if err := os.WriteFile(blocker, []byte("a regular file\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	if err := os.WriteFile(
+		filepath.Join(root, config.FileName),
+		[]byte(`{"agents_file": "blocker/AGENTS.md"}`),
+		0o644,
+	); err != nil {
+		t.Fatal(err)
+	}
+
+	out := gatecli.CaptureOutput(func() int { return Run([]string{root}) })
+
+	if out.Code != gatecli.ExitUsage {
+		t.Fatalf("an unstatable agents_file is FATAL + exit 2, got rc %d; stderr: %s", out.Code, out.Stderr)
+	}
+
+	if !strings.Contains(out.Stderr, "FATAL") || !strings.Contains(out.Stderr, "stating blocker/AGENTS.md") {
+		t.Fatalf("the FATAL line must carry the wrapped stat error, got: %s", out.Stderr)
+	}
+}
+
+// BenchmarkScan pins the scan core's cost (one os.Stat + arithmetic);
+// the CI bench job watches it for regressions.
+func BenchmarkScan(b *testing.B) {
+	root := b.TempDir()
+	path := filepath.Join(root, config.DefaultAgentsFile)
+
+	if err := os.WriteFile(path, []byte("# Agent Configuration\n"), 0o644); err != nil {
+		b.Fatal(err)
+	}
+
+	settings := Settings{
+		File:     config.DefaultAgentsFile,
+		WarnDays: config.DefaultAgentsWarnDays,
+		MaxDays:  config.DefaultAgentsMaxDays,
+		Now:      time.Now().AddDate(0, 0, 1),
+	}
+
+	for b.Loop() {
+		if _, err := Scan(root, settings); err != nil {
+			b.Fatal(err)
+		}
+	}
+}
+
 // TestScanVerdicts drives the pure scan core table-driven: the bar
 // boundaries and the missing-file verdict.
 func TestScanVerdicts(t *testing.T) {
