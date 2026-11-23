@@ -48,6 +48,8 @@ LIB_NAMES = [
     "go-appkit",
     "go-cqrs-lite",
     "cqrs-htmx",
+    "go-finding",
+    "erraudit",
 ]
 
 CITE_RE = re.compile(
@@ -69,7 +71,15 @@ def iter_reports() -> list[Path]:
     return files
 
 
-def resolve(path_text: str) -> tuple[Path | None, str]:
+def consumer_basenames() -> dict[str, Path]:
+    index: dict[str, Path] = {}
+    for path in REPO_ROOT.rglob("*"):
+        if path.is_file() and ".git/" not in str(path):
+            index.setdefault(path.name, path)
+    return index
+
+
+def resolve(path_text: str, basenames: dict[str, Path]) -> tuple[Path | None, str]:
     """Return (resolved path, how) or (None, '')."""
     candidate = Path(path_text)
     if candidate.is_absolute():
@@ -83,6 +93,9 @@ def resolve(path_text: str) -> tuple[Path | None, str]:
         if lib.exists():
             return lib, "lib-qualified"
     if "/" not in path_text:
+        consumer_hit = basenames.get(path_text)
+        if consumer_hit is not None:
+            return consumer_hit, "consumer-basename"
         for lib in LIB_NAMES:
             lib_file = PROJECTS / lib / path_text
             if lib_file.exists():
@@ -98,6 +111,7 @@ def main() -> int:
     total = 0
     failures: list[str] = []
     ambiguous: list[str] = []
+    basenames = consumer_basenames()
     for report in reports:
         text = normalize_dash(report.read_text(encoding="utf-8"))
         for lineno, line in enumerate(text.splitlines(), start=1):
@@ -106,7 +120,7 @@ def main() -> int:
                 if path_text.startswith("http") or "/" in path_text and path_text.split("/")[0] in ("http:", "https:"):
                     continue
                 total += 1
-                resolved, how = resolve(path_text)
+                resolved, how = resolve(path_text, basenames)
                 where = f"{report.name}:{lineno}"
                 if resolved is None:
                     failures.append(f"{where}: `{match.group(0)}` — file not found")
