@@ -91,6 +91,16 @@
       "duration_ms": D,
       "stdout": "SKIP FEATURES.md (missing)\nOK every status token comes from the legend in 1 file(s)\n",
       "stderr": ""
+    },
+    {
+      "name": "agents",
+      "verdict": "PASS",
+      "exit_code": 0,
+      "skipped": false,
+      "timed_out": false,
+      "duration_ms": D,
+      "stdout": "WARN AGENTS.md missing — the agent contract is fleet-mandatory (agents_enforce=false, warn mode)\n",
+      "stderr": ""
     }
   ]
 }
@@ -112,4 +122,6 @@ docs-gates: gate stamps ...
 docs-gates: gate stamps done in D
 docs-gates: gate vocabulary ...
 docs-gates: gate vocabulary done in D
+docs-gates: gate agents ...
+docs-gates: gate agents done in D
 docs-gates: PASS — all doc gates green

@@ -37,10 +37,10 @@ const hoursPerDay = 24
 // the shipped default when the repo's .docs-gates.json is absent or
 // silent, so zero-value Settings never reach the gate logic.
 type Settings struct {
-	File    string // repo-relative AGENTS.md path to date
-	WarnDays int   // age (days) past this WARN
-	MaxDays  int   // age (days) past this FAIL
-	Enforce  bool  // false = findings WARN and exit 0; true = fail-severity findings FAIL
+	File     string // repo-relative AGENTS.md path to date
+	WarnDays int    // age (days) past this WARN
+	MaxDays  int    // age (days) past this FAIL
+	Enforce  bool   // false = findings WARN and exit 0; true = fail-severity findings FAIL
 	Now      time.Time
 }
 
@@ -49,7 +49,7 @@ type Settings struct {
 // injectable for tests; zero means the wall clock.
 func SettingsFromConfig(cfg config.Config) Settings {
 	return Settings{
-		File:    config.Or(cfg.AgentsFile, config.DefaultAgentsFile),
+		File:     config.Or(cfg.AgentsFile, config.DefaultAgentsFile),
 		WarnDays: cfg.AgentsWarnDays,
 		MaxDays:  cfg.AgentsMaxDays,
 		Enforce:  cfg.AgentsEnforce,

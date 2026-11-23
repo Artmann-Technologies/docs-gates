@@ -8,6 +8,7 @@ package main
 
 import (
 	"github.com/Artmann-Technologies/docs-gates/internal/battery"
+	"github.com/Artmann-Technologies/docs-gates/internal/docsagents"
 	"github.com/Artmann-Technologies/docs-gates/internal/docsannotate"
 	"github.com/Artmann-Technologies/docs-gates/internal/docscadence"
 	"github.com/Artmann-Technologies/docs-gates/internal/docscitations"
@@ -22,16 +23,17 @@ import (
 )
 
 const (
-	verbRun       = "run"
-	verbFreshness = "freshness"
-	verbAnnotate  = "annotate"
-	verbRows      = "rows"
-	verbRouting   = "routing"
-	verbCadence   = "cadence"
+	verbRun        = "run"
+	verbFreshness  = "freshness"
+	verbAnnotate   = "annotate"
+	verbRows       = "rows"
+	verbRouting    = "routing"
+	verbCadence    = "cadence"
 	verbStub       = "stub"
 	verbCitations  = "citations"
 	verbStamps     = "stamps"
 	verbVocabulary = "vocabulary"
+	verbAgents     = "agents"
 	verbStrike     = "strike"
 	verbPurge      = "purge"
 )
@@ -50,16 +52,17 @@ const suggestMaxEditDistance = 2
 //
 //nolint:gochecknoglobals // the fixed verb-to-legacy-name map, same class as the contract tables
 var displayName = map[string]string{
-	verbRun:       "docs-gates",
-	verbFreshness: "docs-freshness",
-	verbAnnotate:  "docs-annotate",
-	verbRows:      "docs-gates",
-	verbRouting:   "docs-routing",
-	verbCadence:   "docs-cadence",
+	verbRun:        "docs-gates",
+	verbFreshness:  "docs-freshness",
+	verbAnnotate:   "docs-annotate",
+	verbRows:       "docs-gates",
+	verbRouting:    "docs-routing",
+	verbCadence:    "docs-cadence",
 	verbStub:       "docs-stub",
 	verbCitations:  "docs-citations",
 	verbStamps:     "docs-stamps",
 	verbVocabulary: "docs-vocabulary",
+	verbAgents:     "docs-agents",
 	verbStrike:     "docs-strike",
 	verbPurge:      "docs-gates",
 }
@@ -69,16 +72,17 @@ var displayName = map[string]string{
 //
 //nolint:gochecknoglobals // the fixed dispatch table, same class as the contract tables
 var verbHandlers = map[string]func([]string) int{
-	verbRun:       battery.Run,
-	verbFreshness: docsfreshness.Run,
-	verbAnnotate:  docsannotate.Run,
-	verbRows:      docsrows.Run,
-	verbRouting:   docsrouting.Run,
-	verbCadence:   docscadence.Run,
+	verbRun:        battery.Run,
+	verbFreshness:  docsfreshness.Run,
+	verbAnnotate:   docsannotate.Run,
+	verbRows:       docsrows.Run,
+	verbRouting:    docsrouting.Run,
+	verbCadence:    docscadence.Run,
 	verbStub:       docsstub.Run,
 	verbCitations:  docscitations.Run,
 	verbStamps:     docsstamps.Run,
 	verbVocabulary: docsvocabulary.Run,
+	verbAgents:     docsagents.Run,
 	verbStrike:     docsstrike.Run,
 	verbPurge:      docspurge.Run,
 }
@@ -89,7 +93,7 @@ var verbHandlers = map[string]func([]string) int{
 var verbOrder = []string{
 	verbRun, verbFreshness, verbAnnotate, verbRows,
 	verbRouting, verbCadence, verbStub, verbCitations, verbStamps,
-	verbVocabulary, verbStrike, verbPurge,
+	verbVocabulary, verbAgents, verbStrike, verbPurge,
 }
 
 // verbOverview is each verb's one-line purpose for the root usage; the
@@ -97,18 +101,19 @@ var verbOrder = []string{
 //
 //nolint:gochecknoglobals // the fixed verb one-liners, same class as the contract tables
 var verbOverview = map[string]string{
-	verbRun:       "all nine gates as one ordered verdict matrix (the battery)",
-	verbFreshness: "the newest report's §f items must be harvested into the living docs",
-	verbAnnotate:  "struck items must carry honest, verifiable verdicts",
-	verbRows:      "table-row completeness and bare-row gates over explicit files",
-	verbRouting:   "open actionable rows outside §f must be routed to a living doc",
-	verbCadence:   "TODO_LIST purge and report archive thresholds",
-	verbStub:      "a domain-language doc matching the bare template checksum is an unfilled stub",
-	verbCitations: "backticked code citations in the glossary must resolve to real files",
+	verbRun:        "all ten gates as one ordered verdict matrix (the battery)",
+	verbFreshness:  "the newest report's §f items must be harvested into the living docs",
+	verbAnnotate:   "struck items must carry honest, verifiable verdicts",
+	verbRows:       "table-row completeness and bare-row gates over explicit files",
+	verbRouting:    "open actionable rows outside §f must be routed to a living doc",
+	verbCadence:    "TODO_LIST purge and report archive thresholds",
+	verbStub:       "a domain-language doc matching the bare template checksum is an unfilled stub",
+	verbCitations:  "backticked code citations in the glossary must resolve to real files",
 	verbStamps:     "verification stamps age; oldest per file flagged past warn/fail bars",
 	verbVocabulary: "FEATURES status tokens must come from the file's own legend",
+	verbAgents:     "AGENTS.md must exist and stay fresh (warn/max age bars)",
 	verbStrike:     "strike one TODO_LIST row (dry-run by default)",
-	verbPurge:     "collect struck TODO rows into a CHANGELOG purge entry (dry-run by default)",
+	verbPurge:      "collect struck TODO rows into a CHANGELOG purge entry (dry-run by default)",
 }
 
 // verbUsage wires each verb to its package's Usage text — the same
@@ -117,16 +122,17 @@ var verbOverview = map[string]string{
 //
 //nolint:gochecknoglobals // the fixed verb-to-usage map, same class as the contract tables
 var verbUsage = map[string]string{
-	verbRun:       battery.Usage,
-	verbFreshness: docsfreshness.Usage,
-	verbAnnotate:  docsannotate.Usage,
-	verbRows:      docsrows.Usage,
-	verbRouting:   docsrouting.Usage,
-	verbCadence:   docscadence.Usage,
-	verbStub:      docsstub.Usage,
-	verbCitations: docscitations.Usage,
+	verbRun:        battery.Usage,
+	verbFreshness:  docsfreshness.Usage,
+	verbAnnotate:   docsannotate.Usage,
+	verbRows:       docsrows.Usage,
+	verbRouting:    docsrouting.Usage,
+	verbCadence:    docscadence.Usage,
+	verbStub:       docsstub.Usage,
+	verbCitations:  docscitations.Usage,
 	verbStamps:     docsstamps.Usage,
 	verbVocabulary: docsvocabulary.Usage,
+	verbAgents:     docsagents.Usage,
 	verbStrike:     docsstrike.Usage,
 	verbPurge:      docspurge.Usage,
 }

@@ -37,6 +37,9 @@ docs-gates: gate vocabulary ...
 SKIP FEATURES.md (missing)
 OK every status token comes from the legend in 1 file(s)
 docs-gates: gate vocabulary done in D
+docs-gates: gate agents ...
+WARN AGENTS.md missing — the agent contract is fleet-mandatory (agents_enforce=false, warn mode)
+docs-gates: gate agents done in D
 docs-gates: verdict matrix
   PASS  freshness (in D)
   PASS  audit-all (in D)
@@ -47,4 +50,5 @@ docs-gates: verdict matrix
   PASS  citations (in D)
   PASS  stamps (in D)
   PASS  vocabulary (in D)
+  PASS  agents (in D)
 docs-gates: PASS — all doc gates green

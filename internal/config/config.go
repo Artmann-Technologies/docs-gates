@@ -104,25 +104,25 @@ type Config struct {
 	AnnotateCorpus     string   `json:"annotate_corpus"`      // annotate corpus scope: "all" (default) or "unarchived"
 	TodoFile           string   `json:"todo_file"`            // the TODO_LIST file (cadence reads it, docs-strike edits it)
 	Cadence            Cadence  `json:"cadence"`
-	GateTimeoutSec     int      `json:"gate_timeout_sec"` // battery per-gate wall-clock cap in seconds (0 = no timeout)
-	SkipGates          []string `json:"skip_gates"`       // battery verbs to skip (docs-gates run)
-	StubFiles          []string `json:"stub_files"`       // corpus the stub gate checksums (docs-stub)
-	StubChecksums      []string `json:"stub_checksums"`   // bare-template digests; a match is an unfilled stub (md5 or sha256 hex)
-	StubExempts        []string `json:"stub_exempts"`     // repo-relative files exempt from the stub gate (the template host, honest stubs)
-	StubEnforce        bool     `json:"stub_enforce"`     // stub gate rollout: false = findings WARN and exit 0; true = FAIL
-	CitationFiles      []string `json:"citation_files"`   // corpus the citations gate resolves (docs-citations)
-	CitationExts       []string `json:"citation_exts"`    // file extensions counted as code citations (dot-prefixed)
-	CitationEnforce    bool     `json:"citation_enforce"` // citations rollout: false = WARN, true = FAIL on missing targets
-	StampFiles         []string `json:"stamp_files"`      // corpus the stamps gate dates (docs-stamps)
-	StampWarnDays      int     `json:"stamp_warn_days"`  // verification stamps older than this WARN
-	StampFailDays      int     `json:"stamp_fail_days"`  // verification stamps older than this FAIL
-	StampEnforce       bool    `json:"stamp_enforce"`    // stamps rollout: false = findings WARN and exit 0; true = FAIL rows fail
+	GateTimeoutSec     int      `json:"gate_timeout_sec"`   // battery per-gate wall-clock cap in seconds (0 = no timeout)
+	SkipGates          []string `json:"skip_gates"`         // battery verbs to skip (docs-gates run)
+	StubFiles          []string `json:"stub_files"`         // corpus the stub gate checksums (docs-stub)
+	StubChecksums      []string `json:"stub_checksums"`     // bare-template digests; a match is an unfilled stub (md5 or sha256 hex)
+	StubExempts        []string `json:"stub_exempts"`       // repo-relative files exempt from the stub gate (the template host, honest stubs)
+	StubEnforce        bool     `json:"stub_enforce"`       // stub gate rollout: false = findings WARN and exit 0; true = FAIL
+	CitationFiles      []string `json:"citation_files"`     // corpus the citations gate resolves (docs-citations)
+	CitationExts       []string `json:"citation_exts"`      // file extensions counted as code citations (dot-prefixed)
+	CitationEnforce    bool     `json:"citation_enforce"`   // citations rollout: false = WARN, true = FAIL on missing targets
+	StampFiles         []string `json:"stamp_files"`        // corpus the stamps gate dates (docs-stamps)
+	StampWarnDays      int      `json:"stamp_warn_days"`    // verification stamps older than this WARN
+	StampFailDays      int      `json:"stamp_fail_days"`    // verification stamps older than this FAIL
+	StampEnforce       bool     `json:"stamp_enforce"`      // stamps rollout: false = findings WARN and exit 0; true = FAIL rows fail
 	VocabularyFiles    []string `json:"vocabulary_files"`   // corpus the vocabulary gate judges (docs-vocabulary)
-	VocabularyEnforce  bool    `json:"vocabulary_enforce"` // vocabulary rollout: false = findings WARN and exit 0; true = FAIL
-	AgentsFile         string  `json:"agents_file"`        // the agent-config doc the agents gate dates (docs-agents)
-	AgentsWarnDays     int     `json:"agents_warn_days"`   // AGENTS.md older than this WARN
-	AgentsMaxDays      int     `json:"agents_max_days"`    // AGENTS.md older than this FAIL (a missing file always fails)
-	AgentsEnforce      bool    `json:"agents_enforce"`     // agents rollout: false = findings WARN and exit 0; true = FAIL
+	VocabularyEnforce  bool     `json:"vocabulary_enforce"` // vocabulary rollout: false = findings WARN and exit 0; true = FAIL
+	AgentsFile         string   `json:"agents_file"`        // the agent-config doc the agents gate dates (docs-agents)
+	AgentsWarnDays     int      `json:"agents_warn_days"`   // AGENTS.md older than this WARN
+	AgentsMaxDays      int      `json:"agents_max_days"`    // AGENTS.md older than this FAIL (a missing file always fails)
+	AgentsEnforce      bool     `json:"agents_enforce"`     // agents rollout: false = findings WARN and exit 0; true = FAIL
 }
 
 // Path returns the config file location under a repo root.

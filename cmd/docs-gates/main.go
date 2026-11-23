@@ -165,7 +165,7 @@ func printUsageError() {
 func rootUsage() string {
 	var b strings.Builder
 
-	b.WriteString("docs-gates — the docs-health battery: nine doc gates, one binary\n\n")
+	b.WriteString("docs-gates — the docs-health battery: ten doc gates, one binary\n\n")
 	b.WriteString("usage: docs-gates <verb> [args]\n\nverbs:\n")
 
 	for _, verb := range verbOrder {

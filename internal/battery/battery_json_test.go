@@ -28,7 +28,7 @@ func TestRunJSONFace(t *testing.T) {
 		t.Fatalf("stdout must be one JSON document: %v; stdout: %s", err, out.Stdout)
 	}
 
-	if !report.Pass || report.Root != root || len(report.Gates) != 9 {
+	if !report.Pass || report.Root != root || len(report.Gates) != 10 {
 		t.Fatalf("unexpected report: pass=%v root=%q gates=%d", report.Pass, report.Root, len(report.Gates))
 	}
 

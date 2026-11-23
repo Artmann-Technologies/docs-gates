@@ -12,8 +12,10 @@ import (
 )
 
 // writeAgentsMd writes the corpus file with its mtime backdated ageDays
-// into the past, so ages are deterministic without sleeping.
-func writeAgentsMd(t *testing.T, root string, ageDays int) string {
+// into the past and returns the mtime, so a Scan test can pin Now =
+// mtime + ageDays and the age in days is exact (no wall-clock drift
+// through the integer-day truncation).
+func writeAgentsMd(t *testing.T, root string, ageDays int) time.Time {
 	t.Helper()
 
 	path := filepath.Join(root, config.DefaultAgentsFile)
@@ -28,7 +30,7 @@ func writeAgentsMd(t *testing.T, root string, ageDays int) string {
 		t.Fatal(err)
 	}
 
-	return root
+	return mtime
 }
 
 func writeConfig(t *testing.T, root, json string) {
@@ -42,7 +44,10 @@ func writeConfig(t *testing.T, root, json string) {
 func TestFreshAgentsMdIsClean(t *testing.T) {
 	t.Parallel()
 
-	if rc := Run([]string{writeAgentsMd(t, t.TempDir(), 1)}); rc != gatecli.ExitClean {
+	root := t.TempDir()
+	writeAgentsMd(t, root, 1)
+
+	if rc := Run([]string{root}); rc != gatecli.ExitClean {
 		t.Fatalf("a one-day-old AGENTS.md must be clean, got rc %d", rc)
 	}
 }
@@ -69,9 +74,10 @@ func TestMissingAgentsMdFailsWhenEnforced(t *testing.T) {
 func TestMaxBarAgeWarnsByDefault(t *testing.T) {
 	t.Parallel()
 
-	if rc := Run(
-		[]string{writeAgentsMd(t, t.TempDir(), config.DefaultAgentsMaxDays+5)},
-	); rc != gatecli.ExitClean {
+	root := t.TempDir()
+	writeAgentsMd(t, root, config.DefaultAgentsMaxDays+5)
+
+	if rc := Run([]string{root}); rc != gatecli.ExitClean {
 		t.Fatalf("a max-bar age must WARN-exit-clean in default warn mode, got rc %d", rc)
 	}
 }
@@ -79,7 +85,8 @@ func TestMaxBarAgeWarnsByDefault(t *testing.T) {
 func TestMaxBarAgeFailsWhenEnforced(t *testing.T) {
 	t.Parallel()
 
-	root := writeAgentsMd(t, t.TempDir(), config.DefaultAgentsMaxDays+5)
+	root := t.TempDir()
+	writeAgentsMd(t, root, config.DefaultAgentsMaxDays+5)
 	writeConfig(t, root, `{"agents_enforce": true}`)
 
 	if rc := Run([]string{root}); rc != gatecli.ExitFindings {
@@ -90,7 +97,8 @@ func TestMaxBarAgeFailsWhenEnforced(t *testing.T) {
 func TestWarnBarAgeStaysCleanEvenEnforced(t *testing.T) {
 	t.Parallel()
 
-	root := writeAgentsMd(t, t.TempDir(), config.DefaultAgentsWarnDays+5)
+	root := t.TempDir()
+	writeAgentsMd(t, root, config.DefaultAgentsWarnDays+5)
 	writeConfig(t, root, `{"agents_enforce": true}`)
 
 	if rc := Run([]string{root}); rc != gatecli.ExitClean {
@@ -104,7 +112,8 @@ func TestWarnBarAgeStaysCleanEvenEnforced(t *testing.T) {
 //
 //nolint:paralleltest // process-global capture swap, serialized on purpose
 func TestRunPrintsVerdictLines(t *testing.T) {
-	stale := writeAgentsMd(t, t.TempDir(), config.DefaultAgentsMaxDays+5)
+	stale := t.TempDir()
+	writeAgentsMd(t, stale, config.DefaultAgentsMaxDays+5)
 
 	warnOut := gatecli.CaptureOutput(func() int {
 		return Run([]string{stale})
@@ -139,8 +148,6 @@ func TestRunPrintsVerdictLines(t *testing.T) {
 func TestScanVerdicts(t *testing.T) {
 	t.Parallel()
 
-	now := time.Now()
-
 	tests := []struct {
 		name     string
 		ageDays  int
@@ -158,15 +165,16 @@ func TestScanVerdicts(t *testing.T) {
 			t.Parallel()
 
 			root := t.TempDir()
+			now := time.Now()
 			if !tt.missing {
-				writeAgentsMd(t, root, tt.ageDays)
+				now = writeAgentsMd(t, root, tt.ageDays).AddDate(0, 0, tt.ageDays)
 			}
 
 			findings, err := Scan(root, Settings{
-				File:    config.DefaultAgentsFile,
+				File:     config.DefaultAgentsFile,
 				WarnDays: config.DefaultAgentsWarnDays,
 				MaxDays:  config.DefaultAgentsMaxDays,
-				Now:     now,
+				Now:      now,
 			})
 			if err != nil {
 				t.Fatal(err)
@@ -189,11 +197,13 @@ func TestScanVerdicts(t *testing.T) {
 
 // TestSettingsFromConfigKeepsDefaults pins the zero-config projection:
 // a repo without .docs-gates.json gets the shipped defaults, never
-// zero-value knobs.
+// zero-value knobs. Load starts from Defaults() and decodes over it, so
+// Defaults() IS what a silent config produces; the File field
+// additionally survives a fully zero Config via config.Or.
 func TestSettingsFromConfigKeepsDefaults(t *testing.T) {
 	t.Parallel()
 
-	settings := SettingsFromConfig(config.Config{})
+	settings := SettingsFromConfig(config.Defaults())
 
 	if settings.File != config.DefaultAgentsFile {
 		t.Fatalf("silent config must fall back to %s, got %q", config.DefaultAgentsFile, settings.File)
@@ -205,5 +215,9 @@ func TestSettingsFromConfigKeepsDefaults(t *testing.T) {
 
 	if settings.Enforce {
 		t.Fatal("silent config must ship warn mode")
+	}
+
+	if zero := SettingsFromConfig(config.Config{}); zero.File != config.DefaultAgentsFile {
+		t.Fatalf("zero-value config must still fall back to %s, got %q", config.DefaultAgentsFile, zero.File)
 	}
 }
