@@ -64,7 +64,7 @@ functions per prepared corpus: `Contains` (token → present) and `Count`
 (token → raw-line document frequency) over the living-docs lines
 (internal/docsfreshness/corpus.go:81-96, :103-140). This is what took the CV
 audit-all cliff from hours to 49s — one scan per DISTINCT token instead of one
-per (token × report) (AGENTS.md:201-202). A go-cqrs-lite projection is a
+per (token × report) (AGENTS.md:191-192). A go-cqrs-lite projection is a
 different machine: a persisted, checkpointed, incrementally-caught-up read
 model over an append-only event journal, restarted on crash, with dead-letter
 quarantine (go-cqrs-lite/README.md:39-40). The consumer's caches are

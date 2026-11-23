@@ -125,21 +125,13 @@ usage_test.go.
   declined (`DisallowUnknownFields` is the row-shape contract, byte-pinned);
   crypto/md5 in docsstub is census-fingerprint matching, not security (the
   library-policy ERROR is a standing known-delta, documented here); the
-  mutators write through plain `os.WriteFile` under `--apply` — git is the
-  atomicity layer for tracked files, and the purge two-write window is
-  accepted (TODO_LIST §10 carries the CHANGELOG-first order swap).
-- **Fleet library audit (2026-11-23, `docs/review/libs/index.html` + 23
-  per-library reports):** NO LarsArtmann library is adopted, and that is
-  the correct call for all 23 subjects — 16 NOT-APPLICABLE (no HTTP,
-  server, secrets, DB or event problem class), 7 NOT-ADOPTED with named
-  overlap barred by the root contract (cmdguard, go-appkit,
-  go-atomic-write, go-business-rules, go-codec, go-error-family,
-  go-output). New serving, watch or daemon capability belongs in a
-  sibling module that execs the binary (the `pkg/provider` pattern),
-  never in the root. **Refresh the audit when** cmdguard ships a
-  zero-dependency core, stdlib-only is relaxed fleet-wide, or such a
-  sibling module is created. `scripts/citation-sweep.py` and
-  `scripts/replay-verify.py` re-verify the corpus mechanically.
+  mutators use plain `os.WriteFile` under `--apply` (git is the atomicity
+  layer; the purge two-write window is accepted — TODO_LIST §10).
+- **Fleet library audit** (2026-11-23, `docs/review/libs/index.html`): NO
+  LarsArtmann library is adopted, correctly — 16 NOT-APPLICABLE, 7
+  NOT-ADOPTED (real overlap, barred by the root contract). New serving, watch
+  or daemon faces are NEW sibling modules. **Re-audit when** cmdguard ships a
+  zero-dependency core, stdlib-only is relaxed, or such a module exists.
 - **`nix fmt` needs the tracked treefmt.toml.** **Darwin is deliberately absent** from flake systems (revisit on a real consumer).
 - **erraudit rides the flake as a PRIVATE git+ssh master-tracking input**
   (its OWN hermetic package; rev pinned in flake.lock). Probes may
@@ -185,8 +177,6 @@ usage_test.go.
 - **Striking ledger rows by ROW NUMBER is a corruption machine**: use
   `scripts/safe-strike.sh` (unique ≥4-letter anchors, dry-run default,
   one strike per commit boundary, `--gate`/`--battery` per batch).
-- **BuildFlow#87 fixed**: no result-cache bypass; dprint bundle rides
-  `nix build .#dprint-plugins` + BUILDFLOW_DPRINT_PLUGINS.
 - **dprint-managed tables × pre-flight: judge the FORMATTED bytes against
   the PRE-edit tree** — the formatter re-aligns cells AFTER the verdict
   (paid 2026-11-14).
