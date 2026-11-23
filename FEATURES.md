@@ -151,8 +151,10 @@ built.
   `--json` face, erraudit adoption, parity corpus), v0.3.0
   (`--land-parity`, typed refusal carriers), and v0.3.1 (meta docs,
   pre-flight stamp hygiene, batch safe-strike) tagged; v0.4.0 adds the
-  read-only `rows` verb + the executable marker grammar. Provider module at
-  `pkg/provider/v0.2.0`; `go install …@latest` resolves.
+  read-only `rows` verb + the executable marker grammar; v0.5.0 adds
+  the `vocabulary` + `agents` gates, the `annotate_corpus` knob, and
+  the pre-commit rev-tripwire leg. Provider module realigned at
+  `pkg/provider/v0.5.0`; `go install …@latest` resolves.
 - **`docs-gates rows` (read-only split, 2026-11-15)** — table-row
   completeness (`--strict` UNTOUCHED arm) and the `--bare` row scan extracted
   from the docs-health writer, with its own exit contract; byte-parity with

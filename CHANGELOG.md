@@ -6,7 +6,21 @@ match the annotated git tags; anything after the newest tag sits under
 
 ## [Unreleased]
 
+### Added
+
+- Nothing yet.
+
 ### Fixed
+
+- Nothing yet.
+
+## [v0.5.0] - 2026-11-23
+
+### Fixed
+
+- **the provider's rerun-hint covers all ten battery gates**: the binary-driven matrix guard caught stub/citations/stamps/vocabulary/agents replaying through a vocabulary rerunHint never learned (CI skips without a PATH binary — a local-only catch); the guard now probes each matrix row's verb through the dispatcher's `--help` face, so the next gate catches itself.
+
+- **the agents gate refuses a directory `agents_file`** as a FATAL misconfiguration (typed refusal carrier, exit 2) instead of computing a verdict from a directory's mtime; the unstatable-target path is covered too.
 
 - **annotate accepts `routed` verdict markers on struck rows** — striking a routed row (`~~item~~ **→ routed to TODO_LIST #32**`) is the natural harvest closure and the routing gate already treats it as closed; the two gates no longer disagree on the same row (closed #3).
 
@@ -27,6 +41,8 @@ match the annotated git tags; anything after the newest tag sits under
 - **`vocabulary` gate (the battery's ninth row)**: every FEATURES.md table Status-column token must be defined by the file's own `## Status legend` section — the legend table AND the prose around it define tokens; extraction is cell-aware through the docsrows table walk (`JSON` in a Notes cell never flags), unused legend entries stay informational, and the warn-mode rollout follows the docsstub doctrine (`vocabulary_enforce` flips WARN to FAIL; closed #11).
 
 - **README documents the annotate verdict rules** (A–G plus the P placement rules): the marker vocabulary (including `routed`), the hash/path/tag evidence checks, rule F spacing with its `<!-- format:allow -->` opt-out, and the per-cell table-strike rule — previously source-only knowledge (closed #2).
+
+- **pre-commit rev-tripwire leg**: staging `flake.lock` now runs `scripts/check-erraudit-rev.sh` (bash + jq only, sandbox-safe), so BuildFlow's repair-phase lockfile rewrites — five damage events 11-06..11-23 — refuse at commit time instead of surfacing at the next push-time flake check.
 
 ## [v0.4.0] - 2026-11-21
 
