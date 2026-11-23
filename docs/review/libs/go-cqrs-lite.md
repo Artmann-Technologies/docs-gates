@@ -25,8 +25,8 @@ NOT-APPLICABLE — go-cqrs-lite is an event-sourcing/CQRS engine family (event j
 | 3 | Decider pattern (load · fold · decide), typed command/event handler signatures | No — no commands; gates are argv → verdict batch functions | N/A | go-cqrs-lite/README.md:34-41 |
 | 4 | Projection host: replay, crash-restart, checkpoints, dead-letter | Rhyme only — see row 10 and gap analysis; the consumer's "replay" is memoized batch scanning with no persistence, no catch-up, no subscriptions | N/A | go-cqrs-lite/README.md:39-40 |
 | 5 | `metaengine` cost-based planner: routes queries across 11 interchangeable engines by measured cost | No — one engine (substring scan over a []string corpus); no engine choice exists | N/A | go-cqrs-lite/metaengine/v4/README.md:1-6 |
-| 6 | Production primitives: event signing (HMAC/Ed25519), payload encryption, OTel tracing/metrics | No — no events to sign, no telemetry surface (exit code is the signal) | N/A | go-cqrs-lite/README.md:65-67 |
-| 7 | Honest 6-family error taxonomy with sentinels and `%w` | No — the consumer's contract is exactly three exit codes plus typed refusal carriers it already has (AGENTS.md:38-39, :63-66) | N/A | go-cqrs-lite/README.md:68-69 |
+| 6 | Production primitives: event signing (HMAC/Ed25519), payload encryption, OTel tracing/metrics | No — no events to sign, no telemetry surface (exit code is the signal) | N/A | go-cqrs-lite/README.md:59 |
+| 7 | Honest 6-family error taxonomy with sentinels and `%w` | No — the consumer's contract is exactly three exit codes plus typed refusal carriers it already has (AGENTS.md:38-39, :63-66) | N/A | go-cqrs-lite/README.md:60 |
 | 8 | Long tail (grouped): ~90 domain/plumbing submodules — event, command, query, decider, dispatcher, dedup, idempotency, kv, graph, scheduling, engines (sqlite/pebble/bbolt/postgres/mysql/duckdb/...), cmd/cqrs-lint + generators, catalog, benchkit | No — every one presumes a running event-sourced application | N/A | go-cqrs-lite/CHANGELOG.md:28 (Unreleased sweep across the family) |
 | 9 | `cmd/cqrs-lint`, module-graph discipline, multi-module isolation itself | No — the consumer enforces its own (stricter) zero-dep discipline via scripts/stack-drift-check.sh:8-13 | N/A | go-cqrs-lite/go.mod:2 |
 | 10 | Concept: deterministic REPLAY over an immutable corpus to derive current state (projections/read models), so reads never mutate the log | **Concept applies** — this is the shape of audit-all/pre-flight; judged below as rhyme, not duplication | N/A (concept satisfied in-library by the consumer's own memoized scan) | go-cqrs-lite/README.md:34-41; internal/docsfreshness/corpus.go:81-96 |
@@ -47,7 +47,7 @@ build-tag idiom (`RaceEnabled`) was contributed FROM go-cqrs-lite INTO
 go-finding/toolsdk — the dep pkg/provider already uses
 (docs/status/2026-11-14_18-00_whole-board-second-batch-ux-external-release.md:23).
 The consumer itself uses that same idiom in its freshness tests
-(internal/docsfreshness/race_off_test.go:1-8) — a fleet-shared testing
+(internal/docsfreshness/race_off_test.go:1-7) — a fleet-shared testing
 convention flowing through docs-gates' existing dep graph, not a go-cqrs-lite
 adoption.
 

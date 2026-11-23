@@ -23,15 +23,15 @@ NOT-APPLICABLE — templ-components is a server-rendered HTML component library 
 | 1 | `display` — 53 data-display components (cards, tables, modals, tabs, kanban, native SVG charts) | No — no HTML output anywhere | N/A | templ-components/README.md:151 |
 | 2 | `forms` — 26 typed form controls (enums that fail the build on invalid state) | No — no forms, no input round-trips | N/A | templ-components/README.md:222 |
 | 3 | `layout` — 11 page-layout components (Base, ThemeScript, CSP-nonce threading) | No — no pages | N/A | templ-components/README.md:246 |
-| 4 | `navigation` — breadcrumbs (with hardened JSON-LD), nav structures | No — no navigation surface | N/A | templ-components/README.md:149 (catalog) |
+| 4 | `navigation` — breadcrumbs (with hardened JSON-LD), nav structures | No — no navigation surface | N/A | templ-components/README.md:242 |
 | 5 | `icons` module — 102 SVG icons as Go values | No — glyphs never rendered | N/A | templ-components/README.md:87 |
 | 6 | `charts/echarts` module — ECharts chart components | No — the verdict matrix is text tables; no chart exists to draw | N/A | templ-components/charts/echarts/go.mod:1 |
 | 7 | `htmx` module — HTMX response/transport helpers | No — no HTTP, no browser | N/A | templ-components/htmx/go.mod:1 |
 | 8 | `datastar` module — opt-in Datastar runtime integration | No — same | N/A | templ-components/datastar/go.mod:1 |
 | 9 | `errorpage` module — pretty classified error pages (HTML) + JSON contracts | No — errors are the 0/1/2 exit codes plus stderr prose | N/A | templ-components/errorpage/go.mod:1 |
 | 10 | `utils` module — `BaseProps`/`ComponentProps` composition, `Class` tailwind-merge, `ScriptComponent` CSP hygiene | No — no components, no CSS, no scripts | N/A | templ-components/utils/utils.go:14, templ-components/utils/utils.go:48 |
-| 11 | `visualtest` module — chromedp pixel-level visual goldens (206) | No — docs-gates parity is byte goldens over text (internal/battery/parity_test.go), no browser in the loop | N/A | templ-components/README.md:41 |
-| 12 | `website` + `tc` CLI (docs site, `tc doctor` repo scanner) | No — docs-gates ships markdown docs; its CLI scans markdown corpora, not templ call sites | N/A | templ-components/README.md:11 |
+| 11 | `visualtest` module — chromedp pixel-level visual goldens (206) | No — docs-gates parity is byte goldens over text (internal/battery/parity_test.go), no browser in the loop | N/A | templ-components/README.md:115 |
+| 12 | `website` + `tc` CLI (docs site, `tc doctor` repo scanner) | No — docs-gates ships markdown docs; its CLI scans markdown corpora, not templ call sites | N/A | templ-components/README.md:84 |
 | 13 | Concept: ONE shared, semver-versioned presentation layer so every fleet UI improves collectively | Concept only — docs-gates' presentation contract is the opposite shape: byte-pinned plaintext, re-pinned deliberately per golden bump | N/A | internal/battery/parity_test.go; AGENTS.md:51-54 |
 
 Dependency note for any future adoption: the root module requires
@@ -102,7 +102,11 @@ fleet dashboard visualizing battery verdicts across repos over time. That is a
 different deliverable from the battery itself, and it is exactly the shape
 templ-components solves fleet-wide; if it ever exists, it should be its own
 module (the pkg/provider precedent for sanctioned dep homes) built on
-templ-components from day one rather than a hand-rolled HTML layer.
+templ-components from day one rather than a hand-rolled HTML layer. Note the
+GOTH-stack pairing: the library is designed to ride with go-cqrs-lite +
+cqrs-htmx (see those reports), so a docs-gates HTML face would naturally
+arrive as part of that stack decision, not as a lone component import — one
+flip trigger, three libraries, judged together in this group's reports.
 
 RECONSIDER-WHEN: docs-gates (or a sibling module in this repo) grows an HTML
 face — a battery-verdict dashboard, a report-corpus browser, or any rendered

@@ -21,7 +21,7 @@ NOT-APPLICABLE — cqrs-htmx wires CQRS commands/queries to `net/http` + HTMX (d
 | # | Capability | Applies to docs-gates? | Status | Evidence |
 |---|---|---|---|---|
 | 1 | Core `app.Command`/`app.Query` HandlerOption wiring: decode → authorize → validate → respond, one declarative line per endpoint | No — no endpoints; verbs dispatch from a plain map (cmd/docs-gates/verbs.go:77) | N/A | cqrs-htmx/README.md:38 |
-| 2 | HTMX response building (HX-Trigger/Push-URL, partial-vs-full rendering), CSRF, method override | No — no browser, no responses to enhance | N/A | cqrs-htmx/README.md:24-37 |
+| 2 | HTMX response building (HX-Trigger/Push-URL, partial-vs-full rendering), CSRF, method override | No — no browser, no responses to enhance | N/A | cqrs-htmx/README.md:72-73 |
 | 3 | SSE-only realtime: broadcaster, reconnect, offline sync protocol (ADR 0046 dropped WebSocket) | No — nothing streams; output is one JSON document + stderr prose | N/A | cqrs-htmx/docs/adr/0046-drop-websocket-sse-only.md:1, :16 |
 | 4 | `usermgmt` — event-sourced identity (register/login/sessions/roles/tenants/bots/lockout/audit log) + webauthn/totp/oauth2 satellites | No — no users; the battery's actor is CI | N/A | cqrs-htmx/README.md:95-96, cqrs-htmx/usermgmt/README.md:3-4 |
 | 5 | `adminui` — one-call admin dashboard (users, tenants, members, audit log; embedded Tailwind build) | No — the verdict matrix IS the admin surface, 40 lines of text | N/A | cqrs-htmx/adminui/README.md:3, :8 |
@@ -29,7 +29,7 @@ NOT-APPLICABLE — cqrs-htmx wires CQRS commands/queries to `net/http` + HTMX (d
 | 7 | `setup` — one-call full stack (root app + usermgmt + adminui + dashboardui + loginpage) | No — the consumer's "one-call" is `docs-gates run .` | N/A | cqrs-htmx/README.md:139, :312-314 |
 | 8 | `systemadapter` — identity domain bridged onto go-cqrs-lite `system.New` + metaengine presets | No — no system to adapt to | N/A | cqrs-htmx/systemadapter/README.md:3-8 |
 | 9 | `huma`, `health`, `auditlog`, `datastar`, `loginpage`, `identity-model`, `eventcatalog`/OpenAPI collectors | No — no API spec, no probes, no login page, no identity model | N/A | cqrs-htmx/README.md:55 (module map) |
-| 10 | Error-to-status mapping with HTMX-aware auth redirects | No — the 0/1/2 exit-code contract is the whole error surface (internal/gatecli constants, AGENTS.md:38-39) | N/A | cqrs-htmx/README.md:31-33 |
+| 10 | Error-to-status mapping with HTMX-aware auth redirects | No — the 0/1/2 exit-code contract is the whole error surface (internal/gatecli constants, AGENTS.md:38-39) | N/A | cqrs-htmx/README.md:71 |
 | 11 | Concept: readiness GATING on projection catch-up (block traffic until read models are current) | **Concept applies** — docs-gates' verdicts are point-in-time snapshots under foreign daemons (timestamp the run; one run is not steady state); judged below as rhyme, not duplication | N/A | cqrs-htmx/projection_readiness.go:11-16; AGENTS.md:188-189 |
 
 Dependency note: the root module's require graph (go-cqrs-lite v4 family,
@@ -74,7 +74,7 @@ Duplication hunt (fleet argument), full sweep:
 
 **The fleet argument, addressed.** cqrs-htmx deletes the endpoint glue every
 GOTH-stack web app rewrites (decode, authorize, validate, HTMX headers,
-error-to-status — cqrs-htmx/README.md:24-37). docs-gates is not that app, and
+error-to-status — cqrs-htmx/README.md:66-75). docs-gates is not that app, and
 its architecture is the negative image of it: no transport, no identity, no
 rendering, no long-lived connections — a judge that answers in ~1.5 ms and
 exits (README.md:69-72). There is no re-implementation to retire and no
