@@ -98,6 +98,45 @@ Long-term direction and raw ideas. Refined ideas graduate to TODO_LIST.
   (nixos-unstable no longer evaluates x86_64-darwin). Revisit only when a
   real consumer appears; the Go code is portable already.
 
+## Fleet library audit follow-ups (harvested 2026-11-24)
+
+Directions and ideas from the audit run's status report. Nothing here is
+scheduled; the first block waits on the owner's answer on where the audit
+instruments should live.
+
+### Audit instruments, once their home is decided (owner question 1)
+
+- **Instruments' home**: Decide the instruments' home: keep `scripts/citation-sweep.py` and `scripts/replay-verify.py` as Python, port them to Go judge verbs, or move them to a sibling module (question 1)
+- **Quality-gate wiring**: Wire the audit instruments into a quality gate: a devShell-only pre-commit leg or flake check that skips when the library checkouts are absent
+- **Go judge verbs**: Port the instruments to Go as judge verbs with tests and goldens, once the home is decided
+- **Portability**: Make the scripts portable: replace the hardcoded `/home/lars/projects` paths with a `--projects-dir` flag or an environment variable
+- **Script tests**: Add stdlib `unittest` coverage for both Python scripts if they stay Python
+- **devShell interpreter**: Provide `python3` inside the nix devShell: today the interpreter leaks in from the host profile
+- **Bare follow-on cites**: Teach `citation-sweep.py` to resolve bare follow-on cites such as `:188-189` after a filename — one such cite escaped every tool
+- **Citation content mode**: Add a content mode to the citation sweep that prints each cited line, so wrong-content cites can be reviewed
+- **Anchor-only transcripts**: Emit anchor-only output for living docs in verify transcripts (`rg -N`) so AGENTS.md and TODO_LIST edits stop drifting them
+- **Fleet-facts script**: Ship the fleet-facts derivation as a script: semver-sorted tags per submodule, HEADs, upstream drift, module names read without the `head -1` comment bug
+- **Transcript literalizer**: Ship the transcript literalizer (`replay-verify --fix`, read-only guarded) that currently lives only in `/tmp`
+- **Audited-subjects manifest**: One audited-subjects manifest consumed by the sweep's library list, the dashboard builder and the facts script — three lists today
+- **Dashboard from report headers**: Generate the dashboard's verdict matrix and trigger table from the report headers, or add a consistency check, to remove the hand-copied split brain
+- **Change record**: Decide and record whether the audit scripts and corpus belong in CHANGELOG `[Unreleased]` and FEATURES.md
+
+### Owner action
+
+- **Provider credits**: Top up or accept single-provider risk: three alternate model providers had no credits during this run
+
+### Longer term
+
+- **Re-audit on flip triggers**: Re-audit the 23 subjects when a flip trigger fires: a cmdguard zero-dependency core, relaxed stdlib-only, or the first sibling serving module
+- **`lib-audit` verb**: A `docs-gates lib-audit` verb that derives the fleet manifest and runs the battery across a fleet of repos
+- **Verify-block gate**: A gate that replays the verify blocks of every doc, not only audits, so stale commands surface
+- **Content-anchored citations**: A content-anchored citation convention (`path:line "quoted phrase"`) so sweeps verify meaning, not just ranges
+- **Report sidecar**: A machine-readable sidecar per report (verdict, counts, version, triggers) so dashboards stop parsing prose
+- **Portable transcripts**: Placeholders plus a recorded environment for verify transcripts so another machine can replay them
+- **`--diff` on replay**: A `--diff` mode on `replay-verify.py` that prints the line-level difference on mismatch
+- **Publish the dashboard**: Publish `docs/review/libs/index.html` on the project website
+- **Drift watch**: A scheduled job that re-runs the sweep and replay across audit corpora and opens a TODO row on drift
+
 ## Non-goals
 
 - **erraudit as a golangci-lint module plugin** — standalone binary is

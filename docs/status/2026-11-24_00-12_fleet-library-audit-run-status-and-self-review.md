@@ -19,6 +19,9 @@
   rows landed byte-exact (SAFE batch 2026-11-23T18:37:23Z).
 - `freshness --dump-items` over each of the 12 unarchived reports, plus a
   bullet count of each `f)` section — the basis of d2.
+- `go run ./cmd/docs-gates freshness .` on this report before any
+  harvest — "0 unharvested open §f item(s), FRESH" with all 50 items
+  extracted; `--explain-item` on five of them — the basis of d2b.
 - `go run ./cmd/docs-gates rows TODO_LIST.md` — exit 1, two tables
   flagged; `go run ./cmd/docs-gates purge .` — dry-run only, drafts one row.
 - `git log -S` on TODO_LIST.md for the struck-row shape — first appears
@@ -148,6 +151,19 @@
   TODO_LIST nor ROADMAP today. Severity: the gate that exists to force
   harvest passes vacuously. Root cause: the `f)` grammar plus numbered-only
   extraction, meeting free-form reports. Mitigation: manual harvest.
+- **d2b. And when a report does carry numbered items, they pass on
+  incidental vocabulary.** This very report was judged FRESH with "0
+  unharvested open §f item(s)" before a single item was harvested.
+  `--explain-item` shows why: the markdown-lint item passed on the words
+  "on-demand" and "quality" while `markdown-lint` itself is absent from the
+  living docs; the go-credentials-store item passed on "commits", "ahead"
+  and "checkout" while the library's name is absent. Two matched tokens
+  anywhere in TODO_LIST, ROADMAP or CHANGELOG, one of them merely below the
+  generic bar, satisfy any item. Root cause: the quorum is counted
+  corpus-wide instead of on one living-doc line, and my Impact, Effort and
+  Category columns added shared vocabulary. Severity: the matcher cannot
+  tell a harvest from a coincidence. The fifty items in section f) were
+  therefore routed by hand, not by the gate.
 - **d3. The purge collector would write a malformed bullet.** Its dry run
   drafts `- TODO_LIST purge (2026-11-24): | Write erraudit's own …` — a
   stray leading pipe from the row struck before its pipe — and targets a
@@ -246,7 +262,7 @@ list: routing follows the harvest ledger below.
 | 4 | Purge `--apply` write order: write the CHANGELOG before the TODO_LIST so a mid-purge crash cannot drop ledger rows | Medium | S | Bug |
 | 5 | Finish the AGENTS.md distill: 229 lines against the 220 ceiling, 223 before this session | High | S | Documentation |
 | 6 | Repair the ten corrupted struck rows in TODO_LIST.md: nine whose strike marker sits alone in the Task cell with the Evidence cell dropped, one struck before its leading pipe; restore each row's cells from git history | High | M | Bug |
-| 7 | Make the freshness judge fail closed: WARN on a report with no `f)` section or with bullet-only next steps — six of twelve unarchived reports are invisible to it today | Critical | M | Bug |
+| 7 | Make the freshness judge fail closed: WARN on a report with no `f)` section or bullet-only next steps, and require a harvest's matched tokens to share one living-doc line — this report scored FRESH with zero items harvested | Critical | M | Bug |
 | 8 | Fix the purge collector's drafted bullet: a row struck before its leading pipe yields a CHANGELOG line starting with a stray pipe, and the row's status still reads as open | Medium | S | Bug |
 | 9 | Add a standing-battery check for shifted struck rows: `docs-gates rows TODO_LIST.md` exits 1 today while the battery is green | High | S | Feature |
 | 10 | Decide the instruments' home: keep `scripts/citation-sweep.py` and `scripts/replay-verify.py` as Python, port them to Go judge verbs, or move them to a sibling module (question 1) | High | M | Architecture |
@@ -308,3 +324,70 @@ list: routing follows the harvest ledger below.
    TODO §10 hardening fixes (gate code, possible golden re-pins), the
    TODO_LIST.md struck-row repair from git history, or the fail-closed
    freshness WARN? Default if unanswered: none; they stay routed.
+
+## Harvest ledger (2026-11-24)
+
+Routed by hand: the freshness judge called this report FRESH before
+anything was harvested (d2b). Pre-flight over the 46 new content lines:
+SAFE, 36 reports, nothing flips to DRIFT; land-parity OK for all 46. Every
+premise was re-checked against TODO_LIST.md and ROADMAP.md on 2026-11-24
+before rowing (topic greps plus the gate and instrument outputs above).
+
+| Source | Disposition | Destination / reason |
+| --- | --- | --- |
+| 11-24 §f1 | existing row | TODO_LIST §10 row 1, routed 2026-11-23 from the audit reports — premise re-checked 2026-11-24 |
+| 11-24 §f2 | existing row | TODO_LIST §10 row 2, routed 2026-11-23 from the audit reports — premise re-checked 2026-11-24 |
+| 11-24 §f3 | existing row | TODO_LIST §10 row 3, routed 2026-11-23 from the audit reports — premise re-checked 2026-11-24 |
+| 11-24 §f4 | existing row | TODO_LIST §10 row 4, routed 2026-11-23 from the audit reports — premise re-checked 2026-11-24 |
+| 11-24 §f5 | new row | TODO_LIST §11 (bounded, this repo or repo-tagged) — premise re-checked 2026-11-24 |
+| 11-24 §f6 | new row | TODO_LIST §11 (bounded, this repo or repo-tagged) — premise re-checked 2026-11-24 |
+| 11-24 §f7 | new row | TODO_LIST §11 (bounded, this repo or repo-tagged) — premise re-checked 2026-11-24 |
+| 11-24 §f8 | new row | TODO_LIST §11 (bounded, this repo or repo-tagged) — premise re-checked 2026-11-24 |
+| 11-24 §f9 | new row | TODO_LIST §11 (bounded, this repo or repo-tagged) — premise re-checked 2026-11-24 |
+| 11-24 §f23 | new row | TODO_LIST §11 (bounded, this repo or repo-tagged) — premise re-checked 2026-11-24 |
+| 11-24 §f25 | new row | TODO_LIST §11 (bounded, this repo or repo-tagged) — premise re-checked 2026-11-24 |
+| 11-24 §f26 | new row | TODO_LIST §11 (bounded, this repo or repo-tagged) — premise re-checked 2026-11-24 |
+| 11-24 §f27 | new row | TODO_LIST §11 (bounded, this repo or repo-tagged) — premise re-checked 2026-11-24 |
+| 11-24 §f28 | new row | TODO_LIST §11 (bounded, this repo or repo-tagged) — premise re-checked 2026-11-24 |
+| 11-24 §f29 | new row | TODO_LIST §11 (bounded, this repo or repo-tagged) — premise re-checked 2026-11-24 |
+| 11-24 §f30 | new row | TODO_LIST §11 (bounded, this repo or repo-tagged) — premise re-checked 2026-11-24 |
+| 11-24 §f31 | new row | TODO_LIST §11 (bounded, this repo or repo-tagged) — premise re-checked 2026-11-24 |
+| 11-24 §f32 | new row | TODO_LIST §11 (bounded, this repo or repo-tagged) — premise re-checked 2026-11-24 |
+| 11-24 §f33 | new row | TODO_LIST §11 (bounded, this repo or repo-tagged) — premise re-checked 2026-11-24 |
+| 11-24 §f34 | new row | TODO_LIST §11 (bounded, this repo or repo-tagged) — premise re-checked 2026-11-24 |
+| 11-24 §f35 | new row | TODO_LIST §11 (bounded, this repo or repo-tagged) — premise re-checked 2026-11-24 |
+| 11-24 §f36 | new row | TODO_LIST §11 (bounded, this repo or repo-tagged) — premise re-checked 2026-11-24 |
+| 11-24 §f37 | new row | TODO_LIST §11 (bounded, this repo or repo-tagged) — premise re-checked 2026-11-24 |
+| 11-24 §f38 | new row | TODO_LIST §11 (bounded, this repo or repo-tagged) — premise re-checked 2026-11-24 |
+| 11-24 §f39 | new row | TODO_LIST §11 (bounded, this repo or repo-tagged) — premise re-checked 2026-11-24 |
+| 11-24 §f40 | new row | TODO_LIST §11 (bounded, this repo or repo-tagged) — premise re-checked 2026-11-24 |
+| 11-24 §f10 | new row | ROADMAP, Fleet library audit follow-ups (decision or design fuel, not a commitment) — premise re-checked 2026-11-24 |
+| 11-24 §f11 | new row | ROADMAP, Fleet library audit follow-ups (decision or design fuel, not a commitment) — premise re-checked 2026-11-24 |
+| 11-24 §f12 | new row | ROADMAP, Fleet library audit follow-ups (decision or design fuel, not a commitment) — premise re-checked 2026-11-24 |
+| 11-24 §f13 | new row | ROADMAP, Fleet library audit follow-ups (decision or design fuel, not a commitment) — premise re-checked 2026-11-24 |
+| 11-24 §f14 | new row | ROADMAP, Fleet library audit follow-ups (decision or design fuel, not a commitment) — premise re-checked 2026-11-24 |
+| 11-24 §f15 | new row | ROADMAP, Fleet library audit follow-ups (decision or design fuel, not a commitment) — premise re-checked 2026-11-24 |
+| 11-24 §f16 | new row | ROADMAP, Fleet library audit follow-ups (decision or design fuel, not a commitment) — premise re-checked 2026-11-24 |
+| 11-24 §f17 | new row | ROADMAP, Fleet library audit follow-ups (decision or design fuel, not a commitment) — premise re-checked 2026-11-24 |
+| 11-24 §f18 | new row | ROADMAP, Fleet library audit follow-ups (decision or design fuel, not a commitment) — premise re-checked 2026-11-24 |
+| 11-24 §f19 | new row | ROADMAP, Fleet library audit follow-ups (decision or design fuel, not a commitment) — premise re-checked 2026-11-24 |
+| 11-24 §f20 | new row | ROADMAP, Fleet library audit follow-ups (decision or design fuel, not a commitment) — premise re-checked 2026-11-24 |
+| 11-24 §f21 | new row | ROADMAP, Fleet library audit follow-ups (decision or design fuel, not a commitment) — premise re-checked 2026-11-24 |
+| 11-24 §f22 | new row | ROADMAP, Fleet library audit follow-ups (decision or design fuel, not a commitment) — premise re-checked 2026-11-24 |
+| 11-24 §f24 | new row | ROADMAP, Fleet library audit follow-ups (decision or design fuel, not a commitment) — premise re-checked 2026-11-24 |
+| 11-24 §f41 | new row | ROADMAP, Fleet library audit follow-ups, Owner action — premise re-checked 2026-11-24 |
+| 11-24 §f42 | new row | ROADMAP, Fleet library audit follow-ups, Longer term — premise re-checked 2026-11-24 |
+| 11-24 §f43 | new row | ROADMAP, Fleet library audit follow-ups, Longer term — premise re-checked 2026-11-24 |
+| 11-24 §f44 | new row | ROADMAP, Fleet library audit follow-ups, Longer term — premise re-checked 2026-11-24 |
+| 11-24 §f45 | new row | ROADMAP, Fleet library audit follow-ups, Longer term — premise re-checked 2026-11-24 |
+| 11-24 §f46 | new row | ROADMAP, Fleet library audit follow-ups, Longer term — premise re-checked 2026-11-24 |
+| 11-24 §f47 | new row | ROADMAP, Fleet library audit follow-ups, Longer term — premise re-checked 2026-11-24 |
+| 11-24 §f48 | new row | ROADMAP, Fleet library audit follow-ups, Longer term — premise re-checked 2026-11-24 |
+| 11-24 §f49 | new row | ROADMAP, Fleet library audit follow-ups, Longer term — premise re-checked 2026-11-24 |
+| 11-24 §f50 | new row | ROADMAP, Fleet library audit follow-ups, Longer term — premise re-checked 2026-11-24 |
+
+Nothing was declined. Items 5, 27 and 38 also give living-doc rows to
+three follow-ups of the 2026-11-23 05-33 report that its bullet-style §f
+never got harvested (the AGENTS distill, the md5 exception, BuildFlow#115).
+The three questions in section g) are questions, not tasks, and were not
+rowed.
