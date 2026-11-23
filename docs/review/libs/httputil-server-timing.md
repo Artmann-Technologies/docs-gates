@@ -17,6 +17,8 @@ NOT-APPLICABLE — server_timing serializes per-request sub-metrics into the W3C
 - M = 0.
 - Score = round(100 × 0/1) = **0** — band **low**. Expected for NOT-APPLICABLE; the verdict carries the meaning.
 
+- Applicable rows are exactly the inventory rows graded **Missed Opportunity** (the consumer has the underlying need; the capability is hand-rolled, solved in-domain, or declined by contract). Every **Not Applicable** row carries a one-line reason. `M` counts rows graded Fully Leveraged.
+
 ## What the library offers
 
 | # | Capability | Applies to docs-gates? | Status | Evidence |
@@ -28,7 +30,7 @@ NOT-APPLICABLE — server_timing serializes per-request sub-metrics into the W3C
 | 5 | Conditional instrumentation (`ServerTimingMiddlewareWhen(pred)`) — gate the header to admin/debug requests | No — nothing to gate; no requests | N/A | httputil/server_timing/server_timing.go:416 |
 | 6 | Injection-safe header serialization (RFC 7230 token sanitization, quoted-string escaping, fuzz-tested) | No — no header values are ever constructed | N/A | httputil/server_timing/README.md:64 |
 | 7 | Capability-preserving writer wrapper (Flush/Hijack/Push/Unwrap delegation, `http.ResponseController` transparency) | No — the consumer's writer swapping is `os.Stdout`/`os.Stderr` pipe swapping, not `http.ResponseWriter` wrapping | N/A | httputil/server_timing/server_timing.go:270, :309 |
-| 8 | Per-unit wall-clock duration capture (the concept under the header) | Yes — the battery times every gate | N/A (solved with stdlib) — `time.Now`/`time.Since` per gate, printed as heartbeat lines and `duration_ms` JSON rows | consumer internal/battery/battery.go:197-203, :255; httputil/server_timing exports no non-HTTP timing API |
+| 8 | Per-unit wall-clock duration capture (the concept under the header) | Yes — the battery times every gate | Missed Opportunity (solved with stdlib) — `time.Now`/`time.Since` per gate, printed as heartbeat lines and `duration_ms` JSON rows | consumer internal/battery/battery.go:197-203, :255; httputil/server_timing exports no non-HTTP timing API |
 
 Module shape worth noting: this submodule is itself stdlib-only with zero
 dependencies (httputil/server_timing/go.mod:1-3, httputil/server_timing/README.md:9, :61),

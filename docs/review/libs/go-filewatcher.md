@@ -17,6 +17,8 @@ NOT-APPLICABLE — docs-gates is a point-in-time batch judge by doctrine (every 
 - Score = **0** (0/0; by convention 0 when nothing is applicable) — band **low**. For a NOT-APPLICABLE library the score is noise; the verdict is the signal.
 - Roadmap check, for honesty: TODO_LIST/ROADMAP carry no watch/hot-reload/live-reload row at any priority (the word "watch" appears only for CI-run watching and the cadence gate's metaphorical "watches this file") — nothing planned is being blocked by this non-adoption.
 
+- Applicable rows are exactly the inventory rows graded **Missed Opportunity** (the consumer has the underlying need; the capability is hand-rolled, solved in-domain, or declined by contract). Every **Not Applicable** row carries a one-line reason. `M` counts rows graded Fully Leveraged.
+
 ## What the library offers
 
 | # | Capability | Applies to docs-gates? | Status | Evidence |

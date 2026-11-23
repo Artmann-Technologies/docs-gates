@@ -16,6 +16,8 @@ NOT-APPLICABLE — templ-components is a server-rendered HTML component library 
 - M = 0.
 - Score = round(100 × 0/1) = **0** — band **low**. Expected for NOT-APPLICABLE; the number measures correctly-unrealized leverage, the verdict carries the meaning.
 
+- Applicable rows are exactly the inventory rows graded **Missed Opportunity** (the consumer has the underlying need; the capability is hand-rolled, solved in-domain, or declined by contract). Every **Not Applicable** row carries a one-line reason. `M` counts rows graded Fully Leveraged.
+
 ## What the library offers
 
 | # | Capability | Applies to docs-gates? | Status | Evidence |
@@ -32,7 +34,7 @@ NOT-APPLICABLE — templ-components is a server-rendered HTML component library 
 | 10 | `utils` module — `BaseProps`/`ComponentProps` composition, `Class` tailwind-merge, `ScriptComponent` CSP hygiene | No — no components, no CSS, no scripts | N/A | templ-components/utils/utils.go:14, templ-components/utils/utils.go:48 |
 | 11 | `visualtest` module — chromedp pixel-level visual goldens (206) | No — docs-gates parity is byte goldens over text (internal/battery/parity_test.go), no browser in the loop | N/A | templ-components/README.md:115 |
 | 12 | `website` + `tc` CLI (docs site, `tc doctor` repo scanner) | No — docs-gates ships markdown docs; its CLI scans markdown corpora, not templ call sites | N/A | templ-components/README.md:84 |
-| 13 | Concept: ONE shared, semver-versioned presentation layer so every fleet UI improves collectively | Concept only — docs-gates' presentation contract is the opposite shape: byte-pinned plaintext, re-pinned deliberately per golden bump | N/A | internal/battery/parity_test.go; AGENTS.md:51-54 |
+| 13 | Concept: ONE shared, semver-versioned presentation layer so every fleet UI improves collectively | Concept only — docs-gates' presentation contract is the opposite shape: byte-pinned plaintext, re-pinned deliberately per golden bump | Missed Opportunity (declined: opposite shape — byte-pinned plaintext, re-pinned deliberately per golden bump) | internal/battery/parity_test.go; AGENTS.md:51-54 |
 
 Dependency note for any future adoption: the root module requires
 `github.com/a-h/templ v0.3.1100` plus the six sibling modules

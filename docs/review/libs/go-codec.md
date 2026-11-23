@@ -17,6 +17,8 @@ NOT-ADOPTED — go-codec is the event-sourcing stack's payload-serialization con
 - M = 0.
 - Score = round(100 × 0/2) = **0** — band **low**. The verdict carries the meaning; the zero measures that no codec *machinery* is needed, not that a need went unmet.
 
+- Applicable rows are exactly the inventory rows graded **Missed Opportunity** (the consumer has the underlying need; the capability is hand-rolled, solved in-domain, or declined by contract). Every **Not Applicable** row carries a one-line reason. `M` counts rows graded Fully Leveraged.
+
 ## What the library offers
 
 | # | Capability | Applies to docs-gates? | Status | Evidence |
@@ -33,8 +35,8 @@ NOT-ADOPTED — go-codec is the event-sourcing stack's payload-serialization con
 | 10 | `Size`/`SizeResult` payload-size diagnostics | No — no format trade-off to make | N/A | go-codec/size.go:17 |
 | 11 | `ObservableCodec` metrics/hooks wrapper | No — per-run CLI; nothing to meter | N/A | go-codec/observability.go:35 |
 | 12 | COSE Sign1/Encrypt0 structures, base64-JSON helpers | No — no signing/encryption | N/A | go-codec/cose.go:168; go-codec/base64_json.go:34 |
-| 13 | Structured decode with an explicit unknown-field posture | Yes in concept — two of docs-gates' three decoders take unknown fields seriously | N/A (solved with stdlib) — config: WARN pass via `map[string]json.RawMessage` then struct decode; provider: json/v2 `RejectUnknownMembers(true)`; go-codec's JSON path offers no rejection mode (CBOR-only) | consumer internal/config/config.go:152-170; pkg/provider/provider.go:95-99 |
-| 14 | One-document JSON serialization for a machine consumer | Yes in concept — the battery `--json` face | N/A (solved with stdlib) — `json.MarshalIndent` + snake_case tags, byte-pinned by the battery-json golden; go-codec's JSONCodec is the same Marshal wrapped (and v2-mismatched, see gap analysis) | consumer internal/battery/battery.go:295; go-codec/json.go:14-20 |
+| 13 | Structured decode with an explicit unknown-field posture | Yes in concept — two of docs-gates' three decoders take unknown fields seriously | Missed Opportunity (solved with stdlib) — config: WARN pass via `map[string]json.RawMessage` then struct decode; provider: json/v2 `RejectUnknownMembers(true)`; go-codec's JSON path offers no rejection mode (CBOR-only) | consumer internal/config/config.go:152-170; pkg/provider/provider.go:95-99 |
+| 14 | One-document JSON serialization for a machine consumer | Yes in concept — the battery `--json` face | Missed Opportunity (solved with stdlib) — `json.MarshalIndent` + snake_case tags, byte-pinned by the battery-json golden; go-codec's JSONCodec is the same Marshal wrapped (and v2-mismatched, see gap analysis) | consumer internal/battery/battery.go:295; go-codec/json.go:14-20 |
 
 Dependency note: go-codec is decidedly not stdlib-only — go-codec/go.mod:5-11
 requires `fxamacker/cbor/v2`, `go-snaps`, `go-error-family`, `gomega`, and

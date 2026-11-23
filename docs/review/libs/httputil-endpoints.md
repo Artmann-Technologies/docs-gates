@@ -17,6 +17,8 @@ NOT-APPLICABLE — endpoints is a route registry that mounts handlers on `http.S
 - M = 0.
 - Score = round(100 × 0/1) = **0** — band **low**. Expected for NOT-APPLICABLE; the verdict carries the meaning.
 
+- Applicable rows are exactly the inventory rows graded **Missed Opportunity** (the consumer has the underlying need; the capability is hand-rolled, solved in-domain, or declined by contract). Every **Not Applicable** row carries a one-line reason. `M` counts rows graded Fully Leveraged.
+
 ## What the library offers
 
 | # | Capability | Applies to docs-gates? | Status | Evidence |
@@ -27,7 +29,7 @@ NOT-APPLICABLE — endpoints is a route registry that mounts handlers on `http.S
 | 4 | CSP-clean HTML table rendering with escaped fields, plus `Vary: Accept` / `Cache-Control: no-store` | No — no HTML output, no cacheable surface | N/A | httputil/endpoints/README.md:88 |
 | 5 | UTF-8 validation and wiring errors as values at registration (nil mux, duplicate/malformed pattern) | No — verb dispatch rejects unknown verbs with exit 2 + did-you-mean, argv-shaped, not pattern-shaped | N/A | httputil/endpoints/endpoints.go:62; consumer cmd/docs-gates/verbs.go:77 |
 | 6 | Concurrency-safe registry with immutable atomic snapshots for reads | No — the verb table is fixed at compile time; nothing registers at runtime | N/A | httputil/endpoints/README.md:83 |
-| 7 | Self-describing surface listing (the concept under the route registry) | Yes in concept — docs-gates' help/usage surface | N/A (solved natively) — verb tables + per-verb usage pinned by usage_test.go; see below | consumer cmd/docs-gates/verbs.go:77, :107, :129 |
+| 7 | Self-describing surface listing (the concept under the route registry) | Yes in concept — docs-gates' help/usage surface | Missed Opportunity (solved natively) — verb tables + per-verb usage pinned by usage_test.go; see below | consumer cmd/docs-gates/verbs.go:77, :107, :129 |
 
 Module shape worth noting: like server_timing, this submodule is stdlib-only
 with zero dependencies (httputil/endpoints/go.mod:1-3, httputil/endpoints/README.md:11),

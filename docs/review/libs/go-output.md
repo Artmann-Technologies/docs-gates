@@ -17,20 +17,22 @@ NOT-ADOPTED — every rendering surface docs-gates owns (verdict matrix lines, o
 - Score = **0** (round(100·0/3)) — band **low**, as expected for NOT-ADOPTED; the standing decisions carry the signal.
 - Why the other nine rows are N/A, grouped: the eight format renderers (markdown, table, tree, graph, d2, plantuml, daghtml, markup, delimited, tui) target outputs the consumer does not produce — no format flag, no column math, no diagram, no TUI exists; `nom`'s live progress targets long-running builds, not a battery that finishes in seconds or fails a row on timeout; the `bdd` suite is a test-paradigm offer to a repo whose testing contract forbids it.
 
+- Applicable rows are exactly the inventory rows graded **Missed Opportunity** (the consumer has the underlying need; the capability is hand-rolled, solved in-domain, or declined by contract). Every **Not Applicable** row carries a one-line reason. `M` counts rows graded Fully Leveraged.
+
 ## What the library offers
 
 | # | Capability | Applies? | Status | Evidence |
 |---|---|---|---|---|
-| 1 | `nom.TruncateVisible` — ANSI/width-aware truncation with `…` inside the width budget | Yes — the exact canonical candidate once triaged for `gatecli.Truncate` | Declined — standing decision | go-output/nom/terminal.go:51; internal/gatecli/gatecli_output.go:14; docs/agent-notes.md:64-68 |
+| 1 | `nom.TruncateVisible` — ANSI/width-aware truncation with `…` inside the width budget | Yes — the exact canonical candidate once triaged for `gatecli.Truncate` | Missed Opportunity (declined: standing decision) | go-output/nom/terminal.go:51; internal/gatecli/gatecli_output.go:14; docs/agent-notes.md:64-68 |
 | 2 | `markdown.MarkdownTable` — pipe tables with auto column widths, alignment, footers, escaping | No — no Go code in docs-gates composes a markdown table (verified below) | N/A — different problem (parsing, not rendering) | go-output/markdown/markdown.go:49-116; internal/docsrows/scan.go:82-127 |
-| 3 | `serialization.NewJSONTableRenderer` + JSON/YAML/TOML/JSONL writers | Adjacent — the battery has a JSON face, but it is one fixed document schema, not a table-of-rows | N/A — typed struct + `encoding/json` already pins it | go-output/serialization/json.go:80; internal/battery/battery.go:295 |
+| 3 | `serialization.NewJSONTableRenderer` + JSON/YAML/TOML/JSONL writers | Adjacent — the battery has a JSON face, but it is one fixed document schema, not a table-of-rows | Missed Opportunity (solved in-domain) — typed struct + `encoding/json` already pins it | go-output/serialization/json.go:80; internal/battery/battery.go:295 |
 | 4 | Root `Table`/`TreeNode`/`Graph` shapes + `RenderTable` dispatch + `Format` enum (16 formats) | No — the battery matrix is three fixed line shapes, not user-selected formats | N/A | go-output/tabledata.go:30; go-output/render_tabledata.go:45; go-output/format.go:48 |
 | 5 | `table` submodule — lipgloss terminal tables | No — no terminal table anywhere in the consumer | N/A | go-output/table/go.mod:5 (lipgloss dep) |
 | 6 | `tree` / `graph` / `d2` / `plantuml` / `daghtml` renderers | No — no tree/diagram output exists | N/A | go-output/tree/cqrs.go:39; go-output/graph/cqrs.go:83 |
 | 7 | `markup` — XML/HTML/AsciiDoc tables | No — no markup output; the docs/status/*.md reports are authored by the status-report SKILL, not by this binary's Go code | N/A | go-output/markup/go.mod |
 | 8 | `delimited` — streaming CSV/TSV writers | No — no delimited output verb | N/A | go-output/delimited/go.mod |
 | 9 | `bdd` submodule — ginkgo/v2 + gomega spec suite over the renderers | No — consumer testing contract is stdlib-`testing`-only by AGENTS.md | N/A | go-output/bdd/go.mod:8-13; AGENTS.md:191-195 |
-| 10 | `testhelpers` — `AssertContains`/`AssertEqual`/golden-flavored assertion helpers | Adjacent — parity goldens are the consumer's equivalent, already byte-exact and self-owned | N/A — weaker fit than the in-repo ritual | go-output/testhelpers/helpers.go:26-122; internal/battery/parity_test.go:188-189 |
+| 10 | `testhelpers` — `AssertContains`/`AssertEqual`/golden-flavored assertion helpers | Adjacent — parity goldens are the consumer's equivalent, already byte-exact and self-owned | Missed Opportunity (solved in-domain) — weaker fit than the in-repo ritual | go-output/testhelpers/helpers.go:26-122; internal/battery/parity_test.go:188-189 |
 | 11 | `tui` — bubbletea interactive views | No — no TUI (deliberate; CLI exit-code contract) | N/A | go-output/tui/go.mod:5 (bubbletea dep) |
 | 12 | `nom` — NOM-style real-time progress visualization (dependency trees, ETA, inline terminal) | No — the battery's progress surface is one stderr heartbeat + a half-budget watchdog line | N/A | go-output/nom/go.mod:5-13; internal/battery/battery_watchdog.go |
 

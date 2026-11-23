@@ -15,22 +15,24 @@ One nuance keeps this from being a clean NOT-APPLICABLE: unlike the fleet's retr
 ## Score
 
 - Inputs N = 10 (inventory rows below).
-- A = 5 (crash-durable write, fsync-before-rename, TOCTOU/fingerprint verification, mode preservation, concurrent-writer lock — all address real exposure at the four write sites).
+- A = 6 (crash-durable write, fsync-before-rename, directory fsync after rename, TOCTOU/fingerprint verification, mode preservation, concurrent-writer lock — all address real exposure at the four write sites).
 - M = 0.
-- Score = **0** (round(100·0/5)) — band **low**, as expected for NOT-ADOPTED; the verdict and the residual-risk note are the signal, not the score.
-- Why the other five rows are N/A, in one line each: WriteIfChanged — the only repeat-write target is a gitignored stamp whose mtime nobody observes; MkdirAll — target trees pre-exist and archive creates its dir explicitly; WriteFunc streaming — payloads are in-memory living docs; Windows rename retry — Linux-only fleet; the `.tmp` self-clean residual — moot when no temps are ever created.
+- Score = **0** (round(100·0/6)) — band **low**, as expected for NOT-ADOPTED; the verdict and the residual-risk note are the signal, not the score.
+- Why the other four rows are N/A, in one line each: WriteIfChanged — the only repeat-write target is a gitignored stamp whose mtime nobody observes; MkdirAll — target trees pre-exist and archive creates its dir explicitly; WriteFunc streaming — payloads are in-memory living docs; Windows rename retry — Linux-only fleet.
+
+- Applicable rows are exactly the inventory rows graded **Missed Opportunity** (the consumer has the underlying need; the capability is hand-rolled, solved in-domain, or declined by contract). Every **Not Applicable** row carries a one-line reason. `M` counts rows graded Fully Leveraged.
 
 ## What the library offers
 
 | # | Capability | Applies? | Status | Evidence |
 |---|---|---|---|---|
-| 1 | `Write(path, data)` — stage to unique temp file, fsync, single atomic `rename(2)` | Yes — the crash-torn-write class exists at all four consumer write sites | Declined (contract) | go-atomic-write/atomicwrite.go:17; go-atomic-write/stage.go:73 |
-| 2 | fsync of the staged file before rename (crash durability of content) | Yes — `os.WriteFile` buffers only | Declined (contract) | go-atomic-write/stage.go:88 |
-| 3 | Directory fsync after rename (durable rename, POSIX) | Yes in principle; the targets are git-tracked files whose real durability layer is git | Declined (contract) | go-atomic-write/rename_unix.go:17-33 |
-| 4 | Mode preservation from the existing file (default 0644) | Yes — and the consumer DOES hand-roll this slice, three times | Hand-rolled locally | go-atomic-write/stage.go:16-31; internal/docspurge/docspurge_collect.go:185-196; internal/docsarchive/docsarchive.go:222-231; internal/docsstrike/docsstrike.go:146-153 |
-| 5 | `WriteVerified` — xxhash64 fingerprint re-check under flock; `ErrConcurrentModification` sentinel | Yes — the auto-commit daemon and a human editor can race the read-modify-write (AGENTS.md: "The daemon RACES staging") | Declined (discipline instead) | go-atomic-write/atomicwrite.go:65; go-atomic-write/commit.go:20-60; internal/docspurge/docspurge.go:108-205 |
-| 6 | `WriteIfChanged` — skip identical rewrites (no mtime bump) | Marginally — the pre-flight stamp rewrite (internal/docsfreshness/preflight_land.go:58) can rewrite identical bytes | N/A — one gitignored stamp, no observable benefit | go-atomic-write/atomicwrite.go:91-116 |
-| 7 | Cross-process `flock` serialization of writers | Partially — see row 5; the guard is the one-writer ritual, not a lock | Declined (discipline instead) | go-atomic-write/commit.go:36-44 |
+| 1 | `Write(path, data)` — stage to unique temp file, fsync, single atomic `rename(2)` | Yes — the crash-torn-write class exists at all four consumer write sites | Missed Opportunity (declined by contract) | go-atomic-write/atomicwrite.go:17; go-atomic-write/stage.go:73 |
+| 2 | fsync of the staged file before rename (crash durability of content) | Yes — `os.WriteFile` buffers only | Missed Opportunity (declined by contract) | go-atomic-write/stage.go:88 |
+| 3 | Directory fsync after rename (durable rename, POSIX) | Yes in principle; the targets are git-tracked files whose real durability layer is git | Missed Opportunity (declined by contract) | go-atomic-write/rename_unix.go:17-33 |
+| 4 | Mode preservation from the existing file (default 0644) | Yes — and the consumer DOES hand-roll this slice, three times | Missed Opportunity (hand-rolled locally) | go-atomic-write/stage.go:16-31; internal/docspurge/docspurge_collect.go:185-196; internal/docsarchive/docsarchive.go:222-231; internal/docsstrike/docsstrike.go:146-153 |
+| 5 | `WriteVerified` — xxhash64 fingerprint re-check under flock; `ErrConcurrentModification` sentinel | Yes — the auto-commit daemon and a human editor can race the read-modify-write (AGENTS.md: "The daemon RACES staging") | Missed Opportunity (declined: discipline instead) | go-atomic-write/atomicwrite.go:65; go-atomic-write/commit.go:20-60; internal/docspurge/docspurge.go:108-205 |
+| 6 | `WriteIfChanged` — skip identical rewrites (no mtime bump) | No — marginal only: the pre-flight stamp rewrite (internal/docsfreshness/preflight_land.go:58) can rewrite identical bytes | N/A — one gitignored stamp, no observable benefit | go-atomic-write/atomicwrite.go:91-116 |
+| 7 | Cross-process `flock` serialization of writers | Partially — see row 5; the guard is the one-writer ritual, not a lock | Missed Opportunity (declined: discipline instead) | go-atomic-write/commit.go:36-44 |
 | 8 | `MkdirAll` of missing parent dirs (0755) on every write | No — consumers assume existing trees; archive creates its dir explicitly | N/A | go-atomic-write/stage.go:39-42; internal/docsarchive/docsarchive.go:195 |
 | 9 | Streaming `WriteFunc`/`WriteFuncVerified` (64KB buffered callback) | No — payloads are single living-doc files held in memory already | N/A | go-atomic-write/atomicwrite.go:125-137 |
 | 10 | Windows `MoveFileEx` retry on sharing violations | No — the fleet is Linux (Darwin deliberately absent from flake systems) | N/A | go-atomic-write/rename_windows.go (README platform table) |

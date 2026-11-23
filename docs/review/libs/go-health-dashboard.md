@@ -17,6 +17,8 @@ NOT-APPLICABLE — go-health-dashboard is a real-time browser status page (templ
 - M = 0.
 - Score = round(100 × 0/1) = **0** — band **low**. Expected for NOT-APPLICABLE.
 
+- Applicable rows are exactly the inventory rows graded **Missed Opportunity** (the consumer has the underlying need; the capability is hand-rolled, solved in-domain, or declined by contract). Every **Not Applicable** row carries a one-line reason. `M` counts rows graded Fully Leveraged.
+
 ## What the library offers
 
 | # | Capability | Applies to docs-gates? | Status | Evidence |
@@ -25,14 +27,14 @@ NOT-APPLICABLE — go-health-dashboard is a real-time browser status page (templ
 | 2 | Datastar SSE real-time updates (`/health/sse`, push-on-change, heartbeats) | No — no server, no browser clients, no long-lived process | N/A | go-health-dashboard/README.md:444-455 |
 | 3 | Content negotiation on `/health` (HTML vs JSON) | No — the battery's `--json` flag already splits machine/human faces by stream, byte-pinned | N/A | go-health-dashboard/README.md:20; internal/battery/battery.go:97-99 |
 | 4 | Kubelet probe passthrough (`/healthz`, `/readyz`, `/startupz`) | No — no kubelet; exit codes are the contract | N/A | go-health-dashboard/README.md:112-114 |
-| 5 | Health trend sparkline + history export (`WithTrend`, `/health/trend`, CSV/JSON) | Concept only — docs-gates keeps history in timestamped report files by doctrine; a sparkline has no host | N/A | go-health-dashboard/README.md:340-347 |
+| 5 | Health trend sparkline + history export (`WithTrend`, `/health/trend`, CSV/JSON) | No — docs-gates keeps history in timestamped report files by doctrine; a sparkline has no host | N/A | go-health-dashboard/README.md:340-347 |
 | 6 | Prometheus exposition (`/health/metrics`, latency histograms) | No — nothing scrapes docs-gates; findings are CI-time, not scrape-time | N/A | go-health-dashboard/README.md:302-338 |
 | 7 | Webhook push on transitions (`WithWebhook`, HMAC signing) | No — no transitions; every run is independent and point-in-time | N/A | go-health-dashboard/README.md:358-375 |
 | 8 | Auth: middleware hook + native OIDC login (PKCE, JWKS, HMAC sessions) | No — nothing served to authenticate | N/A | go-health-dashboard/README.md:247-300 |
 | 9 | Rate limiting, request logging, CSP, public-mode anonymization | No — no requests | N/A | go-health-dashboard/README.md:168-190 |
 | 10 | Aggregate/federation rendering (one card per source, worst-of badges) | No — no probes to merge (and the fleet already has go-health's `federation` for the service side) | N/A | go-health-dashboard/README.md:377-391 |
 | 11 | `health-hub` federation hub binary + NixOS module (env-configured, no code) | No — docs-gates publishes no health document to federate | N/A | go-health-dashboard/README.md:393-442 |
-| 12 | Human-triage VIEW over check results (failures-first grouping, evidence strip) | Concept only — the battery matrix is the terminal-text equivalent, deliberately | N/A | go-health-dashboard/README.md:205-245; internal/battery/battery.go:317-340 |
+| 12 | Human-triage VIEW over check results (failures-first grouping, evidence strip) | Concept only — the battery matrix is the terminal-text equivalent, deliberately | Missed Opportunity (solved in-domain: the battery matrix is the terminal-text view, deliberately) | go-health-dashboard/README.md:205-245; internal/battery/battery.go:317-340 |
 
 Dependency note: the dashboard exists precisely because its dependency
 weight would pollute go-health — 16 direct requires including templ,

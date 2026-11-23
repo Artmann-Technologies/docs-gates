@@ -17,6 +17,8 @@ NOT-APPLICABLE — go-retry is an exponential-backoff/jitter retry loop for tran
 - M = 0.
 - Score = **0** (0/0; by convention 0 when nothing is applicable) — band **low**. For a NOT-APPLICABLE library the score is noise; the verdict is the signal.
 
+- Applicable rows are exactly the inventory rows graded **Missed Opportunity** (the consumer has the underlying need; the capability is hand-rolled, solved in-domain, or declined by contract). Every **Not Applicable** row carries a one-line reason. `M` counts rows graded Fully Leveraged.
+
 ## What the library offers
 
 | # | Capability | Applies to docs-gates? | Status | Evidence |
@@ -30,7 +32,7 @@ NOT-APPLICABLE — go-retry is an exponential-backoff/jitter retry loop for tran
 | 7 | `OnRetry` hook (after each failed attempt, before sleeping) | No | N/A | go-retry/options.go:38 |
 | 8 | `OnExhausted` hook (once, after all attempts fail, with the last error as returned) | No — the consumer's "exhausted" behavior is one FATAL line and an exit code, immediately | N/A | go-retry/options.go:44 |
 | 9 | `DelayFunc` per-attempt delay override (>0 replaces backoff; 0 = default) | No | N/A | go-retry/options.go:32 |
-| 10 | Context-ending semantics — `ErrCanceled`, `ErrDeadlineExceeded`, `awaitBackoff` returns on ctx end | Adjacent only — docs-gates has bounded waits, but as one-shot TIMEOUTS (watchdogs), not waits between retries | N/A — different problem, already solved | go-retry/retry.go:55-68,183; consumer internal/battery/battery_watchdog.go:33, internal/gatecli/gatecli_capture.go:141 |
+| 10 | Context-ending semantics — `ErrCanceled`, `ErrDeadlineExceeded`, `awaitBackoff` returns on ctx end | No — adjacent only: docs-gates has bounded waits, but as one-shot TIMEOUTS (watchdogs), not waits between retries | N/A — different problem, already solved | go-retry/retry.go:55-68,183; consumer internal/battery/battery_watchdog.go:33, internal/gatecli/gatecli_capture.go:141 |
 | 11 | `ErrExhausted` typed terminal error (errorfamily Infrastructure) | No — terminal failures map onto the frozen 0/1/2 exit contract | N/A | go-retry/retry.go:45; consumer internal/gatecli/gatecli.go:29-32 |
 | 12 | `FromPolicy(errorfamily.RetryPolicy)` — advisory-policy → loop-config bridge | No — no policy producer, no loop consumer | N/A | go-retry/config.go:86 |
 | 13 | `tools` nested module (actionlint/govulncheck pins) | No — dev tooling of the library itself, not a capability | N/A | go-retry/tools/tools.go |

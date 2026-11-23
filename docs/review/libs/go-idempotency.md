@@ -17,6 +17,8 @@ NOT-APPLICABLE — go-idempotency deduplicates retried operations behind an atom
 - M = 0.
 - Score = round(100 × 0/1) = **0** — band **low**. The number measures library leverage, which is correctly zero; the verdict carries the meaning.
 
+- Applicable rows are exactly the inventory rows graded **Missed Opportunity** (the consumer has the underlying need; the capability is hand-rolled, solved in-domain, or declined by contract). Every **Not Applicable** row carries a one-line reason. `M` counts rows graded Fully Leveraged.
+
 ## What the library offers
 
 | # | Capability | Applies to docs-gates? | Status | Evidence |
@@ -33,7 +35,7 @@ NOT-APPLICABLE — go-idempotency deduplicates retried operations behind an atom
 | 10 | `middleware` command-wrapper idempotency (CQRS command dedup) | No — no command bus; verbs are direct argv dispatch | N/A — cmd/docs-gates/verbs.go dispatches `Run([]string) int` | go-idempotency/middleware/middleware.go |
 | 11 | `idemtest` v0.1.1 drills — `RequireAllowsAfterExpiry`, `SendConcurrently`, per-drill `Executions` counters | No — test kit for Store/pipeline implementers only | N/A | go-idempotency/idemtest/drill.go, executions.go, http.go |
 | 12 | `idemtest` pinned-clock + sabotage harness — `PinnedClock`, `RequireAllowsAfterExpiryPinned`, negative proofs asserting failure messages name the violated contract | No | N/A | go-idempotency/idemtest/clock.go, negative_pinned_test.go |
-| 13 | The concept: turn at-least-once application into at-most-once | Yes — strike/purge/archive are guarded mutators that must never apply twice | N/A (solved in-domain) — the markdown itself is the claim record; guards are parse predicates + dry-run default, needing no store, key, TTL, or lock | Consumer sites in "What docs-gates does today" |
+| 13 | The concept: turn at-least-once application into at-most-once | Yes — strike/purge/archive are guarded mutators that must never apply twice | Missed Opportunity (solved in-domain) — the markdown itself is the claim record; guards are parse predicates + dry-run default, needing no store, key, TTL, or lock | Consumer sites in "What docs-gates does today" |
 
 (Runtime dependency on go-error-family v0.12.0 — see the go-error-family report; it would bar root adoption transitively even if a use existed.)
 

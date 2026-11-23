@@ -24,6 +24,8 @@ the root tag and gets the four nested modules at their train versions; the root 
 itself is a deprecated alias shim slated for removal at v1.0.0, so any future import
 should target `go-etag/server` / `go-etag/client` directly, never the root path.
 
+- Applicable rows are exactly the inventory rows graded **Missed Opportunity** (the consumer has the underlying need; the capability is hand-rolled, solved in-domain, or declined by contract). Every **Not Applicable** row carries a one-line reason. `M` counts rows graded Fully Leveraged.
+
 ## What the library offers
 
 | # | Capability | Applies to docs-gates? | Status | Evidence |
@@ -42,7 +44,7 @@ should target `go-etag/server` / `go-etag/client` directly, never the root path.
 | 12 | `metrics`: ready-made atomic counters for the server's observability hooks | No — durations are printed per run (battery matrix), never retained counters | N/A | go-etag/metrics/metrics.go |
 | 13 | Root module alias shim (deprecated, removed at v1.0.0) | No | N/A | go-etag/deprecated.go |
 | 14 | go-error-family classification of middleware errors (retry-aware observability) | No — see the go-error-family report | N/A | go-etag/server/go.mod (requires go-error-family v0.12.0) |
-| 15 | Body-content hashing for change identity (the concept under the middleware) | Yes — docsstub fingerprints file bodies | N/A (solved with stdlib) — md5/sha256 over the file bytes compared to config-pinned digests; go-etag exports no non-HTTP hashing API, so there is nothing to leverage even in principle | consumer internal/docsstub/docsstub.go:161-165; internal/config/content_gates.go:30-31,94 |
+| 15 | Body-content hashing for change identity (the concept under the middleware) | Yes — docsstub fingerprints file bodies | Missed Opportunity (solved with stdlib) — md5/sha256 over the file bytes compared to config-pinned digests; go-etag exports no non-HTTP hashing API, so there is nothing to leverage even in principle | consumer internal/docsstub/docsstub.go:161-165; internal/config/content_gates.go:30-31,94 |
 
 ## What docs-gates does today
 

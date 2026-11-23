@@ -17,14 +17,16 @@ NOT-APPLICABLE — go-health is a Kubernetes health-probe SDK (HTTP `/healthz`/`
 - M = 0.
 - Score = round(100 × 0/2) = **0** — band **low**. Expected for NOT-APPLICABLE; the number measures correctly-unrealized leverage, the verdict carries the meaning.
 
+- Applicable rows are exactly the inventory rows graded **Missed Opportunity** (the consumer has the underlying need; the capability is hand-rolled, solved in-domain, or declined by contract). Every **Not Applicable** row carries a one-line reason. `M` counts rows graded Fully Leveraged.
+
 ## What the library offers
 
 | # | Capability | Applies to docs-gates? | Status | Evidence |
 |---|---|---|---|---|
 | 1 | Three-probe HTTP SDK: liveness/readiness/startup handlers with 200/503 semantics | No — no HTTP server, no kubelet; health IS the 0/1/2 exit code | N/A | go-health/README.md:197-217; go-health/handlers.go |
 | 2 | samber/do v2 injector integration (`health.New(injector, ...)`, eager critical invocation) | No — no DI container anywhere in either module | N/A | go-health/probe.go:161; go-health/README.md:93-128 |
-| 3 | Critical vs non-critical classification (fail→503 vs warn→200) | Concept only — the battery's FAIL/SKIP rows and the gates' WARN-before-enforce knobs solve the "degraded but green" question in exit-code space | N/A | go-health/README.md:247-249; internal/battery/battery.go:272-279 |
-| 4 | Named concurrent checks with per-check duration, panic recovery, batch deadline (`NewChecks`) | Concept yes — the battery's closest analog; mechanism unusable (see gap analysis) | N/A | go-health/README.md:444-451; go-health/checks.go:15 |
+| 3 | Critical vs non-critical classification (fail→503 vs warn→200) | Concept only — the battery's FAIL/SKIP rows and the gates' WARN-before-enforce knobs solve the "degraded but green" question in exit-code space | Missed Opportunity (solved in-domain — exit-code space already carries the degraded-but-green distinction) | go-health/README.md:247-249; internal/battery/battery.go:272-279 |
+| 4 | Named concurrent checks with per-check duration, panic recovery, batch deadline (`NewChecks`) | Concept yes — the battery's closest analog; mechanism unusable (see gap analysis) | Missed Opportunity (declined: mechanism unusable — see gap analysis) | go-health/README.md:444-451; go-health/checks.go:15 |
 | 5 | Background result caching + refresh loop (1s default) | No — gates are point-in-time by doctrine; a cached verdict would lie | N/A | go-health/README.md:307-315 |
 | 6 | Shutdown awareness / two-phase drain (`MarkShuttingDown`, grace period) | No — the binary runs and exits; nothing to drain | N/A | go-health/README.md:399-413 |
 | 7 | Programmatic health API (`Status()`, `Ready()`, `AwaitReady`, `Healthz()`) | No — `Run([]string) int` return values are the whole status surface | N/A | go-health/README.md:415-434 |

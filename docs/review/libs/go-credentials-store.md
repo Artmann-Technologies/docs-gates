@@ -17,6 +17,8 @@ NOT-APPLICABLE — go-credentials-store is an event-sourced, encrypted-at-rest s
 - M = 0.
 - Score = round(100 × 0/0) → defined as **0** by convention when A = 0 — band **low**. Expected for NOT-APPLICABLE.
 
+- Applicable rows are exactly the inventory rows graded **Missed Opportunity** (the consumer has the underlying need; the capability is hand-rolled, solved in-domain, or declined by contract). Every **Not Applicable** row carries a one-line reason. `M` counts rows graded Fully Leveraged.
+
 ## What the library offers
 
 | # | Capability | Applies to docs-gates? | Status | Evidence |

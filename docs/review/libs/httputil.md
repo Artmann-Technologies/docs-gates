@@ -17,6 +17,8 @@ NOT-APPLICABLE — httputil is an `net/http` middleware/server toolkit (CORS, co
 - M = 0.
 - Score = round(100 × 0/1) = **0** — band **low**. Expected for NOT-APPLICABLE; the verdict carries the meaning, the number measures correctly-unrealized leverage.
 
+- Applicable rows are exactly the inventory rows graded **Missed Opportunity** (the consumer has the underlying need; the capability is hand-rolled, solved in-domain, or declined by contract). Every **Not Applicable** row carries a one-line reason. `M` counts rows graded Fully Leveraged.
+
 ## What the library offers
 
 | # | Capability | Applies to docs-gates? | Status | Evidence |
@@ -27,7 +29,7 @@ NOT-APPLICABLE — httputil is an `net/http` middleware/server toolkit (CORS, co
 | 4 | `Chain` / `Compose` / `MiddlewareStack` middleware composition | No — no middleware chain; gates are `Run([]string) int` packages | N/A | httputil/compose.go, httputil/stack.go |
 | 5 | Security headers, CSP nonce | No — no response headers | N/A | httputil/security.go, httputil/nonce.go |
 | 6 | Request-ID propagation | No — no requests; runs are identified by timestamp line, not IDs | N/A | httputil/requestid.go |
-| 7 | Panic recovery middleware (one handler's panic → 500, server lives) | Concept only — see row 18 | N/A | httputil/recovery.go |
+| 7 | Panic recovery middleware (one handler's panic → 500, server lives) | No — the HTTP-handler version of row 18; no handler exists in the consumer | N/A | httputil/recovery.go |
 | 8 | Request timeout middleware (context deadline per request) | No — gates take no context by design; the battery's timeout is goroutine abandonment, see gap analysis | N/A | httputil/timeout.go:11-25 |
 | 9 | Structured per-request logging | No — `gatecli.Outf`/`Errf`/`Livef` are the whole output story, humans on stderr | N/A | httputil/logging.go; internal/gatecli/gatecli_output.go |
 | 10 | Response compression + request decompression with bomb protection | No — no bodies, no encodings | N/A | httputil/compression.go, httputil/decompression.go |
@@ -38,7 +40,7 @@ NOT-APPLICABLE — httputil is an `net/http` middleware/server toolkit (CORS, co
 | 15 | Keyed token-bucket rate limiting + trusted-proxy key extraction | No — nothing is called repeatedly by clients; the battery runs on demand | N/A | httputil/ratelimit_keyed.go |
 | 16 | Content-language negotiation | No — output is English prose + JSON, no negotiation | N/A | httputil/language.go |
 | 17 | `httpspec` behavioral spec suite (19 specs over any `http.Handler`) | No — nothing to wrap in an `http.Handler`; gates are tested through their real `Run` functions with captured stdio | N/A | httputil/README.md:138-162; AGENTS.md testing note |
-| 18 | Panic isolation of independently-failing units (the concept under `Recovery`) | Yes in concept — battery gates are the units; currently NO `recover()` exists anywhere in docs-gates | N/A (concept satisfied by nobody; a gate panic crashes the whole battery run) | consumer-wide `rg 'recover\(\)' --type go` → rc=1; httputil/recovery.go solves the HTTP-shaped version |
+| 18 | Panic isolation of independently-failing units (the concept under `Recovery`) | Yes in concept — battery gates are the units; currently NO `recover()` exists anywhere in docs-gates | Missed Opportunity (concept satisfied by nobody: a gate panic crashes the whole battery run) | consumer-wide `rg 'recover\(\)' --type go` → rc=1; httputil/recovery.go solves the HTTP-shaped version |
 
 Dependency note for any future adoption: the root module is not stdlib-only —
 httputil/go.mod:5-13 requires `justinas/nosurf`, `go-error-family`,

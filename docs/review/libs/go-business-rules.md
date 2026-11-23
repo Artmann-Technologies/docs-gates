@@ -17,6 +17,8 @@ NOT-ADOPTED — go-business-rules is a severity-aware rules engine over Go value
 - M = 0.
 - Score = round(100 × 0/3) = **0** — band **low**. Expected for NOT-ADOPTED; the verdict carries the meaning.
 
+- Applicable rows are exactly the inventory rows graded **Missed Opportunity** (the consumer has the underlying need; the capability is hand-rolled, solved in-domain, or declined by contract). Every **Not Applicable** row carries a one-line reason. `M` counts rows graded Fully Leveraged.
+
 ## What the library offers
 
 | # | Capability | Applies to docs-gates? | Status | Evidence |
@@ -28,14 +30,14 @@ NOT-ADOPTED — go-business-rules is a severity-aware rules engine over Go value
 | 5 | Composites (`All`, `Any`, `When`, `Not`, `OneOf`, `Custom`) + branching-flow coverage | No — no rule composition anywhere; gate order is a config list, evaluation independent by design | N/A | go-business-rules/builders_composite.go:10-116, bdd_branching_flow_test.go |
 | 6 | Collection/generic builders (`NotEmptySlice[T]`, `NotEmptyMap[T]`) | No | N/A | go-business-rules/builders_collection.go:30,36 |
 | 7 | Network-format builders (`IPAddress`, `CreditCard` w/ Luhn, `PhoneNumber`, `PostalCode`) | No — nothing network-shaped is validated | N/A | go-business-rules/builders_network.go:23-144 |
-| 8 | Severity levels — Info/Warning/Error/Critical (`Severity` = `finding.Severity`) | Yes in concept — docs-gates findings carry WARN/FAIL (and RATCHET/SKIP) severity | N/A (solved in-domain) — severity is spelled as line prefixes + exit-code selection, byte-pinned by goldens | go-business-rules/severity.go:6-17; consumer internal/docsagents/docsagents.go:36-40 |
-| 9 | `ValidatorBuilder` + `ValidationResultError` — `Errors()`/`Warnings()`/`Info()`/`Critical()`/`BySeverity()` bucket selection | Yes in concept — the battery bucket-selects PASS/FAIL/SKIP rows and aggregates to one exit code | N/A (solved in-domain) — a three-way switch over exit codes IS the whole model; the JSON face exposes it directly | go-business-rules/validator.go:15-22, go-business-rules/validation_result.go:19-94; consumer internal/battery/battery.go:270-276 |
-| 10 | Config cross-field validation (thresholds relate sensibly, e.g. warn bar ≤ fail bar) | Yes — docs-gates validates warn-bar ≤ fail-bar per gate | N/A (solved in-domain) — five `invalidf` ifs, each producing a golden-pinned FATAL message | consumer internal/config/content_gates.go:59-88 |
+| 8 | Severity levels — Info/Warning/Error/Critical (`Severity` = `finding.Severity`) | Yes in concept — docs-gates findings carry WARN/FAIL (and RATCHET/SKIP) severity | Missed Opportunity (solved in-domain) — severity is spelled as line prefixes + exit-code selection, byte-pinned by goldens | go-business-rules/severity.go:6-17; consumer internal/docsagents/docsagents.go:36-40 |
+| 9 | `ValidatorBuilder` + `ValidationResultError` — `Errors()`/`Warnings()`/`Info()`/`Critical()`/`BySeverity()` bucket selection | Yes in concept — the battery bucket-selects PASS/FAIL/SKIP rows and aggregates to one exit code | Missed Opportunity (solved in-domain) — a three-way switch over exit codes IS the whole model; the JSON face exposes it directly | go-business-rules/validator.go:15-22, go-business-rules/validation_result.go:19-94; consumer internal/battery/battery.go:270-276 |
+| 10 | Config cross-field validation (thresholds relate sensibly, e.g. warn bar ≤ fail bar) | Yes — docs-gates validates warn-bar ≤ fail-bar per gate | Missed Opportunity (solved in-domain) — five `invalidf` ifs, each producing a golden-pinned FATAL message | consumer internal/config/content_gates.go:59-88 |
 | 11 | `ViolationError` typed violation values (`NewViolation`, `NewViolationFromError`) | No — gate findings are printed lines, not error values; gates return `int` | N/A | go-business-rules/errors.go:12-51 |
 | 12 | Events + `Listener` (`RuleEvaluated`, `ValidationCompleted`) | No — no observability consumer; the printed matrix IS the report | N/A | go-business-rules/events.go:8-82 |
 | 13 | `adapters/cqrslite` — rule evaluation as CQRS command-guard | No — no command bus | N/A | go-business-rules/adapters/cqrslite/adapter.go:1 |
 | 14 | `listeners/otel` — validation events → OTel spans/metrics | No — no OTel, no metrics | N/A | go-business-rules/listeners/otel/adapter.go:1 |
-| 15 | Dependency convergence: requires `go-finding` v1.15.1 — the exact library+version `pkg/provider` already uses | Adjacent — if the provider ever needed severity-typed findings, `finding.Severity` is already in its graph WITHOUT go-business-rules | N/A | go-business-rules/go.mod; consumer pkg/provider/go.mod:5 |
+| 15 | Dependency convergence: requires `go-finding` v1.15.1 — the exact library+version `pkg/provider` already uses | No — if the provider ever needed severity-typed findings, `finding.Severity` is already in its graph WITHOUT go-business-rules | N/A | go-business-rules/go.mod; consumer pkg/provider/go.mod:5 |
 
 (`examples/sse` — a Datastar/go-sse demo command — is demonstration code, not a capability; N/A.)
 

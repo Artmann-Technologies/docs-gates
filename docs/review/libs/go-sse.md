@@ -17,6 +17,8 @@ NOT-APPLICABLE — go-sse is a Server-Sent Events transport (wire serialization,
 - M = 0.
 - Score = round(100 × 0/1) = **0** — band **low**. Expected for NOT-APPLICABLE; the verdict carries the meaning.
 
+- Applicable rows are exactly the inventory rows graded **Missed Opportunity** (the consumer has the underlying need; the capability is hand-rolled, solved in-domain, or declined by contract). Every **Not Applicable** row carries a one-line reason. `M` counts rows graded Fully Leveraged.
+
 ## What the library offers
 
 | # | Capability | Applies to docs-gates? | Status | Evidence |
@@ -30,7 +32,7 @@ NOT-APPLICABLE — go-sse is a Server-Sent Events transport (wire serialization,
 | 7 | `sseparse` (submodule v0.2.1): zero-dependency WHATWG-conformant wire-format parser (`ReadEvents`, `StreamReader`) | No — nothing parses `event:`/`data:`/`id:` lines; see row 10 | N/A | go-sse/sseparse/README.md:3-4; go-sse/sseparse/reader.go:90, :197 |
 | 8 | `sseparse` WPT conformance corpus (embedded, regenerable vectors) | No — no protocol conformance duty | N/A | go-sse/sseparse/corpus.go:10-18 |
 | 9 | `ssetest` (submodule v0.5.0): httptest-based collectors + assertions for SSE handlers | No — no handlers to exercise; gates test through real `Run` + captured stdio | N/A | go-sse/ssetest/collect.go:25, :129; go-sse/ssetest/compat.go:145 |
-| 10 | Line-oriented stateful scanning of a text corpus (the parsing concept underneath) | Yes in concept — the gates scan Markdown line by line | N/A (solved with stdlib) — whole-file reads + `strings.Split` + small scanner structs; no incremental `io.Reader` streaming anywhere | consumer internal/docsrows/rows.go:211; internal/docsrows/scan.go:150-166 |
+| 10 | Line-oriented stateful scanning of a text corpus (the parsing concept underneath) | Yes in concept — the gates scan Markdown line by line | Missed Opportunity (solved with stdlib) — whole-file reads + `strings.Split` + small scanner structs; no incremental `io.Reader` streaming anywhere | consumer internal/docsrows/rows.go:211; internal/docsrows/scan.go:150-166 |
 
 Dependency note: the root module requires `templ`, `go-branded-id`, and
 `go-error-family` (go-sse/go.mod:5-9) — root-module adoption in docs-gates
