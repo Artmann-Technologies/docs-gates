@@ -1,2 +1,6 @@
 # Enforce consistent line endings across all platforms
 * text=auto eol=lf
+
+# Render traces are binary: never line-ending-normalized, diffed, or merged
+*.webp binary
+*.png binary
