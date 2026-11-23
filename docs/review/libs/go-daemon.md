@@ -110,6 +110,12 @@ RECONSIDER-WHEN: docs-gates ever grows a resident service — the only realistic
 
 None.
 
+### Cross-references within this audit fleet
+
+- The SSE parser overlap (go-daemon/sseparse vs go-sse) is covered by the go-sse report (group 1); docs-gates appears in both reports' zero-hit lists.
+- The error-family indirect (go-daemon pulls go-error-family v0.12.0) is covered by that library's report; root adoption here would transitively bar on the same dep the provider already carries.
+- If a verdict-serving wrapper is ever built, its audit should start from this report's RECONSIDER-WHEN and the lifecycle list above.
+
 ## How to verify
 
 ```console
@@ -136,4 +142,9 @@ $ rg -n "ListenAndServe|http\.Server|net\.Listen" /home/lars/projects/docs-gates
 
 $ rg -n "ExitClean|ExitFindings|ExitUsage" /home/lars/projects/docs-gates/internal/gatecli/gatecli.go | head -3
 # 27/28/29 — the whole failure vocabulary is three exit codes
+$ rg -in "serve|socket|systemd" /home/lars/projects/docs-gates/ROADMAP.md /home/lars/projects/docs-gates/TODO_LIST.md
+# two hits, both unrelated: TODO_LIST.md:20 "langserver" (substring of "serve") and
+# TODO_LIST.md:37 SystemNix host-level monitoring docs — no resident-service row
+$ rg -in "daemon" /home/lars/projects/docs-gates/ROADMAP.md | head -3
+# rc=1 — ROADMAP carries no daemon row at all
 ```

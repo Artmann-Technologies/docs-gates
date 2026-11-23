@@ -112,6 +112,11 @@ RECONSIDER-WHEN: the fleet ever builds a live docs-health dashboard (web page sh
 
 None.
 
+### Cross-references within this audit fleet
+
+- go-sse (group 1) underlies this library's transport; docs-gates appears in that report's zero-hit list too.
+- go-filewatcher (this group) is the natural change-source half of any future dashboard; both reports converge on the same flip condition.
+
 ## How to verify
 
 ```console
@@ -138,4 +143,8 @@ $ rg -n "exec.CommandContext" /home/lars/projects/docs-gates --type go | rg -v _
 # internal/docsannotate/git.go:25, internal/docsarchive/docsarchive.go:203,
 # internal/docsfreshness/preflight_land.go:74, pkg/provider/provider.go:149 —
 # the process graph is four one-shot exec sites, all git or self
+$ rg -in "dashboard|web view|browser" /home/lars/projects/docs-gates/ROADMAP.md /home/lars/projects/docs-gates/TODO_LIST.md
+# rc=1 — no web-surface feature planned; the docs ARE the UI
+$ git -C /home/lars/projects/go-datastar log -1 --format='%ci %h'
+# fetched 2026-11-23; 0 behind upstream per the fleet manifest
 ```

@@ -109,6 +109,12 @@ RECONSIDER-WHEN: docs-gates ever grows a `--watch` developer mode (re-run the ba
 
 None.
 
+### Cross-references within this audit fleet
+
+- go-atomic-write's `WriteIfChanged` advertises "no mtime bump, no file-watcher trigger" as a feature — the two libraries are fleet-complements for reactive tooling; docs-gates needs neither half.
+- go-datastar (this group) is the other reactive-surface library; both share the same flip condition (a live dashboard/watch mode) and the same answer (adopt in the wrapper, not here).
+- The go-retry report (group 1) covers the one-shot-timer vs loop distinction for the watchdogs mentioned above.
+
 ## How to verify
 
 ```console
@@ -136,4 +142,9 @@ $ sed -n '186,189p' /home/lars/projects/docs-gates/AGENTS.md
 #    run; one run is not steady state."
 $ sed -n '65,66p' /home/lars/projects/docs-gates/README.md
 # — "docs-gates reads and judges a corpus; it never rewrites one."
+$ rg -in "watch|hot.reload|live.reload" /home/lars/projects/docs-gates/ROADMAP.md /home/lars/projects/docs-gates/TODO_LIST.md
+# only unrelated hits (CI-run watching; the cadence gate metaphorically "watches this
+# file") — no reactive feature planned at any priority
+$ git -C /home/lars/projects/go-filewatcher log -1 --format='%ci %h'
+# fetched 2026-11-23; 0 behind upstream per the fleet manifest
 ```
