@@ -23,7 +23,6 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
-	"sort"
 	"strings"
 
 	"github.com/Artmann-Technologies/docs-gates/internal/config"
@@ -67,17 +66,6 @@ Unused legend entries are informational. A file with no legend section
 
 Exit codes: 0 clean or warn-mode findings, 1 enforced findings, 2 usage error.
 `
-
-// legendHeadingRe matches the legend section heading; the level is
-// unpinned so both `## Status legend` and deeper nestings resolve.
-var legendHeadingRe = regexp.MustCompile(`(?i)^#{1,6}\s*status legend\b`)
-
-// headingRe closes the legend section: any ATX heading ends it.
-var headingRe = regexp.MustCompile(`^#{1,6}\s`)
-
-// tokenRe captures one backticked ALL-CAPS token (the status
-// vocabulary's shape: `FULLY_FUNCTIONAL`, `OUT_OF_SCOPE`).
-var tokenRe = regexp.MustCompile("`([A-Z][A-Z0-9_]{2,})`")
 
 // statusColumn names the header cell whose column carries statuses
 // (case-insensitive; "Status/Note" style combined columns count).
@@ -232,71 +220,14 @@ func statusColumnIndex(cells []string) int {
 // heading. Prose inside the section (the absent-why note) is part of
 // the legend — definitions live in tables AND in sentences — and the
 // span lets the usage scan skip the definition table itself.
-func legendSection(lines []string) (string, int, int) {
-	start := -1
-
-	for i, line := range lines {
-		if legendHeadingRe.MatchString(line) {
-			start = i
-
-			break
-		}
-	}
-
-	if start < 0 {
-		return "", 0, 0
-	}
-
-	var section []string
-
-	for i, line := range lines[start+1:] {
-		if headingRe.MatchString(line) {
-			return strings.Join(section, "\n"), start + 1, start + 1 + i
-		}
-
-		section = append(section, line)
-	}
-
-	return strings.Join(section, "\n"), start + 1, len(lines) + 1
-}
 
 // legendTokens collects every backticked ALL-CAPS token of the legend
 // section — the table's status column and the prose around it both
 // define tokens.
-func legendTokens(section string) map[string]bool {
-	tokens := map[string]bool{}
-
-	for _, m := range tokenRe.FindAllStringSubmatch(section, -1) {
-		tokens[m[1]] = true
-	}
-
-	return tokens
-}
 
 // cellTokens collects the backticked ALL-CAPS tokens of one status
 // cell (an emoji prefix or a trailing note never hides the token).
-func cellTokens(cell string) []string {
-	matches := tokenRe.FindAllStringSubmatch(cell, -1)
 
-	tokens := make([]string, 0, len(matches))
-
-	for _, m := range matches {
-		tokens = append(tokens, m[1])
-	}
-
-	return tokens
-}
-
-func sortedKeys(m map[string]bool) []string {
-	keys := make([]string, 0, len(m))
-	for k := range m {
-		keys = append(keys, k)
-	}
-
-	sort.Strings(keys)
-
-	return keys
-}
 
 // Run is the CLI entry (repo-root positional).
 func Run(args []string) int {
