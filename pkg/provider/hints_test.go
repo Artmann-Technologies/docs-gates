@@ -2,11 +2,13 @@ package provider
 
 import (
 	"context"
+	"errors"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"strings"
 	"testing"
+	"time"
 )
 
 // TestRerunHintTable pins the gate-name → replay-line vocabulary: every
@@ -19,11 +21,16 @@ func TestRerunHintTable(t *testing.T) {
 	t.Parallel()
 
 	cases := map[string]string{
-		"freshness": "docs-gates freshness D",
-		"audit-all": "docs-gates freshness D --audit-all",
-		"annotate":  "docs-gates annotate D",
-		"routing":   "docs-gates routing D",
-		"cadence":   "docs-gates cadence D",
+		"freshness":  "docs-gates freshness D",
+		"audit-all":  "docs-gates freshness D --audit-all",
+		"annotate":   "docs-gates annotate D",
+		"routing":    "docs-gates routing D",
+		"cadence":    "docs-gates cadence D",
+		"stub":       "docs-gates stub D",
+		"citations":  "docs-gates citations D",
+		"stamps":     "docs-gates stamps D",
+		"vocabulary": "docs-gates vocabulary D",
+		"agents":     "docs-gates agents D",
 	}
 
 	for gate, want := range cases {
@@ -34,15 +41,19 @@ func TestRerunHintTable(t *testing.T) {
 }
 
 // TestRerunHintTableCoversTheBatteryMatrix runs the REAL binary's
-// battery over a clean corpus and asserts every matrix row's name is
-// known to rerunHint's special-case vocabulary (or a plain verb) — the
-// silent-mis-hint guard driven from the binary side, not a hand list.
+// battery over a clean corpus and asserts every matrix row's replay
+// line names a verb the dispatcher ACCEPTS — probed through the verb's
+// --help face (intercepted before any gate parser: a known verb exits
+// 0, an unknown one exits 2), so the guard stays binary-driven with no
+// hand list to lag behind a new gate. audit-all is the one non-verb
+// matrix name: it replays through freshness's --audit-all mode.
 func TestRerunHintTableCoversTheBatteryMatrix(t *testing.T) {
 	t.Parallel()
 
+	bin := findBinaryOrSkip(t)
 	dir := t.TempDir()
 
-	code, out, errOut, err := runBattery(context.Background(), findBinaryOrSkip(t), dir)
+	code, out, errOut, err := runBattery(context.Background(), bin, dir)
 	if err != nil {
 		t.Skipf("docs-gates binary unavailable: %v", err)
 	}
@@ -56,22 +67,52 @@ func TestRerunHintTableCoversTheBatteryMatrix(t *testing.T) {
 		t.Skipf("binary does not emit the pinned --json document (version skew): %v", decodeErr)
 	}
 
-	known := map[string]bool{
-		"freshness": true,
-		"audit-all": true,
-		"annotate":  true,
-		"routing":   true,
-		"cadence":   true,
-	}
-
 	for _, row := range report.Gates {
-		if !known[row.Name] {
+		replayVerb := row.Name
+		if replayVerb == gateAuditAll {
+			replayVerb = "freshness"
+		}
+
+		if !verbHelpExitsZero(t, bin, replayVerb) {
 			t.Errorf(
-				"battery matrix names unknown gate %q — extend rerunHint's vocabulary before this hint misleads",
+				"matrix gate %q replays via %q, which the dispatcher rejects — extend rerunHint's vocabulary before this hint misleads",
 				row.Name,
+				replayVerb,
 			)
 		}
 	}
+}
+
+// verbHelpExitsZero probes the dispatcher's help interception for one
+// verb: help is intercepted BEFORE any gate parser, so a known verb
+// prints its usage and exits 0 while an unknown one refuses with exit
+// 2 — the cheapest honest accept/reject oracle, with no corpus and no
+// side effects.
+func verbHelpExitsZero(t *testing.T, bin, verb string) bool {
+	t.Helper()
+
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+
+	cmd := exec.CommandContext(
+		ctx,
+		bin,
+		verb,
+		"--help",
+	)
+
+	err := cmd.Run()
+	if err == nil {
+		return true
+	}
+
+	if _, ok := errors.AsType[*exec.ExitError](err); ok {
+		return false // refused: the dispatcher does not know this verb
+	}
+
+	t.Skipf("docs-gates binary became unavailable mid-probe: %v", err)
+
+	return false
 }
 
 // findBinaryOrSkip resolves the real docs-gates binary for the
