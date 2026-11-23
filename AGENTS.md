@@ -52,10 +52,9 @@ keep bare `FATAL: %v`.
   Never remove a wrapper without a migration plan.
 - **The battery runs TEN gates** (2026-11-23): freshness, audit-all,
   annotate, routing, cadence, stub, citations, stamps, vocabulary,
-  agents —
-  `KnownGates` is the whole `skip_gates` vocabulary; the JSON face's
-  gate rows are generic so the provider absorbs a new row without
-  drift (proven when vocabulary joined, re-proven when agents joined).
+  agents — `KnownGates` is the whole `skip_gates` vocabulary; the JSON
+  face's gate rows are generic so the provider absorbs a new row
+  without drift (proven when vocabulary joined, re-proven with agents).
 - **Parity is enforced**: `TestParityGolden` pins byte output of
   fifteen invocations (the five gates + battery + battery-json + the
   margins/dump-items/preflight arms, incl. intended non-clean exits)
