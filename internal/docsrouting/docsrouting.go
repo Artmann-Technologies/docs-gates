@@ -246,13 +246,13 @@ func Run(args []string) int {
 		return gatecli.ExitUsage
 	}
 
-	s := SettingsFromConfig(cfg)
+	settings := SettingsFromConfig(cfg)
 
-	for _, report := range unarchivedReports(root, s) {
+	for _, report := range unarchivedReports(root, settings) {
 		docsfreshness.WarnSectionFNearMiss(report)
 	}
 
-	gaps := RoutingGaps(root, s)
+	gaps := RoutingGaps(root, settings)
 
 	for _, gap := range gaps {
 		gatecli.Outf("UNROUTED [%s:%d] %s\n", gap.Report, gap.LineNo, gatecli.Truncate(gap.Row, rowPreviewRunes))
@@ -265,7 +265,7 @@ func Run(args []string) int {
 	}
 
 	gatecli.Outf("docs-routing (%s): %d unarchived report(s) scanned, %d unrouted open row(s)\n",
-		verb, countUnarchived(root, s), len(gaps))
+		verb, countUnarchived(root, settings), len(gaps))
 
 	if flags["--strict"] && len(gaps) > 0 {
 		gatecli.Errln("docs-routing --strict: DRIFT — open actionable rows outside §f sections " +

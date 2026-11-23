@@ -196,16 +196,16 @@ JSON is jq-able.
 The annotate gate judges every struck (`~~…~~`) item in the report
 corpus. The rules in source order (`internal/docsannotate`):
 
-| Rule | Verdict | What it requires |
-| ---- | ------- | ---------------- |
-| `A/evidence` | FAIL | A struck item's verdict text (everything outside the `~~…~~`) must carry a marker word — see the vocabulary below. |
-| `B/hash` | FAIL | `` `done at <sha>` `` citations must resolve to a real commit or tag via git. |
-| `C/path` | FAIL | Backticked repo-relative paths in the verdict must exist on disk; paths inside the strike are exempt. |
-| `D/verdict-leads-open` | INFO | A verdict marker followed by an unfinished phrase ("still open", "owed", …) is reported, never failed. |
-| `E/ref` | FAIL | Tag-existence and removed-path claims are verified against the repo. |
-| `F/spacing`, `F/walk` | FAIL | Rule F: no letter/digit may touch a backtick; `<!-- format:allow -->` exempts a line (dprint strips spaces around inline code with escaped backticks). |
-| `G/uniform` | FAIL | Every table cell needs an even `~~` count — strike per cell, never across the pipe (a cross-cell strike renders as a broken row). |
-| `P/verdict-inside`, `P/number-inside` | FAIL | The verdict word and the list-item number must sit OUTSIDE the `~~` spans — inside, the renderer deletes the verdict and renumbers the list tail. |
+| Rule                                  | Verdict | What it requires                                                                                                                                       |
+| ------------------------------------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `A/evidence`                          | FAIL    | A struck item's verdict text (everything outside the `~~…~~`) must carry a marker word — see the vocabulary below.                                     |
+| `B/hash`                              | FAIL    | `` `done at <sha>` `` citations must resolve to a real commit or tag via git.                                                                          |
+| `C/path`                              | FAIL    | Backticked repo-relative paths in the verdict must exist on disk; paths inside the strike are exempt.                                                  |
+| `D/verdict-leads-open`                | INFO    | A verdict marker followed by an unfinished phrase ("still open", "owed", …) is reported, never failed.                                                 |
+| `E/ref`                               | FAIL    | Tag-existence and removed-path claims are verified against the repo.                                                                                   |
+| `F/spacing`, `F/walk`                 | FAIL    | Rule F: no letter/digit may touch a backtick; `<!-- format:allow -->` exempts a line (dprint strips spaces around inline code with escaped backticks). |
+| `G/uniform`                           | FAIL    | Every table cell needs an even `~~` count — strike per cell, never across the pipe (a cross-cell strike renders as a broken row).                      |
+| `P/verdict-inside`, `P/number-inside` | FAIL    | The verdict word and the list-item number must sit OUTSIDE the `~~` spans — inside, the renderer deletes the verdict and renumbers the list tail.      |
 
 Marker vocabulary (case-insensitive, word-boundary matched): `done`,
 `resolved`, `routed`, `superseded`, `fixed`, `adopted`, `decided`,

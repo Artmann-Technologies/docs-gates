@@ -33,6 +33,13 @@ import (
 // hoursPerDay converts an age in hours to whole days.
 const hoursPerDay = 24
 
+// Finding severities: the warn bar is informational at every
+// enforcement level; the fail bar is what enforcement gates on.
+const (
+	severityWarn = "warn"
+	severityFail = "fail"
+)
+
 // Settings is the gate's config-driven knobs. Every field falls back to
 // the shipped default when the repo's .docs-gates.json is absent or
 // silent, so zero-value Settings never reach the gate logic.
@@ -122,11 +129,11 @@ func Run(args []string) int {
 // and whether enforcement is active.
 func printFindings(findings []Finding, settings Settings) {
 	for _, finding := range findings {
-		enforced := settings.Enforce && finding.Severity == "fail"
+		enforced := settings.Enforce && finding.Severity == severityFail
 		verdict := map[bool]string{true: "FAIL", false: "WARN"}[enforced]
 
 		mode := ""
-		if !enforced && finding.Severity == "fail" {
+		if !enforced && finding.Severity == severityFail {
 			mode = " (agents_enforce=false, warn mode)"
 		}
 
@@ -151,7 +158,7 @@ func printFindings(findings []Finding, settings Settings) {
 // anyEnforcedFailure reports whether an enforced fail-severity finding exists.
 func anyEnforcedFailure(findings []Finding, settings Settings) bool {
 	for _, finding := range findings {
-		if settings.Enforce && finding.Severity == "fail" {
+		if settings.Enforce && finding.Severity == severityFail {
 			return true
 		}
 	}
@@ -175,7 +182,7 @@ func Scan(root string, settings Settings) ([]Finding, error) {
 	info, err := os.Stat(filepath.Join(root, settings.File))
 	if err != nil {
 		if os.IsNotExist(err) {
-			return []Finding{{Path: settings.File, Missing: true, Severity: "fail"}}, nil
+			return []Finding{{Path: settings.File, Missing: true, Severity: severityFail}}, nil
 		}
 
 		return nil, fmt.Errorf("stating %s: %w", settings.File, err)
@@ -186,9 +193,9 @@ func Scan(root string, settings Settings) ([]Finding, error) {
 		return nil, nil
 	}
 
-	severity := "warn"
+	severity := severityWarn
 	if ageDays > settings.MaxDays {
-		severity = "fail"
+		severity = severityFail
 	}
 
 	return []Finding{{Path: settings.File, AgeDays: ageDays, Severity: severity}}, nil

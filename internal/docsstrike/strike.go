@@ -99,27 +99,10 @@ func mapHeader(cells []string) (tableShape, *strikeError) {
 func PlanStrike(content string, opts Options) (Strike, *strikeError) {
 	lines := strings.Split(content, "\n")
 
-	var matches []int
-
-	for i, line := range lines {
-		if strings.HasPrefix(line, "|") && !sepRowRe.MatchString(line) && strings.Contains(line, opts.Row) {
-			matches = append(matches, i)
-		}
+	idx, findErr := uniqueRowMatching(lines, opts.Row)
+	if findErr != nil {
+		return Strike{}, findErr
 	}
-
-	switch len(matches) {
-	case 0:
-		return Strike{}, &strikeError{msg: fmt.Sprintf("no table row contains the --row selector %q", opts.Row)}
-	case 1: // the only acceptable case
-	default:
-		return Strike{}, &strikeError{msg: fmt.Sprintf(
-			"--row selector %q is ambiguous: %d rows match — narrow it to one row",
-			opts.Row,
-			len(matches),
-		)}
-	}
-
-	idx := matches[0]
 
 	shape, shapeErr := shapeOf(lines, idx)
 	if shapeErr != nil {
@@ -136,13 +119,50 @@ func PlanStrike(content string, opts Options) (Strike, *strikeError) {
 		)}
 	}
 
+	if strikeErr := applyStrike(cells, shape, idx, opts); strikeErr != nil {
+		return Strike{}, strikeErr
+	}
+
+	return Strike{LineNo: idx + 1, Old: lines[idx], New: strings.Join(cells, "|")}, nil
+}
+
+// uniqueRowMatching returns the one table row containing the selector,
+// refusing both the none and the ambiguous case.
+func uniqueRowMatching(lines []string, selector string) (int, *strikeError) {
+	var matches []int
+
+	for i, line := range lines {
+		if strings.HasPrefix(line, "|") && !sepRowRe.MatchString(line) && strings.Contains(line, selector) {
+			matches = append(matches, i)
+		}
+	}
+
+	switch len(matches) {
+	case 0:
+		return 0, &strikeError{msg: fmt.Sprintf("no table row contains the --row selector %q", selector)}
+	case 1: // the only acceptable case
+	default:
+		return 0, &strikeError{msg: fmt.Sprintf(
+			"--row selector %q is ambiguous: %d rows match — narrow it to one row",
+			selector,
+			len(matches),
+		)}
+	}
+
+	return matches[0], nil
+}
+
+// applyStrike rewrites the located row's cells in place: the task cell
+// carries the strike verdict, the Status cell flips when the table has
+// one, and --evidence lands in the Evidence column or is refused.
+func applyStrike(cells []string, shape tableShape, idx int, opts Options) *strikeError {
 	task := strings.TrimSpace(cells[shape.taskCol])
 	if task == "" {
-		return Strike{}, &strikeError{msg: fmt.Sprintf("row %d has an empty task cell — not a strikeable row", idx+1)}
+		return &strikeError{msg: fmt.Sprintf("row %d has an empty task cell — not a strikeable row", idx+1)}
 	}
 
 	if strings.Contains(task, "~~") {
-		return Strike{}, &strikeError{
+		return &strikeError{
 			msg: fmt.Sprintf("row %d already carries a strike marker — never double-strike", idx+1),
 		}
 	}
@@ -155,7 +175,7 @@ func PlanStrike(content string, opts Options) (Strike, *strikeError) {
 
 	if opts.Evidence != "" {
 		if shape.evidence < 0 {
-			return Strike{}, &strikeError{
+			return &strikeError{
 				msg: "the table's header carries no Evidence column but --evidence was given — nowhere to write it",
 			}
 		}
@@ -163,5 +183,5 @@ func PlanStrike(content string, opts Options) (Strike, *strikeError) {
 		cells[shape.evidence] = " " + opts.Evidence + " "
 	}
 
-	return Strike{LineNo: idx + 1, Old: lines[idx], New: strings.Join(cells, "|")}, nil
+	return nil
 }

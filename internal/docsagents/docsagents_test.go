@@ -33,10 +33,10 @@ func writeAgentsMd(t *testing.T, root string, ageDays int) time.Time {
 	return mtime
 }
 
-func writeConfig(t *testing.T, root, json string) {
+func writeEnforcedConfig(t *testing.T, root string) {
 	t.Helper()
 
-	if err := os.WriteFile(filepath.Join(root, config.FileName), []byte(json), 0o644); err != nil {
+	if err := os.WriteFile(filepath.Join(root, config.FileName), []byte(`{"agents_enforce": true}`), 0o644); err != nil {
 		t.Fatal(err)
 	}
 }
@@ -64,7 +64,7 @@ func TestMissingAgentsMdFailsWhenEnforced(t *testing.T) {
 	t.Parallel()
 
 	root := t.TempDir()
-	writeConfig(t, root, `{"agents_enforce": true}`)
+	writeEnforcedConfig(t, root)
 
 	if rc := Run([]string{root}); rc != gatecli.ExitFindings {
 		t.Fatalf("an enforced missing AGENTS.md must fail, got rc %d", rc)
@@ -87,7 +87,7 @@ func TestMaxBarAgeFailsWhenEnforced(t *testing.T) {
 
 	root := t.TempDir()
 	writeAgentsMd(t, root, config.DefaultAgentsMaxDays+5)
-	writeConfig(t, root, `{"agents_enforce": true}`)
+	writeEnforcedConfig(t, root)
 
 	if rc := Run([]string{root}); rc != gatecli.ExitFindings {
 		t.Fatalf("an enforced max-bar age must fail, got rc %d", rc)
@@ -99,7 +99,7 @@ func TestWarnBarAgeStaysCleanEvenEnforced(t *testing.T) {
 
 	root := t.TempDir()
 	writeAgentsMd(t, root, config.DefaultAgentsWarnDays+5)
-	writeConfig(t, root, `{"agents_enforce": true}`)
+	writeEnforcedConfig(t, root)
 
 	if rc := Run([]string{root}); rc != gatecli.ExitClean {
 		t.Fatalf("a warn-bar age is informational at every enforcement level, got rc %d", rc)
@@ -128,7 +128,7 @@ func TestRunPrintsVerdictLines(t *testing.T) {
 		t.Fatalf("warn mode must print the WARN line with the rollout suffix, got:\n%s", warnOut.Stdout)
 	}
 
-	writeConfig(t, stale, `{"agents_enforce": true}`)
+	writeEnforcedConfig(t, stale)
 
 	failOut := gatecli.CaptureOutput(func() int {
 		return Run([]string{stale})
@@ -166,6 +166,7 @@ func TestScanVerdicts(t *testing.T) {
 
 			root := t.TempDir()
 			now := time.Now()
+
 			if !tt.missing {
 				now = writeAgentsMd(t, root, tt.ageDays).AddDate(0, 0, tt.ageDays)
 			}
