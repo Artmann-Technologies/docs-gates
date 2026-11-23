@@ -134,13 +134,14 @@ None.
 ## How to verify
 
 ```console
-$ git -C /home/lars/projects/go-idempotency log -1 --format='%H'
+$ git -C /home/lars/projects/go-idempotency rev-parse 8fd593eef46b1f50f6ee7138f639c915a5392f08^{commit}
 8fd593eef46b1f50f6ee7138f639c915a5392f08
+# — the reviewed commit, pinned: the repository tip drifts under the fleet's auto-commit daemon
 $ git -C /home/lars/projects/go-idempotency tag --list | tail -3
 v0.4.0
 v0.5.0
 v0.6.0
-$ git -C /home/lars/projects/go-idempotency describe --tags
+$ git -C /home/lars/projects/go-idempotency describe --tags 8fd593eef46b1f50f6ee7138f639c915a5392f08
 idemtest/v0.1.1-5-g8fd593e
 
 $ rg -n "idempotency|go-idempotency|idemtest" /home/lars/projects/docs-gates --type go -g '!docs/review/**'

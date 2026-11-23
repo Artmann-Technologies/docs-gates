@@ -115,8 +115,9 @@ None.
 ## How to verify
 
 ```console
-$ git -C /home/lars/projects/go-credentials-store log -1 --format='%H'
+$ git -C /home/lars/projects/go-credentials-store rev-parse f9c11ce694762fa66aba2410a1672a8d01a3b7ff^{commit}
 f9c11ce694762fa66aba2410a1672a8d01a3b7ff
+# — the reviewed commit, pinned: the repository tip drifts under the fleet's auto-commit daemon
 $ git -C /home/lars/projects/go-credentials-store tag --sort=-v:refname | head -1
 v0.4.3
 $ git -C /home/lars/projects/go-credentials-store log --format='%h %s' v0.4.3..HEAD | head -6

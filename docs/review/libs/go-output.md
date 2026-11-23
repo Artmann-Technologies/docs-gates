@@ -122,9 +122,10 @@ Each is a product decision, not a rendering gap; none is on the roadmap.
 ## How to verify
 
 ```console
-$ git -C /home/lars/projects/go-output log -1 --format='%H'
+$ git -C /home/lars/projects/go-output rev-parse c0e177ee04a8835bb4dd04dbbd7581139757209d^{commit}
 c0e177ee04a8835bb4dd04dbbd7581139757209d
-$ git -C /home/lars/projects/go-output describe --tags
+# — the reviewed commit, pinned: the repository tip drifts under the fleet's auto-commit daemon
+$ git -C /home/lars/projects/go-output describe --tags c0e177ee04a8835bb4dd04dbbd7581139757209d
 bdd/v0.38.7-11-gc0e177e
 $ git -C /home/lars/projects/go-output tag --list 'v0.38*' | tail -1
 v0.38.7

@@ -124,8 +124,9 @@ AGENTS.md:193-194; there is no code opportunity.)
 ## How to verify
 
 ```console
-$ git -C /home/lars/projects/cqrs-htmx log -1 --format='%H'
+$ git -C /home/lars/projects/cqrs-htmx rev-parse 4b9803326337945cce87f68a040bfa8bae9d7474^{commit}
 4b9803326337945cce87f68a040bfa8bae9d7474
+# — the reviewed commit, pinned: the repository tip drifts under the fleet's auto-commit daemon
 $ git -C /home/lars/projects/cqrs-htmx tag --list 'v4.*' | sort -V | tail -3
 v4.18.0
 v4.18.1

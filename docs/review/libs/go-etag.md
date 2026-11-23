@@ -128,9 +128,10 @@ None.
 ## How to verify
 
 ```console
-$ git -C /home/lars/projects/go-etag log -1 --format='%H'
+$ git -C /home/lars/projects/go-etag rev-parse be01b8a028d2085857378dfe1245c1186bb8a0c5^{commit}
 be01b8a028d2085857378dfe1245c1186bb8a0c5
-$ git -C /home/lars/projects/go-etag describe --tags
+# — the reviewed commit, pinned: the repository tip drifts under the fleet's auto-commit daemon
+$ git -C /home/lars/projects/go-etag describe --tags be01b8a028d2085857378dfe1245c1186bb8a0c5
 v0.7.1-6-gbe01b8a
 $ git -C /home/lars/projects/go-etag tag --list | tail -2
 v0.7.0

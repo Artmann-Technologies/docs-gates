@@ -130,8 +130,9 @@ consumer; recorded under RECONSIDER-WHEN.)
 ## How to verify
 
 ```console
-$ git -C /home/lars/projects/go-health-dashboard log -1 --format='%H'
+$ git -C /home/lars/projects/go-health-dashboard rev-parse 19af9cf4993011afb71451ca0927e70ca0acba67^{commit}
 19af9cf4993011afb71451ca0927e70ca0acba67
+# — the reviewed commit, pinned: the repository tip drifts under the fleet's auto-commit daemon
 $ git -C /home/lars/projects/go-health-dashboard tag --sort=-v:refname | head -1
 v0.13.3
 $ sed -n '5,20p' /home/lars/projects/go-health-dashboard/go.mod

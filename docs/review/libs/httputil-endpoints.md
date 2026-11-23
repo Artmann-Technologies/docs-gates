@@ -36,6 +36,21 @@ with zero dependencies (httputil/endpoints/go.mod:1-3, httputil/endpoints/README
 so the hermeticity objection reduces to "any require breaks the contract",
 not "a dependency tree would land".
 
+### Release shape (context for any future adoption)
+
+`endpoints/v0.1.0` is the module's first and only tag (2026-11-06), cut under
+an explicit owner ruling that it sits in the pre-1.0 iteration tier — 0.x
+semantics govern "while real consumers validate it" (httputil/CHANGELOG.md:61)
+— unlike `server_timing`'s day-one-v1 posture. The first real consumer is CV,
+which routes its entire surface through `Registry.Handle` so the listing
+derives from the actual registration site (httputil/endpoints/README.md:97);
+the `[Unreleased]` section above v0.1.0 already hardens negotiation (all
+`Accept` header lines combined per RFC 9110 §5.3) and CI now runs the
+submodule tests on every push. An adopter today gets a small, stdlib-only,
+single-purpose module — exactly the right shape to slot into a future
+docs-gates HTTP sibling, and exactly irrelevant to the current CLI.
+
+
 ## What docs-gates does today
 
 Zero usage, zero presence. Verified:
@@ -120,20 +135,6 @@ the CLI as it stands, the insulation is correct.
 ## Ranked opportunities
 
 None.
-
-## Release shape (context for any future adoption)
-
-`endpoints/v0.1.0` is the module's first and only tag (2026-11-06), cut under
-an explicit owner ruling that it sits in the pre-1.0 iteration tier — 0.x
-semantics govern "while real consumers validate it" (httputil/CHANGELOG.md:61)
-— unlike `server_timing`'s day-one-v1 posture. The first real consumer is CV,
-which routes its entire surface through `Registry.Handle` so the listing
-derives from the actual registration site (httputil/endpoints/README.md:97);
-the `[Unreleased]` section above v0.1.0 already hardens negotiation (all
-`Accept` header lines combined per RFC 9110 §5.3) and CI now runs the
-submodule tests on every push. An adopter today gets a small, stdlib-only,
-single-purpose module — exactly the right shape to slot into a future
-docs-gates HTTP sibling, and exactly irrelevant to the current CLI.
 
 ## How to verify
 

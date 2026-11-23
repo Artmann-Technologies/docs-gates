@@ -122,9 +122,10 @@ Routing: items 1 and 3 are rows in TODO_LIST §10; item 2 landed (above).
 ## How to verify
 
 ```console
-$ git -C /home/lars/projects/go-atomic-write log -1 --format='%H'
+$ git -C /home/lars/projects/go-atomic-write rev-parse 38dbb9debf0b38c39ea2d7e4b82eed2feca1d66a^{commit}
 38dbb9debf0b38c39ea2d7e4b82eed2feca1d66a
-$ git -C /home/lars/projects/go-atomic-write describe --tags
+# — the reviewed commit, pinned: the repository tip drifts under the fleet's auto-commit daemon
+$ git -C /home/lars/projects/go-atomic-write describe --tags 38dbb9debf0b38c39ea2d7e4b82eed2feca1d66a
 v0.7.0-2-g38dbb9d
 $ git -C /home/lars/projects/go-atomic-write tag --list | tail -2
 v0.6.2

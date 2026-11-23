@@ -132,9 +132,10 @@ gatecli, not an httputil adoption. **Routed:** a row in TODO_LIST §10.)
 ## How to verify
 
 ```console
-$ git -C /home/lars/projects/httputil log -1 --format='%H'
+$ git -C /home/lars/projects/httputil rev-parse 34dbf05f670d28830e61170a087f552070279b74^{commit}
 34dbf05f670d28830e61170a087f552070279b74
-$ git -C /home/lars/projects/httputil describe --tags
+# — the reviewed commit, pinned: the repository tip drifts under the fleet's auto-commit daemon
+$ git -C /home/lars/projects/httputil describe --tags 34dbf05f670d28830e61170a087f552070279b74
 v1.9.0-24-g34dbf05
 $ git -C /home/lars/projects/httputil tag --list | tail -1
 v1.9.0

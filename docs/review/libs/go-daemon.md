@@ -121,9 +121,10 @@ None.
 ## How to verify
 
 ```console
-$ git -C /home/lars/projects/go-daemon log -1 --format='%H'
+$ git -C /home/lars/projects/go-daemon rev-parse 6b9ee1d383c365d0e7579ed51042f61149755a1f^{commit}
 6b9ee1d383c365d0e7579ed51042f61149755a1f
-$ git -C /home/lars/projects/go-daemon describe --tags
+# — the reviewed commit, pinned: the repository tip drifts under the fleet's auto-commit daemon
+$ git -C /home/lars/projects/go-daemon describe --tags 6b9ee1d383c365d0e7579ed51042f61149755a1f
 v0.4.0-39-g6b9ee1d
 $ git -C /home/lars/projects/go-daemon tag --list | tail -2
 v0.3.0

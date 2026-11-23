@@ -158,9 +158,10 @@ BuildFlow consumer branches on family.)
 ## How to verify
 
 ```console
-$ git -C /home/lars/projects/go-error-family log -1 --format='%H'
+$ git -C /home/lars/projects/go-error-family rev-parse 01d155efa67f35ea75ced0942ab2c4b1b406bde3^{commit}
 01d155efa67f35ea75ced0942ab2c4b1b406bde3
-$ git -C /home/lars/projects/go-error-family describe --tags
+# — the reviewed commit, pinned: the repository tip drifts under the fleet's auto-commit daemon
+$ git -C /home/lars/projects/go-error-family describe --tags 01d155efa67f35ea75ced0942ab2c4b1b406bde3
 v0.12.0-13-g01d155e
 
 $ rg -n "errorfamily|go-error-family" /home/lars/projects/docs-gates --type go -g '!docs/review/**'

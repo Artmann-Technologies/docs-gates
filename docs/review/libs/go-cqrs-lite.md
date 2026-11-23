@@ -137,8 +137,9 @@ import.)
 ## How to verify
 
 ```console
-$ git -C /home/lars/projects/go-cqrs-lite log -1 --format='%H'
+$ git -C /home/lars/projects/go-cqrs-lite rev-parse 35856a709c8de00eb2ad447aa93c4fd073ea114e^{commit}
 35856a709c8de00eb2ad447aa93c4fd073ea114e
+# — the reviewed commit, pinned: the repository tip drifts under the fleet's auto-commit daemon
 $ find /home/lars/projects/go-cqrs-lite -name go.mod -not -path '*/.git/*' | wc -l
 105
 $ head -2 /home/lars/projects/go-cqrs-lite/go.mod

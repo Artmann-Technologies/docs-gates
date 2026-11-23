@@ -127,8 +127,9 @@ chromedp dependency would be absurd inside the root contract.)
 ## How to verify
 
 ```console
-$ git -C /home/lars/projects/templ-components log -1 --format='%H'
+$ git -C /home/lars/projects/templ-components rev-parse cf725c9decb30c8663f1cc429b84adef4af7fe3d^{commit}
 cf725c9decb30c8663f1cc429b84adef4af7fe3d
+# — the reviewed commit, pinned: the repository tip drifts under the fleet's auto-commit daemon
 $ git -C /home/lars/projects/templ-components rev-parse d87221760214cd7bb6ced4c55966f7a651bb3296
 d87221760214cd7bb6ced4c55966f7a651bb3296
 $ git -C /home/lars/projects/templ-components tag --list 'v1.27.*'

@@ -140,8 +140,9 @@ already recorded in the httputil report; it is not a go-health adoption.)
 ## How to verify
 
 ```console
-$ git -C /home/lars/projects/go-health log -1 --format='%H'
+$ git -C /home/lars/projects/go-health rev-parse 3ca66446e1f8164f28e1ab788ad03727f6c99307^{commit}
 3ca66446e1f8164f28e1ab788ad03727f6c99307
+# — the reviewed commit, pinned: the repository tip drifts under the fleet's auto-commit daemon
 $ git -C /home/lars/projects/go-health tag --sort=-v:refname | head -1
 v0.10.0
 $ sed -n '5,9p' /home/lars/projects/go-health/go.mod

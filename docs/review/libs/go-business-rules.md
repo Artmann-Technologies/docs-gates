@@ -143,8 +143,9 @@ for docs-gates itself, not an adoption of this library.)
 ## How to verify
 
 ```console
-$ git -C /home/lars/projects/go-business-rules log -1 --format='%H'
+$ git -C /home/lars/projects/go-business-rules rev-parse 75a1a8cfd2928d79aca7340f6cf018767ee35fef^{commit}
 75a1a8cfd2928d79aca7340f6cf018767ee35fef
+# — the reviewed commit, pinned: the repository tip drifts under the fleet's auto-commit daemon
 $ git -C /home/lars/projects/go-business-rules tag --list | tail -2
 v2.2.0
 v2.2.1

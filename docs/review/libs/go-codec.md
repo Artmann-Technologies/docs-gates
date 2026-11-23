@@ -135,9 +135,10 @@ None.
 ## How to verify
 
 ```console
-$ git -C /home/lars/projects/go-codec log -1 --format='%H'
+$ git -C /home/lars/projects/go-codec rev-parse 8d7a27477cb309633690699d3b719895cf82b256^{commit}
 8d7a27477cb309633690699d3b719895cf82b256
-$ git -C /home/lars/projects/go-codec describe --tags
+# — the reviewed commit, pinned: the repository tip drifts under the fleet's auto-commit daemon
+$ git -C /home/lars/projects/go-codec describe --tags 8d7a27477cb309633690699d3b719895cf82b256
 v0.3.4
 
 $ rg -n "github.com/larsartmann/go-codec" /home/lars/projects/docs-gates --hidden -g '!.git' -g '!docs/review/**'

@@ -40,6 +40,19 @@ fails scripts/stack-drift-check.sh:8-9 on sight. `sseparse` alone is
 zero-dependency (go-sse/sseparse/go.mod), but it parses a protocol
 docs-gates never speaks.
 
+### Release shape (context for any future adoption)
+
+Root v0.7.0 (2026-11-04) with `sseparse` v0.2.1 and `ssetest` v0.5.0 as
+nested-module tags; `[Unreleased]` at HEAD moves the DataStar activity-feed
+example to the companion go-datastar repo with the stated scope rationale
+that go-sse "stays a protocol-free transport" (go-sse/CHANGELOG.md:26-37) —
+the same boundary discipline that makes it the right _transport-only_ pick
+for a future live surface. The root module's two small dependencies
+(`go-branded-id` for typed event IDs, `go-error-family`) are the only weight
+an adopter carries (go-sse/README.md:7); `sseparse` alone is zero-dependency
+if only wire parsing is ever needed.
+
+
 ## What docs-gates does today
 
 Zero usage, zero presence. Verified:
@@ -118,24 +131,13 @@ battery) is the direction that actually pays.
 
 None.
 
-## Release shape (context for any future adoption)
-
-Root v0.7.0 (2026-11-04) with `sseparse` v0.2.1 and `ssetest` v0.5.0 as
-nested-module tags; `[Unreleased]` at HEAD moves the DataStar activity-feed
-example to the companion go-datastar repo with the stated scope rationale
-that go-sse "stays a protocol-free transport" (go-sse/CHANGELOG.md:26-37) —
-the same boundary discipline that makes it the right _transport-only_ pick
-for a future live surface. The root module's two small dependencies
-(`go-branded-id` for typed event IDs, `go-error-family`) are the only weight
-an adopter carries (go-sse/README.md:7); `sseparse` alone is zero-dependency
-if only wire parsing is ever needed.
-
 ## How to verify
 
 ```console
-$ git -C /home/lars/projects/go-sse log -1 --format='%H'
+$ git -C /home/lars/projects/go-sse rev-parse d010c2222cae90e01e3f8859992611204e0fecd4^{commit}
 d010c2222cae90e01e3f8859992611204e0fecd4
-$ git -C /home/lars/projects/go-sse describe --tags
+# — the reviewed commit, pinned: the repository tip drifts under the fleet's auto-commit daemon
+$ git -C /home/lars/projects/go-sse describe --tags d010c2222cae90e01e3f8859992611204e0fecd4
 v0.7.0-28-gd010c22
 $ git -C /home/lars/projects/go-sse tag --list 'sseparse/*' | sort -V | tail -1; git -C /home/lars/projects/go-sse tag --list 'ssetest/*' | sort -V | tail -1
 sseparse/v0.2.1

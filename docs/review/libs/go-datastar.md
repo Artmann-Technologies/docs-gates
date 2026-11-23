@@ -122,9 +122,10 @@ None.
 ## How to verify
 
 ```console
-$ git -C /home/lars/projects/go-datastar log -1 --format='%H'
+$ git -C /home/lars/projects/go-datastar rev-parse 4fca56a9fbf1a0cfdfc5b7a988b3d00099ffe543^{commit}
 4fca56a9fbf1a0cfdfc5b7a988b3d00099ffe543
-$ git -C /home/lars/projects/go-datastar describe --tags
+# — the reviewed commit, pinned: the repository tip drifts under the fleet's auto-commit daemon
+$ git -C /home/lars/projects/go-datastar describe --tags 4fca56a9fbf1a0cfdfc5b7a988b3d00099ffe543
 static/v0.8.0-10-g4fca56a
 $ git -C /home/lars/projects/go-datastar tag --list | tail -3
 v0.6.2
@@ -154,6 +155,6 @@ $ rg -n "exec.CommandContext" /home/lars/projects/docs-gates --type go | rg -v _
 /home/lars/projects/docs-gates/internal/docsfreshness/preflight_land.go:74:	probe := exec.CommandContext(
 $ rg -in "dashboard|web view|browser" /home/lars/projects/docs-gates/ROADMAP.md /home/lars/projects/docs-gates/TODO_LIST.md
 # rc=1 — no web-surface feature planned; the docs ARE the UI
-$ git -C /home/lars/projects/go-datastar log -1 --format='%ci %h'
+$ git -C /home/lars/projects/go-datastar show -s --format='%ci %h' 4fca56a9fbf1a0cfdfc5b7a988b3d00099ffe543
 2026-11-23 02:00:06 +0100 4fca56a
 ```

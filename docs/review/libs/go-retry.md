@@ -133,8 +133,9 @@ None.
 ## How to verify
 
 ```console
-$ git -C /home/lars/projects/go-retry log -1 --format='%H'
+$ git -C /home/lars/projects/go-retry rev-parse a0f931dee9ddc3cad8b27cdd962292eb760f37b7^{commit}
 a0f931dee9ddc3cad8b27cdd962292eb760f37b7
+# — the reviewed commit, pinned: the repository tip drifts under the fleet's auto-commit daemon
 $ git -C /home/lars/projects/go-retry tag --list | tail -2
 v0.8.0
 v0.9.0

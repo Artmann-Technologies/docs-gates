@@ -194,8 +194,9 @@ maintenance line item rather than a settled one.
 ## How to verify
 
 ```console
-$ git -C /home/lars/projects/cmdguard log -1 --format='%H'
+$ git -C /home/lars/projects/cmdguard rev-parse f36c61b1ad01b738db7ccd4f10508634c9b6d9c9^{commit}
 f36c61b1ad01b738db7ccd4f10508634c9b6d9c9
+# — the reviewed commit, pinned: the repository tip drifts under the fleet's auto-commit daemon
 $ git -C /home/lars/projects/cmdguard tag --sort=-v:refname | head -1
 v5.1.0
 $ sed -n '72,87p' /home/lars/projects/cmdguard/go.mod

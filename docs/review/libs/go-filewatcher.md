@@ -120,9 +120,10 @@ None.
 ## How to verify
 
 ```console
-$ git -C /home/lars/projects/go-filewatcher log -1 --format='%H'
+$ git -C /home/lars/projects/go-filewatcher rev-parse 3c074addbe083d8061d47476e02867d3686c8b5b^{commit}
 3c074addbe083d8061d47476e02867d3686c8b5b
-$ git -C /home/lars/projects/go-filewatcher describe --tags
+# — the reviewed commit, pinned: the repository tip drifts under the fleet's auto-commit daemon
+$ git -C /home/lars/projects/go-filewatcher describe --tags 3c074addbe083d8061d47476e02867d3686c8b5b
 v2.5.0-7-g3c074ad
 $ git -C /home/lars/projects/go-filewatcher tag --list | tail -2
 v2.4.3
@@ -162,6 +163,6 @@ $ rg -in "watch|hot.reload|live.reload" /home/lars/projects/docs-gates/ROADMAP.m
 /home/lars/projects/docs-gates/TODO_LIST.md:94:| One deliberate --json timeout run: verify the watchdog line rides stderr and the stdout document stays pure post-LiveErrf                                                                                         | 🔴 `TODO`   | P3       | S      | 15-52 report §f.29                                        |
 /home/lars/projects/docs-gates/ROADMAP.md:24:  re-pinning the golden + provider tests together: a `watchdog` field on
 /home/lars/projects/docs-gates/ROADMAP.md:53:  writes are unwatched seams). TODO_LIST 8 row 1 carries the full text.
-$ git -C /home/lars/projects/go-filewatcher log -1 --format='%ci %h'
+$ git -C /home/lars/projects/go-filewatcher show -s --format='%ci %h' 3c074addbe083d8061d47476e02867d3686c8b5b
 2026-11-23 01:26:50 +0100 3c074ad
 ```
