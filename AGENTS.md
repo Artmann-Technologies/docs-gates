@@ -160,10 +160,21 @@ keep bare `FATAL: %v`.
   bump silently and rules ARE behavior — check on the new rev, THEN
   bump one input at a time.
 - **Buildflow's repair phase rewrites lockfiles; the daemon wraps the
-  damage** (paid 11-06 AND 11-14 — six inputs). Recovery: forward
-  `git restore --source=<good-sha> -- flake.lock` + OWN commit, tripwire
-  before trusting; hash fixes happen in erraudit via
+  damage** (paid 11-06, 11-14 AND 11-23 — erraudit input each time; the
+  11-23 bump 8831ce2 also failed to build the devShell). Recovery:
+  forward `git restore --source=<good-sha> -- flake.lock` + OWN commit,
+  tripwire before trusting; hash fixes happen in erraudit via
   `buildflow -s nix-hash-fix --fix` (done 11-14), never here.
+- **`buildflow format` does NOT cover golangci fmt** (golines/gci): a
+  format run can pass while gci/golines findings remain — finish with
+  `nix develop -c golangci-lint fmt ./...` and re-run the
+  golangci drill (paid 11-23: 17 findings, six were format-only
+  stragglers after `buildflow format`).
+- **Pre-commit stashes unstaged edits at commit time** — an unstaged
+  edit next to a staged rename rides the stash, not the commit (the
+  11-23 archive ritual committed pure renames first; the banners
+  needed `git add` + amend). Stage every ritual edit explicitly before
+  committing.
 - **Stale buildflow binary is the #1 silent root cause** (11-14: masked
   upstream fixes for hours) — `buildflow doctor`, rebuild + reinstall.
 - **The nix-fmt/treefmt roundtrip wedge is FIXED upstream** (2026-11-14;
