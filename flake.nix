@@ -116,6 +116,23 @@
             language = "unsupported";
             entry = "${pkgs.bash}/bin/bash -c 'PATH=${pkgs.${goPkgAttr}}/bin:$PATH GOTOOLCHAIN=local GOWORK=off GOPROXY=off GOCACHE=/tmp/dg-hooks-gocache GOPATH=/tmp/dg-hooks-gopath exec go run ./cmd/docs-gates run .'";
           };
+          # The commit-time leg of the rev tripwire: BuildFlow's repair
+          # phase (and a bare `nix flake update <input>`) rewrites
+          # flake.lock silently, and five damage events (11-06 .. 11-23)
+          # landed as commits before anyone ran the script. Firing the
+          # tripwire whenever flake.lock is staged makes the damage
+          # class REFUSE at commit time — daemon sweeps included —
+          # instead of surfacing at the next push-time flake check.
+          # Sandboxed-safe: the script only reads flake.lock and itself
+          # (bash + jq, no network, no go, no git).
+          hooks.erraudit-rev-tripwire = {
+            enable = true;
+            name = "erraudit-rev-tripwire";
+            files = "^flake\\.lock$";
+            pass_filenames = false;
+            language = "unsupported";
+            entry = "${pkgs.bash}/bin/bash -c 'PATH=${pkgs.jq}/bin:$PATH exec ${pkgs.bash}/bin/bash scripts/check-erraudit-rev.sh'";
+          };
         };
 
       # The legacy standalone binary names. Each wrapper execs the one
