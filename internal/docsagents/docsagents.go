@@ -171,6 +171,17 @@ func anyEnforcedFailure(findings []Finding, settings Settings) bool {
 	return false
 }
 
+// directoryAgentsError is the gate's static refusal for a misrouted
+// agents_file: a directory is not the agent contract, and a verdict
+// computed from a directory's mtime would lie.
+type directoryAgentsError struct {
+	file string
+}
+
+func (e *directoryAgentsError) Error() string {
+	return e.file + " is a directory, not the agent contract file"
+}
+
 // Finding is one agents-doc verdict: either the file is missing
 // (Missing, fail severity) or it aged past a bar ("warn" or "fail").
 type Finding struct {
@@ -194,7 +205,7 @@ func Scan(root string, settings Settings) ([]Finding, error) {
 	}
 
 	if info.IsDir() {
-		return nil, fmt.Errorf("%s is a directory, not the agent contract file", settings.File)
+		return nil, &directoryAgentsError{file: settings.File}
 	}
 
 	ageDays := int(settings.Now.Sub(info.ModTime()).Hours() / hoursPerDay)
