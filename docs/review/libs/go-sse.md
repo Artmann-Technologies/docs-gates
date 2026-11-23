@@ -150,8 +150,9 @@ $ rg -n 'text/event-stream|event-stream|"sse"' /home/lars/projects/docs-gates --
 
 # the nearest neighbor, confirmed non-SSE (whole-file Markdown FSM):
 $ rg -n "type tableScanner|strings.Split" /home/lars/projects/docs-gates/internal/docsrows/scan.go /home/lars/projects/docs-gates/internal/docsrows/rows.go
-155:type tableScanner struct {
-211:	lines := strings.Split(string(data), "\n")
+/home/lars/projects/docs-gates/internal/docsrows/rows.go:211:	lines := strings.Split(string(data), "\n")
+/home/lars/projects/docs-gates/internal/docsrows/scan.go:73:	parts := strings.Split(strings.Trim(masked, "|"), "|")
+/home/lars/projects/docs-gates/internal/docsrows/scan.go:155:type tableScanner struct {
 $ rg -n "io.ReadAll\(os.Stdin\)" /home/lars/projects/docs-gates/internal/docsfreshness/corpus.go
 26:	data, err := io.ReadAll(os.Stdin)
 ```

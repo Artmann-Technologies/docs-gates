@@ -167,9 +167,9 @@ $ rg -n "errorfamily|go-error-family" /home/lars/projects/docs-gates --type go -
 # rc=1, no matches (zero API use, root + provider)
 
 $ rg -n "go-error-family" /home/lars/projects/docs-gates/pkg/provider/go.mod /home/lars/projects/docs-gates/pkg/provider/go.sum
-pkg/provider/go.mod:10:require github.com/larsartmann/go-error-family v0.12.0 // indirect
-pkg/provider/go.sum:11:github.com/larsartmann/go-error-family v0.12.0 h1:HEtocvwaPe9udDusqDqV0pxN9Wx98KHQBK0MEHZupzg=
-pkg/provider/go.sum:12:github.com/larsartmann/go-error-family v0.12.0/go.mod h1:gB43rKC69SoPilihuze43OFqKYMGQxDNUi/25PF9MgE=
+/home/lars/projects/docs-gates/pkg/provider/go.sum:11:github.com/larsartmann/go-error-family v0.12.0 h1:HEtocvwaPe9udDusqDqV0pxN9Wx98KHQBK0MEHZupzg=
+/home/lars/projects/docs-gates/pkg/provider/go.sum:12:github.com/larsartmann/go-error-family v0.12.0/go.mod h1:gB43rKC69SoPilihuze43OFqKYMGQxDNUi/25PF9MgE=
+/home/lars/projects/docs-gates/pkg/provider/go.mod:10:require github.com/larsartmann/go-error-family v0.12.0 // indirect
 
 $ rg -n "errorfamily\." /home/lars/projects/go-finding/errors.go   # type surfacing through go-finding
 85:// ErrorCode implements errorfamily.Coded.
@@ -181,7 +181,7 @@ $ rg -n "errorfamily\." /home/lars/projects/go-finding/errors.go   # type surfac
 101:		return errorfamily.Infrastructure
 103:		return errorfamily.Transient
 $ rg -n "go-error-family" /home/lars/projects/go-finding/go.mod
-github.com/larsartmann/go-error-family v0.12.0
+6:	github.com/larsartmann/go-error-family v0.12.0
 $ rg -n "go-error-family" /home/lars/projects/erraudit/go.mod      # flake input consumer
 13:	github.com/larsartmann/go-error-family v0.12.0
 

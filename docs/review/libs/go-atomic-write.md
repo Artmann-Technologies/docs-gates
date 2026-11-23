@@ -130,7 +130,7 @@ $ git -C /home/lars/projects/go-atomic-write tag --list | tail -2
 v0.6.2
 v0.7.0
 
-$ rg -n "go-atomic-write|atomicwrite|atomic-write" /home/lars/projects/docs-gates -g '!docs/review/**'
+$ rg -n "go-atomic-write|atomicwrite|atomic-write" /home/lars/projects/docs-gates -g '!docs/review/**' -g '!TODO_LIST.md' -g '!AGENTS.md'
 /home/lars/projects/docs-gates/flake.lock:24:        "go-atomic-write": "go-atomic-write",
 /home/lars/projects/docs-gates/flake.lock:134:    "go-atomic-write": {
 /home/lars/projects/docs-gates/flake.lock:140:        "repo": "go-atomic-write",
@@ -140,6 +140,7 @@ $ rg -n "go-atomic-write|atomicwrite|atomic-write" /home/lars/projects/docs-gate
 /home/lars/projects/docs-gates/docs/status/archived/2026-11-06_00-33_io-surface-pilot-evaluation-session.md:67:   contract forbids go-atomic-write, blast radius one ledger row, guarded by
 /home/lars/projects/docs-gates/docs/status/archived/2026-11-06_00-33_io-surface-pilot-evaluation-session.md:185:2. **Is the no-atomic-write claim a decision or a deferral?** The
 /home/lars/projects/docs-gates/scripts/citation-sweep.py:39:    "go-atomic-write",
+# — TODO_LIST §10 and AGENTS.md also name the library in audit-routing prose (living docs, excluded so the transcript stays stable)
 $ rg -n "atomic" /home/lars/projects/docs-gates/go.mod /home/lars/projects/docs-gates/pkg/provider/go.mod /home/lars/projects/docs-gates/pkg/provider/go.sum
 # rc=1
 

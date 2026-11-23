@@ -137,15 +137,16 @@ None.
 $ git -C /home/lars/projects/go-idempotency log -1 --format='%H'
 8fd593eef46b1f50f6ee7138f639c915a5392f08
 $ git -C /home/lars/projects/go-idempotency tag --list | tail -3
+v0.4.0
 v0.5.0
 v0.6.0
 $ git -C /home/lars/projects/go-idempotency describe --tags
-idemtest/v0.1.1-5-g8fd593e   # nearest tag is the nested idemtest/v0.1.1; root tag v0.6.0 exists
+idemtest/v0.1.1-5-g8fd593e
 
 $ rg -n "idempotency|go-idempotency|idemtest" /home/lars/projects/docs-gates --type go -g '!docs/review/**'
 # rc=1 (zero Go-file hits)
 $ rg -n "go-idempotency" /home/lars/projects/docs-gates -g '!docs/review/**'
-scripts/citation-sweep.py:31:    "go-idempotency",        # audit-fleet scaffolding only
+/home/lars/projects/docs-gates/scripts/citation-sweep.py:31:    "go-idempotency",
 $ rg -n "go-idempotency" /home/lars/projects/docs-gates/go.mod /home/lars/projects/docs-gates/pkg/provider/go.mod /home/lars/projects/docs-gates/pkg/provider/go.sum
 # rc=1 (not in any module graph)
 
@@ -157,10 +158,9 @@ $ rg -n "already carries|refusing to double" /home/lars/projects/docs-gates/inte
 /home/lars/projects/docs-gates/internal/docsstrike/docsstrike.go:25://	  - A row that already carries ~~ is refused (never double-strike).
 /home/lars/projects/docs-gates/internal/docsannotate/settings.go:74:	// Defaults() anyway, so s already carries the resolved list.
 $ rg -n "func IsOpenCell|func IsDoneCell" /home/lars/projects/docs-gates/internal --type go
-internal/docscadence/classify.go:52:func IsDoneCell(cell string) bool {
-internal/docscadence/classify.go:66:func IsOpenCell(cell string) bool {
+/home/lars/projects/docs-gates/internal/docscadence/classify.go:52:func IsDoneCell(cell string) bool {
+/home/lars/projects/docs-gates/internal/docscadence/classify.go:66:func IsOpenCell(cell string) bool {
 
-# dry-run-default write sites:
 $ rg -n "os.WriteFile" /home/lars/projects/docs-gates/internal --type go | rg -v _test
 /home/lars/projects/docs-gates/internal/docsarchive/docsarchive.go:229:	return os.WriteFile( //nolint:gosec // G306,G703: the mode IS the source file's; the path argument IS the tool's input contract
 /home/lars/projects/docs-gates/internal/docspurge/docspurge_collect.go:192:	return os.WriteFile( //nolint:gosec // G306,G703: the mode IS the source file's; the path argument IS the tool's input contract

@@ -925,7 +925,7 @@
             <div class="stat-label">Verify commands replayed exactly</div>
           </div>
           <div class="stat-card stat-good">
-            <div class="stat-value">724</div>
+            <div class="stat-value">702</div>
             <div class="stat-label">Citations resolved and in bounds</div>
           </div>
         </div>
@@ -978,7 +978,8 @@
             everything, nobody benefits from collective improvements. This run found
             almost none of that debt. What it did find are five small fixes that
             make the battery sturdier and the fleet's shared lessons visible inside
-            docs-gates. They are ranked below.
+            docs-gates. One landed with this audit; four are rows in TODO_LIST §10.
+            They are ranked below.
           </p>
         </div>
 
@@ -1077,21 +1078,21 @@
               </tr>
               <tr>
                 <td>9</td>
-                <td><a href="go-credentials-store.md">go-credentials-store</a></td>
-                <td>v0.4.3</td>
-                <td><span class="badge badge-low">NOT-APPLICABLE</span></td>
-                <td>0 / 0</td>
-                <td>10</td>
-                <td>The binary holds no secrets, tokens or credentials; the insulation is the security posture.</td>
-              </tr>
-              <tr>
-                <td>10</td>
                 <td><a href="go-cqrs-lite.md">go-cqrs-lite</a></td>
                 <td>HEAD 35856a7 (no root tag)</td>
                 <td><span class="badge badge-low">NOT-APPLICABLE</span></td>
                 <td>0 / 1</td>
                 <td>10</td>
                 <td>Event-sourcing engine vs a stateless exit-code battery; memoized replays, ratchets, watchdog and settings-projection are rhyme, not duplication.</td>
+              </tr>
+              <tr>
+                <td>10</td>
+                <td><a href="go-credentials-store.md">go-credentials-store</a></td>
+                <td>v0.4.3</td>
+                <td><span class="badge badge-low">NOT-APPLICABLE</span></td>
+                <td>0 / 0</td>
+                <td>10</td>
+                <td>The binary holds no secrets, tokens or credentials; the insulation is the security posture.</td>
               </tr>
               <tr>
                 <td>11</td>
@@ -1354,8 +1355,9 @@
         <!-- Ranked opportunities -->
         <h2 id="opportunities"><span class="num">05</span>Ranked opportunities</h2>
         <p>
-          Five findings survived the audit. All are zero-dependency and respect the
-          root contract. Sorted by impact: the two important items first.
+        Five findings survived the audit. All are zero-dependency and respect the
+        root contract. Sorted by impact: the two important items first. Four are
+        routed as TODO_LIST §10 rows; the fifth landed with this audit.
         </p>
 
         <div class="issue issue-important">
@@ -1432,7 +1434,7 @@
 
         <div class="issue issue-nice">
           <span class="severity severity-nice">Nice to have</span>
-          <h3>5. Record the torn-write residual as a standing decision</h3>
+          <h3>5. Record the torn-write residual as a standing decision <span class="badge badge-fixed">Landed</span></h3>
           <div class="where">AGENTS.md, the &ldquo;Deliberate non-fixes&rdquo; bullet &middot; found in <a href="go-atomic-write.md">go-atomic-write.md</a></div>
           <p>
             The four mutator writes are plain <code>os.WriteFile</code> under
@@ -1441,9 +1443,10 @@
             visible where a reader looks for standing decisions.
           </p>
           <div class="callout callout-solution">
-            <strong>Fix</strong>
-            One line in AGENTS.md next to the existing <code>Truncate</code> entry, so
-            the next audit does not re-derive it.
+            <strong>Done in this audit</strong>
+            AGENTS.md's &ldquo;Deliberate non-fixes&rdquo; bullet now carries the line next to
+            the existing <code>Truncate</code> entry, so the next audit does not
+            re-derive it.
           </div>
         </div>
 
@@ -1470,8 +1473,8 @@
               <tr><td><a href="go-error-family.md">go-error-family</a></td><td>erraudit or a fleet convention requires errorfamily interfaces (<code>Coded</code>, <code>Classified</code>); adopt first in <code>pkg/provider</code>.</td></tr>
               <tr><td><a href="go-output.md">go-output</a></td><td>A verb's output format is user-selected or its output is a real data table, in its own nested module.</td></tr>
               <tr><td><a href="cqrs-htmx.md">cqrs-htmx</a></td><td>A fleet-facing docs-gates console with auth, dashboards and history is greenlit.</td></tr>
-              <tr><td><a href="go-credentials-store.md">go-credentials-store</a></td><td>Never for the gate surface; only an authenticated serving module that must hold credentials.</td></tr>
               <tr><td><a href="go-cqrs-lite.md">go-cqrs-lite</a></td><td>A verdict-history or timeline product needs derived views over accumulated battery runs.</td></tr>
+              <tr><td><a href="go-credentials-store.md">go-credentials-store</a></td><td>Never for the gate surface; only an authenticated serving module that must hold credentials.</td></tr>
               <tr><td><a href="go-daemon.md">go-daemon</a></td><td>A resident <code>docs-gates serve</code> mode exposes the battery over a unix socket.</td></tr>
               <tr><td><a href="go-datastar.md">go-datastar</a></td><td>The fleet builds a live docs-health dashboard as a separate product that shells out to the binary.</td></tr>
               <tr><td><a href="go-etag.md">go-etag</a></td><td>docs-gates, or more likely a sibling fleet service, grows an HTTP surface.</td></tr>
@@ -1507,11 +1510,11 @@
             <tr>
               <td><code>python3 scripts/citation-sweep.py</code></td>
               <td>Every <code>path:line</code> citation in the 23 reports names a real file, in docs-gates or a library checkout, with the line range in bounds.</td>
-              <td><span class="badge badge-fixed">724 citations resolve</span></td>
+              <td><span class="badge badge-fixed">702 citations resolve</span></td>
             </tr>
             <tr>
               <td><code>python3 scripts/replay-verify.py</code></td>
-              <td>Every command in every &ldquo;How to verify&rdquo; transcript re-runs read-only and reproduces its printed output exactly.</td>
+              <td>Every command in every &ldquo;How to verify&rdquo; transcript re-runs read-only and reproduces its printed output exactly (strict, order-insensitive).</td>
               <td><span class="badge badge-fixed">196 of 196 replay exactly</span></td>
             </tr>
             <tr>
@@ -1556,7 +1559,7 @@ rg -n "func editDistance" cmd/ /home/lars/projects/cmdguard/pkg   <span class="t
         <footer class="footer">
           Generated 2026-11-23 &middot; Audited against docs-gates @ adfa9c8 (baseline
           commit; the auto-commit daemon moves HEAD) &middot; Bauhaus dark dashboard from
-          the html-report-kit &middot; <a href="index-screenshot.png">Full-page render trace</a>
+          the html-report-kit &middot; <a href="index-screenshot.webp">Full-page render trace</a>
         </footer>
       </main>
     </div>

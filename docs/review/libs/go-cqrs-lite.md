@@ -150,19 +150,18 @@ system/v4/v4.19.0
 $ rg -n "larsartmann/go-cqrs-lite" /home/lars/projects/docs-gates --hidden -g '!.git' -g '!docs/review/**'
 # rc=1 — zero module-path hits
 $ rg -n "go-cqrs-lite" /home/lars/projects/docs-gates --hidden -g '!.git' -g '!docs/review/**' -g '!docs/planning/**'
-scripts/citation-sweep.py:49:    "go-cqrs-lite",
-docs/status/2026-11-14_18-00_whole-board-second-batch-ux-external-release.md:23:- **go-finding/toolsdk**: the race build-tag idiom (go-cqrs-lite's canonical `RaceEnabled`) contributed as `race_on.go`/`race_off.go` — fleet providers stop copying it locally; green under both `-race` and without. Pushed 8562d6b.
-# scaffolding list + one fleet-flow status note; zero imports
+/home/lars/projects/docs-gates/docs/status/2026-11-14_18-00_whole-board-second-batch-ux-external-release.md:23:- **go-finding/toolsdk**: the race build-tag idiom (go-cqrs-lite's canonical `RaceEnabled`) contributed as `race_on.go`/`race_off.go` — fleet providers stop copying it locally; green under both `-race` and without. Pushed 8562d6b.
+/home/lars/projects/docs-gates/scripts/citation-sweep.py:49:    "go-cqrs-lite",
 
-# the rhyme, consumer side (memoized per-distinct-token replay — NOT a projection):
 $ sed -n '81,86p' /home/lars/projects/docs-gates/internal/docsfreshness/corpus.go
 type Corpus struct {
 	lines    []string
 	squashed []string
 	present  map[string]bool // token -> Contains verdict (memoized)
 	df       map[string]int  // token -> raw-line document frequency (memoized)
+}
 $ rg -n "memoized replays" /home/lars/projects/docs-gates/AGENTS.md
-187:  | wc -l`; memoized replays: one scan per DISTINCT token, hours → 49s).
+202:  | wc -l`; memoized replays: one scan per DISTINCT token, hours → 49s).
 $ rg -n "RATCHET" /home/lars/projects/docs-gates/internal/docsannotate/docsannotate.go | head -2
 229:// adoption ratchet: tolerated pins print RATCHET and stay green, counts
 239:			"docs-annotate: RATCHET — %d finding(s) tolerated (pinned --annotate-max=%d); red only past %d\n",

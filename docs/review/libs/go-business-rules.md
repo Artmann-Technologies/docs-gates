@@ -156,8 +156,11 @@ $ rg -n "business-rules" /home/lars/projects/docs-gates/go.mod /home/lars/projec
 
 # consumer's severity/rollout surface (spot-check):
 $ rg -n "_enforce" /home/lars/projects/docs-gates/internal/config/known_keys.go
-34: "stub_enforce": true, … 37: "citation_enforce": true, … 41: "stamp_enforce": true,
-43: "vocabulary_enforce": true, … 47: "agents_enforce": true,
+34:		"stub_enforce":         true,
+37:		"citation_enforce":     true,
+41:		"stamp_enforce":        true,
+43:		"vocabulary_enforce":   true,
+47:		"agents_enforce":       true,
 $ rg -n "severityWarn|verdictPass|RATCHET" /home/lars/projects/docs-gates/internal --type go | rg -v _test
 /home/lars/projects/docs-gates/internal/docsagents/docsagents.go:39:	severityWarn = "warn"
 /home/lars/projects/docs-gates/internal/docsagents/docsagents.go:216:	severity := severityWarn

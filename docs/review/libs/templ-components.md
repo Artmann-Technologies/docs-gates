@@ -128,11 +128,13 @@ chromedp dependency would be absurd inside the root contract.)
 
 ```console
 $ git -C /home/lars/projects/templ-components log -1 --format='%H'
-cf725c9decb30c8663f1cc429b84adef4af7fe3d   # checkout tip (2 docs-only commits past the fleet-manifest HEAD d8722176)
+cf725c9decb30c8663f1cc429b84adef4af7fe3d
 $ git -C /home/lars/projects/templ-components rev-parse d87221760214cd7bb6ced4c55966f7a651bb3296
-d87221760214cd7bb6ced4c55966f7a651bb3296   # fleet-manifest HEAD exists; diff since = docs + .gitignore only
+d87221760214cd7bb6ced4c55966f7a651bb3296
 $ git -C /home/lars/projects/templ-components tag --list 'v1.27.*'
-v1.27.0 v1.27.1 v1.27.2                     # latest local tag confirmed
+v1.27.0
+v1.27.1
+v1.27.2
 
 $ rg -n "larsartmann/templ-components|a-h/templ" /home/lars/projects/docs-gates --hidden -g '!.git' -g '!docs/review/**'
 # rc=1 — zero hits in code and module graphs

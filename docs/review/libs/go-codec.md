@@ -138,7 +138,7 @@ None.
 $ git -C /home/lars/projects/go-codec log -1 --format='%H'
 8d7a27477cb309633690699d3b719895cf82b256
 $ git -C /home/lars/projects/go-codec describe --tags
-v0.3.4   # HEAD == tag exactly
+v0.3.4
 
 $ rg -n "github.com/larsartmann/go-codec" /home/lars/projects/docs-gates --hidden -g '!.git' -g '!docs/review/**'
 # rc=1 — zero hits (prose mentions of the erraudit precedent are

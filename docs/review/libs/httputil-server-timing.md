@@ -148,9 +148,8 @@ $ rg -n "start := time.Now|elapsed := time.Since|DurationMS" /home/lars/projects
 197:		start := time.Now()
 203:		elapsed := time.Since(start)
 255:	DurationMS int64  `json:"duration_ms"`
-$ rg -n "func CaptureOutputWithTimeout|func startHalfBudgetWatchdog" \
-   /home/lars/projects/docs-gates/internal/gatecli/gatecli_capture.go \
-   /home/lars/projects/docs-gates/internal/battery/battery_watchdog.go
-121:func CaptureOutputWithTimeout(fn func() int, timeout time.Duration) (CapturedOutput, bool) {
-25:func startHalfBudgetWatchdog(gateName string, timeout time.Duration, warnf func(string, ...any)) func() {
+287:			DurationMS: row.duration.Milliseconds(),
+$ rg -n "func CaptureOutputWithTimeout|func startHalfBudgetWatchdog" /home/lars/projects/docs-gates/internal/gatecli/gatecli_capture.go /home/lars/projects/docs-gates/internal/battery/battery_watchdog.go
+/home/lars/projects/docs-gates/internal/battery/battery_watchdog.go:25:func startHalfBudgetWatchdog(gateName string, timeout time.Duration, warnf func(string, ...any)) func() {
+/home/lars/projects/docs-gates/internal/gatecli/gatecli_capture.go:121:func CaptureOutputWithTimeout(fn func() int, timeout time.Duration) (CapturedOutput, bool) {
 ```

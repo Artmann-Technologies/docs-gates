@@ -148,8 +148,8 @@ $ rg -n "go-etag" /home/lars/projects/docs-gates/go.mod /home/lars/projects/docs
 
 # the consumer's only hashing (fingerprinting, not validators):
 $ rg -n "crypto/md5|crypto/sha256" /home/lars/projects/docs-gates/internal --type go | rg -v _test
-internal/docsstub/docsstub.go:20: "crypto/md5" //nolint:gosec // checksum identity, not security
-internal/docsstub/docsstub.go:21: "crypto/sha256"
+/home/lars/projects/docs-gates/internal/docsstub/docsstub.go:20:	"crypto/md5" //nolint:gosec // checksum identity, not security
+/home/lars/projects/docs-gates/internal/docsstub/docsstub.go:21:	"crypto/sha256"
 $ rg -n '"go-etag"' /home/lars/projects/docs-gates/scripts/citation-sweep.py
-34:    "go-etag",          # audit-fleet scaffolding mention only, same as the other four libs
+34:    "go-etag",
 ```

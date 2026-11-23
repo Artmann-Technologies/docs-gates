@@ -127,15 +127,14 @@ def strip_annotation(line: str) -> str:
 
 
 def matches(expected: list[str], actual: list[str]) -> bool:
-    """Every transcript line must correspond to a real output line."""
-    if not expected:
-        return not actual
-    for line in expected:
-        candidates = [normalize(line), normalize(strip_annotation(line))]
-        candidates = [c for c in candidates if c]
-        if not any(c == a or c.startswith(a) or a.endswith(c) for c in candidates for a in actual):
-            return False
-    return True
+    """Strict: the transcript must show exactly the real output lines.
+
+    Compared as multisets (a multi-file ``rg`` search returns files in a
+    nondeterministic order) after whitespace is ignored and any trailing
+    auditor note is removed.
+    """
+    want = sorted(normalize(strip_annotation(line)) for line in expected)
+    return want == sorted(actual)
 
 
 def main() -> int:

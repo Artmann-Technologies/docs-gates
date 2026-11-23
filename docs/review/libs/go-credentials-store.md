@@ -116,13 +116,13 @@ None.
 
 ```console
 $ git -C /home/lars/projects/go-credentials-store log -1 --format='%H'
-f9c11ce694762fa66aba2410a1672a8d01a3b7ff   # daemon moved past the audited 6d7caad baseline
+f9c11ce694762fa66aba2410a1672a8d01a3b7ff
 $ git -C /home/lars/projects/go-credentials-store tag --sort=-v:refname | head -1
 v0.4.3
 $ git -C /home/lars/projects/go-credentials-store log --format='%h %s' v0.4.3..HEAD | head -6
 f9c11ce chore: auto-commit 1 changed file(s) (heuristic)
 48459d1 chore: auto-commit 2 changed file(s) (heuristic)
-6d7caad chore: auto-commit 2 changed file(s) (heuristic)   # ← audited baseline
+6d7caad chore: auto-commit 2 changed file(s) (heuristic)
 a224d9e chore: auto-commit 2 changed file(s) (heuristic)
 e0cbb82 chore: auto-commit 2 changed file(s) (heuristic)
 0ad3c6b chore: auto-commit 2 changed file(s) (heuristic)
@@ -163,22 +163,19 @@ require (
 $ rg -n "go-credentials-store" -g '*.go' -g 'go.mod' -g 'go.sum' /home/lars/projects/docs-gates
 # rc=1 — zero references in either module
 $ rg -n "os.Getenv|os.LookupEnv" -g '*.go' /home/lars/projects/docs-gates
-pkg/provider/e2e_test.go:111:	t.Setenv("PATH", binDir+string(os.PathListSeparator)+os.Getenv("PATH"))
-pkg/provider/provider_test.go:29:	t.Setenv("PATH", dir+string(os.PathListSeparator)+os.Getenv("PATH"))
-internal/battery/parity_test.go:189:	update := os.Getenv("PARITY_UPDATE") != ""
-# test-only — zero env reads in production code
+/home/lars/projects/docs-gates/pkg/provider/e2e_test.go:111:	t.Setenv("PATH", binDir+string(os.PathListSeparator)+os.Getenv("PATH"))
+/home/lars/projects/docs-gates/pkg/provider/provider_test.go:29:	t.Setenv("PATH", dir+string(os.PathListSeparator)+os.Getenv("PATH"))
+/home/lars/projects/docs-gates/internal/battery/parity_test.go:189:	update := os.Getenv("PARITY_UPDATE") != ""
 
 $ rg -in "token|secret|password|credential" -g '*.go' --glob '!*_test.go' /home/lars/projects/docs-gates | head -4
-cmd/docs-gates/verbs.go:117:      verbVocabulary: "FEATURES status tokens must come from the file's own legend",
-internal/docsvocabulary/docsvocabulary.go:2:   // status tokens the file's own legend never defines.
-internal/docsvocabulary/docsvocabulary.go:9:  // column must only contain tokens the file's own "## Status legend"
-internal/docsvocabulary/docsvocabulary.go:53:const Usage = `docs-vocabulary — FEATURES status tokens must come from the file's own legend
-# every hit is domain vocabulary (status tokens / tokenizer words), zero secrets
+/home/lars/projects/docs-gates/cmd/docs-gates/verbs.go:117:	verbVocabulary: "FEATURES status tokens must come from the file's own legend",
+/home/lars/projects/docs-gates/internal/docsvocabulary/docsvocabulary.go:2:// status tokens the file's own legend never defines.
+/home/lars/projects/docs-gates/internal/docsvocabulary/docsvocabulary.go:9:// column must only contain tokens the file's own "## Status legend"
+/home/lars/projects/docs-gates/internal/docsvocabulary/docsvocabulary.go:53:const Usage = `docs-vocabulary — FEATURES status tokens must come from the file's own legend
 
-# every exec site (all literal, local, no credentials):
 $ rg -n "exec.CommandContext" -g '*.go' /home/lars/projects/docs-gates | rg -v _test.go
-internal/docsarchive/docsarchive.go:203:		cmd := exec.CommandContext(context.Background(), "git", "-C", root, "mv", "--", report.rel, destRel)
-internal/docsannotate/git.go:25:	cmd := exec.CommandContext(context.Background(), "git", append([]string{"-C", g.root}, args...)...)
-internal/docsfreshness/preflight_land.go:74:	probe := exec.CommandContext(
-pkg/provider/provider.go:149:	cmd := exec.CommandContext( //nolint:gosec // constant binary, not user input
+/home/lars/projects/docs-gates/pkg/provider/provider.go:149:	cmd := exec.CommandContext( //nolint:gosec // constant binary, not user input
+/home/lars/projects/docs-gates/internal/docsarchive/docsarchive.go:203:		cmd := exec.CommandContext(context.Background(), "git", "-C", root, "mv", "--", report.rel, destRel)
+/home/lars/projects/docs-gates/internal/docsannotate/git.go:25:	cmd := exec.CommandContext(context.Background(), "git", append([]string{"-C", g.root}, args...)...)
+/home/lars/projects/docs-gates/internal/docsfreshness/preflight_land.go:74:	probe := exec.CommandContext(
 ```

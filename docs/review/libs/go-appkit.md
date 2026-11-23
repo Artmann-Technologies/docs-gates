@@ -130,20 +130,20 @@ inside docs-gates; keeping them green IS the fleet-leverage play here.)
 
 ```console
 $ git -C /home/lars/projects/go-appkit rev-parse 74e4d8011c6c275bb9e3115384ab951ed9d66d0a
-74e4d8011c6c275bb9e3115384ab951ed9d66d0a   # fleet-manifest HEAD exists on the branch (the tip is deliberately not pinned: it drifts under the fleet's auto-commit daemon)
+74e4d8011c6c275bb9e3115384ab951ed9d66d0a
 $ git -C /home/lars/projects/go-appkit describe --tags 74e4d8011c6c275bb9e3115384ab951ed9d66d0a
 cqrs/v0.10.0-7-g74e4d80
 
 $ rg -n "larsartmann/go-appkit" /home/lars/projects/docs-gates --hidden -g '!.git' -g '!docs/review/**'
 # rc=1 — zero module-path hits in code or module graphs
-$ rg -n "go-appkit" /home/lars/projects/docs-gates --hidden -g '!.git' -g '!docs/review/**' -g '!docs/planning/**' -g '!docs/status/**' | cut -d: -f1 | sort | uniq -c
+$ rg -n "go-appkit" /home/lars/projects/docs-gates --hidden -g '!.git' -g '!docs/review/**' -g '!docs/planning/**' -g '!docs/status/**' -g '!AGENTS.md' -g '!TODO_LIST.md' | cut -d: -f1 | sort | uniq -c
       4 /home/lars/projects/docs-gates/CHANGELOG.md
       1 /home/lars/projects/docs-gates/FEATURES.md
       1 /home/lars/projects/docs-gates/internal/docsfreshness/bench_test.go
       1 /home/lars/projects/docs-gates/README.md
       1 /home/lars/projects/docs-gates/ROADMAP.md
       1 /home/lars/projects/docs-gates/scripts/citation-sweep.py
-      1 /home/lars/projects/docs-gates/TODO_LIST.md
+# — AGENTS.md and TODO_LIST.md also carry the bare name in audit-routing prose (living docs, excluded for stability)
 
 $ sed -n '3,8p' /home/lars/projects/docs-gates/internal/config/config.go
 //

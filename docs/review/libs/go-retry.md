@@ -147,8 +147,8 @@ $ rg -n "go-retry" /home/lars/projects/docs-gates/go.mod /home/lars/projects/doc
 $ rg -n "time\.Sleep" /home/lars/projects/docs-gates --type go | rg -v _test
 # rc=1 — no sleep in non-test code
 $ rg -n "time\.NewTimer|time\.After|time\.Ticker" /home/lars/projects/docs-gates --type go | rg -v _test
-internal/battery/battery_watchdog.go:33:  timer := time.NewTimer(timeout / halfBudgetDivisor)
-internal/gatecli/gatecli_capture.go:141:  timer := time.NewTimer(timeout)
+/home/lars/projects/docs-gates/internal/battery/battery_watchdog.go:33:		timer := time.NewTimer(timeout / halfBudgetDivisor)
+/home/lars/projects/docs-gates/internal/gatecli/gatecli_capture.go:141:	timer := time.NewTimer(timeout)
 # — two one-shot watchdogs; no retry loops (the docsarchive.go:143 `for` is a glob-entry iteration)
 
 $ sed -n 18,40p /home/lars/projects/docs-gates/internal/docsannotate/git.go

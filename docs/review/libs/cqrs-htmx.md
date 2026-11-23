@@ -127,7 +127,9 @@ AGENTS.md:203-204; there is no code opportunity.)
 $ git -C /home/lars/projects/cqrs-htmx log -1 --format='%H'
 4b9803326337945cce87f68a040bfa8bae9d7474
 $ git -C /home/lars/projects/cqrs-htmx tag --list 'v4.*' | sort -V | tail -3
-v4.18.0 v4.18.1 v4.19.0
+v4.18.0
+v4.18.1
+v4.19.0
 $ head -2 /home/lars/projects/cqrs-htmx/go.mod
 //cqrs-lint:ignore(E003) identity-model is intentionally a cohesive pure-domain package (IDs, events, commands, fold); splitting would break usermgmt's alias/re-export architecture
 module github.com/larsartmann/cqrs-htmx/v4
@@ -135,11 +137,9 @@ module github.com/larsartmann/cqrs-htmx/v4
 $ rg -n "larsartmann/cqrs-htmx" /home/lars/projects/docs-gates --hidden -g '!.git' -g '!docs/review/**'
 # rc=1 — zero module-path hits
 $ rg -n "cqrs-htmx" /home/lars/projects/docs-gates --hidden -g '!.git' -g '!docs/review/**'
-docs/planning/2026-11-15_marker-grammar-and-tooling-split.md:77:| PATH / wrapper                   | 9           | cqrs-htmx, go-taskqueue, GoReleaser-Wizard, monitor365-ui-sdk, nixos-modules, ratsgedaechtnis, storbi, timesheets, touchbase                               |
-scripts/citation-sweep.py:50:    "cqrs-htmx",
-# the adoption survey + the audit scaffolding list; zero imports
+/home/lars/projects/docs-gates/scripts/citation-sweep.py:50:    "cqrs-htmx",
+/home/lars/projects/docs-gates/docs/planning/2026-11-15_marker-grammar-and-tooling-split.md:77:| PATH / wrapper                   | 9           | cqrs-htmx, go-taskqueue, GoReleaser-Wizard, monitor365-ui-sdk, nixos-modules, ratsgedaechtnis, storbi, timesheets, touchbase                               |
 
-# the rhyme, library side (readiness gating on projection catch-up):
 $ sed -n '11,16p' /home/lars/projects/cqrs-htmx/projection_readiness.go
 // They mirror projectionhost/v4's WorkerStatus values one-to-one; the string
 // form is the published wire vocabulary (ProjectionStatusHandler JSON, health
