@@ -33,6 +33,10 @@ NOT-APPLICABLE — go-datastar is the server side of a hypermedia protocol (SSE-
 
 The Go server-side vocabulary of the DataStar hypermedia protocol: DOM patches, signal updates, and script executions pushed to the browser as Server-Sent Events over go-sse. Its differentiating bet is that "patches are values, not method calls" — every patch implements `Patch` and can be built offline from any connection (go-datastar/patch.go:25), then routed through a broadcaster with reconnection replay (go-datastar/broadcast/broadcaster.go:57, ring-buffer capacity at go-datastar/broadcast/options.go:63), persisted, or filtered per subscriber. The [Unreleased] section is an activity-feed showcase exercising exactly that pipeline (go-datastar/CHANGELOG.md:8-19). Everything it offers presumes an HTTP response stream and a browser on the other end.
 
+### Release shape and the official-SDK comparison (context, not a case for adoption)
+
+The library cuts its four modules in lockstep — v0.7.0 was a deliberate "full four-module lockstep cut" repairing a root-only v0.6.3 release defect (go-datastar/CHANGELOG.md:27-31). Against the official `starfederation/datastar-go` SDK it differentiates on broadcast/replay/filtering plus error-family classification, and concedes built-in compression and first-party cadence (its own README comparison). None of those axes exist for a consumer with no HTTP handler: the comparison is included only to show the library's entire design center — connection lifecycles, subscriber fan-out, reconnect state — is orthogonal to a terminal verb dispatcher.
+
 ## What docs-gates does today
 
 Zero usage, zero presence in either module graph. Verified:

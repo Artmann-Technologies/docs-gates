@@ -34,6 +34,10 @@ NOT-APPLICABLE — docs-gates is a run-to-completion CLI with no socket, no list
 
 The extracted lifecycle chassis of a proven unix-socket daemon: `Start` owns an explicit ordering — stale-socket cleanup, listen, readiness probe, `sd_notify READY=1`, graceful drain inside `WithShutdownGracePeriod`, socket removal on EVERY exit path (go-daemon/socket.go:50-51, :207). Around it sit the serving ancillaries a real daemon accumulates: negotiated response codecs with pooled-buffer writes (go-daemon/write.go:29-66), a WPT-corpus-pinned SSE parser for streaming endpoints (go-daemon/sse.go:42), and an execution-trace flight recorder with slow-request triggers (go-daemon/flightrecorder.go:57-165). "Mechanism, not policy" is its own README framing — it wants a long-lived process to govern.
 
+### What [Unreleased] signals about its direction
+
+The head of its changelog adds `JSONv2Codec` and injectable negotiation codecs (`WithJSONCodec`/`WithCBORCodec`) so consumers keep json/v2 semantics while adopting content negotiation (go-daemon/CHANGELOG.md:8-19). The trajectory is deeper serving-protocol flexibility — further from a batch CLI's needs, not closer; every unreleased item presumes an `http.Request`/`http.ResponseWriter` pair that docs-gates will never construct.
+
 ## What docs-gates does today
 
 Zero usage, zero presence in either module graph. Verified:

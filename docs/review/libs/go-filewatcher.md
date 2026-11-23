@@ -34,6 +34,15 @@ NOT-APPLICABLE — docs-gates is a point-in-time batch judge by doctrine (every 
 
 A production wrapper around fsnotify: `New` walks paths and registers watches (go-filewatcher/watcher.go:237), `Watch(ctx)` runs the event loop into a buffered channel (go-filewatcher/watcher.go:369), and every event passes a composable filter chain plus up to 19 middleware (logging, panic recovery, rate limiting) before delivery. Its differentiators are resilience legs the raw library lacks: ENOSPC watch-limit handling with a circuit breaker and a `Healthy()` probe (added v2.5.0, go-filewatcher/CHANGELOG.md:5), periodic re-registration of failed paths (go-filewatcher/watcher_selfheal.go:11-20), and an NFS/FUSE polling fallback (go-filewatcher/options.go:209-232). It is built for processes whose MAIN LOOP is event consumption — build tools, config reloaders, log shippers.
 
+### The option surface, grouped (to show the full breadth being declined)
+
+- **Delivery shaping**: `WithDebounce`/`WithPerPathDebounce` (coalesce editor-save bursts), `WithBuffer`/`WithErrorBufferSize` (channel sizing), `WithEventChannelMode` (go-filewatcher/options.go:24-36, :137-150, :311).
+- **Event selection**: `WithExtensions`, `WithIgnoreDirs`, `WithIgnoreHidden`, `WithIgnorePatterns`, `WithFilter` composition, `WithGitignore` (go-filewatcher/options.go:46-72, :195, :349).
+- **Resilience**: `WithCircuitBreaker`, `WithMaxWatches` (+ safety fraction), `WithSelfHeal`-driven retry loop, `WithPolling`/`WithPollInterval`, `WithCaseSensitivity` (go-filewatcher/options.go:104, :380-398, :209-232, :370).
+- **Observability/error paths**: `WithMiddleware` (19 built-ins; recovery, logging, rate-limit at go-filewatcher/middleware.go:39-123), `WithOnError`/`WithErrorHandler`/`WithOnAdd`, `WithDebug` slog, `WithContentHashing` for change detection beyond mtime (go-filewatcher/options.go:118-173, :245, :418).
+
+Every group presumes a live watcher instance held across time; every group is inert in a binary whose every execution path ends in `os.Exit`-equivalent within seconds.
+
 ## What docs-gates does today
 
 Zero usage, zero presence in either module graph. Verified:
