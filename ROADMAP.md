@@ -114,7 +114,7 @@ instruments should live.
 - **devShell interpreter**: Provide `python3` inside the nix devShell: today the interpreter leaks in from the host profile
 - **Bare follow-on cites**: Teach `citation-sweep.py` to resolve bare follow-on cites such as `:188-189` after a filename — one such cite escaped every tool
 - **Citation content mode**: Add a content mode to the citation sweep that prints each cited line, so wrong-content cites can be reviewed
-- **Anchor-only transcripts**: Emit anchor-only output for living docs in verify transcripts (`rg -N`) so AGENTS.md and TODO_LIST edits stop drifting them
+- **Pinned transcripts**: Pin every verify transcript that reads a mutable file to the reviewed commit (`git grep <sha>`, `git show <sha>:path`): 13 read living docs or checkouts and three went stale when this report's own harvest landed
 - **Fleet-facts script**: Ship the fleet-facts derivation as a script: semver-sorted tags per submodule, HEADs, upstream drift, module names read without the `head -1` comment bug
 - **Transcript literalizer**: Ship the transcript literalizer (`replay-verify --fix`, read-only guarded) that currently lives only in `/tmp`
 - **Audited-subjects manifest**: One audited-subjects manifest consumed by the sweep's library list, the dashboard builder and the facts script — three lists today
