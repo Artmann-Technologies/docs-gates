@@ -135,7 +135,7 @@ v0.7.1-6-gbe01b8a
 $ git -C /home/lars/projects/go-etag tag --list | tail -2
 v0.7.0
 v0.7.1
-$ git -C /home/lars/projects/go-etag tag --list "client/*" "entitytag/*" "server/*" "metrics/*" | sort | tail -4
+$ git -C /home/lars/projects/go-etag tag --list 'client/v*' 'entitytag/v*' 'metrics/v*' 'server/v*' | sort -V | rg 'v0\.6\.2$'
 client/v0.6.2
 entitytag/v0.6.2
 metrics/v0.6.2

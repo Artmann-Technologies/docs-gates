@@ -127,8 +127,38 @@ a224d9e chore: auto-commit 2 changed file(s) (heuristic)
 e0cbb82 chore: auto-commit 2 changed file(s) (heuristic)
 0ad3c6b chore: auto-commit 2 changed file(s) (heuristic)
 $ sed -n '5,36p' /home/lars/projects/go-credentials-store/go.mod
-# 32 direct requires (go-cqrs-lite family, templ, cmdguard/v5, httputil,
-# prometheus, cobra, modernc.org/sqlite, ...)
+require (
+	github.com/LarsArtmann/go-daemon v0.4.0
+	github.com/a-h/templ v0.3.1100
+	github.com/larsartmann/cmdguard/v5 v5.1.0
+	github.com/larsartmann/go-branded-id v0.7.1
+	github.com/larsartmann/go-cqrs-lite/command/v4 v4.14.1
+	github.com/larsartmann/go-cqrs-lite/decider/v4 v4.8.0
+	github.com/larsartmann/go-cqrs-lite/encryption/v4 v4.4.6
+	github.com/larsartmann/go-cqrs-lite/event/v4 v4.15.2
+	github.com/larsartmann/go-cqrs-lite/id/v4 v4.7.4
+	github.com/larsartmann/go-cqrs-lite/metaengine/sqliteengine/v4 v4.6.0
+	github.com/larsartmann/go-cqrs-lite/metaengine/v4 v4.20.0
+	github.com/larsartmann/go-cqrs-lite/projectionhost/v4 v4.7.1
+	github.com/larsartmann/go-cqrs-lite/query/v4 v4.10.1
+	github.com/larsartmann/go-cqrs-lite/system/v4 v4.16.0
+	github.com/larsartmann/go-cqrs-lite/systemscenario/v4 v4.2.1
+	github.com/larsartmann/go-error-family v0.12.0
+	github.com/larsartmann/go-sse v0.6.2
+	github.com/larsartmann/go-sse/ssetest v0.5.0
+	github.com/larsartmann/httputil v1.8.0
+	github.com/larsartmann/templ-components v1.27.0
+	github.com/larsartmann/templ-components/errorpage v1.27.0
+	github.com/larsartmann/templ-components/icons v1.27.0
+	github.com/larsartmann/templ-components/utils v1.27.0
+	github.com/maypok86/otter/v2 v2.4.0
+	github.com/oklog/ulid/v2 v2.1.2
+	github.com/onsi/ginkgo/v2 v2.34.0
+	github.com/onsi/gomega v1.44.0
+	github.com/prometheus/client_golang v1.25.0
+	github.com/prometheus/client_model v0.6.3
+	github.com/samber/do/v2 v2.1.0
+	github.com/samber/lo v1.53.0
 
 $ rg -n "go-credentials-store" -g '*.go' -g 'go.mod' -g 'go.sum' /home/lars/projects/docs-gates
 # rc=1 — zero references in either module

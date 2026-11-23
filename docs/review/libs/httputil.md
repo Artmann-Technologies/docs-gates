@@ -140,20 +140,22 @@ $ git -C /home/lars/projects/httputil tag --list | tail -1
 v1.9.0
 
 $ rg -n "github.com/larsartmann/httputil" /home/lars/projects/docs-gates --hidden -g '!.git' -g '!docs/review/**'
-scripts/citation-sweep.py:35:    "httputil",
-# rc=0 only for the audit scaffolding list; zero code/module-graph hits
+# rc=1 — no matches
 $ rg -c "net/http" /home/lars/projects/docs-gates --type go
 # rc=1 — zero files import net/http (root or pkg/provider)
 $ rg -n "recover\(\)" /home/lars/projects/docs-gates --type go
 # rc=1 — no panic guard anywhere (the gap-analysis observation)
 $ cat /home/lars/projects/docs-gates/pkg/provider/go.mod
-# module .../pkg/provider; requires: go-finding v1.15.1, toolsdk v1.16.0,
-# go-error-family v0.12.0 indirect — no httputil
+module github.com/Artmann-Technologies/docs-gates/pkg/provider
+go 1.27
+require (
+	github.com/larsartmann/go-finding v1.15.1
+	github.com/larsartmann/go-finding/toolsdk v1.16.0
+)
+require github.com/larsartmann/go-error-family v0.12.0 // indirect
 
-# the consumer's deadline machinery (in-process, not request-shaped):
-$ rg -n "func CaptureOutputWithTimeout|The gate functions take no context" \
-    /home/lars/projects/docs-gates/internal/gatecli/gatecli_capture.go
-116:// context, so an expired gate CANNOT be killed — it keeps running as an
+$ rg -n "func CaptureOutputWithTimeout|CANNOT be killed" /home/lars/projects/docs-gates/internal/gatecli/gatecli_capture.go
+117:// context, so an expired gate CANNOT be killed — it keeps running as an
 121:func CaptureOutputWithTimeout(fn func() int, timeout time.Duration) (CapturedOutput, bool) {
 $ rg -n "func startHalfBudgetWatchdog" /home/lars/projects/docs-gates/internal/battery/battery_watchdog.go
 25:func startHalfBudgetWatchdog(gateName string, timeout time.Duration, warnf func(string, ...any)) func() {

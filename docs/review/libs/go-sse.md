@@ -137,7 +137,7 @@ $ git -C /home/lars/projects/go-sse log -1 --format='%H'
 d010c2222cae90e01e3f8859992611204e0fecd4
 $ git -C /home/lars/projects/go-sse describe --tags
 v0.7.0-28-gd010c22
-$ git -C /home/lars/projects/go-sse tag --list 'sseparse/*' 'ssetest/*' | sort | tail -2
+$ git -C /home/lars/projects/go-sse tag --list 'sseparse/*' | sort -V | tail -1; git -C /home/lars/projects/go-sse tag --list 'ssetest/*' | sort -V | tail -1
 sseparse/v0.2.1
 ssetest/v0.5.0
 

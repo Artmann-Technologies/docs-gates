@@ -158,9 +158,9 @@ $ rg -l "encoding/json" /home/lars/projects/docs-gates --type go
 ./internal/battery/battery.go
 
 # go-codec's JSON path, checked for the provider-fit claim:
-$ rg -n "Decode unmarshals|MatchCaseInsensitiveNames|RejectUnknown" \
-   /home/lars/projects/go-codec/json.go /home/lars/projects/go-codec/json_compat_v2.go
-json.go:18:// Decode unmarshals JSON bytes into a value.
-json_compat_v2.go:25:	return json.Unmarshal(data, v, json.MatchCaseInsensitiveNames(true)) //nolint:wrapcheck
+$ rg -n "Decode unmarshals|MatchCaseInsensitiveNames|RejectUnknown" /home/lars/projects/go-codec/json.go /home/lars/projects/go-codec/json_compat_v2.go
+/home/lars/projects/go-codec/json_compat_v2.go:25:	return json.Unmarshal(data, v, json.MatchCaseInsensitiveNames(true)) //nolint:wrapcheck
+/home/lars/projects/go-codec/json_compat_v2.go:89:	return json.UnmarshalDecode(d.dec, v, json.MatchCaseInsensitiveNames(true)) //nolint:wrapcheck
+/home/lars/projects/go-codec/json.go:17:// Decode unmarshals JSON bytes into a value.
 # (no RejectUnknown* in the JSON path — unknown-field rejection exists only for CBORCompact)
 ```

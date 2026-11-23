@@ -129,33 +129,48 @@ inside docs-gates; keeping them green IS the fleet-leverage play here.)
 ## How to verify
 
 ```console
-$ git -C /home/lars/projects/go-appkit log -1 --format='%H'
-9d93de474aa94854488e23d8415dd1041f0857dc   # checkout tip (auto-commits past manifest HEAD)
+$ git -C /home/lars/projects/go-appkit rev-parse 74e4d8011c6c275bb9e3115384ab951ed9d66d0a
+74e4d8011c6c275bb9e3115384ab951ed9d66d0a
 $ git -C /home/lars/projects/go-appkit rev-parse 74e4d8011c6c275bb9e3115384ab951ed9d66d0a
 74e4d8011c6c275bb9e3115384ab951ed9d66d0a   # fleet-manifest HEAD exists on the branch
-$ git -C /home/lars/projects/go-appkit describe --tags
-cqrs/v0.10.0-19-g9d93de4                   # satellite tags confirm cqrs v0.10.0
+$ git -C /home/lars/projects/go-appkit describe --tags 74e4d8011c6c275bb9e3115384ab951ed9d66d0a
+cqrs/v0.10.0-7-g74e4d80
 
 $ rg -n "larsartmann/go-appkit" /home/lars/projects/docs-gates --hidden -g '!.git' -g '!docs/review/**'
 # rc=1 — zero module-path hits in code or module graphs
-$ rg -n "go-appkit" /home/lars/projects/docs-gates --hidden -g '!.git' -g '!docs/review/**' \
-    -g '!docs/planning/**' -g '!docs/status/**' | cut -d: -f1 | sort | uniq -c
-   1 ./CHANGELOG.md      # pilot rollout + bench-shape entries (e.g. CHANGELOG.md:750)
-   1 ./FEATURES.md       # pilot rollout evidence row
-   1 ./README.md         # known-consumers list (README.md:122)
-   1 ./ROADMAP.md        # fleet rollout row
-   1 ./TODO_LIST.md      # pilot ratchet row (TODO_LIST.md:30)
-   1 ./internal/docsfreshness/bench_test.go  # the go-appkit corpus benchmark
-   1 ./scripts/citation-sweep.py            # audit scaffolding list
-# prose + one benchmark only; zero imports
+$ rg -n "go-appkit" /home/lars/projects/docs-gates --hidden -g '!.git' -g '!docs/review/**' -g '!docs/planning/**' -g '!docs/status/**' | cut -d: -f1 | sort | uniq -c
+      4 /home/lars/projects/docs-gates/CHANGELOG.md
+      1 /home/lars/projects/docs-gates/FEATURES.md
+      1 /home/lars/projects/docs-gates/internal/docsfreshness/bench_test.go
+      1 /home/lars/projects/docs-gates/README.md
+      1 /home/lars/projects/docs-gates/ROADMAP.md
+      1 /home/lars/projects/docs-gates/scripts/citation-sweep.py
+      1 /home/lars/projects/docs-gates/TODO_LIST.md
 
-# the config-decline evidence, both sides:
 $ sed -n '3,8p' /home/lars/projects/docs-gates/internal/config/config.go
-# "Format decision (2026-11-03): JSON, not YAML — the module is stdlib-only
-#  by contract (hermetic nix builds, vendorHash-free), and JSON is jq-able..."
+//
+// Format decision (2026-11-03): JSON, not YAML — the module is stdlib-only
+// by contract (hermetic nix builds, vendorHash-free), and JSON is jq-able,
+// which matters in a fleet whose tooling speaks jq. YAML support is a
+// deliberate exclusion; revisit only if a consumer cannot seed JSON.
+//
 $ sed -n '5,9p' /home/lars/projects/go-appkit/config/README.md
-# "It exists because the LarsArtmann fleet kept hand-rolling the same
-#  `envOr`/`envBool`/`envDurationOr` pattern (22 config packages ...)"
+plain struct — with classified [go-error-family] failures that name the exact
+field path.
+It exists because the LarsArtmann fleet kept hand-rolling the same
+`envOr`/`envBool`/`envDurationOr` pattern (22 config packages and 25 ad-hoc
 $ cat /home/lars/projects/go-appkit/config/go.mod
-# module .../config; requires go-faster/yaml v0.4.6 + go-error-family v0.12.0 (+4 indirect)
+module github.com/larsartmann/go-appkit/config
+go 1.27
+require (
+	github.com/go-faster/yaml v0.4.6
+	github.com/larsartmann/go-error-family v0.12.0
+)
+require (
+	github.com/go-faster/errors v0.6.1 // indirect
+	github.com/go-faster/jx v1.0.0 // indirect
+	github.com/segmentio/asm v1.2.0 // indirect
+	go.uber.org/multierr v1.11.0 // indirect
+	golang.org/x/sys v0.49.0 // indirect
+)
 ```

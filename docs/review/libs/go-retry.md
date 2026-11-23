@@ -152,7 +152,28 @@ internal/gatecli/gatecli_capture.go:141:  timer := time.NewTimer(timeout)
 # — two one-shot watchdogs; no retry loops (the docsarchive.go:143 `for` is a glob-entry iteration)
 
 $ sed -n 18,40p /home/lars/projects/docs-gates/internal/docsannotate/git.go
+func (g gitRunner) run(args ...string) (string, int) {
+	if g.missing {
+		return "", rcNoGit
+	}
+	//nolint:gosec // git -C this repo; every subcommand is a literal from this package
+	cmd := exec.CommandContext(context.Background(), "git", append([]string{"-C", g.root}, args...)...)
+	out, err := cmd.Output()
+	if err != nil {
+		if ee, ok := errors.AsType[*exec.ExitError](err); ok {
+			return string(out), ee.ExitCode()
+		}
+		// Sandboxes (nix flake check) ship no git; treat as "not a
+		// checkout" so the hash/tag rules warn-skip instead of crashing.
+		return "", rcNoGit
+	}
+	return string(out), 0
+}
+func isCheckout(root string) (gitRunner, bool) {
 # — single-shot exec.CommandContext git runner; ExitError → exit code; no-git sandbox → rcNoGit warn-skip
 $ rg -n "exec.CommandContext" /home/lars/projects/docs-gates --type go | rg -v _test
-# → git.go:25, docsarchive.go:203, preflight_land.go:74, pkg/provider/provider.go:149 (all single-shot)
+/home/lars/projects/docs-gates/pkg/provider/provider.go:149:	cmd := exec.CommandContext( //nolint:gosec // constant binary, not user input
+/home/lars/projects/docs-gates/internal/docsarchive/docsarchive.go:203:		cmd := exec.CommandContext(context.Background(), "git", "-C", root, "mv", "--", report.rel, destRel)
+/home/lars/projects/docs-gates/internal/docsannotate/git.go:25:	cmd := exec.CommandContext(context.Background(), "git", append([]string{"-C", g.root}, args...)...)
+/home/lars/projects/docs-gates/internal/docsfreshness/preflight_land.go:74:	probe := exec.CommandContext(
 ```

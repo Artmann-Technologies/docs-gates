@@ -172,15 +172,50 @@ pkg/provider/go.sum:11:github.com/larsartmann/go-error-family v0.12.0 h1:HEtocvw
 pkg/provider/go.sum:12:github.com/larsartmann/go-error-family v0.12.0/go.mod h1:gB43rKC69SoPilihuze43OFqKYMGQxDNUi/25PF9MgE=
 
 $ rg -n "errorfamily\." /home/lars/projects/go-finding/errors.go   # type surfacing through go-finding
-go-finding/errors.go:85:// ErrorCode implements errorfamily.Coded.
-go-finding/errors.go:92:func (e *FindingError) ErrorFamily() errorfamily.Family {
+85:// ErrorCode implements errorfamily.Coded.
+90:// ErrorFamily implements errorfamily.Classified, mapping ErrorCategory to
+92:func (e *FindingError) ErrorFamily() errorfamily.Family {
+95:		return errorfamily.Rejection
+97:		return errorfamily.Conflict
+99:		return errorfamily.Transient
+101:		return errorfamily.Infrastructure
+103:		return errorfamily.Transient
 $ rg -n "go-error-family" /home/lars/projects/go-finding/go.mod
 github.com/larsartmann/go-error-family v0.12.0
 $ rg -n "go-error-family" /home/lars/projects/erraudit/go.mod      # flake input consumer
 13:	github.com/larsartmann/go-error-family v0.12.0
 
 $ rg -n "type \w+Error struct|func new\w+Error|func invalidf" /home/lars/projects/docs-gates/internal --type go | rg -v _test
-# → the 11 carrier sites listed in "What docs-gates does today"
+/home/lars/projects/docs-gates/internal/docsagents/docsagents.go:177:type directoryAgentsError struct {
+/home/lars/projects/docs-gates/internal/docsrows/rows.go:87:type usageError struct{ msg string }
+/home/lars/projects/docs-gates/internal/docspurge/docspurge_collect.go:161:type missingAnchorError struct {
+/home/lars/projects/docs-gates/internal/docspurge/docspurge_collect.go:179:func newMissingAnchorError(scope anchorScope, changelog string, nearestLine int) *missingAnchorError {
+/home/lars/projects/docs-gates/internal/docspurge/parse.go:15:type purgeError struct {
+/home/lars/projects/docs-gates/internal/docsstrike/strike.go:15:type strikeError struct {
+/home/lars/projects/docs-gates/internal/docsstrike/parse.go:150:type strikeInputsError struct {
+/home/lars/projects/docs-gates/internal/docsstrike/parse.go:178:func newStrikeInputsError(kind strikeRefusal, opener string) *strikeInputsError {
+/home/lars/projects/docs-gates/internal/config/errors.go:13:type syntaxError struct {
+/home/lars/projects/docs-gates/internal/config/errors.go:98:type loadError struct {
+/home/lars/projects/docs-gates/internal/config/errors.go:111:func newLoadError(step loadStep, path string, cause error) *loadError {
+/home/lars/projects/docs-gates/internal/config/errors.go:118:type invalidError struct {
+/home/lars/projects/docs-gates/internal/config/errors.go:125:func invalidf(format string, args ...any) *invalidError {
+/home/lars/projects/docs-gates/internal/docsfreshness/corpus.go:14:type candidatesError struct {
+/home/lars/projects/docs-gates/internal/gatecli/gatecli.go:69:type notDirectoryError struct{ path string }
+/home/lars/projects/docs-gates/internal/gatecli/gatecli.go:74:type unknownFlagsError struct{ flags []string }
+/home/lars/projects/docs-gates/internal/gatecli/gatecli.go:179:type valuedFlagError struct {
 
 $ sed -n 98,113p /home/lars/projects/docs-gates/internal/config/errors.go   # carrier shape excerpt
+type loadError struct {
+	step  loadStep
+	path  string
+	cause error
+}
+func (e *loadError) Error() string {
+	return fmt.Sprintf("%s %s: %v", e.step, e.path, e.cause)
+}
+func (e *loadError) Unwrap() error { return e.cause }
+// newLoadError builds one loadError with the FATAL-line message.
+func newLoadError(step loadStep, path string, cause error) *loadError {
+	return &loadError{step: step, path: path, cause: cause}
+}
 ```

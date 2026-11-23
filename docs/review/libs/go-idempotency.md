@@ -151,13 +151,19 @@ $ rg -n "go-idempotency" /home/lars/projects/docs-gates/go.mod /home/lars/projec
 
 # in-domain repeat guards (spot-check):
 $ rg -n "already carries|refusing to double" /home/lars/projects/docs-gates/internal --type go | rg -v _test
-internal/docsarchive/docsarchive.go:183: ... refusing to double-archive ...
-internal/docsstrike/strike.go:166: ... never double-strike ...
+/home/lars/projects/docs-gates/internal/docsarchive/docsarchive.go:63:print as skips and never move; a report that already carries a banner
+/home/lars/projects/docs-gates/internal/docsarchive/docsarchive.go:183:			gatecli.Errf("FATAL: %s already carries the archive banner — refusing to double-archive\n", report.rel)
+/home/lars/projects/docs-gates/internal/docsstrike/strike.go:166:			msg: fmt.Sprintf("row %d already carries a strike marker — never double-strike", idx+1),
+/home/lars/projects/docs-gates/internal/docsstrike/docsstrike.go:25://	  - A row that already carries ~~ is refused (never double-strike).
+/home/lars/projects/docs-gates/internal/docsannotate/settings.go:74:	// Defaults() anyway, so s already carries the resolved list.
 $ rg -n "func IsOpenCell|func IsDoneCell" /home/lars/projects/docs-gates/internal --type go
 internal/docscadence/classify.go:52:func IsDoneCell(cell string) bool {
 internal/docscadence/classify.go:66:func IsOpenCell(cell string) bool {
 
 # dry-run-default write sites:
 $ rg -n "os.WriteFile" /home/lars/projects/docs-gates/internal --type go | rg -v _test
-# → docsstrike.go:153, docsarchive.go:229, docspurge_collect.go:192, preflight_land.go:58
+/home/lars/projects/docs-gates/internal/docsarchive/docsarchive.go:229:	return os.WriteFile( //nolint:gosec // G306,G703: the mode IS the source file's; the path argument IS the tool's input contract
+/home/lars/projects/docs-gates/internal/docspurge/docspurge_collect.go:192:	return os.WriteFile( //nolint:gosec // G306,G703: the mode IS the source file's; the path argument IS the tool's input contract
+/home/lars/projects/docs-gates/internal/docsstrike/docsstrike.go:153:	if err := os.WriteFile( //nolint:gosec // G703: the file argument IS the tool's input contract
+/home/lars/projects/docs-gates/internal/docsfreshness/preflight_land.go:58:	_ = os.WriteFile(stampPath(root), blob, stampFileMode)
 ```

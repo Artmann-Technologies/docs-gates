@@ -159,12 +159,17 @@ $ rg -n "_enforce" /home/lars/projects/docs-gates/internal/config/known_keys.go
 34: "stub_enforce": true, … 37: "citation_enforce": true, … 41: "stamp_enforce": true,
 43: "vocabulary_enforce": true, … 47: "agents_enforce": true,
 $ rg -n "severityWarn|verdictPass|RATCHET" /home/lars/projects/docs-gates/internal --type go | rg -v _test
-internal/docsagents/docsagents.go:39: severityWarn = "warn"
-internal/battery/battery.go:37-39: verdictPass/verdictFail/verdictSkip
-internal/docsfreshness/audit.go:73: "…RATCHET — %d unharvested tolerated…"
+/home/lars/projects/docs-gates/internal/docsagents/docsagents.go:39:	severityWarn = "warn"
+/home/lars/projects/docs-gates/internal/docsagents/docsagents.go:216:	severity := severityWarn
+/home/lars/projects/docs-gates/internal/battery/battery.go:37:	verdictPass = "PASS"
+/home/lars/projects/docs-gates/internal/battery/battery.go:276:			verdict = verdictPass
+/home/lars/projects/docs-gates/internal/battery/battery.go:331:			gatecli.Outf("  %s  %s (in %s)\n", verdictPass, r.name, gatecli.FormatDuration(r.duration))
+/home/lars/projects/docs-gates/internal/docsannotate/docsannotate.go:229:// adoption ratchet: tolerated pins print RATCHET and stay green, counts
+/home/lars/projects/docs-gates/internal/docsannotate/docsannotate.go:239:			"docs-annotate: RATCHET — %d finding(s) tolerated (pinned --annotate-max=%d); red only past %d\n",
+/home/lars/projects/docs-gates/internal/docsfreshness/audit.go:73:			"docs-freshness --audit-all: RATCHET — %d unharvested tolerated (pinned --audit-max=%d); red only past %d\n",
 
-# shared dependency (convergence note, row 15):
 $ rg -n "go-finding" /home/lars/projects/go-business-rules/go.mod /home/lars/projects/docs-gates/pkg/provider/go.mod
-go-business-rules/go.mod:8: github.com/larsartmann/go-finding v1.15.1
-pkg/provider/go.mod:5: github.com/larsartmann/go-finding v1.15.1
+/home/lars/projects/docs-gates/pkg/provider/go.mod:6:	github.com/larsartmann/go-finding v1.15.1
+/home/lars/projects/docs-gates/pkg/provider/go.mod:7:	github.com/larsartmann/go-finding/toolsdk v1.16.0
+/home/lars/projects/go-business-rules/go.mod:6:	github.com/larsartmann/go-finding v1.15.1
 ```

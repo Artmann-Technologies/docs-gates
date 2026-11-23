@@ -141,14 +141,19 @@ scripts/citation-sweep.py:50:    "cqrs-htmx",
 
 # the rhyme, library side (readiness gating on projection catch-up):
 $ sed -n '11,16p' /home/lars/projects/cqrs-htmx/projection_readiness.go
-// Projection worker states as reported by [ProjectionStatusEntry.Status].
-# ... "the string form is the published wire vocabulary (ProjectionStatusHandler
-#     JSON, health bridges, readiness gates)"
-# the rhyme, consumer side (point-in-time doctrine, no machinery):
+// They mirror projectionhost/v4's WorkerStatus values one-to-one; the string
+// form is the published wire vocabulary (ProjectionStatusHandler JSON, health
+// bridges, readiness gates).
+const (
+	// ProjectionStatusIdle means the worker is registered but has not started.
+	ProjectionStatusIdle = "idle"
 $ sed -n '188,189p' /home/lars/projects/docs-gates/AGENTS.md
-# "Gate verdicts are point-in-time under foreign daemons — timestamp the
-#  run; one run is not steady state."
+  Gate verdicts are point-in-time under foreign daemons — timestamp the
+  run; one run is not steady state.
 $ cat /home/lars/projects/docs-gates/pkg/provider/go.mod | sed -n '5,10p'
-# require ( go-finding v1.15.1 + toolsdk v1.16.0 ) + go-error-family v0.12.0
-# indirect — no cqrs-htmx anywhere in the provider's graph
+require (
+	github.com/larsartmann/go-finding v1.15.1
+	github.com/larsartmann/go-finding/toolsdk v1.16.0
+)
+require github.com/larsartmann/go-error-family v0.12.0 // indirect
 ```

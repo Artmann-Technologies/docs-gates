@@ -131,8 +131,14 @@ v0.6.2
 v0.6.3
 v0.7.0
 $ head -10 /home/lars/projects/go-datastar/go.mod
-# module github.com/larsartmann/go-datastar — requires static v0.8.0,
-# go-error-family v0.12.0, go-sse v0.7.0
+module github.com/larsartmann/go-datastar
+go 1.27
+require (
+	github.com/larsartmann/go-datastar/static v0.8.0
+	github.com/larsartmann/go-error-family v0.12.0
+	github.com/larsartmann/go-sse v0.7.0
+	golang.org/x/mod v0.42.0
+)
 
 $ rg -n "datastar" /home/lars/projects/docs-gates -g '!docs/review/**' --type go
 # rc=1 (zero Go-file hits)
@@ -142,11 +148,12 @@ $ rg -in "datastar" /home/lars/projects/docs-gates/go.mod /home/lars/projects/do
 $ rg -n "net/http|text/html|html/template|EventSource" /home/lars/projects/docs-gates/internal /home/lars/projects/docs-gates/cmd /home/lars/projects/docs-gates/pkg --type go | rg -v _test
 # rc=1 — no HTTP, no HTML, no SSE in non-test code
 $ rg -n "exec.CommandContext" /home/lars/projects/docs-gates --type go | rg -v _test
-# internal/docsannotate/git.go:25, internal/docsarchive/docsarchive.go:203,
-# internal/docsfreshness/preflight_land.go:74, pkg/provider/provider.go:149 —
-# the process graph is four one-shot exec sites, all git or self
+/home/lars/projects/docs-gates/pkg/provider/provider.go:149:	cmd := exec.CommandContext( //nolint:gosec // constant binary, not user input
+/home/lars/projects/docs-gates/internal/docsarchive/docsarchive.go:203:		cmd := exec.CommandContext(context.Background(), "git", "-C", root, "mv", "--", report.rel, destRel)
+/home/lars/projects/docs-gates/internal/docsannotate/git.go:25:	cmd := exec.CommandContext(context.Background(), "git", append([]string{"-C", g.root}, args...)...)
+/home/lars/projects/docs-gates/internal/docsfreshness/preflight_land.go:74:	probe := exec.CommandContext(
 $ rg -in "dashboard|web view|browser" /home/lars/projects/docs-gates/ROADMAP.md /home/lars/projects/docs-gates/TODO_LIST.md
 # rc=1 — no web-surface feature planned; the docs ARE the UI
 $ git -C /home/lars/projects/go-datastar log -1 --format='%ci %h'
-# fetched 2026-11-23; 0 behind upstream per the fleet manifest
+2026-11-23 02:00:06 +0100 4fca56a
 ```

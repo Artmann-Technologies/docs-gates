@@ -218,27 +218,28 @@ require (
 # cmdguard/go.mod indirect block carries ~60 more requires)
 
 $ rg -n "cmdguard" -g '*.go' -g 'go.mod' -g 'go.sum' /home/lars/projects/docs-gates
-# rc=1 — zero code/module-graph references (flake.lock:3-22 carries it only
-# as erraudit's transitive input; prose mentions are adoption-history notes)
+/home/lars/projects/docs-gates/internal/docsfreshness/preflight_land_test.go:92:// match false-DRIFTed every mixed-case landing (cmdguard 2026-11-14 —
+/home/lars/projects/docs-gates/internal/docsfreshness/preflight_land_test.go:136:// The un-ignored-stamp note (cmdguard 2026-11-14: an auto-commit daemon
+/home/lars/projects/docs-gates/internal/docsfreshness/preflight_land.go:65:// daemon sweep it into history (paid for in cmdguard 2026-11-14 — the
+/home/lars/projects/docs-gates/internal/docsfreshness/preflight_land.go:105:// uppercase letter (paid for 2026-11-14: cmdguard's first land-parity
+/home/lars/projects/docs-gates/internal/docsfreshness/tokens_test.go:70:	got := Tokens("F8: cmdguard P4 help grouping/valid-args/positional IDs (#64).")
+/home/lars/projects/docs-gates/internal/docsfreshness/tokens_test.go:73:	for _, want := range []string{"grouping", "valid-args", "positional", "cmdguard"} {
 
-# the duplicated did-you-mean engines, side by side:
 $ rg -n "func suggestVerb|func editDistance" /home/lars/projects/docs-gates/cmd/docs-gates/main.go
 188:func suggestVerb(typed string) (string, bool) {
 223:func editDistance(a, b string) int {
 $ rg -n "func SuggestFlag|func SuggestCommand|func editDistance" /home/lars/projects/cmdguard/pkg/cmdguard/v5/flags_suggest.go
 13:func SuggestFlag(validNames []string, input string) (string, bool) {
-36:func SuggestCommand(validCommands []string, input string) (string, bool) {
-42:func editDistance(a, b string) int {
+38:func SuggestCommand(validCommands []string, input string) (string, bool) {
+47:func editDistance(a, b string) int {
 
-# the argv-compatibility surface adoption would have to preserve:
 $ rg -n "func gates\(" /home/lars/projects/docs-gates/internal/battery/battery.go
 58:func gates(root string, cfg config.Config) []gate {
-$ rg -n "return \[\]parityGate{" /home/lars/projects/docs-gates/internal/battery/parity_test.go
+$ rg -n 'return \[\]parityGate\{' /home/lars/projects/docs-gates/internal/battery/parity_test.go
 84:	return []parityGate{
-$ rg -n "var displayName = map\[string\]string{" /home/lars/projects/docs-gates/cmd/docs-gates/verbs.go
+$ rg -n 'var displayName = map\[string\]string\{' /home/lars/projects/docs-gates/cmd/docs-gates/verbs.go
 56:var displayName = map[string]string{
 
-# the inverted relationship (cmdguard consumes docs-gates):
 $ rg -n "docs-gates/cmd/docs-gates" /home/lars/projects/cmdguard/.github/workflows/ci.yml
 191:        run: go run github.com/Artmann-Technologies/docs-gates/cmd/docs-gates@v0.3.1 run .
 ```

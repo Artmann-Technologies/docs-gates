@@ -129,25 +129,42 @@ v0.6.2
 v0.7.0
 
 $ rg -n "go-atomic-write|atomicwrite|atomic-write" /home/lars/projects/docs-gates -g '!docs/review/**'
-# flake.lock:24,134,140,147 (transitive under the erraudit input, ref v0.6.0);
-# docs/planning/2026-11-15_marker-grammar-and-tooling-split.md:76;
-# docs/status/archived/2026-11-06_00-33_io-surface-pilot-evaluation-session.md:66,67,185;
-# scripts/citation-sweep.py:39 — zero Go-code or module-graph usage
+/home/lars/projects/docs-gates/flake.lock:24:        "go-atomic-write": "go-atomic-write",
+/home/lars/projects/docs-gates/flake.lock:134:    "go-atomic-write": {
+/home/lars/projects/docs-gates/flake.lock:140:        "repo": "go-atomic-write",
+/home/lars/projects/docs-gates/flake.lock:147:        "repo": "go-atomic-write",
+/home/lars/projects/docs-gates/docs/planning/2026-11-15_marker-grammar-and-tooling-split.md:76:| PINNED (tag/rev/input)           | 13          | cmdguard, crm, go-aichat, go-atomic-write, graph-features-language, io-surface, mr-sync, pbx-artmann, pim-sync, typespec-go, webphone                      |
+/home/lars/projects/docs-gates/docs/status/archived/2026-11-06_00-33_io-surface-pilot-evaluation-session.md:66:   `docsstrike.Run`: `exception: "no-atomic-write"`, rationale = stdlib-only
+/home/lars/projects/docs-gates/docs/status/archived/2026-11-06_00-33_io-surface-pilot-evaluation-session.md:67:   contract forbids go-atomic-write, blast radius one ledger row, guarded by
+/home/lars/projects/docs-gates/docs/status/archived/2026-11-06_00-33_io-surface-pilot-evaluation-session.md:185:2. **Is the no-atomic-write claim a decision or a deferral?** The
+/home/lars/projects/docs-gates/scripts/citation-sweep.py:39:    "go-atomic-write",
 $ rg -n "atomic" /home/lars/projects/docs-gates/go.mod /home/lars/projects/docs-gates/pkg/provider/go.mod /home/lars/projects/docs-gates/pkg/provider/go.sum
 # rc=1
 
 $ rg -n "os\.WriteFile" /home/lars/projects/docs-gates --type go | rg -v _test
-# internal/docsarchive/docsarchive.go:229, internal/docsstrike/docsstrike.go:153,
-# internal/docspurge/docspurge_collect.go:192, internal/docsfreshness/preflight_land.go:58
+/home/lars/projects/docs-gates/internal/docsarchive/docsarchive.go:229:	return os.WriteFile( //nolint:gosec // G306,G703: the mode IS the source file's; the path argument IS the tool's input contract
+/home/lars/projects/docs-gates/internal/docspurge/docspurge_collect.go:192:	return os.WriteFile( //nolint:gosec // G306,G703: the mode IS the source file's; the path argument IS the tool's input contract
+/home/lars/projects/docs-gates/internal/docsfreshness/preflight_land.go:58:	_ = os.WriteFile(stampPath(root), blob, stampFileMode)
+/home/lars/projects/docs-gates/internal/docsstrike/docsstrike.go:153:	if err := os.WriteFile( //nolint:gosec // G703: the file argument IS the tool's input contract
 # (all other hits are _test.go fixtures)
 $ rg -n "os\.Rename|\.tmp|\.Sync\(\)" /home/lars/projects/docs-gates/internal /home/lars/projects/docs-gates/cmd --type go | rg -v _test
 # rc=1 — no temp+rename/fsync logic anywhere non-test
 
 $ sed -n '195,210p' /home/lars/projects/docs-gates/internal/docspurge/docspurge.go
+		return gatecli.ExitUsage
+	}
+	if err := writePreservingMode(todoPath, removeRows(todoData, rows)); err != nil {
+		gatecli.Errf("FATAL: writing %s: %v\n", todoPath, err)
+		return gatecli.ExitUsage
+	}
+	if err := writePreservingMode(changelogPath, updatedChangelog); err != nil {
+		gatecli.Errf("FATAL: writing %s: %v\n", changelogPath, err)
+		return gatecli.ExitUsage
+	}
 # — TODO_LIST written at :199, CHANGELOG at :205: the two-write purge window
 $ python3 -c "import json; print(json.load(open('/home/lars/projects/docs-gates/flake.lock'))['nodes']['go-atomic-write']['original'])"
-# {'owner': 'LarsArtmann', 'ref': 'v0.6.0', 'repo': 'go-atomic-write', 'type': 'github'}
+{'owner': 'LarsArtmann', 'ref': 'v0.6.0', 'repo': 'go-atomic-write', 'type': 'github'}
 # — a TRANSITIVE pin under the erraudit input; not a direct input of this flake
 $ bash /home/lars/projects/docs-gates/scripts/stack-drift-check.sh
-# stack-drift: root go.mod is dependency-free — OK
+stack-drift: root go.mod is dependency-free — OK
 ```

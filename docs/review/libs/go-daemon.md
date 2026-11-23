@@ -126,11 +126,18 @@ $ git -C /home/lars/projects/go-daemon log -1 --format='%H'
 $ git -C /home/lars/projects/go-daemon describe --tags
 v0.4.0-39-g6b9ee1d
 $ git -C /home/lars/projects/go-daemon tag --list | tail -2
-v0.3.1
+v0.3.0
 v0.4.0
 $ head -12 /home/lars/projects/go-daemon/go.mod
-# module github.com/LarsArtmann/go-daemon — go-systemd/v22, go-codec,
-# go-flightrecorder, go-sse/sseparse, prometheus/client_golang direct
+module github.com/LarsArtmann/go-daemon
+go 1.27.2
+require (
+	github.com/coreos/go-systemd/v22 v22.7.0
+	github.com/larsartmann/go-codec v0.3.3
+	github.com/larsartmann/go-flightrecorder v0.2.1
+	github.com/larsartmann/go-sse/sseparse v0.2.1
+	github.com/prometheus/client_golang v1.25.0
+)
 
 $ rg -n "go-daemon|godmn" /home/lars/projects/docs-gates -g '!docs/review/**' --type go
 # rc=1 (zero Go-file hits)
@@ -143,10 +150,12 @@ $ rg -n "ListenAndServe|http\.Server|net\.Listen" /home/lars/projects/docs-gates
 # rc=1 — no listener, no serve loop
 
 $ rg -n "ExitClean|ExitFindings|ExitUsage" /home/lars/projects/docs-gates/internal/gatecli/gatecli.go | head -3
-# 27/28/29 — the whole failure vocabulary is three exit codes
+27:	ExitClean    = 0
+28:	ExitFindings = 1
+29:	ExitUsage    = 2
 $ rg -in "serve|socket|systemd" /home/lars/projects/docs-gates/ROADMAP.md /home/lars/projects/docs-gates/TODO_LIST.md
-# two hits, both unrelated: TODO_LIST.md:20 "langserver" (substring of "serve") and
-# TODO_LIST.md:37 SystemNix host-level monitoring docs — no resident-service row
+/home/lars/projects/docs-gates/TODO_LIST.md:20:| Post-activation AGENTS update: the LSP-ghost protocol becomes "restart suffices" once SystemNix switches (per-process analysis cache); verify a fresh langserver mints a `session-*` dir    | 🔴 `TODO` | P3       | S      | 01-15 report §b.1; SystemNix 59bb7cc35 wrapper                  |
+/home/lars/projects/docs-gates/TODO_LIST.md:37:| Hand the 18:00–19:04 pma queue-full storm + FastFlowLM timeout window to SystemNix monitoring docs (host-level; observed in the pma journal during the autopsy)                                                              | 🟡 BLOCKED                                                                                                                                                                                                               | P3         | S      | owned by the ACTIVE concurrent FastFlowLM session (their psi-wait-gate check is mid-flight in SystemNix; writing the monitoring docs under them collides)                                                                                                                                                                                                                      |
 $ rg -in "daemon" /home/lars/projects/docs-gates/ROADMAP.md | head -3
 # rc=1 — ROADMAP carries no daemon row at all
 ```

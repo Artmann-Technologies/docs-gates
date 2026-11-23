@@ -128,8 +128,15 @@ $ git -C /home/lars/projects/go-filewatcher tag --list | tail -2
 v2.4.3
 v2.5.0
 $ head -12 /home/lars/projects/go-filewatcher/go.mod
-# module github.com/larsartmann/go-filewatcher/v2 — fsnotify v1.10.1, gogenfilter/v3,
-# go-gitignore, x/text, x/time; go 1.26.7 + GOEXPERIMENT=jsonv2 per README
+module github.com/larsartmann/go-filewatcher/v2
+go 1.26.7
+require (
+	github.com/LarsArtmann/gogenfilter/v3 v3.6.1
+	github.com/fsnotify/fsnotify v1.10.1
+	github.com/sabhiram/go-gitignore v0.0.0-20210923224102-525f6e181f06
+	golang.org/x/text v0.43.0
+	golang.org/x/time v0.16.0
+)
 
 $ rg -n "go-filewatcher|filewatcher|fsnotify" /home/lars/projects/docs-gates -g '!docs/review/**' --type go
 # rc=1 (zero Go-file hits)
@@ -140,13 +147,22 @@ $ rg -n "time\.Ticker|fsnotify|Watch\(" /home/lars/projects/docs-gates/internal 
 # rc=1 — no tickers, no watchers, no event loops in non-test code
 
 $ sed -n '186,189p' /home/lars/projects/docs-gates/AGENTS.md
+- **Size a foreign corpus BEFORE launching the battery** (`ls docs/status
+  | wc -l`; memoized replays: one scan per DISTINCT token, hours → 49s).
+  Gate verdicts are point-in-time under foreign daemons — timestamp the
+  run; one run is not steady state.
 # — "Gate verdicts are point-in-time under foreign daemons — timestamp the
-#    run; one run is not steady state."
 $ sed -n '65,66p' /home/lars/projects/docs-gates/README.md
+**Judge vs writer.** `docs-gates` reads and judges a corpus; it never
+rewrites one. Annotation (striking, repairing, marking verdicts) belongs to
 # — "docs-gates reads and judges a corpus; it never rewrites one."
 $ rg -in "watch|hot.reload|live.reload" /home/lars/projects/docs-gates/ROADMAP.md /home/lars/projects/docs-gates/TODO_LIST.md
-# only unrelated hits (CI-run watching; the cadence gate metaphorically "watches this
-# file") — no reactive feature planned at any priority
+/home/lars/projects/docs-gates/TODO_LIST.md:4:rows purge into CHANGELOG. The cadence gate watches this file.
+/home/lars/projects/docs-gates/TODO_LIST.md:86:| Watch the first GitHub CI run of the test (race) step on 9005c5d — never ran on CI hardware; the 6s race-aware speed-guard budget under CI slowness is the risk point; split the job out if it doubles the go job | 🔴 `TODO`   | P2       | S      | 15-52 report §f.5/§f.19/§f.48 + §a.13                     |
+/home/lars/projects/docs-gates/TODO_LIST.md:92:| Extend the erraudit-rev tripwire pattern to the other master-tracking inputs (go-filewatcher, gogenfilter, go-nix-helpers) + move them to deliberate one-at-a-time bumps                                          | 🔴 `TODO`   | P3       | M      | 15-52 report §f.25 + §f.27                                |
+/home/lars/projects/docs-gates/TODO_LIST.md:94:| One deliberate --json timeout run: verify the watchdog line rides stderr and the stdout document stays pure post-LiveErrf                                                                                         | 🔴 `TODO`   | P3       | S      | 15-52 report §f.29                                        |
+/home/lars/projects/docs-gates/ROADMAP.md:24:  re-pinning the golden + provider tests together: a `watchdog` field on
+/home/lars/projects/docs-gates/ROADMAP.md:53:  writes are unwatched seams). TODO_LIST 8 row 1 carries the full text.
 $ git -C /home/lars/projects/go-filewatcher log -1 --format='%ci %h'
-# fetched 2026-11-23; 0 behind upstream per the fleet manifest
+2026-11-23 01:26:50 +0100 3c074ad
 ```

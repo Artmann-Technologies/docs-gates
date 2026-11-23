@@ -134,20 +134,30 @@ $ git -C /home/lars/projects/go-health-dashboard log -1 --format='%H'
 $ git -C /home/lars/projects/go-health-dashboard tag --sort=-v:refname | head -1
 v0.13.3
 $ sed -n '5,20p' /home/lars/projects/go-health-dashboard/go.mod
-# 16 direct requires: templ, chromedp, go-humanize, go-datastar (+static),
-# go-health v0.10.0, go-sse (+ssetest), templ-components x4,
-# prometheus client_model + common, samber/do/v2
+require (
+	github.com/a-h/templ v0.3.1100
+	github.com/chromedp/cdproto v0.159.1
+	github.com/chromedp/chromedp v0.21.0
+	github.com/dustin/go-humanize v1.1.0
+	github.com/larsartmann/go-datastar v0.6.2
+	github.com/larsartmann/go-datastar/static v0.6.1
+	github.com/larsartmann/go-health v0.10.0
+	github.com/larsartmann/go-sse v0.6.2
+	github.com/larsartmann/go-sse/ssetest v0.5.0
+	github.com/larsartmann/templ-components v1.27.0
+	github.com/larsartmann/templ-components/datastar v1.27.0
+	github.com/larsartmann/templ-components/icons v1.27.0
+	github.com/larsartmann/templ-components/utils v1.27.0
+	github.com/prometheus/client_model v0.6.3
+	github.com/prometheus/common v0.73.1
 
 $ rg -n "go-health-dashboard" -g '*.go' -g 'go.mod' -g 'go.sum' /home/lars/projects/docs-gates
 # rc=1 — zero code/module-graph references
 $ rg -l "text/template|html/template" -g '*.go' /home/lars/projects/docs-gates
-internal/docsstub/docsstub_test.go
-internal/docsstub/docsstub.go
-# both are scaffold-checksum matching, not rendering:
+# rc=1 — no matches
 $ rg -n "crypto/md5" /home/lars/projects/docs-gates/internal/docsstub/docsstub.go
-19:	"crypto/md5" //nolint:gosec // checksum identity, not security
+20:	"crypto/md5" //nolint:gosec // checksum identity, not security
 
-# the consumer's actual render surfaces (plain text, golden-pinned):
 $ rg -n "func rootUsage\(" /home/lars/projects/docs-gates/cmd/docs-gates/main.go
 165:func rootUsage() string {
 $ rg -n "func renderMatrix\(|func renderJSON\(" /home/lars/projects/docs-gates/internal/battery/battery.go

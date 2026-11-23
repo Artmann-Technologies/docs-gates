@@ -139,17 +139,21 @@ $ rg -n "larsartmann/templ-components|a-h/templ" /home/lars/projects/docs-gates 
 $ rg -n "html/template|text/template" /home/lars/projects/docs-gates --type go
 # rc=1 — no templating imports in root or pkg/provider
 $ rg -n "templ-components" /home/lars/projects/docs-gates --hidden -g '!.git' -g '!docs/review/**'
-scripts/citation-sweep.py:47:    "templ-components",
-internal/docsannotate/spacing.go:113:// skills/<name> -> other-checkout class) makes git ls-files name a path
-# rc=0 — scaffolding list + one incident-note comment only; no code presence
+/home/lars/projects/docs-gates/scripts/citation-sweep.py:47:    "templ-components",
+/home/lars/projects/docs-gates/internal/docsannotate/spacing.go:113:// incident: a fixed templ-components SKILL.md was overwritten by the
 $ cat /home/lars/projects/docs-gates/pkg/provider/go.mod
-# module .../pkg/provider; requires go-finding v1.15.1 + toolsdk v1.16.0
+module github.com/Artmann-Technologies/docs-gates/pkg/provider
+go 1.27
+require (
+	github.com/larsartmann/go-finding v1.15.1
+	github.com/larsartmann/go-finding/toolsdk v1.16.0
+)
+require github.com/larsartmann/go-error-family v0.12.0 // indirect
 # (go-error-family v0.12.0 indirect) — no templ-components in the graph
 
-# the consumer-side "template" code that is NOT templating (checksum stub detection):
 $ rg -n "bare template|Checksums" /home/lars/projects/docs-gates/internal/docsstub/docsstub.go | head -4
-2:// bare DDD template.
-9:// gate pins the bare-template digests and fails on a checksum match.
 37:	Checksums []string // bare-template digests (md5 or sha256 hex); a match is a stub
+47:		Checksums: config.OrSlice(cfg.StubChecksums, config.Defaults().StubChecksums),
+55:const Usage = `docs-stub — fails a repo whose domain-language doc is the bare template
 102:				"FAIL %s is the bare template (%s) — write the glossary or an honest stub\n",
 ```

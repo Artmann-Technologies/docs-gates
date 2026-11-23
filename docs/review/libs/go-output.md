@@ -138,17 +138,36 @@ $ rg -n "text/tabwriter|\| %s \|" /home/lars/projects/docs-gates/internal /home/
 # rc=1 — no table renderer anywhere in Go code (markdown is PARSED: docsrows/scan.go, docsstrike/strike.go, docsannotate/items.go)
 
 $ rg -n "func Truncate|func Outf|func Livef" /home/lars/projects/docs-gates/internal/gatecli/gatecli_output.go
-# 14:func Truncate …  32:func Outf …  78:func Livef
+14:func Truncate(s string, n int) string {
+32:func Outf(format string, args ...any) {
+78:func Livef(format string, args ...any) {
 $ rg -n "func TestParityGolden|PARITY_UPDATE" /home/lars/projects/docs-gates/internal/battery/parity_test.go
-# 28: re-pin ritual documented … 188:func TestParityGolden … 189: update := os.Getenv("PARITY_UPDATE") != ""
+28://	PARITY_UPDATE=1 go test ./internal/battery/ -run TestParityGolden
+188:func TestParityGolden(t *testing.T) {
+189:	update := os.Getenv("PARITY_UPDATE") != ""
 
 $ sed -n '64,68p' /home/lars/projects/docs-gates/docs/agent-notes.md
+- **`gatecli.Truncate` stays a hand-rolled 10-liner** (deliberate
+  non-fix): the canonical candidate (go-output/nom.TruncateVisible)
+  breaks the stdlib-only contract and its semantics differ anyway — and
+  the parity goldens pin Truncate's byte-budget cut byte-for-byte.
+- **`nix fmt` needs the tracked treefmt.toml** — without it the formatter
 # — the standing non-fix: TruncateVisible breaks stdlib-only, semantics differ, goldens pin the cut
 $ git -C /home/lars/projects/go-output tag --list | wc -l
-# 666 tags total; v0.38.7 is the newest v0.38.x
+666
 $ rg -n "func truncate" /home/lars/projects/docs-gates/internal --type go
-# internal/gatecli/gatecli_output.go:14 (the one home) and internal/docsrows/rows.go:220
+/home/lars/projects/docs-gates/internal/docsrows/rows.go:220:func truncate(s string) string {
 # (a private fixed-width preview variant) — the consumer's complete truncation surface
 $ sed -n '325,334p' /home/lars/projects/docs-gates/CHANGELOG.md
+  test-file similarity, the intentional class — and a `--structural`
+  spot-check found no hidden actionable clones (the one non-test group is
+  const-declaration shape). The audit's `-t 1` self-scan also caught the
+  fresh docsannotate settings projection mirroring docsfreshness's: both
+  now carry in-source accepts with rationale (baseline re-proven at 0
+  shown groups). The `gatecli.Truncate` canonical-helper triage landed as
+  a deliberate non-fix — the width-budgeted go-output helper would break
+  the stdlib-only contract and the byte-precise golden shapes.
+- Shared-helper round 2 (zero behavior change, goldens byte-identical):
+  docsfreshness.Corpus is now the ONE prepared living-docs corpus (raw +
 # — the CHANGELOG twin of the same decision
 ```
