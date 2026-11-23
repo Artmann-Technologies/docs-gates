@@ -39,6 +39,21 @@ The extracted lifecycle chassis of a proven unix-socket daemon: `Start` owns an 
 
 The head of its changelog adds `JSONv2Codec` and injectable negotiation codecs (`WithJSONCodec`/`WithCBORCodec`) so consumers keep json/v2 semantics while adopting content negotiation (go-daemon/CHANGELOG.md:8-19). The trajectory is deeper serving-protocol flexibility — further from a batch CLI's needs, not closer; every unreleased item presumes an `http.Request`/`http.ResponseWriter` pair that docs-gates will never construct.
 
+### The lifecycle contract, quoted from its source
+
+The library's core asset is an ORDERING, proven by shutdown-regression tests, that its own comment forbids reordering (go-daemon/socket.go:190-210): (1) CleanStaleSocket; (2) Startup hooks, errors degrade; (3) build/listen/chmod the socket; (4) OnListen background work; (5) sd_notify READY=1 + watchdog keepalive; (6) Serve until ctx cancel; (7) sd_notify STOPPING=1 + graceful Shutdown within the grace period + socket removal; (8) OnShutdown drain on BOTH exit paths; (9) startup cleanup. Nine ordered steps, every one of which names a thing docs-gates does not have (a socket, a supervisor, background work, a serve loop). Reproducing this list here is the completeness argument: the library has no part the consumer could lift.
+
+### Negotiation and streaming, the other half of the chassis
+
+Beyond lifecycle, the library owns HTTP-serving table stakes: content negotiation with exact media-type matching, RFC 6839 structured suffixes, Accept q-value ranking, `q=0` refusals never served, and `Vary: Accept` on every written response (go-daemon/README.md:29), plus a WHATWG-conformant SSE parser whose dispatch decisions are pinned to the WPT/Chromium conformance corpus (go-daemon/sse.go:42). These matter to a daemon serving multiple client types; docs-gates has exactly ONE machine client (the provider) and ONE document shape, negotiated by a boolean flag (`--json`) — the entire negotiation matrix is one `if`. Adopting negotiation machinery would multiply the output faces from two to N while the parity goldens pin exactly two.
+
+Dependency note — the heaviest footprint in this audit group, aimed entirely at capabilities the consumer does not have:
+
+- Direct: go-systemd/v22 (supervisor protocol), go-codec (negotiation), go-flightrecorder (traces), go-sse/sseparse (streaming), prometheus/client_golang (metrics).
+- Indirect: fxamacker/cbor, go-error-family, pandatix/go-abnf, prometheus common/procfs, x/sys, protobuf.
+
+docs-gates' current indirect count: zero (scripts/stack-drift-check.sh enforces it).
+
 ### The watchdog adjacency, examined and dismissed
 
 `Watchdog(ctx, logger, interval)` (go-daemon/notify.go:75) keep-alives a systemd watchdog at `WatchdogSec/2`; the battery's half-budget watchdog (internal/battery/battery_watchdog.go) fires ONE informational stderr line at `gate_timeout_sec/2`. Both are "alert before the deadline" — but go-daemon's is a liveness HEARTBEAT into a supervisor (absence = the supervisor kills you), while the battery's is a one-shot early warning to a human (presence = information, absence = nothing). One presumes systemd; the other presumes a terminal. They share a name and nothing else.
@@ -80,6 +95,12 @@ For completeness, everything that could be mistaken for daemon surface, audited:
 **The fleet argument, addressed.** Both prongs score zero. docs-gates re-implements nothing go-daemon offers — there is no socket, no graceful shutdown, no readiness protocol, no negotiation, no supervision anywhere in the tree. And the problems go-daemon solves (long-lived socket servers, systemd integration, content negotiation across clients, trace capture on slow requests) belong to a serving process; docs-gates' product is a deterministic batch verdict whose every output byte is pinned by parity goldens (internal/battery/parity_test.go:188) and whose contract is three exit codes (internal/gatecli/gatecli.go:27-29). Turning it into a served daemon would invert the architecture the extraction was FOR: fourteen verbs, each a library `Run([]string) int`, dispatched once.
 
 **Root-contract bar.** Barred outright and doubly: five direct requires including prometheus/client_golang, and a socket server would reintroduce the long-running-process class the consumer's "no long-running process" boundary excludes. pkg/provider is equally wrong a home — it is a BuildFlow plugin that registers tools and execs a binary; it does not serve.
+
+Why NOT-APPLICABLE and not NOT-ADOPTED, in three lines:
+
+1. NOT-ADOPTED implies a capability match declined; here there is no match — the library's nouns (socket, supervisor, negotiation, drain) name things the consumer cannot construct.
+2. The consumer's lifecycle IS its exit code; go-daemon's lifecycle is nine ordered steps around a listener.
+3. No roadmap row asks for any of it.
 
 RECONSIDER-WHEN: docs-gates ever grows a resident service — the only realistic shape is a `docs-gates serve` mode exposing the battery over a unix socket for editors/CI to poll verdicts live. If that day comes, go-daemon (in a nested module) is the right chassis for it, and the parity goldens would need a deliberate carve-out for the served faces. Nothing in the current corpus or ROADMAP points there.
 

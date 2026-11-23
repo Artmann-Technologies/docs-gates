@@ -36,6 +36,28 @@ NOT-APPLICABLE — go-datastar is the server side of a hypermedia protocol (SSE-
 
 The Go server-side vocabulary of the DataStar hypermedia protocol: DOM patches, signal updates, and script executions pushed to the browser as Server-Sent Events over go-sse. Its differentiating bet is that "patches are values, not method calls" — every patch implements `Patch` and can be built offline from any connection (go-datastar/patch.go:25), then routed through a broadcaster with reconnection replay (go-datastar/broadcast/broadcaster.go:57, ring-buffer capacity at go-datastar/broadcast/options.go:63), persisted, or filtered per subscriber. The [Unreleased] section is an activity-feed showcase exercising exactly that pipeline (go-datastar/CHANGELOG.md:8-19). Everything it offers presumes an HTTP response stream and a browser on the other end.
 
+### The error taxonomy, examined for fleet value
+
+go-datastar classifies every error three ways — stable code (`datastar.<operation>_<failure>`), errorfamily family (Rejection/Transient/Orchestration, chosen by whose fault and whether retrying helps), and sentinel (`errors.Is`) — documented at go-datastar/errors.go:10-33. This is genuinely good fleet engineering, and the go-error-family group's report covers where the consumer stands on that axis: docs-gates maps every failure onto three exit codes (internal/gatecli/gatecli.go:27-29) with typed refusal carriers where a caller must distinguish. For a wire protocol with remote clients, codes/families pay for themselves; for a CLI whose callers branch on one integer, they would be dead weight. Nothing here changes the verdict; it is noted so the fleet knows the library's best ideas were looked at, not skipped.
+
+### datastartest, the E2E half
+
+`Collect`-family helpers drive a real `http.Handler` and gather SSE events for assertion (go-datastar/datastartest/collect.go:26-121). The consumer's closest analogue is `gatecli.CaptureOutput` — swapping a process's stdout/stderr to exercise a gate's REAL `Run` end to end (AGENTS.md:191-195). Same philosophy (test the real surface, never a mock), different transport (function-in-process vs HTTP handler). No shared debt.
+
+### The inbound half, also absent
+
+Row 3 covers `ReadSignals` parsing client state from query or body (go-datastar/inbound.go:26-107) and `LastEventID` reconnect headers (go-datastar/inbound.go:107). docs-gates' entire inbound surface: argv (parsed by gatecli.Parse), one JSON config file (`internal/config`, decode-over-defaults with unknown-key WARN), and stdin read exactly once for `--pre-flight` candidate lines. There is no request, no session, no reconnect state — the concepts do not transpose even partially.
+
+### Contrast table: what a DataStar consumer is vs what docs-gates is
+
+| Axis | DataStar consumer | docs-gates |
+|---|---|---|
+| Process shape | long-lived HTTP server | run-to-completion CLI |
+| Delivery | SSE stream, push | stdout/stderr bytes, then exit code |
+| State | signals, live DOM, subscribers | none between runs (one gitignored stamp) |
+| Client | browser JS runtime | terminal human / provider parser |
+| Change propagation | patches on event | re-exec on trigger (CI, BuildFlow, human) |
+
 ### Release shape and the official-SDK comparison (context, not a case for adoption)
 
 The library cuts its four modules in lockstep — v0.7.0 was a deliberate "full four-module lockstep cut" repairing a root-only v0.6.3 release defect (go-datastar/CHANGELOG.md:27-31). Against the official `starfederation/datastar-go` SDK it differentiates on broadcast/replay/filtering plus error-family classification, and concedes built-in compression and first-party cadence (its own README comparison). None of those axes exist for a consumer with no HTTP handler: the comparison is included only to show the library's entire design center — connection lifecycles, subscriber fan-out, reconnect state — is orthogonal to a terminal verb dispatcher.
@@ -68,6 +90,19 @@ Worth enumerating to prove no interactive channel hides anywhere: fourteen verbs
 **Root-contract bar.** Barred on arrival: the root module tolerates zero requires, and go-datastar transitively rides go-sse + go-error-family. The pkg/provider escape hatch is equally wrong a home: it is a read-only BuildFlow tool registration, not a web service.
 
 **The honest adjacent thought, declined.** A "docs-health dashboard" that live-updates as reports land would be a legitimate go-datastar product — but it belongs to a separate fleet service that EXECS `docs-gates run --json` (the exact pattern pkg/provider already demonstrates), never to the gate binary itself. Nothing in the consumer's ROADMAP or TODO_LIST points at a dashboard.
+
+The four modules reviewed, for completeness:
+
+- Root `github.com/larsartmann/go-datastar` v0.7.0 — the protocol vocabulary (patches, Response, inbound, errors, adapters).
+- `broadcast` v0.7.0 — fan-out, replay, hubs (go-datastar/broadcast/broadcaster.go:57).
+- `datastartest` v0.7.0 — handler-driving E2E collectors (go-datastar/datastartest/collect.go:26).
+- `static` v0.8.0 — the embedded JS client bundle as its own asset module (go-datastar/static/static.go).
+
+Why NOT-APPLICABLE and not NOT-ADOPTED, in three lines:
+
+1. No capability of the library maps to any surface of the consumer — the sweeps prove absence, not decline.
+2. The consumer's delivery model (bytes then exit) cannot host a connection-oriented protocol without becoming a different program.
+3. The fleet-level integration point already exists and is library-free: exec `run --json` from whatever web project wants the data.
 
 RECONSIDER-WHEN: the fleet ever builds a live docs-health dashboard (web page showing gate verdicts/report freshness as files change). That project should adopt go-datastar (plus go-filewatcher for the change source) from day one and shell out to this binary for verdicts — the consumer itself stays terminal-only.
 

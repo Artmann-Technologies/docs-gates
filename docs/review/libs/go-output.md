@@ -34,6 +34,12 @@ NOT-ADOPTED — every rendering surface docs-gates owns (verdict matrix lines, o
 | 11 | `tui` — bubbletea interactive views | No — no TUI (deliberate; CLI exit-code contract) | N/A | go-output/tui/go.mod:5 (bubbletea dep) |
 | 12 | `nom` — NOM-style real-time progress visualization (dependency trees, ETA, inline terminal) | No — the battery's progress surface is one stderr heartbeat + a half-budget watchdog line | N/A | go-output/nom/go.mod:5-13; internal/battery/battery_watchdog.go |
 
+### Reading the three "Adjacent/Yes" rows fairly
+
+- Row 1 (truncation) is the only overlap ever triaged, and it lost on semantics BEFORE the contract argument: `TruncateVisible` budgets terminal cell width and appends `…` (go-output/nom/terminal.go:48-52); `gatecli.Truncate` budgets BYTES and never appends — finding snippets must stay byte-honest for a corpus whose lines are compared mechanically (docs/agent-notes.md:64-68).
+- Row 3 (JSON serialization) is adjacent only in noun: `NewJSONTableRenderer` renders a `Table` as an array of row objects (go-output/serialization/json.go:80); the battery renders one FIXED document (root/pass/gates with embedded streams) whose snake_case tags are a lint-pinned contract consumed by pkg/provider — a schema, not a serialization choice.
+- Row 10 (test helpers) offers assertions; the consumer's parity harness offers PROOFS (byte equality over fifteen invocations). Substring asserts cannot pin a protocol; goldens can. The consumer already owns the stronger tool.
+
 ### Why the library exists vs why the consumer does not need it
 
 go-output's pitch is "write your data once, render it anywhere": one `Table`/`Tree`/`Graph` value, sixteen format renderers, runtime format selection via the `Format` enum (go-output/format.go:48), unified dispatch through `RenderTable` (go-output/render_tabledata.go:45). That value proposition begins at the SECOND output format. docs-gates' rendering obligations run in the opposite direction: the human face and the JSON face are not two renders of one dataset — they are two different contracts (progress + verdict lines vs one machine document), each byte-pinned independently by the parity goldens (internal/battery/parity_test.go:188), with `--json` deliberately reserving stdout for the document alone (internal/battery/battery.go:97, the render at :260). A format matrix would be a liability: every format would be an unpinned surface the parity ritual has to grow to cover, or an unpinned surface it silently does not.
@@ -66,6 +72,8 @@ What the consumer does instead, per surface:
 - **Version/help text** — `--version` (ldflags-stamped) and the per-verb usage surfaces are likewise pinned by usage tests — more byte-protocol surfaces a rendering engine cannot own.
 - **Truncation** — `gatecli.Truncate`, a 14-line byte-budget UTF-8-boundary cut (internal/gatecli/gatecli_output.go:14-29), consumed by 10+ gate call sites (e.g. internal/docsannotate/docsannotate.go:83, internal/docsrouting/docsrouting.go:258, internal/docsfreshness/nearmiss.go:70). The fleet candidate `nom.TruncateVisible` differs semantically (visible-width budget, `…` suffix) and lives in a lipgloss-dependent submodule; the goldens pin the current bytes. (There is also one private fixed-width `truncate` in internal/docsrows/rows.go:220 for row previews — intra-repo variety, not fleet duplication, and also golden-covered.)
 - **Markdown** — the consumer PARSES markdown tables (internal/docsrows/scan.go:82-127, internal/docsstrike/strike.go:9-10, internal/docsannotate/items.go:12) but never renders one: `rg -n "text/tabwriter|\\| %s \\|" internal/ cmd/ pkg/ --type go` → rc=1 for any renderer hit. The reports under docs/status/ are written by the status-report skill (agent workflow), not by this Go code — confirmed by the zero renderer hits above.
+
+  This parse-only posture deserves one more sentence, because it is where a hurried auditor would see duplication that is not there: go-output/markdown RENDERS tables from cell data (go-output/markdown/markdown.go:116-150 — escape cells, measure widths, write header/separator/rows/footer); the consumer's docsrows does the INVERSE (internal/docsrows/scan.go walks fenced blocks, finds separator rows, extracts cells) to JUDGE existing tables. A renderer and a judge share vocabulary (`|`, `---`) and nothing else; docs-gates could not reuse the renderer without first inventing a renderer-shaped problem.
 - **Output policy** — every human line routes through `gatecli.Outf/Outln/Errf/Errln/Livef` (internal/gatecli/gatecli_output.go:32, :78), the one home for the "a stream write failure is not a gate finding" policy; raw `fmt.Print*` is forbidden by forbidigo. go-output's `WriteRendered` (go-output/write_rendered.go:15) solves a different problem (error-wrapped writer tails for renderers), not this policy.
 
 ### The two golden layers, and why a library cannot own them
@@ -101,6 +109,14 @@ RECONSIDER-WHEN: docs-gates grows a verb whose OUTPUT FORMAT is user-selected or
 
 None. (The Truncate overlap is adjudicated; the matrix/JSON faces are contracts, not rendering debt; no markdown is rendered from Go.)
 
+For the record, the three things that WOULD have been opportunities if the architecture were different:
+
+1. A `--format` flag on `run` — the day more than one machine consumer exists.
+2. Rendered dashboard artifacts — the day a human-facing web view of gate verdicts is wanted.
+3. Terminal tables — the day the matrix grows columns worth aligning.
+
+Each is a product decision, not a rendering gap; none is on the roadmap.
+
 ## How to verify
 
 ```console
@@ -126,6 +142,11 @@ $ rg -n "func TestParityGolden|PARITY_UPDATE" /home/lars/projects/docs-gates/int
 
 $ sed -n '64,68p' /home/lars/projects/docs-gates/docs/agent-notes.md
 # — the standing non-fix: TruncateVisible breaks stdlib-only, semantics differ, goldens pin the cut
+$ git -C /home/lars/projects/go-output tag --list | wc -l
+# 666 tags total; v0.38.7 is the newest v0.38.x
+$ rg -n "func truncate" /home/lars/projects/docs-gates/internal --type go
+# internal/gatecli/gatecli_output.go:14 (the one home) and internal/docsrows/rows.go:220
+# (a private fixed-width preview variant) — the consumer's complete truncation surface
 $ sed -n '325,334p' /home/lars/projects/docs-gates/CHANGELOG.md
 # — the CHANGELOG twin of the same decision
 ```

@@ -63,6 +63,13 @@ There is also no hand-rolled watcher to deduplicate — the design has no equiva
 - **No event channels**: the only channel plumbing in the battery is `gatecli.CaptureOutput`'s concurrent drainers (the capture-pipe deadlock fix), which exist to END a gate's output stream, not to react to file events.
 - **Re-runs are the caller's job**: CI runs the battery on push (AGENTS.md:218-223), BuildFlow's detect step execs it via pkg/provider/provider.go:149, and the dogfood ritual re-runs it after living-doc edits. "Timestamp the run; one run is not steady state" (AGENTS.md:188-189) is the explicit doctrine that a watcher would contradict.
 
+### Debounce and middleware semantics, spelled out
+
+The two legs a reactive consumer would actually use, so the N/A is grounded rather than assumed:
+
+- **Debounce**: `WithDebounce` coalesces bursts globally; `WithPerPathDebounce` per path (go-filewatcher/options.go:24-36) — five editor events on one save become one delivery. docs-gates never receives an event, so there is nothing to coalesce; the closest analogue (a human re-running the battery twice) is handled by the battery being idempotent and cheap (~1.5 ms judge, README.md:70-72).
+- **Middleware**: `Middleware func(Handler) Handler`, applied in REVERSE order — last added runs first (go-filewatcher/middleware.go:39-41) — with built-ins for logging (outermost), panic recovery (innermost), rate limiting, and a deduplicator tuned by event-count/cap heuristics (go-filewatcher/middleware.go:20-38). This is a serving-pipeline abstraction; the battery's cross-cutting concerns are exit-code mapping and stream policy, both settled in gatecli (internal/gatecli/gatecli_output.go:32-40).
+
 ### Why the doctrine excludes watching (not just the code)
 
 The exclusion is architectural, not incidental. The binary's contract is "reads and judges a corpus; it never rewrites one" (README.md:65-66) — a judge whose verdicts are meaningful BECAUSE they are point-in-time snapshots of a corpus that foreign processes (editors, the auto-commit daemon, BuildFlow) mutate concurrently. A watcher-based mode would blur exactly that semantics: a verdict would no longer name a moment but a window, and the timestamp discipline (AGENTS.md:188-189) would lose its meaning. The battery even bounds each gate's wall clock (`gate_timeout_sec`) so that NOTHING inside a run waits on the world — the opposite posture of an event loop whose job is to wait on the world.
@@ -77,6 +84,16 @@ The exclusion is architectural, not incidental. The binary's contract is "reads 
 | Commit time | pre-commit docs-battery leg (AGENTS.md:160-165) | pre-commit hook over all files |
 
 Four independent re-run triggers, none owned by this repo's code — the scheduling layer is already built, fleet-side. Adding an in-process watcher would duplicate the fleet's scheduling, the exact anti-pattern the fleet argument warns about, in the one place it would be wrong.
+
+### Toolchain and contract mismatch, for the record
+
+Even setting the zero-requires contract aside, the shapes grind:
+
+- **Toolchain**: go-filewatcher pins `go 1.26.7` and imports `encoding/json/v2` behind `GOEXPERIMENT=jsonv2` (its README install note; default under 1.27 where docs-gates lives).
+- **Weight**: five direct requires (fsnotify, gogenfilter/v3, go-gitignore, x/text, x/time) for a consumer whose heaviest current import is `regexp`.
+- **Maintenance class**: its own v2.4.x changelog is a history of case-folding/NFC path-key fixes — the surface you earn by holding filesystem state over time. docs-gates' reading of the filesystem is one glob and a handful of `os.ReadFile`/`os.Stat` calls per run, torn down at exit; it has no path keys to normalize because it holds no paths across time.
+
+The dependency would import a stateful problem class into a stateless design.
 
 ## Gap analysis — should docs-gates adopt it?
 
