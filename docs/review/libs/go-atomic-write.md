@@ -114,8 +114,10 @@ RECONSIDER-WHEN: (1) any mutator grows an unguarded or multi-file write sequence
 ## Ranked opportunities
 
 1. **Deduplicate the three `writePreservingMode` copies into one `gatecli` helper** (internal/docspurge/docspurge_collect.go:185, internal/docsarchive/docsarchive.go:222, plus the inline variant at internal/docsstrike/docsstrike.go:146-153) — pure intra-repo cleanup, no dependency, kills the only real duplication found. LOW effort, no golden impact (behavior identical). This is also the honest answer to the fleet argument for this library: the shareable slice is 7 lines, not the mechanism.
-2. **Document the torn-write residual next to the io-surface exception** (one line in AGENTS.md's deliberate-non-fixes list, alongside the Truncate entry at AGENTS.md:123): "plain os.WriteFile under --apply; git is the atomicity layer for tracked files; the two-write purge window is accepted." Makes the standing decision legible to the next auditor without re-deriving it.
+2. **Document the torn-write residual next to the io-surface exception** (one line in AGENTS.md's deliberate-non-fixes list, alongside the Truncate entry at AGENTS.md:123): "plain os.WriteFile under --apply; git is the atomicity layer for tracked files; the two-write purge window is accepted." Makes the standing decision legible to the next auditor without re-deriving it. **Landed 2026-11-23 during the audit run** — AGENTS.md's "Deliberate non-fixes" bullet now carries it.
 3. **Order-swap in purge apply** (CHANGELOG first, TODO_LIST second at internal/docspurge/docspurge.go:199-205): a crash then leaves a duplicate CHANGELOG bullet — detectable, re-purgeable — instead of silently deleted ledger rows. Zero dependencies, shrinks window (b) to the harmless side. Optional; goldens do not pin the write order.
+
+Routing: items 1 and 3 are rows in TODO_LIST §10; item 2 landed (above).
 
 ## How to verify
 

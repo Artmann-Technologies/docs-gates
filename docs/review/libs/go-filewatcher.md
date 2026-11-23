@@ -7,7 +7,7 @@
 
 ## Verdict
 
-NOT-APPLICABLE — docs-gates is a point-in-time batch judge by doctrine (every verb runs, renders a pinned verdict, exits 0/1/2, and dies); it contains no file watching, no hot reload, and no event loop, and its own paid-for note says a watcher's premise — steady-state reactivity — is the opposite of its guarantee: "Gate verdicts are point-in-time under foreign daemons — timestamp the run; one run is not steady state" (AGENTS.md:188-189).
+NOT-APPLICABLE — docs-gates is a point-in-time batch judge by doctrine (every verb runs, renders a pinned verdict, exits 0/1/2, and dies); it contains no file watching, no hot reload, and no event loop, and its own paid-for note says a watcher's premise — steady-state reactivity — is the opposite of its guarantee: "Gate verdicts are point-in-time under foreign daemons — timestamp the run; one run is not steady state" (AGENTS.md:203-204).
 
 ## Score
 
@@ -63,7 +63,7 @@ There is also no hand-rolled watcher to deduplicate — the design has no equiva
 
 - **No polling**: `rg -n "time\.Ticker" internal/ cmd/ pkg/ --type go` over non-test code returns nothing (the watchdogs use one-shot `time.NewTimer`; see the go-retry group-1 report for that distinction).
 - **No event channels**: the only channel plumbing in the battery is `gatecli.CaptureOutput`'s concurrent drainers (the capture-pipe deadlock fix), which exist to END a gate's output stream, not to react to file events.
-- **Re-runs are the caller's job**: CI runs the battery on push (AGENTS.md:218-223), BuildFlow's detect step execs it via pkg/provider/provider.go:149, and the dogfood ritual re-runs it after living-doc edits. "Timestamp the run; one run is not steady state" (AGENTS.md:188-189) is the explicit doctrine that a watcher would contradict.
+- **Re-runs are the caller's job**: CI runs the battery on push (AGENTS.md:233-238), BuildFlow's detect step execs it via pkg/provider/provider.go:149, and the dogfood ritual re-runs it after living-doc edits. "Timestamp the run; one run is not steady state" (AGENTS.md:203-204) is the explicit doctrine that a watcher would contradict.
 
 ### Debounce and middleware semantics, spelled out
 
@@ -74,16 +74,16 @@ The two legs a reactive consumer would actually use, so the N/A is grounded rath
 
 ### Why the doctrine excludes watching (not just the code)
 
-The exclusion is architectural, not incidental. The binary's contract is "reads and judges a corpus; it never rewrites one" (README.md:65-66) — a judge whose verdicts are meaningful BECAUSE they are point-in-time snapshots of a corpus that foreign processes (editors, the auto-commit daemon, BuildFlow) mutate concurrently. A watcher-based mode would blur exactly that semantics: a verdict would no longer name a moment but a window, and the timestamp discipline (AGENTS.md:188-189) would lose its meaning. The battery even bounds each gate's wall clock (`gate_timeout_sec`) so that NOTHING inside a run waits on the world — the opposite posture of an event loop whose job is to wait on the world.
+The exclusion is architectural, not incidental. The binary's contract is "reads and judges a corpus; it never rewrites one" (README.md:65-66) — a judge whose verdicts are meaningful BECAUSE they are point-in-time snapshots of a corpus that foreign processes (editors, the auto-commit daemon, BuildFlow) mutate concurrently. A watcher-based mode would blur exactly that semantics: a verdict would no longer name a moment but a window, and the timestamp discipline (AGENTS.md:203-204) would lose its meaning. The battery even bounds each gate's wall clock (`gate_timeout_sec`) so that NOTHING inside a run waits on the world — the opposite posture of an event loop whose job is to wait on the world.
 
 ### The re-run triggers that exist today (the watcher's job, already assigned)
 
 | Trigger | Who owns it | How docs-gates is invoked |
 |---|---|---|
-| Push to GitHub | CI dogfood job (AGENTS.md:218-223) | `go run ./cmd/docs-gates run .` |
+| Push to GitHub | CI dogfood job (AGENTS.md:233-238) | `go run ./cmd/docs-gates run .` |
 | Local doc edit | the human's ritual (AGENTS.md:6-9) | `go run ./cmd/docs-gates run .` after touching living docs |
 | BuildFlow quality loop | BuildFlow detect step | exec via pkg/provider/provider.go:149 |
-| Commit time | pre-commit docs-battery leg (AGENTS.md:160-165) | pre-commit hook over all files |
+| Commit time | pre-commit docs-battery leg (AGENTS.md:206-210) | pre-commit hook over all files |
 
 Four independent re-run triggers, none owned by this repo's code — the scheduling layer is already built, fleet-side. Adding an in-process watcher would duplicate the fleet's scheduling, the exact anti-pattern the fleet argument warns about, in the one place it would be wrong.
 
@@ -146,12 +146,11 @@ $ rg -n "filewatcher|fsnotify" /home/lars/projects/docs-gates/go.mod /home/lars/
 $ rg -n "time\.Ticker|fsnotify|Watch\(" /home/lars/projects/docs-gates/internal /home/lars/projects/docs-gates/cmd /home/lars/projects/docs-gates/pkg --type go | rg -v _test
 # rc=1 — no tickers, no watchers, no event loops in non-test code
 
-$ sed -n '186,189p' /home/lars/projects/docs-gates/AGENTS.md
-- **Size a foreign corpus BEFORE launching the battery** (`ls docs/status
-  | wc -l`; memoized replays: one scan per DISTINCT token, hours → 49s).
-  Gate verdicts are point-in-time under foreign daemons — timestamp the
-  run; one run is not steady state.
-# — "Gate verdicts are point-in-time under foreign daemons — timestamp the
+$ rg -n -A3 "Size a foreign corpus BEFORE launching" /home/lars/projects/docs-gates/AGENTS.md
+201:- **Size a foreign corpus BEFORE launching the battery** (`ls docs/status
+202-  | wc -l`; memoized replays: one scan per DISTINCT token, hours → 49s).
+203-  Gate verdicts are point-in-time under foreign daemons — timestamp the
+204-  run; one run is not steady state.
 $ sed -n '65,66p' /home/lars/projects/docs-gates/README.md
 **Judge vs writer.** `docs-gates` reads and judges a corpus; it never
 rewrites one. Annotation (striking, repairing, marking verdicts) belongs to

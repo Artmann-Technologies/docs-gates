@@ -44,7 +44,7 @@ go-datastar classifies every error three ways — stable code (`datastar.<operat
 
 ### datastartest, the E2E half
 
-`Collect`-family helpers drive a real `http.Handler` and gather SSE events for assertion (go-datastar/datastartest/collect.go:26-121). The consumer's closest analogue is `gatecli.CaptureOutput` — swapping a process's stdout/stderr to exercise a gate's REAL `Run` end to end (AGENTS.md:191-195). Same philosophy (test the real surface, never a mock), different transport (function-in-process vs HTTP handler). No shared debt.
+`Collect`-family helpers drive a real `http.Handler` and gather SSE events for assertion (go-datastar/datastartest/collect.go:26-121). The consumer's closest analogue is `gatecli.CaptureOutput` — swapping a process's stdout/stderr to exercise a gate's REAL `Run` end to end (AGENTS.md:175-180). Same philosophy (test the real surface, never a mock), different transport (function-in-process vs HTTP handler). No shared debt.
 
 ### The inbound half, also absent
 

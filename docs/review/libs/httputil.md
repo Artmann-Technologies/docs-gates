@@ -127,7 +127,7 @@ not neglect.
 ## Ranked opportunities
 
 None. (The panic-guard observation above is a stdlib hardening note inside
-gatecli, not an httputil adoption.)
+gatecli, not an httputil adoption. **Routed:** a row in TODO_LIST §10.)
 
 ## How to verify
 

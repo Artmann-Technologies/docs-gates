@@ -32,7 +32,7 @@ NOT-APPLICABLE — cqrs-htmx wires CQRS commands/queries to `net/http` + HTMX (d
 | 8 | `systemadapter` — identity domain bridged onto go-cqrs-lite `system.New` + metaengine presets | No — no system to adapt to | N/A | cqrs-htmx/systemadapter/README.md:3-8 |
 | 9 | `huma`, `health`, `auditlog`, `datastar`, `loginpage`, `identity-model`, `eventcatalog`/OpenAPI collectors | No — no API spec, no probes, no login page, no identity model | N/A | cqrs-htmx/README.md:55 (module map) |
 | 10 | Error-to-status mapping with HTMX-aware auth redirects | No — the 0/1/2 exit-code contract is the whole error surface (internal/gatecli constants, AGENTS.md:38-39) | N/A | cqrs-htmx/README.md:71 |
-| 11 | Concept: readiness GATING on projection catch-up (block traffic until read models are current) | **Concept applies** — docs-gates' verdicts are point-in-time snapshots under foreign daemons (timestamp the run; one run is not steady state); judged below as rhyme, not duplication | Missed Opportunity (declined by doctrine: rhyme, not duplication — see gap analysis) | cqrs-htmx/projection_readiness.go:11-16; AGENTS.md:188-189 |
+| 11 | Concept: readiness GATING on projection catch-up (block traffic until read models are current) | **Concept applies** — docs-gates' verdicts are point-in-time snapshots under foreign daemons (timestamp the run; one run is not steady state); judged below as rhyme, not duplication | Missed Opportunity (declined by doctrine: rhyme, not duplication — see gap analysis) | cqrs-htmx/projection_readiness.go:11-16; AGENTS.md:203-204 |
 
 Dependency note: the root module's require graph (go-cqrs-lite v4 family,
 Casbin, templ, go-appkit satellites — cqrs-htmx/go.mod) is an entire web stack;
@@ -88,7 +88,7 @@ would serve stale answers as if current (cqrs-htmx/projection_readiness.go:11-16
 docs-gates has the same epistemic discipline expressed as doctrine instead of
 machinery: gate verdicts are point-in-time snapshots under foreign auto-commit
 daemons, so runs are timestamped and "one run is not steady state"
-(AGENTS.md:188-189); freshness checks only the newest report, audit-all replays
+(AGENTS.md:203-204); freshness checks only the newest report, audit-all replays
 the whole corpus under the ratchet (docs/DOMAIN_LANGUAGE.md:28-29). Same
 insight (state moves under the reader), different layer: cqrs-htmx solves it
 with runtime gating in a server; docs-gates solves it with corpus semantics
@@ -119,7 +119,7 @@ direction the owner wants.
 ## Ranked opportunities
 
 None. (The point-in-time doctrine note above is already written into
-AGENTS.md:188-189; there is no code opportunity.)
+AGENTS.md:203-204; there is no code opportunity.)
 
 ## How to verify
 
@@ -147,9 +147,9 @@ $ sed -n '11,16p' /home/lars/projects/cqrs-htmx/projection_readiness.go
 const (
 	// ProjectionStatusIdle means the worker is registered but has not started.
 	ProjectionStatusIdle = "idle"
-$ sed -n '188,189p' /home/lars/projects/docs-gates/AGENTS.md
-  Gate verdicts are point-in-time under foreign daemons — timestamp the
-  run; one run is not steady state.
+$ rg -n -A1 "point-in-time under foreign daemons" /home/lars/projects/docs-gates/AGENTS.md
+203:  Gate verdicts are point-in-time under foreign daemons — timestamp the
+204-  run; one run is not steady state.
 $ cat /home/lars/projects/docs-gates/pkg/provider/go.mod | sed -n '5,10p'
 require (
 	github.com/larsartmann/go-finding v1.15.1

@@ -183,7 +183,7 @@ maintenance line item rather than a settled one.
    suggestion it costs nothing. Zero dependencies: the Levenshtein already
    exists in cmd/docs-gates/main.go:223-247 and would lift into gatecli or
    config as a shared helper. ~20 lines, one test, visible payoff on every
-   mis-keyed repo config.
+   mis-keyed repo config. **Routed:** a row in TODO_LIST §10.
 2. (Nothing else adoption-shaped. The `editDistance` duplication itself is
    not worth consolidating cross-repo — a 25-line stdlib function with
    pinned behavior on both sides is below any reasonable sharing threshold;

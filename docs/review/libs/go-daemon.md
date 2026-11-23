@@ -75,7 +75,7 @@ $ rg -n "go-daemon" /home/lars/projects/docs-gates/go.mod /home/lars/projects/do
 
 There is likewise no hand-rolled daemon-equivalent to deduplicate:
 
-- **No signal handling**: `rg -n "signal\.|os\.Signal|SIGTERM|SIGHUP|syscall\.SIG" internal/ cmd/ pkg/ --type go` → rc=1. A gate killed by SIGKILL is bounded by the caller (`timeout 300 go run …`, AGENTS.md:213); a wedged gate inside the battery is bounded by `gate_timeout_sec`, which converts it into a named FAIL row (`rc=timeout`) and moves on — the anti-daemon answer to a hang.
+- **No signal handling**: `rg -n "signal\.|os\.Signal|SIGTERM|SIGHUP|syscall\.SIG" internal/ cmd/ pkg/ --type go` → rc=1. A gate killed by SIGKILL is bounded by the caller (`timeout 300 go run …`, AGENTS.md:228); a wedged gate inside the battery is bounded by `gate_timeout_sec`, which converts it into a named FAIL row (`rc=timeout`) and moves on — the anti-daemon answer to a hang.
 - **No listener or serve loop**: `rg -n "ListenAndServe|http\.Server|net\.Listen" internal/ cmd/ --type go` → rc=1. The process-graph edges are: `main.go` → verb `Run` → gates; `pkg/provider` execs the binary from PATH once per BuildFlow Detect (pkg/provider/provider.go:149); flake wrappers exec `docs-gates <verb>` under legacy names. Every edge is one-shot exec with an exit code.
 - **No persistence between runs**: the only cross-run state is the gitignored land-parity stamp (internal/docsfreshness/preflight_land.go:28), explicitly "local editor state, never shared" — the opposite of a daemon's coordination state.
 
