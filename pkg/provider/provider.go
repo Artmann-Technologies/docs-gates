@@ -174,8 +174,9 @@ func runBattery(ctx context.Context, bin, dir string) (int, string, string, erro
 // executes toolsdk.Register at package init time, adding this Spec to the
 // process-global registry that BuildFlow walks via ToolsFromSDK().
 //
-// Detect: runs the five-gate battery (freshness, audit-all, annotate,
-// routing --strict, cadence — thresholds from the repo's .docs-gates.json)
+// Detect: runs the ten-gate battery (freshness, audit-all, annotate,
+// routing --strict, cadence, stamps, vocabulary, agents — thresholds from
+// the repo's .docs-gates.json)
 // and reports one finding per FAIL row. Clean runs produce zero findings;
 // a usage-environment failure (exit 2) becomes one error finding naming
 // the FATAL line; a red exit whose stdout does not decode as the JSON
@@ -186,18 +187,22 @@ func runBattery(ctx context.Context, bin, dir string) (int, string, string, erro
 var Provider = toolsdk.Register(toolsdk.Spec{
 	Name: toolName,
 	Description: "docs-health battery: newest-report harvest freshness, whole-corpus audit replay, " +
-		"struck-item verdicts + inline-code spacing, non-f routing gaps, TODO/report cadence. " +
+		"struck-item verdicts + inline-code spacing, non-f routing gaps, TODO/report cadence, " +
+		"stamps + line-vocabulary sweeps, AGENTS.md age bars (agents). " +
 		"Reads the repo's .docs-gates.json (defaults are the fleet-proven constants). " +
 		"Parses `docs-gates run --json` (requires a battery with the JSON face, v0.2.0+).",
 	// The docs-doctrine file set that activates the tool: a repo without
 	// any of these has nothing for the gates to judge. TODO_LIST.md alone
 	// is enough (the cadence gate needs it; the other gates degrade to
-	// clean on a missing corpus).
+	// clean on a missing corpus). AGENTS.md is a trigger because the
+	// agents gate reads it: without it, an aged AGENTS.md edit would be
+	// served from the result cache instead of re-judged.
 	Trigger: toolsdk.Trigger{
 		Files: []string{
 			"TODO_LIST.md",
 			"ROADMAP.md",
 			"CHANGELOG.md",
+			"AGENTS.md",
 			"docs/status/*.md",
 			"docs/status/**/*.md",
 			"docs/planning/*.md",
