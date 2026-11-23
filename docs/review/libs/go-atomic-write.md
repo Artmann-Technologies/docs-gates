@@ -10,6 +10,8 @@
 
 NOT-ADOPTED — with a documented residual risk: the four guarded mutator writes are plain `os.WriteFile` with no temp+rename/fsync, and the library's core guarantees are exactly what those sites lack, but the stdlib-only root contract, the dry-run-default design, and git-as-recovery-layer make the residual risk small and already adjudicated in-repo (an io-surface judgment records `no-atomic-write` as a standing exception).
 
+One nuance keeps this from being a clean NOT-APPLICABLE: unlike the fleet's retry/daemon/watcher libraries, go-atomic-write addresses a failure class (crash-torn writes and lost updates) that docs-gates' write sites genuinely ARE exposed to. The verdict below is therefore an evidence-backed acceptance of residual risk, not a "wrong domain" dismissal.
+
 ## Score
 
 - Inputs N = 10 (inventory rows below).
@@ -31,6 +33,18 @@ NOT-ADOPTED — with a documented residual risk: the four guarded mutator writes
 | 8 | `MkdirAll` of missing parent dirs (0755) on every write | No — consumers assume existing trees; archive creates its dir explicitly | N/A | go-atomic-write/stage.go:39-42; internal/docsarchive/docsarchive.go:195 |
 | 9 | Streaming `WriteFunc`/`WriteFuncVerified` (64KB buffered callback) | No — payloads are single living-doc files held in memory already | N/A | go-atomic-write/atomicwrite.go:125-137 |
 | 10 | Windows `MoveFileEx` retry on sharing violations | No — the fleet is Linux (Darwin deliberately absent from flake systems) | N/A | go-atomic-write/rename_windows.go (README platform table) |
+
+### The guarantees, precisely (and how they were earned)
+
+The library's offering is not a naive temp+rename — its own history documents why each leg exists, which matters when judging whether a stdlib re-creation would be "equivalent":
+
+- **Single-rename atomicity**: v0.2.0 REMOVED a `.bak` two-rename pattern whose intermediate window could show ENOENT or lose the target on a crash between renames — "the library named 'atomic-write' was not atomic" (go-atomic-write/CHANGELOG.md:248-252). Today the commit is one `os.Rename` (go-atomic-write/rename_unix.go:12).
+- **Content durability**: the staged file is fsync'd before the rename (go-atomic-write/stage.go:88), and the target DIRECTORY is fsync'd after it, POSIX-only (go-atomic-write/rename_unix.go:17-33) — the pair that makes the post-crash file content, not just the name, durable.
+- **Concurrent-writer isolation**: each writer stages through a `crypto/rand`-suffixed unique temp (go-atomic-write/stage.go:44-49), because a shared `path + ".tmp"` once let two writers interleave bytes in the staging file itself (same v0.2.0 section).
+- **TOCTOU verification**: `WriteVerified` re-reads the target under an exclusive flock and compares the xxhash64 fingerprint taken at read time; mismatch returns the `ErrConcurrentModification` sentinel (go-atomic-write/commit.go:13, :36-60). A zero fingerprint means "must not exist yet" — concurrent creation is a conflict, not a silent skip (go-atomic-write/commit.go:21-34).
+- **Failure hygiene**: a failed rename removes the staged temp so no `.tmp` residue sits next to the target (go-atomic-write/commit.go:67-76; the leak was fixed in v0.6.1, go-atomic-write/CHANGELOG.md:78).
+- **Mode preservation**: the staged file is created with the existing file's own permission bits, 0644 for fresh files (go-atomic-write/stage.go:16-31).
+- **Known residual (theirs)**: a hard crash still leaves an orphaned unique `.tmp` (unique names prevent interference but do not self-clean) — v0.2.0 Caveats, go-atomic-write/CHANGELOG.md:248.
 
 ## What docs-gates does today
 
@@ -56,6 +70,21 @@ The four non-test write sites, each verified open:
 
 There is no temp-file/rename/fsync logic anywhere in the consumer's non-test code (`rg -n "os.Rename|\.tmp|Sync\(\)"` over internal/ + cmd/ returns nothing non-test).
 
+### The guard stack actually wrapped around each write
+
+Every site stacks the same four guards in place of write-level atomicity:
+
+1. **Dry-run default** — strike prints the old→new row pair and exits without touching disk until `--apply` (internal/docsstrike/docsstrike.go:137-138); purge prints the draft plan; archive prints its candidate list (internal/docsarchive/docsarchive.go:106-107). The dangerous flag is opt-in, never defaulted.
+2. **Refusal-first semantics** — ambiguous selectors, double strikes, missing verdicts, missing `[Unreleased]`/`Changed` anchors all exit 2 with NOTHING written (the purge collector's `missingAnchorError` refuses to guess an insertion point, internal/docspurge/docspurge_collect.go:160-180).
+3. **git as the atomicity layer** — every target file (TODO_LIST, CHANGELOG, reports) is git-tracked; the archive verb even moves files via `git mv` so history keeps the rename (internal/docsarchive/docsarchive.go:16-17, :203). The last commit is always a full recovery point.
+4. **Ritual rails outside the binary** — `scripts/safe-strike.sh` (unique ≥4-letter anchors, dry-run default, one strike per commit boundary) plus the auto-commit daemon snapshotting the tree every ~2-3 minutes (AGENTS.md:55-59).
+
+### The crash scenarios, honestly priced
+
+- **Torn single write** (machine dies mid-`os.WriteFile`): TODO_LIST or CHANGELOG can lose both old and new content. Recovery: `git restore` from the last commit — unless the daemon already committed a prior edit of the same file, in which case that daemon commit is the recovery point. Cost: minutes of ritual redo, zero silent corruption (the next battery run surfaces any damage).
+- **The two-write gap** (crash between internal/docspurge/docspurge.go:199 and :205): struck rows deleted from TODO_LIST, their CHANGELOG bullets never landed — silent ledger loss until a human notices. Same git recovery, but nothing flags it automatically. This is the one window this audit would name as the genuine residual.
+- **Concurrent write** (the daemon's format/lint-at-write-time racing a `--apply`): the read-modify-write at internal/docspurge/docspurge.go:108-205 reads the file, computes the new bytes, and writes the whole file back; a daemon edit landing in between is silently clobbered. In practice the daemon formats rather than edits prose and AGENTS.md's staging-race note prices the inverse race, but the exposure is real and is exactly `WriteVerified`'s domain (go-atomic-write/commit.go:36-60).
+
 ## Gap analysis — should docs-gates adopt it?
 
 **The prior adjudication.** This exact question was already judged in-repo: the 2026-11-06 io-surface pilot recorded `docsstrike.Run: exception "no-atomic-write", rationale = stdlib-only contract forbids go-atomic-write, blast radius one ledger row, guarded by dry-run default + scripts/safe-strike.sh` (docs/status/archived/2026-11-06_00-33_io-surface-pilot-evaluation-session.md:66-67), and the open question it left — "decision or deferral?" — is answered by architecture: the stdlib-only root contract is deliberate (AGENTS.md:34-37, scripts/stack-drift-check.sh:9), and go-atomic-write is a two-dependency library (xxhash + flock; gofrs/flock itself drags golang.org/x/sys), so root adoption would break zero-requires for a benefit the write pattern already fences three other ways.
@@ -67,6 +96,8 @@ There is no temp-file/rename/fsync logic anywhere in the consumer's non-test cod
 **pkg/provider check.** The provider writes nothing (read-only by contract, README.md:139); there is no write path there to harden.
 
 RECONSIDER-WHEN: (1) any mutator grows an unguarded or multi-file write sequence that git cannot cheaply unwind — e.g. purge batching across repos, or a write to a NON-tracked file (the stamp today, anything user-configurable tomorrow); (2) a fleet decision ever relaxes stdlib-only for a vetted allowlist — go-atomic-write is then the first candidate for the four sites, ideally vendored-by-stdlib-reimplementation (temp+rename+fsync is ~40 lines) rather than the dependency itself; (3) a second fleet consumer adopts the purge ritual on NFS/FUSE where torn writes bite harder.
+
+**Fleet-argument scorecard, per prong.** (a) "Re-implementation debt": one real slice found — mode preservation hand-rolled three times (row 4); it is 3×7 lines inside ONE repo, so the dedup is an internal `gatecli` helper, not the library. Everything else the library offers is NOT re-implemented — declined, not duplicated. (b) "Collective improvement": if go-atomic-write ever hardens (e.g. self-cleaning stale temps, its documented residual), docs-gates would not inherit it under NOT-ADOPTED; the price is bounded because the protected write surface is four sites in guarded rituals, revisited cheaply by re-running this audit.
 
 ## Ranked opportunities
 
