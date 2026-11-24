@@ -550,6 +550,46 @@ of a large corpus can take a minute on their own.
   (T10), the BuildFlow gate severity and the stale binary
   (T15), and the release cut (T6).
 
+---
+
+## How to verify this plan
+
+Every count here is computed from the task data, not typed. To re-derive
+them from the committed file:
+
+```console
+$ python3 -c "import re;t=open('docs/planning/2026-11-24_01-07_SUPERB-pareto-execution-plan-v3.md').read();s=t[t.index('## Step 3'):t.index('## Execution graph')];e=[int(c[2]) for l in s.splitlines() if re.match(r'^\|\s*T\d+\.\d+\s*\|',l.strip()) for c in [[x.strip() for x in l.strip().strip('|').split('|')]]];print(len(e),sum(e),max(e))"
+135 1537 12
+```
+
+The first number is the micro-task count, the second the total minutes,
+the third the largest micro-task (12 or less). The Step 2 table names
+77 TODO_LIST row numbers: the 67 open work rows and
+the ten corrupted struck rows. The 20 done rows are listed one by one in
+Step 0.
+
+The execution graph was rendered, not eyeballed: mermaid 11.17.2 in
+headless Chromium reports 21 nodes, 17 edges, 4 clusters and 0 syntax
+errors.
+
+To re-check one errata line, run the evidence named on its row:
+
+```console
+$ git tag --list 'v0.*'
+v0.1.0
+v0.1.1
+v0.2.0
+v0.3.0
+v0.3.1
+v0.4.0
+v0.5.0
+$ rg -n 'clear-stamp' internal/docsfreshness/preflight_land.go
+154:		gatecli.Errln("  clear the ledger with --clear-stamp if the divergence is deliberate.")
+167:// clearPreflightStamp deletes the land-parity ledger (the --clear-stamp
+$ wc -l internal/gatecli/gatecli_test.go
+168 internal/gatecli/gatecli_test.go
+```
+
 _Plan snapshot; the living source of these rows is `TODO_LIST.md`. Do not
 verschlimmbessern: byte parity, planted-defect-first, no owner-gated step
 without a go-ahead._
