@@ -199,7 +199,7 @@ verify (2 runs); buildflow counter reset; AGENTS regrow alert; erraudit
 35. Extend the pingen dprint-realignment lesson into docs-gates AGENTS (pre-flight the post-format bytes).
 36. Cut v0.3.1 (CHANGELOG cut + annotated tag + push) carrying this session's output-face work — rides the owner ruling (g-2).
 37. cmdguard CI pin bump rides whichever release lands.
-38. Board hygiene: strike this session's ten landed rows with evidence, purge to CHANGELOG.
+38. Board hygiene: strike this session's ten landed rows with evidence, purge to CHANGELOG. <!-- fresh:skip: done in substance — those rows were struck (the malformed strikes are the ten corrupted rows; repair = TODO §11 row / plan T2) -->
 39. Battery dogfood re-run + final gate sweep (root suite, provider suite, flake check --all-systems --no-build, tripwire, nolint-audit, dprint).
 40. crm/go-appkit ratchet-drain legs (crm needs the cross-repo authority ruling).
 41. evo-x2 deploy + SystemNix switch (owner window, g-3).

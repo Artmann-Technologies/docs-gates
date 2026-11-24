@@ -114,7 +114,7 @@ culprit attribution). D1/D2 remain owner decisions.
 
 1. Verify CI green on 83c194c (both jobs) — the pending watch.
    ~~2. CHANGELOG rows for T3/T5/T7/T10; strike TODO §2.1 and §3.1.~~ ✅ DONE 2026-11-05 (T3/T5/T7/T10 landed + §2.1/§3.1 struck by the 16-45 session; vocabulary lives in this verdict)
-2. AGENTS.md: blind-revert-under-daemon lesson + erraudit-on-PATH fact.
+2. AGENTS.md: blind-revert-under-daemon lesson + erraudit-on-PATH fact. <!-- fresh:skip: done — AGENTS.md carries the never-revert-blind rule and the erraudit private-input fact -->
 3. `nix fmt`, `nix flake check --all-systems --no-build`, `nix build
    .#docs-gates` after the T7 flake edit.
 4. ~~Plan-file errata: mark T3/T4/T5/T7/T9/T10 done (annotate, not rewrite)~~ done
@@ -131,21 +131,21 @@ culprit attribution). D1/D2 remain owner decisions.
 12. T20 docscadence pre-split (326 lines, approaching the 350 gate).
 13. T20 docsannotate settings.go projection (config.Config consumer).
 14. T20 docsannotate: shrink the Run body to prologue+dispatch (the settings-projection seam).
-15. T21 docsrouting: single report lookup, unified path construction.
+15. T21 docsrouting: single report lookup, unified path construction. <!-- fresh:skip: done — docsrouting rides the shared docsfreshness Corpus and report paths since the 11-04 dedup -->
 16. T21 export shared token predicates (tokenIn/livingLineCount/…).
 17. ~~T21 squash-corpus consistency: unify or document~~ done (documented:
     the CHANGELOG squash-convergence entry + the AGENTS report-vocabulary
     fact pin Tokens/Squash/GenericDF as the one shared definition).
 18. T21 docsstrike parse.go survey → CutStringFlag or documented decline.
 19. T21 art-dupl `-t 1` re-run (expect 0 shown groups).
-20. T22 nixpkgs_2: reconcile the flake.lock disagreement or record deliberate.
+20. T22 nixpkgs_2: reconcile the flake.lock disagreement or record deliberate. <!-- fresh:skip: done — the follows dedup landed; one nixpkgs node in flake.lock (re-verified 11-24) -->
 21. T22 gatecli.Truncate canonical-helper verdict (quality/ finding).
 22. T22 art-dupl `--show-suppressed` audit of 29 groups + spot-checks.
 23. T24 legacy-wrappers smoke v2: assert version STRING = ldflags stamp.
 24. T24 `lib.maintainers.LarsArtmann` nixpkgs PR draft + flake meta ref.
 25. T25 preflight rewrite-mode leg + tests (F113-F114).
 26. T25 preflight heading-awareness leg + tests (F115-F117).
-27. T26 token-margin-report (near-bar tokens before they genericize).
+27. T26 token-margin-report (near-bar tokens before they genericize). <!-- fresh:skip: done — the --margins report ships with goldens -->
 28. T27 freshness `--dump-items` flag (ExtractItems inspectability).
 29. T27 culprit attribution for harvest findings (preflight parity).
 30. ★T1 SystemNix float: `nix flake update docs-gates` + expected-locks
@@ -169,9 +169,9 @@ culprit attribution). D1/D2 remain owner decisions.
     (snippet truncation path, optional).
 42. provider module: confirm go.sum/go.mod hygiene untouched by CI legs.
 43. CI: provider job go-module caching (speed polish, optional).
-44. TODO_LIST §5 rows for the two owner questions stay red until
+44. TODO_LIST §5 rows for the two owner questions stay red until <!-- fresh:skip: superseded — owner questions surface per-train now (11-24 status report §g); the stale §5 owner rows were struck in later closes -->
     answered (no agent action).
-45. ROADMAP: no landed rows this session (verified) — nothing to prune.
+45. ROADMAP: no landed rows this session (verified) — nothing to prune. <!-- fresh:skip: moot — session-scoped verification note (nothing to prune was verified that day); no standing obligation -->
 46. ~~FEATURES.md CI row: add the provider job mention~~ — DONE this session.
 47. DOMAIN_LANGUAGE.md: no new terms this session (ratchet already
     covered) — verified, no edit needed.

@@ -293,7 +293,7 @@ already tracked in TODO_LIST, [NEW] = surfaced tonight, [SIBLING] /
     issue #67 class).
 31. [ROADMAP] Findings-gate summary naming the result-cache state
     (hit/miss) per tool.
-32. [SIBLING] Verify the 05-06 §f item-9 fresh:skip claim against the
+32. [SIBLING] Verify the 05-06 §f item-9 fresh:skip claim against the <!-- fresh:skip: obsolete — session-scoped sibling spot-check from 11-04; the referenced board moved twice since -->
     BuildFlow board's actual state.
 33. [T] Fleet-wide search for >350-line Go files proactively (crm,
     go-appkit, bank-sync) instead of waiting for their next run.

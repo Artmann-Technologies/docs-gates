@@ -243,7 +243,7 @@ these are ROADMAP fuel, not promises.
    ~~two-session v0.2.0 tag collision (OWNER).~~
 10. ~~Answer §g-2 of 07:33: v0.2.1 fast-follow for the tag's stale README~~ done — resolved — v0.3.0 (eb2fa6b) republished clean docs
     ~~line vs ride to next MINOR (OWNER).~~
-11. Answer §g-3 of 07:33 + g-3 here: which SURFACED ruling first
+11. Answer §g-3 of 07:33 + g-3 here: which SURFACED ruling first <!-- fresh:skip: routed — the ruling rows live in TODO §4/§4b; the 11-24 plan T8 decision sheet sequences them -->
     (OWNER).
 12. ~~Ruling: dependabot PR #1 (owner-gated).~~ done at `c8e8fbc`
 13. Ruling: D1 (owner-gated). **→ routed TODO_LIST 4 (D1 row)**
@@ -269,7 +269,7 @@ these are ROADMAP fuel, not promises.
 23. Add an out-of-range enum test (construct an invalid `loadStep`/
     `anchorScope`/`strikeRefusal` via unsafe cast or internal constructor)
     pinning the loud default branch (tiny, optional).
-24. Split the AGENTS.md erraudit bullet into a dedicated subsection
+24. Split the AGENTS.md erraudit bullet into a dedicated subsection <!-- fresh:skip: declined — AGENTS.md sits over its 220-line ceiling; plan T11 distills instead of splitting -->
     (scanability).
 25. erraudit repo (own): quiet the "promoting directory to package
     pattern" notice under scripted use.
@@ -293,7 +293,7 @@ these are ROADMAP fuel, not promises.
 32. CI visibility: make a red dogfood row louder (job summary step or
     annotation) so "docs ritual due" is unmistakable in the PR/branch
     view.
-33. Process: one status report per train (two same-day reports inflated
+33. Process: one status report per train (two same-day reports inflated <!-- fresh:skip: folded into the cadence-policy ruling row (TODO §4b) and the T8 sheet -->
     the archive corpus today).
 34. Archived-banner pointers: make "owning sections live in TODO_LIST §N
     and ROADMAP.md" specific (§ numbers) at the next archive.

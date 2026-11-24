@@ -270,7 +270,7 @@ session's HARVEST has the full picture without re-reading the board.)
 | 10     | D2 ruling: root go.mod floor unification (recommendation written)                                                                  | Low          | S      | Decision          |
 | 11     | io-surface adoption ruling (§4; ROADMAP data point current)                                                                        | Medium       | S      | Decision          |
 | 12     | Arm the local pre-commit hooks (unset core.hooksPath) so docs-battery guards local work                                            | Medium       | S      | Quality           |
-| 13     | `scripts/dogfood-commit.sh`: battery-then-commit, failing closed (§e.3)                                                            | Medium       | S      | Quality           |
+| 13     | `scripts/dogfood-commit.sh`: battery-then-commit, failing closed (§e.3)                                                            | Medium       | S      | Quality <!-- fresh:skip: done in substance — the pre-commit docs-battery leg fails the commit on a red battery (re-verified 11-23; devShell-only) --> |
 | 14     | `docs-gates purge --group` mode or canonicalize one-bullet-per-row (§e.1)                                                          | Low          | S      | Feature           |
 | 15     | Probe-protocol lesson → crush-config references/lessons.md (§e.2, needs a commit there)                                            | Medium       | S      | Documentation     |
 | ~~16~~ | ~~F94: AGENTS non-obvious-facts compression pass (owner tier)~~ done at `39bed4d`                                                  | ~~Low~~      | ~~M~~  | ~~Documentation~~ |
@@ -307,7 +307,7 @@ session's HARVEST has the full picture without re-reading the board.)
 | 47     | Windows/macOS consumers revisit only on a real consumer (ROADMAP)                                                                  | Low          | -      | Non-goal          |
 | ~~48~~ | ~~Sub-10ms estimate honest-but-useless follow-up: drop if µs render satisfies~~ done — same as 44 — µs render shipped              | ~~Low~~      | ~~S~~  | ~~Polish~~        |
 | 49     | Keep the §8 filing row's clean-build evidence fresh if the sibling lands more work                                                 | Low          | S      | External          |
-| 50     | Retire the ROADMAP provider-contract bullet the day the handshake decision lands                                                   | Low          | S      | Documentation     |
+| 50     | Retire the ROADMAP provider-contract bullet the day the handshake decision lands                                                   | Low          | S      | Documentation <!-- fresh:skip: dormant — the item's own trigger (handshake decision landed) has not fired; the ROADMAP bullet stays until T8's toolsdk ruling --> |
 
 ## g) Three questions I can NOT figure out myself
 

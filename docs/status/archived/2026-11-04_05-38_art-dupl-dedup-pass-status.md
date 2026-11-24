@@ -124,7 +124,7 @@ Ranked by impact; Effort S <30min, M 30min–2h, L >2h. Items marked **(carry-ov
 15. Give docsannotate a settings.go-style projection. **(carry-over, prior §f 15)** — Medium / M / Feature
 16. New gate/finding class: flag §f continuation lines that begin with `\d+[.)]` (the false item-boundary class this session hit). — Medium / M / Feature
 17. `freshness --dump-items <report>` (or `--explain` boundary detail) to make ExtractItems decisions inspectable without test scaffolding. — Medium / M / Feature
-18. Reconcile `nixpkgs_2` flake.lock/flake.nix disagreement, or record it as deliberate. **(carry-over, prior §f 6)** — Medium / M / Quality
+18. Reconcile `nixpkgs_2` flake.lock/flake.nix disagreement, or record it as deliberate. **(carry-over, prior §f 6)** — Medium / M / Quality <!-- fresh:skip: done — the follows dedup landed; flake.lock carries exactly one nixpkgs node (re-verified 11-24) -->
 19. Triage `quality/canonical-helper-reimplementation` on `gatecli.Truncate` (fix by importing the canonical helper, or deliberate non-fix with rationale). **(carry-over, prior §f 7)** — Medium / M / Quality
 20. Survey docsstrike's `ParseArgs` valued-string flag machinery for a `gatecli.CutStringFlag` sibling (only if the shapes truly match — read parse.go first; not read this session). — Medium / M / Refactor
 21. Run `art-dupl --show-suppressed -t 1` once and audit the 29 suppressed + spot-check non-actionable groups for anything actionable hiding below the actionability filter. — Medium / S / Quality

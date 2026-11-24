@@ -95,7 +95,7 @@
 **Immediate hygiene (this repo, small):**
 16. Run `nix flake check --all-systems --no-build` (the gate set skipped in today's final sweep).
 17. Re-run pkg/provider golangci-lint after the hints_test.go repair.
-18. Watch the fb35564 CI run to completion (was queued at session end).
+18. Watch the fb35564 CI run to completion (was queued at session end). <!-- fresh:skip: done — CI green on every push since b152739 (run 45295995224) -->
 19. Update FEATURES.md with the v0.3.1 features (`--clear-stamp`, `--batch`, refusal UX, land-parity goldens).
 20. Fix README's stale safe-strike-test case count ("11 cases" → 24).
 21. Add the new verbs/flags to docs/DOMAIN_LANGUAGE.md (`--clear-stamp`, `--batch`, outside-corpus naming, nearest-heading hint).
@@ -109,7 +109,7 @@
 27. Decide the v0.3.x cadence going forward (patch-per-batch vs accumulate) — feeds the release-claim ruling.
 
 **Upstream follow-through:**
-28. Watch pre-commit#3797; prepare the one-line hint PR if accepted.
+28. Watch pre-commit#3797; prepare the one-line hint PR if accepted. <!-- fresh:skip: routed — TODO §5 carries the upstream filing row (BuildFlow tracking) -->
 29. Check ofborg/eval status on nixpkgs#588265.
 30. Confirm BuildFlow's treefmt roundtrip fix covers the filed diagnosis (re-run their format probe post-1d474a028).
 
@@ -127,7 +127,7 @@
 **Fleet dogfood:**
 40. Run the v0.3.1 battery over the other floating consumers (rethread, sperrmuell-direct, ssh-key-monitor — the flattened-input cohort) before their next float.
 41. Verify business-networking's harvest reds (the --no-verify commit's justification debt) actually got harvested.
-42. pingen-spike: their wave-5 report §f.47 strike landed; check their next battery run stays green post-v0.3.1.
+42. pingen-spike: their wave-5 report §f.47 strike landed; check their next battery run stays green post-v0.3.1. <!-- fresh:skip: routed — TODO §5 pingen-spike row (plan T12.5 fixes their red) -->
 
 **Docs/doctrine:**
 43. Record the "probe-first" lesson (Go offset, parity sharing) in the project AGENTS non-obvious facts if it generalizes beyond today's files.

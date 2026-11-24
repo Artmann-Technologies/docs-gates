@@ -230,6 +230,19 @@ while a corpus drains.
 
 ## Freshness diagnostics
 
+How an open §f item binds to the living docs (2026-11-24 semantics): an
+item passes only when ONE living-doc line co-carries its matched tokens
+— two matched tokens by default, one for single-token items — with at
+least one token distinctive (document frequency below `generic_df`).
+Tokens scattered across separate lines are coincidence, not a harvest,
+and the item fails naming the near-miss. Two WARNs guard report grammar
+without flipping verdicts: a report with no `## f)` heading (freshness
+passes by omission — that blind spot should be loud), and a §f-section
+bullet line that reads like a next step but is not a harvestable item
+(only numbered lines and table rows are). The routing gate judges
+open-row binding with the same per-line bar, so the two gates cannot
+disagree about whether a row is represented.
+
 Three read-only inspection modes on the freshness verb:
 
 ```console

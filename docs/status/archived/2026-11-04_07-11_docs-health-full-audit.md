@@ -190,17 +190,17 @@ items below by impact; "§N" cites its home section. NEW = born this session.
 | #  | Task                                                                                                             | Impact | Effort | Category    |
 | -- | ---------------------------------------------------------------------------------------------------------------- | ------ | ------ | ----------- |
 | 1  | Confirm CI green on THIS train's daemon push (gh run list) — NEW, minutes after this report                      | High   | S      | Quality     |
-| 2  | Provider CI legs in ci.yml (TODO §2)                                                                             | High   | S      | Quality     |
+| 2  | Provider CI legs in ci.yml (TODO §2)                                                                             | High   | S      | Quality <!-- fresh:skip: done — ci.yml provider job with build/vet/test/-race --> |
 | 3  | config.validate: refuse/warn unknown skip_gates values (TODO §1; verified real this session)                     | High   | S      | Bug         |
 | 4  | Repo-owned erraudit-lint flake check + discrimination test + rev tripwire (TODO §1)                              | High   | S      | Quality     |
 | 5  | CutIntFlag/LoadConfig unit tests (TODO §3)                                                                       | High   | S      | Quality     |
-| 6  | annotate_max golden pin (TODO §2)                                                                                | High   | M      | Quality     |
+| 6  | annotate_max golden pin (TODO §2)                                                                                | High   | M      | Quality <!-- fresh:skip: done — annotate + annotate-ratchet parity goldens --> |
 | 7  | Float SystemNix to the hardened flake + deploy evo-x2 (TODO §4, owner-gated P1s)                                 | High   | S      | Integration |
 | 8  | Freshness: extend culprit-attribution to harvest findings (name the living-doc line that matched/violated) — NEW | Medium | M      | Feature     |
 | 9  | pbx-artmann fleet migration (TODO §4)                                                                            | Medium | M      | Integration |
 | 10 | BuildFlow#87 + roundtrip-walker upstream fixes, then drop the AGENTS bypasses (TODO §4)                          | Medium | L      | Quality     |
 | 11 | Shared-helper round 2 + docscadence pre-split + docsannotate projection (TODO §3)                                | Medium | M      | Cleanup     |
-| 12 | Parity corpus: warning-path + pre-flight goldens (TODO §2)                                                       | Medium | M      | Quality     |
+| 12 | Parity corpus: warning-path + pre-flight goldens (TODO §2)                                                       | Medium | M      | Quality <!-- fresh:skip: done — preflight-safe/preflight-replace/dump-items-refusal goldens pin the paths --> |
 | 13 | Pilot ratchet drain crm/go-appkit (TODO §4)                                                                      | Medium | M      | Process     |
 | 14 | Owner decisions: battery adoption scope, go floor unification (TODO §5)                                          | Medium | S      | Decision    |
 | 15 | Gate features: preflight legs, token-margin-report, --dump-items (TODO §5)                                       | Medium | M      | Feature     |

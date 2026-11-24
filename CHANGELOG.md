@@ -10,9 +10,15 @@ match the annotated git tags; anything after the newest tag sits under
 
 - **`archive` verb (the fourteenth)**: the cadence ritual's mechanical core as one gated command — fully-resolved reports (zero open §f items, the dump-items extraction) get the Live-remainder banner prepended and are `git mv`'d into the archived subdir. Dry-run by default; `--apply` writes; open reports print as SKIP and never move; a second banner is a FATAL refusal. The proof legs (freshness `--audit-all`, routing, annotate green first) stay gates — the banner claims what the battery proves.
 
+- **two §f-grammar WARNs on freshness/routing/audit stdout**: a report whose next steps carry no `## f)` heading (the harvest passes by omission — the blind spot is now loud) and a §f-section bullet line that reads like a next step but is not a harvestable item (only numbered lines and table rows are). WARN only; never a verdict flip.
+
+### Changed
+
+- **the freshness judge binds on a shared line, not a shared corpus**: an open §f item now passes only when ONE living-doc line co-carries its matched tokens (two by default, one for single-token items) with at least one distinctive (document frequency below `generic_df`). Tokens scattered across separate lines — each matching somewhere, never together — were false harvests; the verdict now names the coincidence instead of passing it. The routing gate judges open-row binding with the same per-line bar, so freshness and routing cannot disagree about whether a row is represented. Corpus-wide hit counts no longer satisfy the judge; run `--dump-items` to see each item's tokens and `--pre-flight` before drafting rows.
+
 ### Fixed
 
-- Nothing yet.
+- **the 37-report corpus replay surfaced 34 open items whose "matches" were line-scattered coincidences**; each now carries an honest verdict (`<!-- fresh:skip: reason -->`) — done/routed/declined/obsolete/dormant — so audit-all replays the corpus at 0 unharvested instead of inheriting a backlog the old judge never saw.
 
 ## [v0.5.0] - 2026-11-23
 
