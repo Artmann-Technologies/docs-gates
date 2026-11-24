@@ -158,8 +158,10 @@ func (c *Corpus) lineHits(token string) []int {
 
 	var idx []int
 
+	key := Squash(token)
+
 	for i := range c.lines {
-		if lineMatchesToken(token, c.lines[i], c.squashed[i]) {
+		if lineMatchesKey(token, key, c.lines[i], c.squashed[i]) {
 			idx = append(idx, i)
 		}
 	}

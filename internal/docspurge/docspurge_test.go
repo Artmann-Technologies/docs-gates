@@ -204,8 +204,10 @@ func TestRunPreFlightRefusalWritesNothing(t *testing.T) {
 
 // TestRunUnsafePreFlightRefusesWithFindings pins the exit-1 leg end to
 // end: the report item's only living-present distinctive token is
-// zorphuser at DF 7 (the struck row + 6 filler lines); the drafted
-// bullet pushes it to DF 8 — the GenericDF bar — and the pre-flight
+// zorphuser at DF 7 (the struck row + 5 filler lines + the pair anchor);
+// the anchor line co-carries zorphuser with the generic "audit" so the
+// item PASSES the same-line bar at baseline — then the drafted bullet
+// pushes zorphuser to DF 8 — the GenericDF bar — and the pre-flight
 // answers UNSAFE while --apply writes nothing.
 //
 //nolint:paralleltest // process-global capture, serialized on purpose
@@ -216,11 +218,13 @@ func TestRunUnsafePreFlightRefusesWithFindings(t *testing.T) {
 
 	filler.WriteString(fixtureChangelog)
 
+	filler.WriteString("- the zorphuser audit anchor row\n")
+
 	for range 8 {
 		filler.WriteString("- audit ledger rows land weekly\n")
 	}
 
-	for range 6 {
+	for range 5 {
 		filler.WriteString("- the zorphuser archive keeps its evidence alive\n")
 	}
 
