@@ -145,3 +145,12 @@ instruments should live.
 - **Public-repo erraudit tooling in README/CI** — the flake input is a
   private git+ssh dependency by design; CI never touches the flake and
   the public README stays silent about it.
+
+## Fail-closed replay follow-ups (2026-11-24)
+
+Small tooling ideas surfaced by the same-line freshness bar replay — unscheduled.
+
+- Flake-check naming: one meta-check aggregating the three erraudit checks for single-invocation fleets (11-12 07-33 report §f.32; weighs against per-check failure signals — the generalized T17 tripwire is the adjacent pattern).
+- `docs-gates purge --group` mode or canonicalizing one-bullet-per-row (11-04 05-38 report §f.14).
+- BuildFlow starvation accounting: tag run summaries when a lane reports lost-to-starvation so downstream readers do not misread coverage (11-14 18-31 report §f.41).
+- Unify the strike mechanic: docs-strike verb parity with safe-strike's `--batch`/`--cell` (one tool, one mechanic) (11-04 16-45 report §f.34).
