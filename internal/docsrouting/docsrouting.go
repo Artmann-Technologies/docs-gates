@@ -141,9 +141,11 @@ func isOpenActionable(line string) bool {
 }
 
 // routed applies the freshness bar inverted: the row must share at least
-// the quorum of tokens with the living corpus, one of them distinctive
-// (on fewer than genericDF living lines) — the same semantics under
-// which a harvested §f item counts as represented.
+// the quorum of tokens with ONE living line, one of the same-line matches
+// distinctive (on fewer than genericDF living lines) — the same
+// fail-closed semantics under which a harvested §f item counts as
+// represented (the 2026-11-24 same-line alignment; corpus-wide overlap
+// is coincidence, and a coincidence never routed anything).
 func routed(row string, living docsfreshness.Corpus, genericDF int) bool {
 	if pointerRe.MatchString(row) {
 		return true // routed by explicit living-doc pointer (pointerRe)
@@ -159,21 +161,9 @@ func routed(row string, living docsfreshness.Corpus, genericDF int) bool {
 		need = 1
 	}
 
-	found, distinctive := 0, false
+	_, _, ok := living.SameLineQuorum(toks, need, genericDF)
 
-	for _, tok := range toks {
-		if !living.Contains(tok) {
-			continue
-		}
-
-		found++
-
-		if living.Count(tok) < genericDF {
-			distinctive = true
-		}
-	}
-
-	return found >= need && distinctive
+	return ok
 }
 
 // tokenHint names the row's most useful search tokens (rare-in-living
@@ -250,6 +240,7 @@ func Run(args []string) int {
 
 	for _, report := range unarchivedReports(root, settings) {
 		docsfreshness.WarnSectionFNearMiss(report)
+		docsfreshness.WarnSectionFGaps(report)
 	}
 
 	gaps := RoutingGaps(root, settings)

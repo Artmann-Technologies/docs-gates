@@ -71,3 +71,98 @@ func WarnSectionFNearMiss(report string) {
 		)
 	}
 }
+
+// SectionFGapKind names the two ways a report reads nothing at the
+// harvest while looking like it should: no canon §f heading at all, or a
+// §f section whose item-shaped lines are bullets the extractor ignores.
+type SectionFGapKind string
+
+const (
+	// GapMissingHeading: the report has NO canon `## f)` heading — every
+	// next-step line in it is invisible to the harvest (freshness passes
+	// by omission, the 11-24 audit's d2).
+	GapMissingHeading SectionFGapKind = "missing-heading"
+	// GapBulletItem: a §f bullet line — item-shaped, but ExtractItems
+	// harvests only numbered lines and table rows, so it reads nothing.
+	GapBulletItem SectionFGapKind = "bullet-item"
+)
+
+// SectionFGap is one harvest-blind spot: the report's next steps exist
+// but the extractor provably reads none of them.
+type SectionFGap struct {
+	Kind   SectionFGapKind
+	LineNo int    // 1-based; 0 for GapMissingHeading (whole-report)
+	Text   string // trimmed offending line; "" for GapMissingHeading
+}
+
+var bulletItemRe = regexp.MustCompile(`^\s*[-*]\s+\S`)
+
+// FindSectionFGaps returns the ways one report's next steps are invisible
+// to the harvest WITHOUT any near-miss heading being involved: a report
+// with no canon §f heading at all, or a §f section carrying bullet items
+// the extractor ignores. A report whose §f is canon and item-shaped (or
+// explicitly empty prose) returns nil.
+func FindSectionFGaps(report string) []SectionFGap {
+	data, err := os.ReadFile(report)
+	if err != nil {
+		return nil
+	}
+
+	lines := strings.Split(string(data), "\n")
+
+	start := -1
+
+	for i, line := range lines {
+		if SectionFRe.MatchString(line) {
+			start = i + 1
+
+			break
+		}
+	}
+
+	if start < 0 {
+		return []SectionFGap{{Kind: GapMissingHeading}}
+	}
+
+	var gaps []SectionFGap
+
+	for i := start; i < len(lines); i++ {
+		if HeadingRe.MatchString(lines[i]) {
+			break
+		}
+
+		if bulletItemRe.MatchString(lines[i]) {
+			gaps = append(gaps, SectionFGap{
+				Kind:   GapBulletItem,
+				LineNo: i + 1,
+				Text:   strings.TrimSpace(lines[i]),
+			})
+		}
+	}
+
+	return gaps
+}
+
+// WarnSectionFGaps prints one WARN per harvest blind spot — STDOUT for
+// the same reason as WarnSectionFNearMiss: the battery swallows a PASS
+// row's stderr, and passing-by-omission must be loud exactly there.
+func WarnSectionFGaps(report string) {
+	base := filepath.Base(report)
+
+	for _, g := range FindSectionFGaps(report) {
+		switch g.Kind {
+		case GapMissingHeading:
+			gatecli.Outf(
+				"WARN %s: no §f (\"## f)\") heading — the report's next steps are INVISIBLE to the harvest; freshness passes by omission\n",
+				base,
+			)
+		case GapBulletItem:
+			gatecli.Outf(
+				"WARN %s:%d: bullet next step %q is not a harvestable item (only numbered lines and table rows are) — it reads as done while it is not\n",
+				base,
+				g.LineNo,
+				gatecli.Truncate(g.Text, nearMissWidth),
+			)
+		}
+	}
+}

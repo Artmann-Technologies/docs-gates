@@ -49,6 +49,103 @@ func TestUnmatchedItemStillDrifts(t *testing.T) {
 	}
 }
 
+// TestTokensOnSeparateLinesAreCoincidence pins the 2026-11-24 fail-closed
+// bar: an item whose distinctive tokens each match a DIFFERENT living
+// line is coincidence, not a harvest — the shape that let a 50-item
+// report score FRESH on incidental tokens (11-24 audit d2).
+func TestTokensOnSeparateLinesAreCoincidence(t *testing.T) {
+	t.Parallel()
+
+	report := writeReport(t,
+		"# Report\n\n## f) Next\n\n1. refresh the framblatz calibration\n")
+	living := NewCorpus([]string{
+		"the framblatz ledger is canonical",
+		"calibration rituals run weekly here",
+	})
+
+	findings := CheckReport(report, living, DefaultSettings())
+	if len(findings) != 1 {
+		t.Fatalf("separate-line overlap must fail, got %v", findings)
+	}
+
+	if !strings.Contains(findings[0][1], "never share one living line") {
+		t.Fatalf("reason must name the same-line rule: %q", findings[0][1])
+	}
+}
+
+// TestSameLineQuorumPasses asserts the healthy path: one living line
+// carrying both tokens (one distinctive) still counts as harvested.
+func TestSameLineQuorumPasses(t *testing.T) {
+	t.Parallel()
+
+	report := writeReport(t,
+		"# Report\n\n## f) Next\n\n1. refresh the framblatz calibration\n")
+	living := NewCorpus([]string{
+		"the framblatz calibration ledger is canonical",
+		"an unrelated second line",
+	})
+
+	findings := CheckReport(report, living, DefaultSettings())
+	if len(findings) != 0 {
+		t.Fatalf("same-line quorum must pass, got %v", findings)
+	}
+}
+
+// TestSameLineQuorumFindsTheSharedLine pins the corpus helper itself: the
+// first line carrying the quorum is returned for attribution, and a
+// corpus whose lines never co-carry the tokens reports !ok.
+func TestSameLineQuorumFindsTheSharedLine(t *testing.T) {
+	t.Parallel()
+
+	living := NewCorpus([]string{
+		"alpha only here",
+		"beta alone there",
+		"alpha and beta together",
+	})
+
+	matched, line, ok := living.SameLineQuorum([]string{"alpha", "beta"}, 2, GenericDF)
+	if !ok {
+		t.Fatal("the co-carrying line must satisfy the quorum")
+	}
+
+	if line != "alpha and beta together" {
+		t.Fatalf("line = %q, want the co-carrying third line", line)
+	}
+
+	if len(matched) != 2 {
+		t.Fatalf("matched = %v, want both tokens", matched)
+	}
+
+	if _, _, ok := living.SameLineQuorum([]string{"gamma", "delta"}, 2, GenericDF); ok {
+		t.Fatal("absent tokens must never form a quorum")
+	}
+}
+
+// TestSingleTokenItemStillUsesDistinctiveBar pins that the same-line rule
+// tightened nothing for single-token items: a distinctive match passes, a
+// generic-only corpus still fails with the generic reason.
+func TestSingleTokenItemStillUsesDistinctiveBar(t *testing.T) {
+	t.Parallel()
+
+	report := writeReport(t,
+		"# Report\n\n## f) Next\n\n1. framblatz\n")
+
+	distinctive := NewCorpus([]string{"the framblatz ledger"})
+	if findings := CheckReport(report, distinctive, DefaultSettings()); len(findings) != 0 {
+		t.Fatalf("distinctive single token must pass, got %v", findings)
+	}
+
+	generic := make([]string, GenericDF)
+	for i := range generic {
+		generic[i] = "line " + string(rune('a'+i%26)) + string(rune('a'+i%7)) + " mentions framblatz somewhere"
+	}
+
+	findings := CheckReport(report, NewCorpus(generic), DefaultSettings())
+	if len(findings) != 1 || !strings.Contains(findings[0][1], "only generic tokens") {
+		t.Fatalf("generic single token must keep the generic reason, got %v", findings)
+	}
+}
+
 func TestStatusReportsIncludesArchived(t *testing.T) {
 	t.Parallel()
 

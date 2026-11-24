@@ -44,6 +44,7 @@ func auditAll(
 
 	for _, report := range reports {
 		WarnSectionFNearMiss(report)
+		WarnSectionFGaps(report)
 
 		for _, f := range CheckReport(report, living, settings) {
 			failed++
@@ -118,6 +119,7 @@ func checkNewest(
 	}
 
 	WarnSectionFNearMiss(report)
+	WarnSectionFGaps(report)
 
 	if ExtractSectionF(report) == "" {
 		gatecli.Outf("docs-freshness: %s has no §f section — nothing to check\n", filepath.Base(report))
