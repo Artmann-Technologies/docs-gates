@@ -444,7 +444,7 @@ Corrections to this report, found while verifying the board for the
    and a `strings.CutLast` modernize finding. BuildFlow reports the same two
    findings at warning severity and exits 0. Fixed forward in `b152739`;
    the gate gap is a new TODO_LIST §11 row.
-4. **Twenty-one open TODO rows were already done**: the land-parity goldens,
+4. **Twenty open TODO rows were already done**: the land-parity goldens,
    the carrier tests, the clear-stamp and duplicates flags, the CI race
    lanes, the safe-strike hint and batch flag, and others. The plan's
    Step 0 lists them; a TODO_LIST §11 row schedules striking them with
