@@ -16,6 +16,10 @@ import (
 // lines) must be caught BEFORE the line lands, not by the next ritual
 // run. The scenario pins the mechanics: an item whose only distinctive
 // token sits at DF 7, plus a candidate line that pushes it to 8.
+//
+// The anchor line carries BOTH tokens on ONE line (the 2026-11-24
+// same-line bar): without it the item would be baseline-failing and the
+// delta — the entire pre-flight verdict — would be empty by definition.
 func preFlightRoot(t *testing.T) string {
 	t.Helper()
 
@@ -31,14 +35,16 @@ func preFlightRoot(t *testing.T) string {
 		t.Fatal(err)
 	}
 
-	// "webphone" rides 8 lines (generic by definition), "alpha-probe"
-	// rides 7 (the item's only distinctive token).
-	todo := make([]string, 0, 8)
+	// "webphone" rides 9 lines (generic by definition), "alpha-probe"
+	// rides 7 (the item's only distinctive token) — and the pair anchor
+	// line is the single line that co-carries them.
+	todo := []string{"- webphone alpha-probe pair anchor"}
+
 	for i := range 8 {
 		todo = append(todo, fmt.Sprintf("- webphone note number %d", i))
 	}
 
-	for i := range 7 {
+	for i := range 6 {
 		todo = append(todo, fmt.Sprintf("- alpha-probe evidence number %d", i))
 	}
 
