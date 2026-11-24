@@ -171,6 +171,13 @@ func (c *Corpus) lineHits(token string) []int {
 	return idx
 }
 
+// lineTokHit is one (living line, unique token) pair — the flat shape
+// the same-line walk sorts by line index instead of a per-item map.
+type lineTokHit struct {
+	idx int // living-line index
+	tok int // index into SameLineQuorum's unique-token slice
+}
+
 // SameLineQuorum is the fail-closed harvest bar (2026-11-24): a matched
 // item is represented only when ONE shared living line carries at least
 // need of its tokens, one of those same-line matches distinctive
@@ -179,54 +186,96 @@ func (c *Corpus) lineHits(token string) []int {
 // anything (the 11-24 audit: a 50-item report scored FRESH on incidental
 // tokens). ok=false means no single line carries the quorum with a
 // distinctive token; matched/line name the first (lowest-index) line
-// that does otherwise, so callers can attribute.
+// that does, so callers can attribute.
 func (c *Corpus) SameLineQuorum(
 	toks []string,
 	need int,
 	genericDF int,
 ) (matched []string, line string, ok bool) {
-	// Only lines that carry at least one token are quorum candidates:
-	// iterating the whole corpus per item is the CV-cliff shape the
-	// memoization guards (1,640 reports x ~2,000 lines).
-	perLine := make(map[int][]string, len(toks)*2)
+	// Unique tokens (repeat spellings collapse: their DF and hit list are
+	// the same), each with its precomputed distinctive verdict.
+	type uniqTok struct {
+		text string
+		hits []int
+		dist bool
+	}
+
+	uniq := make([]uniqTok, 0, len(toks))
 
 	for _, tok := range toks {
-		for _, i := range c.lineHits(tok) {
-			perLine[i] = append(perLine[i], tok)
-		}
-	}
+		dup := false
 
-	if len(perLine) == 0 {
-		return nil, "", false
-	}
-
-	candidates := make([]int, 0, len(perLine))
-
-	for i := range perLine {
-		candidates = append(candidates, i)
-	}
-
-	slices.Sort(candidates) // lowest index first: corpus order, deterministic
-
-	for _, i := range candidates {
-		lineToks := perLine[i]
-		if len(lineToks) < need {
-			continue
-		}
-
-		distinctive := false
-
-		for _, tok := range lineToks {
-			if c.Count(tok) < genericDF {
-				distinctive = true
+		for i := range uniq {
+			if uniq[i].text == tok {
+				dup = true
 
 				break
 			}
 		}
 
-		if distinctive {
-			return lineToks, c.lines[i], true
+		if dup {
+			continue
 		}
+
+		hits := c.lineHits(tok)
+		if len(hits) == 0 {
+			continue
+		}
+
+		uniq = append(uniq, uniqTok{
+			text: tok,
+			hits: hits,
+			dist: c.Count(tok) < genericDF,
+		})
+	}
+
+	if len(uniq) == 0 {
+		return nil, "", false
+	}
+
+	// Flat (line, token) pairs sorted by line: one walk finds every line
+	// carrying >= need tokens. This stays allocation-light on purpose —
+	// the CV-shaped replay calls it once per item.
+	pairs := make([]lineTokHit, 0, len(uniq)*2)
+
+	for ui := range uniq {
+		for _, i := range uniq[ui].hits {
+			pairs = append(pairs, lineTokHit{idx: i, tok: ui})
+		}
+	}
+
+	slices.SortFunc(pairs, func(a, b lineTokHit) int { return a.idx - b.idx })
+
+	for start := 0; start < len(pairs); {
+		end := start
+
+		for end < len(pairs) && pairs[end].idx == pairs[start].idx {
+			end++
+		}
+
+		if end-start >= need {
+			distinctive := false
+
+			for _, p := range pairs[start:end] {
+				if uniq[p.tok].dist {
+					distinctive = true
+
+					break
+				}
+			}
+
+			if distinctive {
+				matched = make([]string, 0, end-start)
+
+				for _, p := range pairs[start:end] {
+					matched = append(matched, uniq[p.tok].text)
+				}
+
+				return matched, c.lines[pairs[start].idx], true
+			}
+		}
+
+		start = end
 	}
 
 	return nil, "", false
