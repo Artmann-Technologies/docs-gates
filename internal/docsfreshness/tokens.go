@@ -71,21 +71,26 @@ func Squash(text string) string {
 	return strings.ToLower(hyphenRe.ReplaceAllString(text, ""))
 }
 
-// tokenPresent: raw substring match first, then the hyphen/space-collapsed
-// key (TODO 8.4) when the token is long enough to carry it.
-func tokenPresent(token string, livingLines, livingSquashed []string) bool {
-	for _, line := range livingLines {
-		if strings.Contains(line, token) {
-			return true
-		}
+// lineMatchesToken is the ONE line-level match predicate: raw substring
+// first, then the hyphen/space-collapsed key when the KEY is long enough
+// to carry it. tokenPresent, the Corpus presence check and the same-line
+// quorum all ride this predicate so no arm can drift between callers.
+func lineMatchesToken(token, rawLine, squashedLine string) bool {
+	if strings.Contains(rawLine, token) {
+		return true
 	}
 
 	key := Squash(token)
-	if len(key) >= MinTokenLen {
-		for _, line := range livingSquashed {
-			if strings.Contains(line, key) {
-				return true
-			}
+
+	return len(key) >= MinTokenLen && strings.Contains(squashedLine, key)
+}
+
+// tokenPresent: raw substring match first, then the hyphen/space-collapsed
+// key (TODO 8.4) when the token is long enough to carry it.
+func tokenPresent(token string, livingLines, livingSquashed []string) bool {
+	for i := range livingLines {
+		if lineMatchesToken(token, livingLines[i], livingSquashed[i]) {
+			return true
 		}
 	}
 

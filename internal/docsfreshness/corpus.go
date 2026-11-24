@@ -83,6 +83,7 @@ type Corpus struct {
 	squashed []string
 	present  map[string]bool // token -> Contains verdict (memoized)
 	df       map[string]int  // token -> raw-line document frequency (memoized)
+	hits     map[string][]int // token -> living-line indexes matching it (memoized, SameLineQuorum's index)
 }
 
 // NewCorpus prepares raw (already lowercased) lines for token matching.
@@ -92,6 +93,7 @@ func NewCorpus(lines []string) Corpus {
 		squashed: squashLines(lines),
 		present:  map[string]bool{},
 		df:       map[string]int{},
+		hits:     map[string][]int{},
 	}
 }
 
@@ -137,6 +139,79 @@ func (c *Corpus) Count(token string) int {
 	c.df[token] = v
 
 	return v
+}
+
+// lineHits is the memoized inverted index backing SameLineQuorum: the
+// living-line indexes whose line matches the token under the shared
+// lineMatchesToken predicate (raw or squashed arm). Presence and DF stay
+// separate verdicts; this index answers WHERE a token lives, which is
+// what the same-line quorum needs. Memoized per corpus like present/df.
+func (c *Corpus) lineHits(token string) []int {
+	if c.hits == nil {
+		c.hits = map[string][]int{}
+	}
+
+	if v, ok := c.hits[token]; ok {
+		return v
+	}
+
+	var idx []int
+
+	for i := range c.lines {
+		if lineMatchesToken(token, c.lines[i], c.squashed[i]) {
+			idx = append(idx, i)
+		}
+	}
+
+	c.hits[token] = idx
+
+	return idx
+}
+
+// SameLineQuorum is the fail-closed harvest bar (2026-11-24): a matched
+// item is represented only when ONE shared living line carries at least
+// need of its tokens, one of those same-line matches distinctive
+// (DF < genericDF). Corpus-wide token overlap is coincidence, not a
+// harvest — two common words landing on two different rows never routed
+// anything (the 11-24 audit: a 50-item report scored FRESH on incidental
+// tokens). ok=false means no single line carries the quorum with a
+// distinctive token; matched/line name the first (lowest-index) line
+// that does otherwise, so callers can attribute.
+func (c *Corpus) SameLineQuorum(
+	toks []string,
+	need int,
+	genericDF int,
+) (matched []string, line string, ok bool) {
+	perLine := map[int][]string{}
+
+	for _, tok := range toks {
+		for _, i := range c.lineHits(tok) {
+			perLine[i] = append(perLine[i], tok)
+		}
+	}
+
+	for i := 0; i < len(c.lines); i++ {
+		lineToks := perLine[i]
+		if len(lineToks) < need {
+			continue
+		}
+
+		distinctive := false
+
+		for _, tok := range lineToks {
+			if c.Count(tok) < genericDF {
+				distinctive = true
+
+				break
+			}
+		}
+
+		if distinctive {
+			return lineToks, c.lines[i], true
+		}
+	}
+
+	return nil, "", false
 }
 
 // loadLivingDocs reads the configured living docs into the comparison

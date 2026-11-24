@@ -57,7 +57,10 @@ func CheckReport(report string, living Corpus, settings Settings) [][2]string {
 }
 
 // itemVerdict returns the drift reason for one open item, "" when the living
-// docs reflect it: enough tokens matched, at least one of them distinctive.
+// docs reflect it: enough tokens matched on ONE shared living line, at least
+// one of them distinctive. The same-line rule is the 2026-11-24 fail-closed
+// fix: an item whose tokens match two DIFFERENT living lines passed for
+// three months as coincidence (the 11-24 audit's 50-item FRESH report).
 func itemVerdict(item string, living Corpus, genericDF int) string {
 	toks := Tokens(item)
 	if len(toks) == 0 {
@@ -87,6 +90,14 @@ func itemVerdict(item string, living Corpus, genericDF int) string {
 				"not a harvest)",
 			gatecli.Truncate(strings.Join(found, " "), reasonMax),
 			genericDF,
+		)
+	}
+
+	if _, _, ok := living.SameLineQuorum(toks, need, genericDF); !ok {
+		return fmt.Sprintf(
+			"tokens never share one living line: %s (each matches somewhere, never together — "+
+				"coincidence, not a harvest)",
+			gatecli.Truncate(strings.Join(found, " "), reasonMax),
 		)
 	}
 
