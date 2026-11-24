@@ -133,7 +133,7 @@ func TestDumpItemsExtractsAndTokens(t *testing.T) {
 // TestHarvestAttributionNamesMatchedLines: a failing item's attributions
 // carry matched tokens with DF and example living lines — the preflight
 // culprit idea extended to the harvest findings. The alpha-probe corpus
-// rides webphone at DF 8 (generic at the bar) and alpha-probe at DF 7
+// rides webphone at DF 9 (generic at the bar) and alpha-probe at DF 7
 // (still distinctive): both must appear, only the first tagged generic.
 //
 //nolint:paralleltest // shares the helper corpus with the margins test style
@@ -150,7 +150,7 @@ func TestHarvestAttributionNamesMatchedLines(t *testing.T) {
 
 	joined := strings.Join(out, "\n")
 
-	if !strings.Contains(joined, "matched: webphone (DF 8, generic)") {
+	if !strings.Contains(joined, "matched: webphone (DF 9, generic)") {
 		t.Fatalf("the attribution must name the generic match with its DF, got:\n%s", joined)
 	}
 

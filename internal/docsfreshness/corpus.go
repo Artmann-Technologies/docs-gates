@@ -4,6 +4,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"slices"
 	"sort"
 	"strings"
 )
@@ -182,7 +183,10 @@ func (c *Corpus) SameLineQuorum(
 	need int,
 	genericDF int,
 ) (matched []string, line string, ok bool) {
-	perLine := map[int][]string{}
+	// Only lines that carry at least one token are quorum candidates:
+	// iterating the whole corpus per item is the CV-cliff shape the
+	// memoization guards (1,640 reports x ~2,000 lines).
+	perLine := make(map[int][]string, len(toks)*2)
 
 	for _, tok := range toks {
 		for _, i := range c.lineHits(tok) {
@@ -190,7 +194,19 @@ func (c *Corpus) SameLineQuorum(
 		}
 	}
 
-	for i := 0; i < len(c.lines); i++ {
+	if len(perLine) == 0 {
+		return nil, "", false
+	}
+
+	candidates := make([]int, 0, len(perLine))
+
+	for i := range perLine {
+		candidates = append(candidates, i)
+	}
+
+	slices.Sort(candidates) // lowest index first: corpus order, deterministic
+
+	for _, i := range candidates {
 		lineToks := perLine[i]
 		if len(lineToks) < need {
 			continue
