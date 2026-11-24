@@ -131,7 +131,7 @@ task entries, 135 micro-tasks: the session spent its budget inside T1.
    the crush-config audit_max drain: never raise a pin, verdict every
    item).
 
-## f) Next (up to 50, plan order)
+## Next work queue (up to 50, plan order)
 
 1. Land the 34 remaining fresh:skip verdict markers (composed, evidence
    per item) — then battery audit-all green.
@@ -207,22 +207,13 @@ task entries, 135 micro-tasks: the session spent its budget inside T1.
    SystemNix push): answer them in one sitting now, or should the
    session continue the T2-T5 train first and batch the sheet later?
 
-## f) §f next tasks (the harvest input)
+## f) Next tasks (the harvest input)
 
-1. Land the 34 remaining fresh:skip verdict markers for the fail-closed
-   replay backlog so audit-all returns green (TODO §12 carries the
-   landed rows; the verdicts are composed with evidence).
-2. Write the README note and CHANGELOG rows for the same-line freshness
-   bar and the new harvest-blind WARNs (plan T1 docs leg).
-3. Run golangci-lint fmt + run + erraudit + nolint-audit over the T1
-   changed files and land the owed detailed commit for the train.
-4. Execute T3 (standing struck-row check) and T4 (purge collector
-   fixes) before T2 repairs the ten corrupted rows (plan order
-   T3, T4, T2).
-5. Execute T5 (battery panic guard) to close the first six-hour train.
-6. Execute T10 (strike the 20 done rows, then purge) and T6 (release
-   cut) to carry the judge-integrity fixes out to the fleet.
-7. Prepare the T8 owner decision sheet (eleven rulings) — it gates T11,
-   T21 and the flip date.
-8. Sweep the fleet per T7/T12 on the released binary and record the
-   adopt / not-owed verdict per repo.
+1. Land the 34 remaining fresh:skip verdict markers for the fail-closed replay backlog so audit-all returns green (the new TODO section 12 carries the landed rows; the verdicts are composed with evidence).
+2. README note + CHANGELOG rows for the same-line bar and WARNs <!-- fresh:skip: in-flight — the T1 session lands this with its commit before the next battery run -->.
+3. Lint drill plus the owed detailed T1 train commit <!-- fresh:skip: in-flight — same train, lands within the hour -->.
+4. Execute the standing battery check for shifted struck rows and the purge collector fixes, then repair the ten corrupted struck rows (plan order T3, T4, T2; the section 10 and 11 rows carry them).
+5. Add the battery panic guard: a deferred recover turning a panicking gate into a named FAIL row (the section 10 row).
+6. Strike the 20 done rows then cut the release carrying the judge-integrity fixes (the section 11 rows).
+7. Prepare the owner decision sheet covering the eleven rulings (battery adoption scope first; the section 4 rows carry them).
+8. Run the per-repo freshness verdict sweep across the 67 gap repos on the released battery (the section 9 row).
