@@ -226,24 +226,32 @@ func (c *Corpus) SameLineQuorum(
 		return nil, "", false
 	}
 
-	// Intersect smallest-first: any line meeting the quorum carries every
-	// token, so the rarest token's hit list already contains every
-	// candidate. Walking it in order keeps the lowest-index winner, and
-	// each other token answers membership by binary search — no per-item
-	// pair materialization, no sort (the CV-shaped replay calls this once
-	// per item and the pair sort dominated its profile).
-	order := make([]int, len(uniq))
-	for i := range order {
-		order[i] = i
+	// Seed candidates from the DISTINCTIVE tokens' hit lists only: the
+	// bar demands one same-line distinctive match, so a passing line is
+	// always in some distinctive token's list, and an item with no
+	// distinctive token at all fails without walking anything. Lists
+	// ascend by construction; the union walk keeps the lowest-index
+	// winner and each other token answers membership by binary search —
+	// no per-item pair materialization, no sort (the CV-shaped replay
+	// calls this once per item and the pair sort dominated its profile).
+	var cand []int
+
+	for u := range uniq {
+		if uniq[u].dist {
+			cand = append(cand, uniq[u].hits...)
+		}
 	}
 
-	slices.SortFunc(order, func(a, b int) int {
-		return len(uniq[a].hits) - len(uniq[b].hits)
-	})
+	if len(cand) == 0 {
+		return nil, "", false
+	}
+
+	slices.Sort(cand)
+	cand = slices.Compact(cand)
 
 	found := make([]int, 0, len(uniq))
 
-	for _, li := range uniq[order[0]].hits {
+	for _, li := range cand {
 		found = found[:0]
 
 		for ui := range uniq {
