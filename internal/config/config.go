@@ -130,6 +130,11 @@ func Path(root string) string {
 	return filepath.Join(root, FileName)
 }
 
+// suggestMaxEdits is the did-you-mean bar for unknown config keys: a
+// typo within this Levenshtein distance of exactly one known key
+// suggests it.
+const suggestMaxEdits = 2
+
 // Load reads root's config over the defaults: (config, unknown-key
 // warnings, error). A missing file is defaults with no warnings — the
 // common case, not a finding. A malformed file or an invalid value is an
@@ -167,7 +172,7 @@ func Load(root string) (Config, []string, error) {
 	for _, key := range sortedKeys(raw) {
 		if !known[key] {
 			warning := fmt.Sprintf("unknown config key %q ignored", key)
-			if near, ok := NearestKey(key, knownSlice, 2); ok {
+			if near, ok := NearestKey(key, knownSlice, suggestMaxEdits); ok {
 				warning += fmt.Sprintf(" — did you mean %q?", near)
 			}
 

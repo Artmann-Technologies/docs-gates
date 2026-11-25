@@ -28,7 +28,8 @@ func TestNearestKeySuggestsWithinTwo(t *testing.T) {
 func TestNearestKeyRefusesTies(t *testing.T) {
 	t.Parallel()
 
-	known := []string{"cat", "hat"}
+	known := make([]string, 0, 3)
+	known = append(known, "cat", "hat")
 
 	if got, ok := NearestKey("bat", known, 2); ok {
 		t.Fatalf("bat sits at distance 1 from cat AND hat — must refuse, suggested %q", got)

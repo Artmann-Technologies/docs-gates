@@ -199,7 +199,7 @@ func runGates(list []gate, skipGates []string, timeout time.Duration, jsonMode b
 
 		panicked := false
 
-		out, timedOut := gatecli.CaptureOutputWithTimeout(func() (code int) {
+		out, timedOut := gatecli.CaptureOutputWithTimeout(func() int {
 			// The panic guard: one gate's panic must never crash the
 			// battery process (a goroutine panic otherwise kills it with
 			// no matrix at all). The recovered panic becomes a FAIL row
@@ -209,12 +209,15 @@ func runGates(list []gate, skipGates []string, timeout time.Duration, jsonMode b
 					gatecli.Errf("docs-gates: gate %s PANICKED: %v\n", g.name, r)
 
 					panicked = true
-					code = gatecli.ExitFindings
 				}
 			}()
 
 			return g.fn(g.args)
 		}, timeout)
+
+		if panicked {
+			out.Code = gatecli.ExitFindings
+		}
 
 		elapsed := time.Since(start)
 
