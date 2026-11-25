@@ -8,6 +8,7 @@
       "exit_code": 0,
       "skipped": false,
       "timed_out": false,
+      "panicked": false,
       "duration_ms": D,
       "stdout": "docs-freshness: {{DATE}}_10-00_ship-it.md: 0 unharvested open §f item(s)\ndocs-freshness: FRESH\n",
       "stderr": ""
@@ -18,6 +19,7 @@
       "exit_code": 0,
       "skipped": false,
       "timed_out": false,
+      "panicked": false,
       "duration_ms": D,
       "stdout": "docs-freshness --audit-all: replaying 1 report(s) against 7 living line(s) — est ~105µs (worst case, findings-heavy)\ndocs-freshness --audit-all: 1 report(s) replayed, 0 unharvested open item(s)\ndocs-freshness --audit-all: FRESH\n",
       "stderr": ""
@@ -28,6 +30,7 @@
       "exit_code": 0,
       "skipped": false,
       "timed_out": false,
+      "panicked": false,
       "duration_ms": D,
       "stdout": "docs-annotate: no git checkout here - hash/tag rules skipped\ndocs-annotate: 1 file(s), 1 struck item(s), 0 finding(s)\ndocs-annotate: CLEAN\n",
       "stderr": ""
@@ -38,6 +41,7 @@
       "exit_code": 0,
       "skipped": false,
       "timed_out": false,
+      "panicked": false,
       "duration_ms": D,
       "stdout": "docs-routing (STRICT): 1 unarchived report(s) scanned, 0 unrouted open row(s)\n",
       "stderr": ""
@@ -48,6 +52,7 @@
       "exit_code": 0,
       "skipped": false,
       "timed_out": false,
+      "panicked": false,
       "duration_ms": D,
       "stdout": "docs-cadence: 1 struck DONE row(s) in TODOS.md (threshold 5)\ndocs-cadence: PURGE-HEALTHY\ndocs-cadence: 1 unarchived report(s) in reports/ (threshold 3); oldest {{DATE}}_10-00_ship-it.md is 0 day(s) old (threshold 10)\ndocs-cadence: ARCHIVE-HEALTHY\n",
       "stderr": ""
@@ -58,6 +63,7 @@
       "exit_code": 0,
       "skipped": false,
       "timed_out": false,
+      "panicked": false,
       "duration_ms": D,
       "stdout": "SKIP docs/DOMAIN_LANGUAGE.md (missing)\nOK no bare-template stubs in 1 file(s)\n",
       "stderr": ""
@@ -68,6 +74,7 @@
       "exit_code": 0,
       "skipped": false,
       "timed_out": false,
+      "panicked": false,
       "duration_ms": D,
       "stdout": "SKIP docs/DOMAIN_LANGUAGE.md (missing)\nOK 0 citation(s) across 1 file(s) all resolve\n",
       "stderr": ""
@@ -78,6 +85,7 @@
       "exit_code": 0,
       "skipped": false,
       "timed_out": false,
+      "panicked": false,
       "duration_ms": D,
       "stdout": "SKIP docs/DOMAIN_LANGUAGE.md (missing)\nOK no verification stamp past 90 day(s) in 1 file(s)\n",
       "stderr": ""
@@ -88,6 +96,7 @@
       "exit_code": 0,
       "skipped": false,
       "timed_out": false,
+      "panicked": false,
       "duration_ms": D,
       "stdout": "SKIP FEATURES.md (missing)\nOK every status token comes from the legend in 1 file(s)\n",
       "stderr": ""
@@ -98,6 +107,7 @@
       "exit_code": 0,
       "skipped": false,
       "timed_out": false,
+      "panicked": false,
       "duration_ms": D,
       "stdout": "WARN AGENTS.md missing — the agent contract is fleet-mandatory (agents_enforce=false, warn mode)\n",
       "stderr": ""

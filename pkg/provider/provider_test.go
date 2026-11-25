@@ -290,3 +290,60 @@ func TestHealthCheckReportsMissingBinary(t *testing.T) {
 		t.Fatalf("health failure must carry the install hint, got %q", err.Error())
 	}
 }
+
+// panicJSON carries one panicked row — the battery's new `panicked`
+// field (the panic guard's machine face). Its decode is the provider
+// half of the row-shape contract: unknown-field rejection must ACCEPT
+// the new member, and the finding's message must name the panic.
+const panicJSON = `{
+  "root": "/repo",
+  "pass": false,
+  "gates": [
+    {
+      "name": "vocabulary",
+      "verdict": "FAIL",
+      "exit_code": 1,
+      "skipped": false,
+      "timed_out": false,
+      "panicked": true,
+      "duration_ms": 5,
+      "stdout": "",
+      "stderr": "docs-gates: gate vocabulary PANICKED: boom\n"
+    }
+  ]
+}`
+
+// Detect over a panicked row: the decode accepts the new field, the row
+// yields one error finding, and the message names the panic with the
+// verb replay hint.
+//
+//nolint:paralleltest // process-global PATH swap, serialized on purpose
+func TestDetectPanickedRowNamesThePanic(t *testing.T) {
+	report, err := decodeReport(panicJSON)
+	if err != nil {
+		t.Fatalf("the panicked field must decode cleanly: %v", err)
+	}
+
+	if failed := failedGates(report); len(failed) != 1 || !failed[0].Panicked {
+		t.Fatalf("the panicked row must fail with panicked set, got %+v", failed)
+	}
+
+	writeFakeBinary(t, panicJSON, 1)
+
+	findings, err := Provider.Detect.Detect(context.Background())
+	if err != nil {
+		t.Fatalf("Detect: %v", err)
+	}
+
+	if len(findings) != 1 {
+		t.Fatalf("one panicked row must yield one finding, got %d: %+v", len(findings), findings)
+	}
+
+	if !strings.Contains(findings[0].Message, "PANICKED") {
+		t.Fatalf("the message must name the panic, got %q", findings[0].Message)
+	}
+
+	if !strings.Contains(findings[0].Message, "run `docs-gates vocabulary ") {
+		t.Fatalf("the hint must replay the gate's verb, got %q", findings[0].Message)
+	}
+}

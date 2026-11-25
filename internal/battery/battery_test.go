@@ -352,10 +352,12 @@ func TestRunPanickingGateBecomesFailRow(t *testing.T) {
 	cmd := exec.Command(os.Args[0], "-test.run=TestRunPanickingGateBecomesFailRow$") //nolint:gosec // G204: the test binary re-execs itself
 	cmd.Env = append(os.Environ(), panicProbeEnv+"=1")
 
-	out, err := cmd.CombinedOutput()
+	out, _ := cmd.CombinedOutput()
 
-	if err != nil {
-		t.Fatalf("a panicked gate must not crash the battery: %v\n%s", err, out)
+	// A pre-fix crash dies with the Go panic exit code (2); the guarded
+	// battery exits 1 by its own verdict arithmetic.
+	if code := cmd.ProcessState.ExitCode(); code == 2 {
+		t.Fatalf("a panicked gate must not crash the battery:\n%s", out)
 	}
 
 	if cmd.ProcessState.ExitCode() != 1 {
