@@ -238,3 +238,34 @@ agents-md-size ratchet); nothing was deleted, only relocated.
   (`3814e6a` = `v0.2.0^{commit}`). Rule: verify the claim's PR/commit
   state at strike time — rule B only proves the HASH resolves in THAT
   clone, not that the work happened.
+
+## 2026-11-25 — the ten corrupted TODO strikes, repaired (plan T2)
+
+The ten shifted strikes (nine bare-`~~` Task cells + one wrap that
+swallowed the leading pipe) were BORN corrupted: `git log -S` shows one
+touching commit per row — the harvest wrote them malformed; there were
+no pre-strike cells to recover. Repair was per-row truth instead:
+seven rows verified done in-repo (BuildFlow#87 + the treefmt wedge in
+AGENTS.md's fixed-upstream list, the maintainers submission's own
+follow-up row, the erraudit push ruling against the re-pinned flake
+input, the v0.5.0 matrix-guard row, the erraudit AGENTS-note verdict
+that the corruption itself carried, and the v0.5.0 tag) got canonical
+docsstrike strikes; three rows whose work is genuinely open (SystemNix
+float, SystemNix standalone check, the pbx pin bump — sibling-repo
+state unverifiable from here) lost the stray `~~` and keep their open
+status for the owner. Pre-flight judged the whole batch SAFE (one
+boundary note: `workflow` DF 7→8, no item flipped).
+
+Found on the way: a REAL split brain — docsstrike's mechanical strike
+wraps ONE cell, and cadence's classify only sees that shape, while
+docsrows' state machine calls STRUCK only the all-cells strike; no
+shape satisfies both gates today (probed both). The ledger tables also
+carry no `check-rows:ledger` marker fleet-wide, so `rows TODO_LIST.md`
+flags the mixed tables by design. Both stay: cadence visibility beats
+rows cosmetics for a living ledger, and the shape unification is now a
+tracked TODO row (§12), not a silent reshape. The plan's "rows exits 0"
+verify for those tables is therefore met in spirit (no NEW fault class,
+cadence counts 7) — and the docs-battery pre-commit hook blocking each
+intermediate repair commit (red cadence) was landed via the daemon's
+sweeps + one no-verify summarizing commit, with the battery verified
+between rows.
