@@ -82,8 +82,8 @@ func LivingDocsLines(root string, names []string) []string {
 type Corpus struct {
 	lines    []string
 	squashed []string
-	present  map[string]bool // token -> Contains verdict (memoized)
-	df       map[string]int  // token -> raw-line document frequency (memoized)
+	present  map[string]bool  // token -> Contains verdict (memoized)
+	df       map[string]int   // token -> raw-line document frequency (memoized)
 	hits     map[string][]int // token -> living-line indexes matching it (memoized, SameLineQuorum's index)
 }
 
