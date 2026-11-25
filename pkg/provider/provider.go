@@ -60,8 +60,8 @@ const gateAuditAll = "audit-all"
 // version skew class the strict decoder exists for. Bump the pin WITH
 // the release ritual (the CHANGELOG cut owns the tag).
 const installHint = "docs-gates binary not on PATH — install via " +
-	"`nix run github:Artmann-Technologies/docs-gates/v0.5.0` or " +
-	"`go install github.com/Artmann-Technologies/docs-gates/cmd/docs-gates@v0.5.0`"
+	"`nix run github:Artmann-Technologies/docs-gates/v0.6.0` or " +
+	"`go install github.com/Artmann-Technologies/docs-gates/cmd/docs-gates@v0.6.0`"
 
 // batteryReport is the provider-side mirror of the battery's --json
 // document (pkg/provider cannot import internal/battery, so the shape is
