@@ -89,9 +89,14 @@ usage: docs-cadence [repo-root]
 No flags: the thresholds (struck_rows, max_unarchived, oldest_days) live
 in the repo's .docs-gates.json. The gate fails once struck DONE rows or
 unarchived reports cross their threshold, or the oldest report ages out —
-the purge/archive rituals are then owed.
+the purge/archive rituals are then owed. It also fails on SHIFTED
+STRIKEs: strike wraps outside the Task cell, wraps carrying no text,
+surplus/missing cells against the table's header, or a wrap that
+swallowed the leading pipe — malformed rows inflate the struck count
+and the purge would misparse them.
 
-Exit codes: 0 healthy, 1 a ritual is owed, 2 usage error.
+Exit codes: 0 healthy, 1 a ritual is owed or a strike is shifted,
+2 usage error.
 `
 
 // Run is the CLI entry (repo-root positional).
@@ -135,6 +140,15 @@ func Run(args []string) int {
 	}
 
 	findings := 0
+
+	// Shifted strikes first: a malformed strike inflates (or hides) the
+	// struck count and the purge would misparse the row — name every
+	// fault before any threshold verdict.
+	for _, fault := range scanStrikeFaults(string(body)) {
+		gatecli.Errf("docs-cadence: SHIFTED STRIKE %s:%d: %s\n", settings.TodoFile, fault.line, fault.reason)
+
+		findings++
+	}
 
 	if struck > settings.StruckThreshold {
 		gatecli.Errf(
