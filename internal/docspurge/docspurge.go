@@ -180,6 +180,23 @@ func gateRefused(applied bool, code int) int {
 // applyPurge writes both faces: the struck rows leave the TODO file, the
 // bullets join the [Unreleased] Changed section.
 func applyPurge(opts Options, todoPath, todoData string, rows []struckRow, bullets []string) int {
+	return applyPurgeWith(writePreservingMode, opts, todoPath, todoData, rows, bullets)
+}
+
+// applyPurgeWith is the write-order core behind applyPurge, taking the
+// writer so tests can watch the order and fail a leg. The CHANGELOG is
+// written FIRST and the TODO file SECOND: a crash between the two
+// writes must leave the board purged but the verdicts already
+// preserved, never the reverse — deleted rows with the evidence lost
+// (the io-surface incident's recovery existed only because the loss was
+// noticed).
+func applyPurgeWith(
+	write func(path, content string) error,
+	opts Options,
+	todoPath, todoData string,
+	rows []struckRow,
+	bullets []string,
+) int {
 	changelogPath := filepath.Join(opts.Root, opts.Changelog)
 
 	changelogData, err := os.ReadFile(changelogPath)
@@ -196,14 +213,14 @@ func applyPurge(opts Options, todoPath, todoData string, rows []struckRow, bulle
 		return gatecli.ExitUsage
 	}
 
-	if err := writePreservingMode(todoPath, removeRows(todoData, rows)); err != nil {
-		gatecli.Errf("FATAL: writing %s: %v\n", todoPath, err)
+	if err := write(changelogPath, updatedChangelog); err != nil {
+		gatecli.Errf("FATAL: writing %s: %v\n", changelogPath, err)
 
 		return gatecli.ExitUsage
 	}
 
-	if err := writePreservingMode(changelogPath, updatedChangelog); err != nil {
-		gatecli.Errf("FATAL: writing %s: %v\n", changelogPath, err)
+	if err := write(todoPath, removeRows(todoData, rows)); err != nil {
+		gatecli.Errf("FATAL: writing %s: %v\n", todoPath, err)
 
 		return gatecli.ExitUsage
 	}

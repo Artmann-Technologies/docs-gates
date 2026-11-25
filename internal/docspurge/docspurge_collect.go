@@ -72,31 +72,63 @@ func statusCell(line string, predicate func(string) bool) (string, bool) {
 // first ~~ pair and the verdict tail after it, cut at the next table
 // pipe. A line without a wrap, or one whose wrap is empty on both sides,
 // is not a strike.
+//
+// The wrap that swallowed the leading pipe (the shift-strike shape the
+// cadence detector faults) is normalized first: the opening ~~ moves
+// inside the first cell, and a task span that still spans cells keeps
+// only its first cell — the draft renders one bullet per row, and a
+// pipe-laden task renders as a broken table row in the CHANGELOG.
 func splitStrike(line string, lineNo int) (struckRow, bool) {
-	first := strings.Index(line, "~~")
+	raw := line
+
+	if normalized, swallowed := normalizeSwallowedPipe(line); swallowed {
+		raw = normalized
+	}
+
+	first := strings.Index(raw, "~~")
 	if first < 0 {
 		return struckRow{}, false
 	}
 
-	second := strings.Index(line[first+2:], "~~")
+	second := strings.Index(raw[first+2:], "~~")
 	if second < 0 {
 		return struckRow{}, false
 	}
 
-	task := line[first+2 : first+2+second]
+	task := raw[first+2 : first+2+second]
 
-	verdictTail := line[first+2+second+2:]
+	verdictTail := raw[first+2+second+2:]
 	if cut := strings.Index(verdictTail, "|"); cut >= 0 {
 		verdictTail = verdictTail[:cut]
 	}
 
 	verdict := strings.TrimSpace(verdictTail)
 
+	if i := strings.Index(task, "|"); i >= 0 {
+		task = task[:i]
+	}
+
 	if strings.TrimSpace(task) == "" && verdict == "" {
 		return struckRow{}, false
 	}
 
 	return struckRow{lineNo: lineNo, oldLine: line, task: task, verdict: verdict}, true
+}
+
+// normalizeSwallowedPipe repairs the struck-before-the-pipe shape: a
+// line whose wrap opened before the leading pipe reads as `~~| cells
+// |~~ verdict`, which would otherwise put the whole pipe-laden row into
+// the drafted bullet. The repair rewrites to the canonical leading pipe
+// with the wrap inside the first cell; ok reports whether the shape
+// matched.
+func normalizeSwallowedPipe(line string) (string, bool) {
+	trimmed := strings.TrimSpace(line)
+
+	if !strings.HasPrefix(trimmed, "~~|") {
+		return line, false
+	}
+
+	return "| ~~" + trimmed[3:], true
 }
 
 // draftBullets renders one CHANGELOG bullet per struck row: the unwrapped
