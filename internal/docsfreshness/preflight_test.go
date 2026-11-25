@@ -38,7 +38,8 @@ func preFlightRoot(t *testing.T) string {
 	// "webphone" rides 9 lines (generic by definition), "alpha-probe"
 	// rides 7 (the item's only distinctive token) — and the pair anchor
 	// line is the single line that co-carries them.
-	todo := []string{"- webphone alpha-probe pair anchor"}
+	todo := make([]string, 0, 15)
+	todo = append(todo, "- webphone alpha-probe pair anchor")
 
 	for i := range 8 {
 		todo = append(todo, fmt.Sprintf("- webphone note number %d", i))

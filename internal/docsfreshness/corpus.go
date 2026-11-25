@@ -171,29 +171,18 @@ func (c *Corpus) lineHits(token string) []int {
 	return idx
 }
 
-// SameLineQuorum is the fail-closed harvest bar (2026-11-24): a matched
-// item is represented only when ONE shared living line carries at least
-// need of its tokens, one of those same-line matches distinctive
-// (DF < genericDF). Corpus-wide token overlap is coincidence, not a
-// harvest — two common words landing on two different rows never routed
-// anything (the 11-24 audit: a 50-item report scored FRESH on incidental
-// tokens). ok=false means no single line carries the quorum with a
-// distinctive token; matched/line name the first (lowest-index) line
-// that does, so callers can attribute.
-func (c *Corpus) SameLineQuorum(
-	toks []string,
-	need int,
-	genericDF int,
-) (matched []string, line string, ok bool) {
-	// Unique tokens (repeat spellings collapse: their DF and hit list are
-	// the same), each with its precomputed distinctive verdict.
-	type uniqTok struct {
-		text string
-		hits []int
-		dist bool
-	}
+// matchedToken is one distinct item token that matches the corpus,
+// with its hit list and distinctive verdict precomputed.
+type matchedToken struct {
+	text string
+	hits []int
+	dist bool
+}
 
-	uniq := make([]uniqTok, 0, len(toks))
+// uniqMatchedTokens collapses repeat spellings (their DF and hit list
+// are the same) and drops tokens that match no living line.
+func (c *Corpus) uniqMatchedTokens(toks []string, genericDF int) []matchedToken {
+	uniq := make([]matchedToken, 0, len(toks))
 
 	for _, tok := range toks {
 		dup := false
@@ -215,25 +204,21 @@ func (c *Corpus) SameLineQuorum(
 			continue
 		}
 
-		uniq = append(uniq, uniqTok{
+		uniq = append(uniq, matchedToken{
 			text: tok,
 			hits: hits,
 			dist: c.Count(tok) < genericDF,
 		})
 	}
 
-	if len(uniq) == 0 {
-		return nil, "", false
-	}
+	return uniq
+}
 
-	// Seed candidates from the DISTINCTIVE tokens' hit lists only: the
-	// bar demands one same-line distinctive match, so a passing line is
-	// always in some distinctive token's list, and an item with no
-	// distinctive token at all fails without walking anything. Lists
-	// ascend by construction; the union walk keeps the lowest-index
-	// winner and each other token answers membership by binary search —
-	// no per-item pair materialization, no sort (the CV-shaped replay
-	// calls this once per item and the pair sort dominated its profile).
+// distinctiveLines is the ascending, deduplicated union of the
+// distinctive tokens' hit lists: every line that could possibly satisfy
+// the same-line bar (which demands a distinctive co-match) — and an
+// empty result means the item fails without walking anything.
+func distinctiveLines(uniq []matchedToken) []int {
 	var cand []int
 
 	for u := range uniq {
@@ -243,11 +228,37 @@ func (c *Corpus) SameLineQuorum(
 	}
 
 	if len(cand) == 0 {
-		return nil, "", false
+		return nil
 	}
 
 	slices.Sort(cand)
-	cand = slices.Compact(cand)
+
+	return slices.Compact(cand)
+}
+
+// SameLineQuorum is the fail-closed harvest bar (2026-11-24): a matched
+// item is represented only when ONE shared living line carries at least
+// need of its tokens, one of those same-line matches distinctive
+// (DF < genericDF). Corpus-wide token overlap is coincidence, not a
+// harvest — two common words landing on two different rows never routed
+// anything (the 11-24 audit: a 50-item report scored FRESH on incidental
+// tokens). ok=false means no single line carries the quorum with a
+// distinctive token; the returned match names the tokens of the first
+// (lowest-index) line that does, so callers can attribute.
+func (c *Corpus) SameLineQuorum(toks []string, need int, genericDF int) ([]string, string, bool) {
+	uniq := c.uniqMatchedTokens(toks, genericDF)
+	if len(uniq) == 0 {
+		return nil, "", false
+	}
+
+	// Seed candidates from the DISTINCTIVE tokens' hit lists only (see
+	// distinctiveLines): the bar demands one same-line distinctive match,
+	// so a passing line is always in some distinctive token's list, and
+	// an item with no distinctive token at all fails without walking
+	// anything. Each other token answers membership by binary search —
+	// no per-item pair materialization, no sort (the CV-shaped replay
+	// calls this once per item and the pair sort dominated its profile).
+	cand := distinctiveLines(uniq)
 
 	found := make([]int, 0, len(uniq))
 
@@ -264,21 +275,11 @@ func (c *Corpus) SameLineQuorum(
 			continue
 		}
 
-		distinctive := false
-
-		for _, ui := range found {
-			if uniq[ui].dist {
-				distinctive = true
-
-				break
-			}
-		}
-
-		if !distinctive {
+		if !anyDistinctive(uniq, found) {
 			continue
 		}
 
-		matched = make([]string, 0, len(found))
+		matched := make([]string, 0, len(found))
 
 		for _, ui := range found {
 			matched = append(matched, uniq[ui].text)
@@ -288,6 +289,18 @@ func (c *Corpus) SameLineQuorum(
 	}
 
 	return nil, "", false
+}
+
+// anyDistinctive reports whether any of the candidate-token indexes
+// carries the distinctive verdict.
+func anyDistinctive(uniq []matchedToken, found []int) bool {
+	for _, ui := range found {
+		if uniq[ui].dist {
+			return true
+		}
+	}
+
+	return false
 }
 
 // loadLivingDocs reads the configured living docs into the comparison

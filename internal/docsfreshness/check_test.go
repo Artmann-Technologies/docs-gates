@@ -135,9 +135,9 @@ func TestSingleTokenItemStillUsesDistinctiveBar(t *testing.T) {
 		t.Fatalf("distinctive single token must pass, got %v", findings)
 	}
 
-	generic := make([]string, GenericDF)
-	for i := range generic {
-		generic[i] = "line " + string(rune('a'+i%26)) + string(rune('a'+i%7)) + " mentions framblatz somewhere"
+	generic := make([]string, 0, GenericDF)
+	for i := range GenericDF {
+		generic = append(generic, "line "+string(rune('a'+i%26))+string(rune('a'+i%7))+" mentions framblatz somewhere")
 	}
 
 	findings := CheckReport(report, NewCorpus(generic), DefaultSettings())

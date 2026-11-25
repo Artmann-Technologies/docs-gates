@@ -95,12 +95,12 @@ func TestFindSectionFGaps(t *testing.T) {
 	})
 }
 
-// TestFreshnessRunWarnsOnSectionFGaps proves the omission WARN rides the
-// gate's stdout on the PASS path — the surface where a bullet-only §f
-// scored FRESH for weeks.
-//
-//nolint:paralleltest // process-global capture swap, serialized on purpose
-func TestFreshnessRunWarnsOnSectionFGaps(t *testing.T) {
+// runWarnProbe writes one report with the given body into a fresh repo
+// root, runs the gate, and returns the captured output — the shared
+// harness for the two omission-WARN tests (same shape, different WARN).
+func runWarnProbe(t *testing.T, body string) gatecli.CapturedOutput {
+	t.Helper()
+
 	root := t.TempDir()
 
 	reportDir := filepath.Join(root, "docs", "status")
@@ -108,15 +108,22 @@ func TestFreshnessRunWarnsOnSectionFGaps(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	body := "# Report\n\n## f) Next\n\n- a bullet-only next step\n"
-
 	if err := os.WriteFile(filepath.Join(reportDir, "2026-01-01_00-00_probe.md"), []byte(body), 0o644); err != nil {
 		t.Fatal(err)
 	}
 
-	captured := gatecli.CaptureOutput(func() int {
+	return gatecli.CaptureOutput(func() int {
 		return Run([]string{root})
 	})
+}
+
+// TestFreshnessRunWarnsOnSectionFGaps proves the omission WARN rides the
+// gate's stdout on the PASS path — the surface where a bullet-only §f
+// scored FRESH for weeks.
+//
+//nolint:paralleltest // process-global capture swap, serialized on purpose
+func TestFreshnessRunWarnsOnSectionFGaps(t *testing.T) {
+	captured := runWarnProbe(t, "# Report\n\n## f) Next\n\n- a bullet-only next step\n")
 
 	if !strings.Contains(captured.Stdout, "WARN 2026-01-01_00-00_probe.md:5") {
 		t.Errorf("stdout must carry the bullet WARN with report and line:\n%s", captured.Stdout)
@@ -137,22 +144,7 @@ func TestFreshnessRunWarnsOnSectionFGaps(t *testing.T) {
 //
 //nolint:paralleltest // process-global capture swap, serialized on purpose
 func TestFreshnessRunWarnsOnNearMissSectionF(t *testing.T) {
-	root := t.TempDir()
-
-	reportDir := filepath.Join(root, "docs", "status")
-	if err := os.MkdirAll(reportDir, 0o755); err != nil {
-		t.Fatal(err)
-	}
-
-	body := "# Report\n\n## §f — Follow-ups\n\n1. A wholly unharvested forward item\n"
-
-	if err := os.WriteFile(filepath.Join(reportDir, "2026-01-01_00-00_probe.md"), []byte(body), 0o644); err != nil {
-		t.Fatal(err)
-	}
-
-	captured := gatecli.CaptureOutput(func() int {
-		return Run([]string{root})
-	})
+	captured := runWarnProbe(t, "# Report\n\n## §f — Follow-ups\n\n1. A wholly unharvested forward item\n")
 
 	if !strings.Contains(captured.Stdout, "WARN 2026-01-01_00-00_probe.md:3") {
 		t.Errorf("stdout must carry the near-miss WARN with report and line:\n%s", captured.Stdout)
