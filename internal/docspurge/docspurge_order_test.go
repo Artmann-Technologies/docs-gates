@@ -48,17 +48,24 @@ func TestDraftBulletsStayPipeFree(t *testing.T) {
 
 	body := "## 1) Board\n\n" +
 		"~~| Struck before the pipe | 🔴 `TODO` | P3 | S | ev |~~ verdict one\n" +
-		"| ~~healthy strike~~ | ✅ DONE | P2 | M | ev two |\n"
+		"| ~~healthy strike~~ | ✅ DONE | P2 | M | ev two |\n" +
+		"| ~~cell-verdict strike~~ | ✅ DONE 2026-11-14 | P3 | S | ev three |\n"
 
 	rows, guards := collectStruck(body)
-	if len(rows) != 2 {
-		t.Fatalf("both strikes must collect (guards: %v)", guards)
+	if len(rows) != 3 {
+		t.Fatalf("all three strikes must collect (guards: %v)", guards)
 	}
 
-	for i, b := range draftBullets(rows) {
+	bullets := draftBullets(rows)
+
+	for i, b := range bullets {
 		if strings.Contains(b, "|") {
 			t.Errorf("bullet %d carries a stray pipe: %q", i, b)
 		}
+	}
+
+	if !strings.Contains(bullets[2], "✅ DONE 2026-11-14") {
+		t.Errorf("a status-cell verdict must ride the bullet: %q", bullets[2])
 	}
 }
 
@@ -79,7 +86,11 @@ func TestApplyPurgeWritesChangelogBeforeTodo(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if err := os.WriteFile(changelog, []byte("# CHANGELOG\n\n## [Unreleased]\n\n### Changed\n\n- existing\n"), 0o644); err != nil {
+	if err := os.WriteFile(
+		changelog,
+		[]byte("# CHANGELOG\n\n## [Unreleased]\n\n### Changed\n\n- existing\n"),
+		0o644,
+	); err != nil {
 		t.Fatal(err)
 	}
 
@@ -133,7 +144,11 @@ func TestApplyPurgeStillPurgesWhenBothWritesSucceed(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if err := os.WriteFile(changelog, []byte("# CHANGELOG\n\n## [Unreleased]\n\n### Changed\n\n- existing\n"), 0o644); err != nil {
+	if err := os.WriteFile(
+		changelog,
+		[]byte("# CHANGELOG\n\n## [Unreleased]\n\n### Changed\n\n- existing\n"),
+		0o644,
+	); err != nil {
 		t.Fatal(err)
 	}
 

@@ -108,6 +108,15 @@ func splitStrike(line string, lineNo int) (struckRow, bool) {
 		task = task[:i]
 	}
 
+	// A canonical one-cell strike keeps its verdict in the STATUS cell
+	// (`~~task~~ | ✅ DONE 2026-11-14 | …`), not in the wrap tail — the
+	// cell parse, not the marker split, is where the verdict lives.
+	if verdict == "" && strings.HasPrefix(raw, "|") {
+		if cell, done := statusCell(raw, docscadence.IsDoneCell); done {
+			verdict = cell
+		}
+	}
+
 	if strings.TrimSpace(task) == "" && verdict == "" {
 		return struckRow{}, false
 	}
