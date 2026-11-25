@@ -349,7 +349,10 @@ func TestRunPanickingGateBecomesFailRow(t *testing.T) {
 		os.Exit(0)
 	}
 
-	cmd := exec.Command(os.Args[0], "-test.run=TestRunPanickingGateBecomesFailRow$") //nolint:gosec // G204: the test binary re-execs itself
+	cmd := exec.Command(
+		os.Args[0],
+		"-test.run=TestRunPanickingGateBecomesFailRow$",
+	) //nolint:gosec // G204: the test binary re-execs itself
 	cmd.Env = append(os.Environ(), panicProbeEnv+"=1")
 
 	out, _ := cmd.CombinedOutput()

@@ -156,7 +156,8 @@ func (e *strikeInputsError) Error() string {
 	switch e.kind {
 	case refusalMissingRow:
 		return "--row <selector> is required (a substring of the row to strike) — e.g. " +
-			`docs-strike . --row "<unique task text>" --verdict "<evidence>"`
+			`docs-strike . --row "<unique task text>" --verdict "landed in <sha>"` +
+			" (the evidence carries NO leading verdict word — the tool prepends the done (…) wrap itself)"
 	case refusalMissingVerdict:
 		return "--verdict <text> is required (the done (…) evidence payload) — e.g. " +
 			`docs-strike . --row "<selector>" --verdict "landed in <sha>"`

@@ -41,7 +41,8 @@ func TestStrikeInputsErrorMessageBytes(t *testing.T) {
 		"missing row": {
 			err: newStrikeInputsError(refusalMissingRow, ""),
 			want: "--row <selector> is required (a substring of the row to strike) — e.g. " +
-				`docs-strike . --row "<unique task text>" --verdict "<evidence>"`,
+				`docs-strike . --row "<unique task text>" --verdict "landed in <sha>"` +
+				" (the evidence carries NO leading verdict word — the tool prepends the done (…) wrap itself)",
 		},
 		"missing verdict": {
 			err: newStrikeInputsError(refusalMissingVerdict, ""),
@@ -77,7 +78,7 @@ func TestStrikeInputsErrorMessageBytes(t *testing.T) {
 func TestRefusalExamplesAreSelfConsistent(t *testing.T) {
 	t.Parallel()
 
-	for _, example := range []string{"<evidence>", "landed in <sha>"} {
+	for _, example := range []string{"landed in <sha>"} {
 		if opener, prefixed := prefixedVerdictOpener(example); prefixed {
 			t.Fatalf(
 				"example verdict %q opens with verdict word %q — the printed example must be retypable",

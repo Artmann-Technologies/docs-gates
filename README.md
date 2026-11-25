@@ -160,7 +160,10 @@ historical constant (see `internal/config.Defaults`):
 
 The ratchet keys are strict by default (`-1` omits the flag entirely);
 a repo with measured debt pins the count (`audit_max`/`annotate_max` >= 0)
-and drains it down — REGRESSION past the pin fails. `audit_corpus`
+and drains it down — REGRESSION past the pin fails. A typo'd config key
+WARNs with the nearest real key when one sits within two edits
+(`"audit_corp"` → `did you mean "audit_corpus"?`); two keys equidistant
+suggest nothing. `audit_corpus`
 scopes the freshness replay (`--audit-all` and `--pre-flight`): `"all"`
 (default) replays the report dir plus its archived subdir;
 `"unarchived"` drops the archived subdir, so an archived backlog stops

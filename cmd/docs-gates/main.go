@@ -217,5 +217,3 @@ func suggestVerb(typed string) (string, bool) {
 
 	return "", false
 }
-
-

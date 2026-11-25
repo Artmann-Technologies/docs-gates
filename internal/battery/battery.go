@@ -220,7 +220,14 @@ func runGates(list []gate, skipGates []string, timeout time.Duration, jsonMode b
 
 		stopWatchdog()
 
-		row := result{name: g.name, code: out.Code, duration: elapsed, stdout: out.Stdout, stderr: out.Stderr, panicked: panicked}
+		row := result{
+			name:     g.name,
+			code:     out.Code,
+			duration: elapsed,
+			stdout:   out.Stdout,
+			stderr:   out.Stderr,
+			panicked: panicked,
+		}
 
 		switch {
 		case panicked:
