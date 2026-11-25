@@ -154,3 +154,4 @@ Small tooling ideas surfaced by the same-line freshness bar replay — unschedul
 - `docs-gates purge --group` mode or canonicalizing one-bullet-per-row (11-04 05-38 report §f.14).
 - BuildFlow starvation accounting: tag run summaries when a lane reports lost-to-starvation so downstream readers do not misread coverage (11-14 18-31 report §f.41).
 - Unify the strike mechanic: docs-strike verb parity with safe-strike's `--batch`/`--cell` (one tool, one mechanic) (11-04 16-45 report §f.34).
+- **Sandbox-safe full battery** — the run verb env-gated so nix-sandbox builds can execute the battery against a synthetic corpus without the verdict-hash evidence going red by construction (today the docs-battery pre-commit leg is devShell-only by policy); a feature, not a policy split (11-14 15-52 report §f.37, routed here 2026-11-25).
