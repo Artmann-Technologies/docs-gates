@@ -193,6 +193,14 @@ usage_test.go.
   Gate verdicts are point-in-time under foreign daemons — timestamp the
   run; one run is not steady state.
 
+- **CHANGELOG prose is a living-doc edit — run the pre-flight ritual on
+  it too** (paid 2026-11-24): the match predicate is raw-substring, so
+  "drafting" feeds token `draft` and "routing" feeds `route`; two DF-7
+  tokens genericized and flipped two PASSING items to UNHARVESTED
+  mid-leg. Margins-first (`--margins` names the DF-6/7 tokens), then
+  either dodge the substring or mark the verifiably-done items — the
+  tripwire case's precedent, now thrice.
+
 - **Testing**: stdlib `testing` only; gates are exercised through their
   real `Run` functions with `gatecli.CaptureOutput`, never mocked
   output. Two parity layers: byte goldens + the defaults-are-historical
