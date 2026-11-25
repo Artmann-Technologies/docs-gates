@@ -171,13 +171,6 @@ func (c *Corpus) lineHits(token string) []int {
 	return idx
 }
 
-// lineTokHit is one (living line, unique token) pair — the flat shape
-// the same-line walk sorts by line index instead of a per-item map.
-type lineTokHit struct {
-	idx int // living-line index
-	tok int // index into SameLineQuorum's unique-token slice
-}
-
 // SameLineQuorum is the fail-closed harvest bar (2026-11-24): a matched
 // item is represented only when ONE shared living line carries at least
 // need of its tokens, one of those same-line matches distinctive
@@ -233,49 +226,57 @@ func (c *Corpus) SameLineQuorum(
 		return nil, "", false
 	}
 
-	// Flat (line, token) pairs sorted by line: one walk finds every line
-	// carrying >= need tokens. This stays allocation-light on purpose —
-	// the CV-shaped replay calls it once per item.
-	pairs := make([]lineTokHit, 0, len(uniq)*2)
-
-	for ui := range uniq {
-		for _, i := range uniq[ui].hits {
-			pairs = append(pairs, lineTokHit{idx: i, tok: ui})
-		}
+	// Intersect smallest-first: any line meeting the quorum carries every
+	// token, so the rarest token's hit list already contains every
+	// candidate. Walking it in order keeps the lowest-index winner, and
+	// each other token answers membership by binary search — no per-item
+	// pair materialization, no sort (the CV-shaped replay calls this once
+	// per item and the pair sort dominated its profile).
+	order := make([]int, len(uniq))
+	for i := range order {
+		order[i] = i
 	}
 
-	slices.SortFunc(pairs, func(a, b lineTokHit) int { return a.idx - b.idx })
+	slices.SortFunc(order, func(a, b int) int {
+		return len(uniq[a].hits) - len(uniq[b].hits)
+	})
 
-	for start := 0; start < len(pairs); {
-		end := start
+	found := make([]int, 0, len(uniq))
 
-		for end < len(pairs) && pairs[end].idx == pairs[start].idx {
-			end++
-		}
+	for _, li := range uniq[order[0]].hits {
+		found = found[:0]
 
-		if end-start >= need {
-			distinctive := false
-
-			for _, p := range pairs[start:end] {
-				if uniq[p.tok].dist {
-					distinctive = true
-
-					break
-				}
-			}
-
-			if distinctive {
-				matched = make([]string, 0, end-start)
-
-				for _, p := range pairs[start:end] {
-					matched = append(matched, uniq[p.tok].text)
-				}
-
-				return matched, c.lines[pairs[start].idx], true
+		for ui := range uniq {
+			if _, hit := slices.BinarySearch(uniq[ui].hits, li); hit {
+				found = append(found, ui)
 			}
 		}
 
-		start = end
+		if len(found) < need {
+			continue
+		}
+
+		distinctive := false
+
+		for _, ui := range found {
+			if uniq[ui].dist {
+				distinctive = true
+
+				break
+			}
+		}
+
+		if !distinctive {
+			continue
+		}
+
+		matched = make([]string, 0, len(found))
+
+		for _, ui := range found {
+			matched = append(matched, uniq[ui].text)
+		}
+
+		return matched, c.lines[li], true
 	}
 
 	return nil, "", false
