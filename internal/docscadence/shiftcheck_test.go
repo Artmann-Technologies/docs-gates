@@ -134,7 +134,7 @@ func TestCadenceRunFailsOnShiftedStrikes(t *testing.T) {
 			t.Fatalf("a shifted strike must fail the gate, code = %d\n%s", captured.Code, captured.Stderr)
 		}
 
-		if !strings.Contains(captured.Stderr, "TODO_LIST.md:3") {
+		if !strings.Contains(captured.Stderr, "TODO_LIST.md:5") {
 			t.Errorf("the finding must name the todo file and 1-based line:\n%s", captured.Stderr)
 		}
 	})
