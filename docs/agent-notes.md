@@ -269,3 +269,19 @@ cadence counts 7) — and the docs-battery pre-commit hook blocking each
 intermediate repair commit (red cadence) was landed via the daemon's
 sweeps + one no-verify summarizing commit, with the battery verified
 between rows.
+
+## 2026-11-25 — v0.6.0 cut mid- plan; the purge anchor trap
+
+The release cut ([v0.6.0] - 2026-11-25, both annotated tags, pushed,
+proxy-live on both module paths) tripped a NEW trap: the hand-cut
+[Unreleased] carried `### Fixed` but no `### Changed`, and the next
+strike's `--purge` leg refused with the missing-anchor FATAL — leaving
+the struck row in the working tree as a pipe-swallow shape, which the
+T3 detector immediately red'd. The rule the refusal encodes: a version
+cut must leave BOTH section stubs (Fixed AND Changed) under the fresh
+[Unreleased], or the next strike-purge cannot land. Recovery was two
+commands (add the stub, re-run purge). Fleet pins recorded: cmdguard
+CI rides @v0.3.1 — bumping it now would red their CI, because v0.6.0's
+fail-closed judge correctly surfaces their backlog (verified live:
+freshness/audit-all/cadence red over their tree); the bump rides the
+fleet roll-out after their board drains. pbx-artmann rides @v0.1.0.

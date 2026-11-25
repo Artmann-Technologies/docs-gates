@@ -10,6 +10,12 @@ match the annotated git tags; anything after the newest tag sits under
 
 - Nothing yet.
 
+### Changed
+
+- Nothing yet.
+
+- TODO_LIST purge (2026-11-25): Cut the release that carries the judge-integrity fixes (fail-closed freshness, the struck-row check, the purge fixes, the panic guard): CHANGELOG section, both annotated tags, proxy check — done at tag v0.6.0 + pkg/provider/v0.6.0 — pushed, both live on the module proxy
+
 ## [v0.6.0] - 2026-11-25
 
 ### Added
