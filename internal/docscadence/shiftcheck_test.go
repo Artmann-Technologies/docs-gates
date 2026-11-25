@@ -18,6 +18,8 @@ const shiftFixtureHeader = "| Task | Status | Priority | Effort | Evidence |\n" 
 // while the actual task text sits unwrapped in the Status column. The
 // old classify counted every such row as healthily struck.
 func TestScanStrikeFaultsDetectsBareWrapShift(t *testing.T) {
+	t.Parallel()
+
 	body := shiftFixtureHeader +
 		"| ~~ | Float SystemNix to the hardened flake | 🟡 PREPPED | P2 | M |\n" +
 		"| ~~ | Fix the lockfile drift | 🟡 PARTIAL | P3 | S |\n"
@@ -42,6 +44,8 @@ func TestScanStrikeFaultsDetectsBareWrapShift(t *testing.T) {
 // landing in any non-Task cell (here: Evidence) faults — the strike's
 // text is not where the writer rituals put it.
 func TestScanStrikeFaultsDetectsStrikeOutsideTaskCell(t *testing.T) {
+	t.Parallel()
+
 	body := shiftFixtureHeader +
 		"| Land the provider pin bump | ✅ `DONE` | P3 | S | ~~done by reference: erraudit carries it~~ |\n"
 
@@ -59,6 +63,8 @@ func TestScanStrikeFaultsDetectsStrikeOutsideTaskCell(t *testing.T) {
 // shape (the verdict appended as an EXTRA cell) faults on the cell
 // count against the governing header.
 func TestScanStrikeFaultsDetectsSurplusCell(t *testing.T) {
+	t.Parallel()
+
 	body := shiftFixtureHeader +
 		"| ~~ | Write the note | 🔴 `TODO` | P3 | S | ~~ done by reference ~~ |\n"
 
@@ -77,6 +83,8 @@ func TestScanStrikeFaultsDetectsSurplusCell(t *testing.T) {
 // line at all (not |-prefixed), so the row is invisible to the struck
 // count entirely — the worst blindness of the three.
 func TestScanStrikeFaultsDetectsStruckBeforePipe(t *testing.T) {
+	t.Parallel()
+
 	body := shiftFixtureHeader + "~~| The wrap swallowed the leading pipe | 🟡 PARTIAL | P3 | S |\n"
 
 	faults := scanStrikeFaults(body)
@@ -93,6 +101,8 @@ func TestScanStrikeFaultsDetectsStruckBeforePipe(t *testing.T) {
 // shape: a wrap around the Task cell's text plus a DONE status cell is
 // the docs-strike output and must never fault.
 func TestScanStrikeFaultsKeepsCanonicalStrikesSilent(t *testing.T) {
+	t.Parallel()
+
 	body := shiftFixtureHeader +
 		"| ~~Float SystemNix to the hardened flake~~ | ✅ `DONE` | P2 | M | tagged v0.4.0 |\n" +
 		"| ~~Fix the lockfile drift~~ | ✅ DONE 2026-11-04 | P3 | S | flake.lock restored |\n"
@@ -106,6 +116,8 @@ func TestScanStrikeFaultsKeepsCanonicalStrikesSilent(t *testing.T) {
 // without a strike, tables without a Task column, and prose lines stay
 // out of the fault list.
 func TestScanStrikeFaultsIgnoresOpenAndForeignTables(t *testing.T) {
+	t.Parallel()
+
 	body := shiftFixtureHeader +
 		"| An open row with stray tildes in prose | 🔴 `TODO` | P3 | S | not a strike ~~yet~~ |\n" +
 		"\n" +
@@ -118,7 +130,7 @@ func TestScanStrikeFaultsIgnoresOpenAndForeignTables(t *testing.T) {
 
 // TestCadenceRunFailsOnShiftedStrikes wires the detector to the gate's
 // face: the planted fixture turns the gate red, the findings name the
-// todo file and the line, and a clean ledger keeps the verdict green.
+// the TODO_LIST file and the line, and a clean ledger keeps the verdict green.
 //
 //nolint:paralleltest // process-global capture swap, serialized on purpose
 func TestCadenceRunFailsOnShiftedStrikes(t *testing.T) {

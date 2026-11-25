@@ -29,6 +29,11 @@ type todoTable struct {
 	names   []string
 }
 
+// splitPhantoms is the two phantom cells a strings.Split on "|"
+// produces around a markdown table row (before the leading and after
+// the trailing pipe).
+const splitPhantoms = 2
+
 // scanStrikeFaults walks the TODO body and names every strike whose
 // SHAPE is broken. classify (the struck-row counter) reads any
 // ~~…~~-plus-DONE-cell line as healthily struck, which let ten shifted
@@ -54,13 +59,8 @@ func scanStrikeFaults(body string) []strikeFault {
 	var faults []strikeFault
 
 	for i, line := range lines {
-		trimmed := strings.TrimSpace(line)
-
-		if strings.HasPrefix(trimmed, "~~") && strings.Contains(trimmed, "|") {
-			faults = append(faults, strikeFault{
-				line:   i + 1,
-				reason: "strike swallows the leading pipe (struck before its pipe) — the row is invisible to the struck count",
-			})
+		if fault, hit := pipeFault(line, i); hit {
+			faults = append(faults, fault)
 
 			continue
 		}
@@ -69,55 +69,79 @@ func scanStrikeFaults(body string) []strikeFault {
 			continue
 		}
 
-		table, ok := governingTable(lines, i)
-		if !ok {
-			continue
-		}
-
-		c := strings.Split(line, "|")
-
-		if len(c) != table.cells {
-			faults = append(faults, strikeFault{
-				line: i + 1,
-				reason: fmt.Sprintf(
-					"shifted strike: %d cells against the header's %d (a wrap that crossed a pipe shifts the row)",
-					len(c)-2, table.cells-2,
-				),
-			})
-
-			continue
-		}
-
-		if table.taskCol < 0 {
-			continue
-		}
-
-		// Placement faults need strike intent: a DONE status cell (the
-		// struck shape classify counts) or a strike attempt in the Task
-		// cell itself. A tilde pair on an OPEN row is edit noise or
-		// emphasis, not a misplaced strike — the purge collector owns
-		// that class (#10).
-		taskCell := strings.TrimSpace(c[table.taskCol])
-		done := false
-
-		for _, cell := range c {
-			if IsDoneCell(strings.TrimSpace(cell)) {
-				done = true
-
-				break
-			}
-		}
-
-		if !done && !strings.Contains(taskCell, "~~") {
-			continue
-		}
-
-		if fault, bad := wrapFault(table, c); bad {
-			faults = append(faults, strikeFault{line: i + 1, reason: fault})
+		if fault, hit := tableFault(lines, i); hit {
+			faults = append(faults, fault)
 		}
 	}
 
 	return faults
+}
+
+// pipeFault names the struck-before-the-pipe shape: the wrap swallowed
+// the leading pipe, so classify never even sees the line.
+func pipeFault(line string, i int) (strikeFault, bool) {
+	trimmed := strings.TrimSpace(line)
+
+	if strings.HasPrefix(trimmed, "~~") && strings.Contains(trimmed, "|") {
+		return strikeFault{
+			line:   i + 1,
+			reason: "strike swallows the leading pipe (struck before its pipe) — the row is invisible to the struck count",
+		}, true
+	}
+
+	return strikeFault{}, false
+}
+
+// tableFault judges one struck-looking table row against its governing
+// header: cell-count faults fire regardless of status (a shifted row is
+// broken wherever its cells land), wrap-placement faults need strike
+// intent (see hasStrikeIntent).
+func tableFault(lines []string, i int) (strikeFault, bool) {
+	table, ok := governingTable(lines, i)
+	if !ok {
+		return strikeFault{}, false
+	}
+
+	c := strings.Split(lines[i], "|")
+
+	if len(c) != table.cells {
+		return strikeFault{
+			line: i + 1,
+			reason: fmt.Sprintf(
+				"shifted strike: %d cells against the header's %d (a wrap that crossed a pipe shifts the row)",
+				len(c)-splitPhantoms, table.cells-splitPhantoms,
+			),
+		}, true
+	}
+
+	if table.taskCol < 0 || !hasStrikeIntent(table, c) {
+		return strikeFault{}, false
+	}
+
+	if reason, bad := wrapFault(table, c); bad {
+		return strikeFault{line: i + 1, reason: reason}, true
+	}
+
+	return strikeFault{}, false
+}
+
+// hasStrikeIntent reports whether the row reads as a strike at all: a
+// DONE status cell (the struck shape classify counts) or a strike
+// attempt in the Task cell itself. A tilde pair on an OPEN row is edit
+// noise or emphasis, not a misplaced strike — the purge collector owns
+// that class (#10).
+func hasStrikeIntent(table todoTable, c []string) bool {
+	if strings.Contains(c[table.taskCol], "~~") {
+		return true
+	}
+
+	for _, cell := range c {
+		if IsDoneCell(strings.TrimSpace(cell)) {
+			return true
+		}
+	}
+
+	return false
 }
 
 // governingTable derives the table shape ruling row i: the nearest
@@ -138,7 +162,8 @@ func governingTable(lines []string, row int) (todoTable, bool) {
 			break
 		}
 
-		return mapTodoHeader(strings.Split(header, "|")), true	}
+		return mapTodoHeader(strings.Split(header, "|")), true
+	}
 
 	return todoTable{}, false
 }

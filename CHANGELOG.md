@@ -12,6 +12,8 @@ match the annotated git tags; anything after the newest tag sits under
 
 - **two §f-grammar WARNs on freshness/routing/audit stdout**: a report whose next steps carry no `## f)` heading (the harvest passes by omission — the blind spot is now loud) and a §f-section bullet line that reads like a next step but is not a harvestable item (only numbered lines and table rows are). WARN only; never a verdict flip.
 
+- **the cadence gate names SHIFTED STRIKEs** instead of counting them as healthy struck rows: nine TODO rows carried a bare `~~` in the Task cell while the actual task text sat unwrapped in the Status column, and one row's wrap swallowed the leading pipe (invisible to the struck count entirely). The gate now faults on four shapes — empty Task wrap, wrap in a non-Task cell, cell count against the governing header, wrap before the pipe — naming file and line; a canonical `~~task~~` strike stays silent. Ten real rows on this repo's board were riding the purge threshold as healthy debt.
+
 ### Changed
 
 - **the freshness judge binds on a shared line, not a shared corpus**: an open §f item now passes only when ONE living-doc line co-carries its matched tokens (two by default, one for single-token items) with at least one distinctive (document frequency below `generic_df`). Tokens scattered across separate lines — each matching somewhere, never together — were false harvests; the verdict now names the coincidence instead of passing it. The routing gate judges open-row binding with the same per-line bar, so freshness and routing cannot disagree about whether a row is represented. Corpus-wide hit counts no longer satisfy the judge; run `--dump-items` to see each item's tokens and `--pre-flight` before drafting rows.
