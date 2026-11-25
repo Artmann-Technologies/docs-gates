@@ -20,6 +20,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/Artmann-Technologies/docs-gates/internal/config"
 	"github.com/Artmann-Technologies/docs-gates/internal/gatecli"
 )
 
@@ -209,7 +210,7 @@ func suggestVerb(typed string) (string, bool) {
 	}
 
 	for _, verb := range verbOrder {
-		if editDistance(want, verb) <= suggestMaxEditDistance {
+		if config.EditDistance(want, verb) <= suggestMaxEditDistance {
 			return verb, true
 		}
 	}
@@ -217,31 +218,4 @@ func suggestVerb(typed string) (string, bool) {
 	return "", false
 }
 
-// editDistance is the Levenshtein distance between two lowercase words.
-// The DP rows are append-built: length expressions the makezero lint
-// cannot prove non-zero are exactly the indexing class it exists for.
-func editDistance(a, b string) int {
-	prev := make([]int, 0, len(b)+1)
 
-	for j := 0; j <= len(b); j++ {
-		prev = append(prev, j)
-	}
-
-	for i := 1; i <= len(a); i++ {
-		curr := make([]int, 0, len(b)+1)
-		curr = append(curr, i)
-
-		for j := 1; j <= len(b); j++ {
-			cost := 1
-			if a[i-1] == b[j-1] {
-				cost = 0
-			}
-
-			curr = append(curr, min(prev[j]+1, curr[j-1]+1, prev[j-1]+cost))
-		}
-
-		prev = curr
-	}
-
-	return prev[len(b)]
-}

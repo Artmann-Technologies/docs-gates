@@ -159,9 +159,19 @@ func Load(root string) (Config, []string, error) {
 
 	var warnings []string
 
+	knownSlice := make([]string, 0, len(known))
+	for k := range known {
+		knownSlice = append(knownSlice, k)
+	}
+
 	for _, key := range sortedKeys(raw) {
 		if !known[key] {
-			warnings = append(warnings, fmt.Sprintf("unknown config key %q ignored", key))
+			warning := fmt.Sprintf("unknown config key %q ignored", key)
+			if near, ok := NearestKey(key, knownSlice, 2); ok {
+				warning += fmt.Sprintf(" — did you mean %q?", near)
+			}
+
+			warnings = append(warnings, warning)
 		}
 	}
 
