@@ -80,6 +80,7 @@ type gateRow struct {
 	ExitCode   int    `json:"exit_code"`
 	Skipped    bool   `json:"skipped"`
 	TimedOut   bool   `json:"timed_out"`
+	Panicked   bool   `json:"panicked"`
 	DurationMS int64  `json:"duration_ms"`
 	Stdout     string `json:"stdout"`
 	Stderr     string `json:"stderr"`
@@ -258,6 +259,11 @@ var Provider = toolsdk.Register(toolsdk.Spec{
 				if gate.TimedOut {
 					message = "docs gate " + gate.Name + " TIMED OUT over " + dir + " (" +
 						strconv.FormatInt(gate.DurationMS, 10) + "ms)" +
+						" — run `" + rerunHint(gate.Name, dir) + "` for the full output"
+				}
+
+				if gate.Panicked {
+					message = "docs gate " + gate.Name + " PANICKED over " + dir +
 						" — run `" + rerunHint(gate.Name, dir) + "` for the full output"
 				}
 

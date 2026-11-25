@@ -2,6 +2,7 @@ package battery
 
 import (
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -320,3 +321,52 @@ func TestRunGateTimeoutBoundsTheBattery(t *testing.T) {
 // document (decodable, one row per gate), every human line rides
 // stderr, and the exit contract is unchanged.
 //
+
+// panicProbeEnv turns this test binary into the panic-probe subprocess:
+// it plants a gate that panics ahead of a healthy gate and exits with
+// the battery's own verdict arithmetic.
+const panicProbeEnv = "DOCS_BATTERY_PANIC_PROBE"
+
+// TestRunPanickingGateBecomesFailRow runs the probe in a SUBPROCESS: a
+// gate that panics must become a FAIL row naming the panic, with the
+// battery continuing to the gates behind it and exiting 1 — the
+// pre-fix behavior crashes the whole battery process (goroutine panic,
+// exit status 2, no matrix at all).
+//
+//nolint:paralleltest // subprocess orchestration, serialized on purpose
+func TestRunPanickingGateBecomesFailRow(t *testing.T) {
+	if os.Getenv(panicProbeEnv) == "1" {
+		panicky := gate{name: "panic-gate", fn: func([]string) int { panic("boom: the planted panic") }, args: nil}
+
+		after := gate{name: "after-panic", fn: func([]string) int { return gatecli.ExitClean }, args: nil}
+
+		rows := runGates([]gate{panicky, after}, nil, 0, false)
+
+		if renderMatrix(rows) {
+			os.Exit(1)
+		}
+
+		os.Exit(0)
+	}
+
+	cmd := exec.Command(os.Args[0], "-test.run=TestRunPanickingGateBecomesFailRow$") //nolint:gosec // G204: the test binary re-execs itself
+	cmd.Env = append(os.Environ(), panicProbeEnv+"=1")
+
+	out, err := cmd.CombinedOutput()
+
+	if err != nil {
+		t.Fatalf("a panicked gate must not crash the battery: %v\n%s", err, out)
+	}
+
+	if cmd.ProcessState.ExitCode() != 1 {
+		t.Fatalf("the panic row must fail the battery (exit 1), got %d\n%s", cmd.ProcessState.ExitCode(), out)
+	}
+
+	if !strings.Contains(string(out), "FAIL  panic-gate") || !strings.Contains(string(out), "panic") {
+		t.Fatalf("the matrix must carry the FAIL panic row:\n%s", out)
+	}
+
+	if !strings.Contains(string(out), "PASS  after-panic") {
+		t.Fatalf("the gate behind the panic must still run:\n%s", out)
+	}
+}

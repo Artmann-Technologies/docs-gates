@@ -156,6 +156,7 @@ type result struct {
 	code     int
 	skip     bool
 	timedOut bool
+	panicked bool
 	duration time.Duration
 	stdout   string
 	stderr   string
@@ -196,7 +197,22 @@ func runGates(list []gate, skipGates []string, timeout time.Duration, jsonMode b
 
 		start := time.Now()
 
-		out, timedOut := gatecli.CaptureOutputWithTimeout(func() int {
+		panicked := false
+
+		out, timedOut := gatecli.CaptureOutputWithTimeout(func() (code int) {
+			// The panic guard: one gate's panic must never crash the
+			// battery process (a goroutine panic otherwise kills it with
+			// no matrix at all). The recovered panic becomes a FAIL row
+			// naming the gate, and the gates behind it still run.
+			defer func() {
+				if r := recover(); r != nil {
+					gatecli.Errf("docs-gates: gate %s PANICKED: %v\n", g.name, r)
+
+					panicked = true
+					code = gatecli.ExitFindings
+				}
+			}()
+
 			return g.fn(g.args)
 		}, timeout)
 
@@ -204,9 +220,13 @@ func runGates(list []gate, skipGates []string, timeout time.Duration, jsonMode b
 
 		stopWatchdog()
 
-		row := result{name: g.name, code: out.Code, duration: elapsed, stdout: out.Stdout, stderr: out.Stderr}
+		row := result{name: g.name, code: out.Code, duration: elapsed, stdout: out.Stdout, stderr: out.Stderr, panicked: panicked}
 
 		switch {
+		case panicked:
+			gatecli.Errf("%s", out.Stdout)
+			gatecli.Errf("%s", out.Stderr)
+			progress("docs-gates: gate %s done in %s (panic)\n", g.name, gatecli.FormatDuration(elapsed))
 		case timedOut:
 			row.code, row.timedOut = gatecli.ExitFindings, true
 
@@ -252,6 +272,7 @@ type gateReport struct {
 	ExitCode   int    `json:"exit_code"`
 	Skipped    bool   `json:"skipped"`
 	TimedOut   bool   `json:"timed_out"`
+	Panicked   bool   `json:"panicked"`
 	DurationMS int64  `json:"duration_ms"`
 	Stdout     string `json:"stdout"`
 	Stderr     string `json:"stderr"`
@@ -284,6 +305,7 @@ func renderJSON(results []result, root string) int {
 			ExitCode:   row.code,
 			Skipped:    row.skip,
 			TimedOut:   row.timedOut,
+			Panicked:   row.panicked,
 			DurationMS: row.duration.Milliseconds(),
 			Stdout:     row.stdout,
 			Stderr:     row.stderr,
@@ -323,6 +345,10 @@ func renderMatrix(results []result) bool {
 		switch {
 		case r.skip:
 			gatecli.Outf("  %s  %s (skip_gates)\n", verdictSkip, r.name)
+		case r.panicked:
+			gatecli.Outf("  %s  %s (in %s, panic)\n", verdictFail, r.name, gatecli.FormatDuration(r.duration))
+
+			failed = true
 		case r.timedOut:
 			gatecli.Outf("  %s  %s (in %s, rc=timeout)\n", verdictFail, r.name, gatecli.FormatDuration(r.duration))
 
