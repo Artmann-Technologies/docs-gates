@@ -201,6 +201,16 @@ usage_test.go.
   either dodge the substring or mark the verifiably-done items — the
   tripwire case's precedent, now thrice.
 
+- **`rows` over archived reports flags the §f tables — accepted, do not
+  "fix" them** (recorded 2026-11-25): the §f next-tasks tables are the
+  HARVEST's jurisdiction (freshness replays them; audit-all is their
+  judge), and striking historical rows to silence an advisory check
+  re-litigates write-once reports. `check-rows:ledger` stays the
+  fleet-precedent marker for findings-INVENTORY tables, not §f tables.
+  Status quo measured 2026-11-25: status report rc=0, archived corpus
+  rc=1 with 7 INCOMPLETE tables. `buildflow -s markdown-lint` is not
+  applicable here (no `.markdownlint.json` prerequisite).
+
 - **Testing**: stdlib `testing` only; gates are exercised through their
   real `Run` functions with `gatecli.CaptureOutput`, never mocked
   output. Two parity layers: byte goldens + the defaults-are-historical

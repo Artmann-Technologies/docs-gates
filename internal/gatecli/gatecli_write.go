@@ -14,9 +14,5 @@ func WritePreservingMode(path, content string, fallback os.FileMode) error {
 		mode = info.Mode().Perm()
 	}
 
-	return os.WriteFile( //nolint:gosec // G306,G703: the mode IS the source file's (or the caller's declared fallback); the path argument IS the tool's input contract
-		path,
-		[]byte(content),
-		mode,
-	)
+	return os.WriteFile(path, []byte(content), mode)
 }

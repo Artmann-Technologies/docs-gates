@@ -219,4 +219,3 @@ func (e *missingAnchorError) Error() string {
 func newMissingAnchorError(scope anchorScope, changelog string, nearestLine int) *missingAnchorError {
 	return &missingAnchorError{changelog: changelog, scope: scope, nearestLine: nearestLine}
 }
-

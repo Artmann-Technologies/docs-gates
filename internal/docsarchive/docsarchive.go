@@ -216,7 +216,6 @@ func applyArchive(root, archived string, reports []candidate, now time.Time) int
 	return gatecli.ExitClean
 }
 
-
 // banner renders the Live-remainder blockquote: the house convention,
 // genericized (the observed 2026-11-23 banners name the owning sections
 // of that repo; the claim and proof legs are the invariant).
