@@ -130,7 +130,7 @@ func TestScanStrikeFaultsIgnoresOpenAndForeignTables(t *testing.T) {
 
 // TestCadenceRunFailsOnShiftedStrikes wires the detector to the gate's
 // face: the planted fixture turns the gate red, the findings name the
-// the TODO_LIST file and the line, and a clean ledger keeps the verdict green.
+// offending file and line, and a clean ledger keeps the verdict green.
 //
 //nolint:paralleltest // process-global capture swap, serialized on purpose
 func TestCadenceRunFailsOnShiftedStrikes(t *testing.T) {

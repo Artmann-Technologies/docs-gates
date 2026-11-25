@@ -102,23 +102,23 @@ func tableFault(lines []string, i int) (strikeFault, bool) {
 		return strikeFault{}, false
 	}
 
-	c := strings.Split(lines[i], "|")
+	cells := strings.Split(lines[i], "|")
 
-	if len(c) != table.cells {
+	if len(cells) != table.cells {
 		return strikeFault{
 			line: i + 1,
 			reason: fmt.Sprintf(
 				"shifted strike: %d cells against the header's %d (a wrap that crossed a pipe shifts the row)",
-				len(c)-splitPhantoms, table.cells-splitPhantoms,
+				len(cells)-splitPhantoms, table.cells-splitPhantoms,
 			),
 		}, true
 	}
 
-	if table.taskCol < 0 || !hasStrikeIntent(table, c) {
+	if table.taskCol < 0 || !hasStrikeIntent(table, cells) {
 		return strikeFault{}, false
 	}
 
-	if reason, bad := wrapFault(table, c); bad {
+	if reason, bad := wrapFault(table, cells); bad {
 		return strikeFault{line: i + 1, reason: reason}, true
 	}
 
@@ -130,12 +130,12 @@ func tableFault(lines []string, i int) (strikeFault, bool) {
 // attempt in the Task cell itself. A tilde pair on an OPEN row is edit
 // noise or emphasis, not a misplaced strike — the purge collector owns
 // that class (#10).
-func hasStrikeIntent(table todoTable, c []string) bool {
-	if strings.Contains(c[table.taskCol], "~~") {
+func hasStrikeIntent(table todoTable, cells []string) bool {
+	if strings.Contains(cells[table.taskCol], "~~") {
 		return true
 	}
 
-	for _, cell := range c {
+	for _, cell := range cells {
 		if IsDoneCell(strings.TrimSpace(cell)) {
 			return true
 		}
