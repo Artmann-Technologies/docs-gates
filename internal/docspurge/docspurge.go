@@ -180,7 +180,9 @@ func gateRefused(applied bool, code int) int {
 // applyPurge writes both faces: the struck rows leave the TODO file, the
 // bullets join the [Unreleased] Changed section.
 func applyPurge(opts Options, todoPath, todoData string, rows []struckRow, bullets []string) int {
-	return applyPurgeWith(writePreservingMode, opts, todoPath, todoData, rows, bullets)
+	return applyPurgeWith(func(path, content string) error {
+		return gatecli.WritePreservingMode(path, content, defaultFileMode)
+	}, opts, todoPath, todoData, rows, bullets)
 }
 
 // applyPurgeWith is the write-order core behind applyPurge, taking the

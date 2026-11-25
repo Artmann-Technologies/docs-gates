@@ -185,7 +185,7 @@ func applyArchive(root, archived string, reports []candidate, now time.Time) int
 			return gatecli.ExitUsage
 		}
 
-		if err := writePreservingMode(path, banner(now)+string(data)); err != nil {
+		if err := gatecli.WritePreservingMode(path, banner(now)+string(data), defaultReportMode); err != nil {
 			gatecli.Errf("FATAL: writing banner into %s: %v\n", report.rel, err)
 
 			return gatecli.ExitUsage
@@ -216,22 +216,6 @@ func applyArchive(root, archived string, reports []candidate, now time.Time) int
 	return gatecli.ExitClean
 }
 
-// writePreservingMode writes content keeping the file's own permission
-// bits (fresh files get the house default) — a banner must never change
-// a report's mode.
-func writePreservingMode(path, content string) error {
-	mode := os.FileMode(defaultReportMode)
-
-	if info, err := os.Stat(path); err == nil {
-		mode = info.Mode().Perm()
-	}
-
-	return os.WriteFile( //nolint:gosec // G306,G703: the mode IS the source file's; the path argument IS the tool's input contract
-		path,
-		[]byte(content),
-		mode,
-	)
-}
 
 // banner renders the Live-remainder blockquote: the house convention,
 // genericized (the observed 2026-11-23 banners name the owning sections

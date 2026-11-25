@@ -2,7 +2,6 @@ package docspurge
 
 import (
 	"fmt"
-	"os"
 	"strings"
 	"time"
 
@@ -221,18 +220,3 @@ func newMissingAnchorError(scope anchorScope, changelog string, nearestLine int)
 	return &missingAnchorError{changelog: changelog, scope: scope, nearestLine: nearestLine}
 }
 
-// writePreservingMode writes content with the file's existing permission
-// bits (a fresh write gets the default file mode).
-func writePreservingMode(path, content string) error {
-	mode := os.FileMode(defaultFileMode)
-
-	if info, err := os.Stat(path); err == nil {
-		mode = info.Mode().Perm()
-	}
-
-	return os.WriteFile( //nolint:gosec // G306,G703: the mode IS the source file's; the path argument IS the tool's input contract
-		path,
-		[]byte(content),
-		mode,
-	)
-}

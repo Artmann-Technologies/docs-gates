@@ -143,18 +143,7 @@ func Run(argv []string) int {
 	lines := strings.Split(string(data), "\n")
 	lines[strike.LineNo-1] = strike.New
 
-	info, err := os.Stat(path)
-
-	mode := os.FileMode(defaultFileMode)
-	if err == nil {
-		mode = info.Mode().Perm()
-	}
-
-	if err := os.WriteFile( //nolint:gosec // G703: the file argument IS the tool's input contract
-		path,
-		[]byte(strings.Join(lines, "\n")),
-		mode,
-	); err != nil {
+	if err := gatecli.WritePreservingMode(path, strings.Join(lines, "\n"), defaultFileMode); err != nil {
 		gatecli.Errf("FATAL: writing %s: %v\n", path, err)
 
 		return gatecli.ExitUsage
