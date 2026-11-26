@@ -3,7 +3,7 @@ module github.com/Artmann-Technologies/docs-gates/pkg/provider
 go 1.27
 
 require (
-	github.com/larsartmann/go-finding v1.15.1
+	github.com/larsartmann/go-finding v1.16.0
 	github.com/larsartmann/go-finding/toolsdk v1.16.0
 )
 
